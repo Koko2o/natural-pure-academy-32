@@ -54,6 +54,10 @@ const Navbar = () => {
             isActive('/articles') ? "text-natural-700" : "text-foreground/80")}>
             Articles
           </Link>
+          <Link to="/nutrition" className={cn("hover-underline text-sm font-medium transition-colors",
+            isActive('/nutrition') ? "text-natural-700" : "text-foreground/80")}>
+            Nutrition
+          </Link>
           <Link to="/about" className={cn("hover-underline text-sm font-medium transition-colors",
             isActive('/about') ? "text-natural-700" : "text-foreground/80")}>
             À propos
@@ -95,6 +99,10 @@ const Navbar = () => {
             <Link to="/articles" className={cn("text-lg font-medium", 
               isActive('/articles') ? "text-natural-700" : "text-foreground/80")}>
               Articles
+            </Link>
+            <Link to="/nutrition" className={cn("text-lg font-medium", 
+              isActive('/nutrition') ? "text-natural-700" : "text-foreground/80")}>
+              Nutrition
             </Link>
             <Link to="/about" className={cn("text-lg font-medium", 
               isActive('/about') ? "text-natural-700" : "text-foreground/80")}>
