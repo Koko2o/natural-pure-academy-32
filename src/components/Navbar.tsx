@@ -1,85 +1,129 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from "@/lib/utils";
+import { Menu, X, Search, Instagram } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { useMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useMobile();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
-  const closeMenu = () => {
-    setIsOpen(false);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
 
-  const links = [
-    { name: "Accueil", path: "/" },
-    { name: "Articles", path: "/articles" },
-    { name: "Quiz Nutrition", path: "/quiz" },
-    { name: "Profil Santé", path: "/profil-sante" },
-    { name: "Labo Solutions", path: "/labo-solutions" },
-    { name: "Nutrition", path: "/nutrition" },
-    { name: "À propos", path: "/about" },
-    { name: "Contact", path: "/contact" },
-  ];
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const renderLinks = () => {
-    return links.map((link) => (
-      <Link
-        key={link.path}
-        to={link.path}
-        className="text-gray-700 hover:text-primary transition-colors"
-        onClick={closeMenu}
-      >
-        {link.name}
-      </Link>
-    ));
+  useEffect(() => {
+    // Close mobile menu when route changes
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
-    <nav className="border-b bg-white sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-primary">
-          NaturalPure
+    <header className={cn(
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      isScrolled ? "glass py-2" : "bg-transparent py-4"
+    )}>
+      <div className="container mx-auto px-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-2">
+          <span className="text-2xl font-display font-semibold bg-clip-text text-transparent bg-gradient-to-r from-natural-700 to-natural-500">
+            Natural&Pure
+          </span>
         </Link>
 
-        {isMobile ? (
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="4" x2="20" y1="12" y2="12" />
-                  <line x1="4" x2="20" y1="6" y2="6" />
-                  <line x1="4" x2="20" y1="18" y2="18" />
-                </svg>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <div className="flex flex-col gap-4 mt-8">
-                {renderLinks()}
-              </div>
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <div className="flex gap-6">{renderLinks()}</div>
-        )}
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link to="/" className={cn("hover-underline text-sm font-medium transition-colors", 
+            isActive('/') ? "text-natural-700" : "text-foreground/80")}>
+            Accueil
+          </Link>
+          <Link to="/articles" className={cn("hover-underline text-sm font-medium transition-colors",
+            isActive('/articles') ? "text-natural-700" : "text-foreground/80")}>
+            Articles
+          </Link>
+          <Link to="/nutrition" className={cn("hover-underline text-sm font-medium transition-colors",
+            isActive('/nutrition') ? "text-natural-700" : "text-foreground/80")}>
+            Nutrition
+          </Link>
+          <Link to="/about" className={cn("hover-underline text-sm font-medium transition-colors",
+            isActive('/about') ? "text-natural-700" : "text-foreground/80")}>
+            À propos
+          </Link>
+          <Link to="/contact" className={cn("hover-underline text-sm font-medium transition-colors",
+            isActive('/contact') ? "text-natural-700" : "text-foreground/80")}>
+            Contact
+          </Link>
+        </nav>
+
+        <div className="hidden md:flex items-center space-x-4">
+          <Button variant="ghost" size="icon">
+            <Search className="h-5 w-5" />
+          </Button>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <Button className="bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700">
+              <Instagram className="h-4 w-4 mr-2" />
+              Suivre
+            </Button>
+          </a>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="flex md:hidden items-center space-x-2">
+          <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
       </div>
-    </nav>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="glass md:hidden py-4 px-4 absolute top-full left-0 right-0 slide-up">
+          <nav className="flex flex-col space-y-4">
+            <Link to="/" className={cn("text-lg font-medium", 
+              isActive('/') ? "text-natural-700" : "text-foreground/80")}>
+              Accueil
+            </Link>
+            <Link to="/articles" className={cn("text-lg font-medium", 
+              isActive('/articles') ? "text-natural-700" : "text-foreground/80")}>
+              Articles
+            </Link>
+            <Link to="/nutrition" className={cn("text-lg font-medium", 
+              isActive('/nutrition') ? "text-natural-700" : "text-foreground/80")}>
+              Nutrition
+            </Link>
+            <Link to="/about" className={cn("text-lg font-medium", 
+              isActive('/about') ? "text-natural-700" : "text-foreground/80")}>
+              À propos
+            </Link>
+            <Link to="/contact" className={cn("text-lg font-medium", 
+              isActive('/contact') ? "text-natural-700" : "text-foreground/80")}>
+              Contact
+            </Link>
+            <div className="flex items-center pt-2">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700">
+                  <Instagram className="h-4 w-4 mr-2" />
+                  Suivre sur Instagram
+                </Button>
+              </a>
+            </div>
+          </nav>
+        </div>
+      )}
+    </header>
   );
 };
 
