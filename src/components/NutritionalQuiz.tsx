@@ -5,6 +5,7 @@ import { quizSteps } from "./quiz/QuizSteps";
 import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface NutritionalQuizProps {
   onComplete: (responses: QuizResponse) => void;
@@ -31,23 +32,28 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         totalSteps={quizSteps.length} 
       />
 
-      <StepContent
-        currentStep={quizSteps[currentStepIndex]}
-        currentStepIndex={currentStepIndex}
-        responses={responses}
-        updateResponse={updateResponse}
-      />
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-6 transition-all duration-300 animate-fadeIn">
+        <StepContent
+          currentStep={quizSteps[currentStepIndex]}
+          currentStepIndex={currentStepIndex}
+          responses={responses}
+          updateResponse={updateResponse}
+        />
+      </div>
 
       <div className="flex justify-between">
         <Button 
           variant="outline" 
           onClick={handlePrevious}
           disabled={currentStepIndex === 0}
+          className="gap-2"
         >
-          Précédent
+          <ArrowLeft className="h-4 w-4" />
+          <span>Précédent</span>
         </Button>
-        <Button onClick={handleNext}>
-          {currentStepIndex < quizSteps.length - 1 ? "Continuer" : "Voir mes résultats"}
+        <Button onClick={handleNext} className="gap-2 bg-primary hover:bg-primary/90">
+          <span>{currentStepIndex < quizSteps.length - 1 ? "Continuer" : "Voir mes résultats"}</span>
+          <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

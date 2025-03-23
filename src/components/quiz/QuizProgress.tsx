@@ -11,7 +11,7 @@ const QuizProgress = ({ currentStep, totalSteps }: QuizProgressProps) => {
 
   return (
     <div className="mb-8">
-      <Progress value={progress} className="h-2" />
+      <Progress value={progress} className="h-2 bg-muted" />
       <div className="flex justify-between mt-2 text-sm text-muted-foreground">
         <span>Étape {currentStep + 1} sur {totalSteps}</span>
         <span>{Math.round(progress)}% complété</span>
