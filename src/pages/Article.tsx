@@ -1,277 +1,196 @@
 
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ArticleCard from '@/components/ArticleCard';
-import InstagramCTA from '@/components/InstagramCTA';
-import { Button } from '@/components/ui/button';
-import { Calendar, Clock, ArrowLeft, Instagram, Facebook, Twitter, Mail } from 'lucide-react';
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Calendar, User, Tag, Instagram } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import InstagramCarousel from "@/components/InstagramCarousel";
+
+// Fonction fictive pour récupérer un article
+const fetchArticle = async (id: string) => {
+  // Simulation d'une requête API
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    id,
+    title: "Les compléments alimentaires essentiels pour supporter votre système immunitaire",
+    author: "Dr. Marie Dupont",
+    date: "15 juin 2023",
+    category: "Nutrition",
+    readTime: "8 min",
+    image: "https://images.unsplash.com/photo-1584362917165-526a968579e8?q=80&w=2574&auto=format&fit=crop",
+    content: `
+      <p class="lead">Avec la pandémie mondiale et les saisons qui changent, maintenir un système immunitaire fort n'a jamais été aussi important. Bien que rien ne remplace une alimentation équilibrée, certains compléments peuvent offrir un soutien supplémentaire à votre système immunitaire.</p>
+      
+      <h2>1. La vitamine D : le nutriment du soleil</h2>
+      <p>La vitamine D joue un rôle crucial dans la régulation de la réponse immunitaire. Une carence en vitamine D a été associée à un risque accru d'infections respiratoires. Pendant les mois d'hiver où l'exposition au soleil est limitée, une supplémentation peut être particulièrement bénéfique.</p>
+      <p>Des études montrent qu'une supplémentation quotidienne en vitamine D peut réduire le risque d'infections respiratoires, en particulier chez les personnes présentant une carence.</p>
+      
+      <h2>2. La vitamine C : plus qu'un remède contre le rhume</h2>
+      <p>La vitamine C est un puissant antioxydant qui peut renforcer les défenses naturelles de votre corps. Elle soutient diverses fonctions cellulaires du système immunitaire inné et adaptatif. Contrairement aux idées reçues, la vitamine C ne prévient pas le rhume mais peut réduire sa durée et sa gravité.</p>
+      <p>Pour une efficacité optimale, une dose quotidienne de 200 mg est généralement recommandée. Les agrumes, les poivrons et les baies sont d'excellentes sources naturelles.</p>
+      
+      <h2>3. Le zinc : minéral essentiel pour l'immunité</h2>
+      <p>Le zinc est impliqué dans de nombreuses réactions enzymatiques liées à la fonction immunitaire. Une supplémentation en zinc peut réduire la durée des rhumes et diminuer la gravité des symptômes lorsqu'elle est prise dans les 24 heures suivant l'apparition des symptômes.</p>
+      <p>Les huîtres, la viande rouge et les légumineuses sont riches en zinc, mais une supplémentation de 15-30 mg par jour peut être bénéfique pendant les périodes à risque.</p>
+      
+      <h2>4. Les probiotiques : pour un microbiome équilibré</h2>
+      <p>Un système digestif sain est étroitement lié à une immunité forte. Les probiotiques aident à maintenir l'équilibre des bactéries intestinales bénéfiques qui soutiennent votre système immunitaire.</p>
+      <p>Des souches comme Lactobacillus et Bifidobacterium ont démontré des effets positifs sur la réduction des infections respiratoires et gastro-intestinales. Les yaourts fermentés, le kéfir et la choucroute sont d'excellentes sources naturelles.</p>
+      
+      <h2>5. Les adapotogènes : modulateurs du stress</h2>
+      <p>Le stress chronique affaiblit votre système immunitaire. Les adaptogènes comme l'ashwagandha, le ginseng et le rhodiola aident l'organisme à mieux gérer le stress, contribuant indirectement à une meilleure réponse immunitaire.</p>
+      <p>Des études suggèrent que certains adaptogènes peuvent également avoir des effets immunomodulateurs directs, soutenant la production et l'activité des cellules immunitaires.</p>
+      
+      <h2>Précautions et considérations</h2>
+      <p>Avant de commencer toute supplémentation, il est recommandé de consulter un professionnel de santé, en particulier si vous prenez des médicaments ou souffrez de conditions médicales préexistantes. Rappelez-vous que les suppléments sont destinés à compléter et non à remplacer une alimentation équilibrée et un mode de vie sain.</p>
+      
+      <p>La qualité et la biodisponibilité des suppléments varient considérablement. Optez pour des marques réputées qui suivent les bonnes pratiques de fabrication et proposent des formulations testées par des tiers.</p>
+      
+      <h2>Conclusion</h2>
+      <p>Si les compléments alimentaires peuvent offrir un soutien précieux à votre système immunitaire, ils fonctionnent mieux dans le cadre d'une approche holistique de la santé. Combinez-les avec une alimentation riche en fruits et légumes, une activité physique régulière, un sommeil de qualité et une bonne gestion du stress pour des résultats optimaux.</p>
+      
+      <p>N'oubliez pas que le système immunitaire est complexe et que ses besoins peuvent varier d'une personne à l'autre. Personnalisez votre approche en fonction de vos besoins spécifiques et consultez un professionnel si nécessaire.</p>
+    `
+  };
+};
 
 const Article = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
+  const [isBlurred, setIsBlurred] = useState(false);
+  
+  const { data: article, isLoading, error } = useQuery({
+    queryKey: ['article', id],
+    queryFn: () => fetchArticle(id || '1')
+  });
+  
+  // Simuler un article partiellement visible (pour démonstration)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Activer le flou après 10 secondes (simulation)
+      setIsBlurred(true);
+    }, 10000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Mock article data
-  const article = {
-    id: id || "1",
-    title: "Les antioxydants : comment ils protègent vos cellules et ralentissent le vieillissement",
-    excerpt: "Une analyse approfondie des différents antioxydants, leur mécanisme d'action au niveau cellulaire et les preuves scientifiques de leur efficacité contre le stress oxydatif.",
-    content: `
-      <p class="lead">Les antioxydants sont souvent présentés comme des molécules miraculeuses dans le domaine de la santé et de la beauté. Mais que dit réellement la science à leur sujet ? Comment fonctionnent-ils au niveau cellulaire et quels sont ceux dont l'efficacité est prouvée ?</p>
-      
-      <h2>Qu'est-ce que le stress oxydatif ?</h2>
-      <p>Pour comprendre l'importance des antioxydants, il faut d'abord saisir ce qu'est le stress oxydatif. À chaque instant, notre corps produit des radicaux libres dans le cadre de processus métaboliques normaux, notamment lors de la respiration cellulaire et de la production d'énergie. Ces radicaux libres sont des molécules instables qui possèdent un électron non apparié, ce qui les rend très réactifs.</p>
-      
-      <p>En temps normal, notre organisme maintient un équilibre entre la production de radicaux libres et leur neutralisation. Cependant, lorsque cet équilibre est perturbé, soit par une production excessive de radicaux libres, soit par une diminution des défenses antioxydantes, on parle de stress oxydatif.</p>
-      
-      <blockquote>
-        <p>"Le stress oxydatif n'est pas seulement lié au vieillissement prématuré, mais également à plus de 200 pathologies allant des maladies cardiovasculaires aux troubles neurodégénératifs."</p>
-        <cite>— Pr. Maria Rodriguez, Université de Barcelone</cite>
-      </blockquote>
+  if (isLoading) return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="container mx-auto px-4 py-16 flex-grow flex items-center justify-center">
+        <div className="animate-pulse space-y-8 w-full max-w-3xl">
+          <div className="h-10 bg-muted rounded w-3/4"></div>
+          <div className="h-6 bg-muted rounded w-1/2"></div>
+          <div className="h-96 bg-muted rounded"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-4 bg-muted rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
 
-      <h2>Le mécanisme d'action des antioxydants</h2>
-      <p>Les antioxydants ont la capacité de neutraliser les radicaux libres sans devenir eux-mêmes instables. Ils agissent principalement de trois façons :</p>
-      
-      <ul>
-        <li><strong>Don d'électrons</strong> : Certains antioxydants, comme la vitamine C, peuvent donner un électron aux radicaux libres, les stabilisant ainsi sans devenir eux-mêmes des radicaux.</li>
-        <li><strong>Chélation des métaux</strong> : D'autres antioxydants, comme certains polyphénols, peuvent se lier aux ions métalliques qui catalysent les réactions oxydatives.</li>
-        <li><strong>Régulation enzymatique</strong> : Certains antioxydants stimulent l'expression de gènes codant pour des enzymes antioxydantes comme la superoxyde dismutase (SOD) ou la catalase.</li>
-      </ul>
-
-      <h2>Les antioxydants les plus efficaces selon la science</h2>
-      
-      <h3>1. La Vitamine C (Acide ascorbique)</h3>
-      <p>La vitamine C est l'un des antioxydants les plus étudiés. Hydrosoluble, elle circule librement dans le compartiment aqueux des cellules et du plasma sanguin. Des études cliniques ont démontré son efficacité pour :</p>
-      <ul>
-        <li>Réduire la peroxydation lipidique</li>
-        <li>Protéger l'ADN des dommages oxydatifs</li>
-        <li>Régénérer la vitamine E oxydée</li>
-      </ul>
-      
-      <p>Une méta-analyse de 2019 publiée dans le Journal of Clinical Medicine a confirmé qu'une supplémentation quotidienne de 500 mg de vitamine C réduisait significativement les marqueurs de stress oxydatif chez les adultes en bonne santé.</p>
-
-      <h3>2. La Vitamine E (Tocophérols et Tocotriénols)</h3>
-      <p>Liposoluble, la vitamine E protège principalement les membranes cellulaires contre la peroxydation lipidique. Les huit formes de vitamine E (quatre tocophérols et quatre tocotriénols) ont des activités antioxydantes variables, l'alpha-tocophérol étant la forme la plus active chez l'humain.</p>
-      
-      <h3>3. Le Glutathion</h3>
-      <p>Souvent appelé "maître antioxydant", le glutathion est produit naturellement par notre corps. Il joue un rôle central dans :</p>
-      <ul>
-        <li>La détoxification des xénobiotiques</li>
-        <li>La régénération des vitamines C et E</li>
-        <li>La maintenance du potentiel redox intracellulaire</li>
-      </ul>
-
-      <h2>Synergie entre antioxydants : l'importance d'une approche holistique</h2>
-      <p>Les recherches récentes suggèrent que les antioxydants fonctionnent mieux ensemble que séparément. Par exemple, la vitamine C peut régénérer la vitamine E oxydée, tandis que le glutathion peut régénérer la vitamine C. Cette "chaîne antioxydante" maximise l'efficacité protective globale.</p>
-      
-      <blockquote>
-        <p>"Prendre un seul antioxydant à forte dose n'est pas aussi efficace que consommer un éventail équilibré d'antioxydants par l'alimentation ou une supplémentation bien pensée."</p>
-        <cite>— Dr. Jean-Marc Durand, Université de Lausanne</cite>
-      </blockquote>
-
-      <h2>Sources naturelles et compléments : que privilégier ?</h2>
-      <p>Bien que les compléments alimentaires puissent aider à augmenter l'apport en antioxydants, les études épidémiologiques montrent systématiquement que les personnes consommant une alimentation riche en fruits et légumes ont de meilleurs résultats en termes de santé que celles prenant des suppléments isolés.</p>
-      
-      <p>Cela s'explique par plusieurs facteurs :</p>
-      <ul>
-        <li>La présence de co-facteurs naturels dans les aliments qui améliorent l'absorption et l'efficacité</li>
-        <li>La diversité des antioxydants présents dans les aliments entiers</li>
-        <li>La présence de composés bioactifs encore méconnus qui agissent en synergie</li>
-      </ul>
-
-      <h2>Conclusion</h2>
-      <p>Les antioxydants jouent un rôle crucial dans la protection de nos cellules contre les dommages oxydatifs. Toutefois, leur efficacité dépend de nombreux facteurs, notamment leur type, leur dosage, leur biodisponibilité et leur action synergique.</p>
-      
-      <p>Pour optimiser les bénéfices des antioxydants, privilégiez une alimentation variée riche en fruits, légumes, noix et graines de qualité. Si vous envisagez une supplémentation, consultez un professionnel de santé pour déterminer les antioxydants les plus adaptés à vos besoins spécifiques.</p>
-    `,
-    category: "Nutrition",
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=1200&h=600",
-    date: "15 Juin 2023",
-    readTime: "8 min de lecture",
-    author: {
-      name: "Dr. Sophie Laurent",
-      role: "Chercheuse en Nutrition",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=200"
-    }
-  };
-
-  // Related articles based on category
-  const relatedArticles = [
-    {
-      id: "2",
-      title: "Les bienfaits prouvés des polyphénols du thé vert",
-      excerpt: "Une exploration des mécanismes par lesquels les catéchines du thé vert exercent leurs effets antioxydants et anti-inflammatoires.",
-      category: "Nutrition",
-      image: "https://images.unsplash.com/photo-1582793988951-9aed5509eb97?auto=format&fit=crop&q=80&w=800&h=600",
-      date: "10 Juin 2023",
-      readTime: "6 min de lecture"
-    },
-    {
-      id: "3",
-      title: "Microbiote intestinal : le lien avec l'inflammation chronique",
-      excerpt: "Comment l'équilibre de notre flore intestinale influence les processus inflammatoires et le stress oxydatif à l'échelle de l'organisme.",
-      category: "Nutrition",
-      image: "https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?auto=format&fit=crop&q=80&w=800&h=600",
-      date: "5 Juin 2023",
-      readTime: "7 min de lecture"
-    }
-  ];
+  if (error) return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="container mx-auto px-4 py-16 flex-grow">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-500">Erreur lors du chargement de l'article</h1>
+          <p className="mt-4">Impossible de charger l'article demandé. Veuillez réessayer ultérieurement.</p>
+          <Button asChild className="mt-6">
+            <Link to="/articles">Retour aux articles</Link>
+          </Button>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <article className="flex-grow pt-32 pb-20">
-        {/* Hero Section */}
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-natural-800 opacity-60"></div>
-          <div className="relative h-[50vh] max-h-[500px] w-full flex items-end">
-            <img 
-              src={article.image} 
-              alt={article.title} 
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="container mx-auto px-4 py-12 relative z-10">
-              <Link to="/articles" className="inline-flex items-center text-white mb-4 hover:text-natural-200 transition-colors">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+      <main className="flex-grow">
+        {/* Hero section */}
+        <div className="w-full h-[40vh] md:h-[50vh] relative">
+          <div className="absolute inset-0 bg-black/30 z-10"></div>
+          <img 
+            src={article?.image} 
+            alt={article?.title} 
+            className="w-full h-full object-cover"
+          />
+          <div className="container mx-auto px-4 absolute inset-0 z-20 flex flex-col justify-end pb-8">
+            <Button variant="outline" size="sm" className="bg-white w-fit mb-4" asChild>
+              <Link to="/articles">
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour aux articles
               </Link>
-              <div className="max-w-3xl">
-                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4">
-                  {article.title}
-                </h1>
-                <div className="flex items-center space-x-6 text-white/90">
-                  <span className="flex items-center">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {article.date}
-                  </span>
-                  <span className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    {article.readTime}
-                  </span>
-                </div>
+            </Button>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white max-w-4xl">
+              {article?.title}
+            </h1>
+            <div className="flex flex-wrap mt-4 gap-4 text-white">
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-1" />
+                <span className="text-sm">{article?.author}</span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span className="text-sm">{article?.date}</span>
+              </div>
+              <div className="flex items-center">
+                <Tag className="h-4 w-4 mr-1" />
+                <span className="text-sm">{article?.category}</span>
+              </div>
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span className="text-sm">Lecture {article?.readTime}</span>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Article Content */}
-        <div className="container mx-auto px-4 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-8">
-              {/* Author */}
-              <div className="flex items-center mb-8 p-4 glass rounded-lg">
-                <img 
-                  src={article.author.image} 
-                  alt={article.author.name} 
-                  className="w-12 h-12 rounded-full mr-4 object-cover"
-                />
-                <div>
-                  <h3 className="font-medium text-lg">{article.author.name}</h3>
-                  <p className="text-sm text-muted-foreground">{article.author.role}</p>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div 
-                className="prose prose-natural lg:prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: article.content }}
-              ></div>
-
-              {/* Share */}
-              <div className="mt-12 pt-8 border-t">
-                <h3 className="font-display text-lg font-medium mb-4">Partager cet article</h3>
-                <div className="flex space-x-3">
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Facebook className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Twitter className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-4">
-              <div className="lg:sticky lg:top-24 space-y-8">
-                {/* Instagram CTA Mini */}
-                <div className="glass rounded-lg p-6 text-center">
-                  <div className="inline-flex items-center justify-center p-2 bg-natural-100 rounded-full mb-4">
-                    <Instagram className="h-5 w-5 text-natural-700" />
-                  </div>
-                  <h3 className="font-display text-xl font-medium mb-2">Suivez-nous</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Rejoignez notre communauté pour plus de contenu sur la santé naturelle basée sur la science.
+        
+        {/* Article content */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-3xl mx-auto">
+            <div 
+              className={`prose prose-lg max-w-none ${isBlurred ? 'relative' : ''}`}
+              dangerouslySetInnerHTML={{ __html: article?.content || '' }}
+            />
+            
+            {isBlurred && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white to-transparent h-96 flex flex-col justify-end items-center pb-8">
+                <div className="bg-primary/5 rounded-lg p-4 mb-6 max-w-md text-center">
+                  <h3 className="text-xl font-semibold mb-2">Débloquez l'accès complet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Suivez-nous sur Instagram pour accéder à l'intégralité de nos articles et recevoir des conseils exclusifs.
                   </p>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                    <Button className="w-full bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700">
-                      <Instagram className="h-4 w-4 mr-2" />
-                      Suivre @NaturalAndPure
-                    </Button>
-                  </a>
-                </div>
-
-                {/* Table of Contents */}
-                <div className="glass rounded-lg p-6">
-                  <h3 className="font-display text-xl font-medium mb-4">Dans cet article</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Qu'est-ce que le stress oxydatif ?
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Le mécanisme d'action des antioxydants
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Les antioxydants les plus efficaces selon la science
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Synergie entre antioxydants
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Sources naturelles et compléments
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-natural-600 hover:text-natural-700 transition-colors">
-                        Conclusion
-                      </a>
-                    </li>
-                  </ul>
+                  <Button asChild className="bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47]">
+                    <a href="https://instagram.com/naturalandpure" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                      <Instagram className="mr-2 h-5 w-5" />
+                      Suivre sur Instagram
+                    </a>
+                  </Button>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
-
-        {/* Related Articles */}
-        <div className="container mx-auto px-4">
-          <h2 className="font-display text-2xl font-medium mb-8">Articles connexes</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {relatedArticles.map((article, index) => (
-              <ArticleCard 
-                key={article.id} 
-                {...article} 
-                className={`slide-up delay-${(index + 1) * 100}`}
-              />
-            ))}
-          </div>
+        
+        {/* Carousel Instagram */}
+        <div className="container mx-auto px-4 mb-12">
+          <Separator className="mb-12" />
+          <InstagramCarousel />
         </div>
-      </article>
-
+      </main>
+      
       <Footer />
     </div>
   );

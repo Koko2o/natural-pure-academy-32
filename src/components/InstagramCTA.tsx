@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 
 const InstagramCTA = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-natural-50 to-natural-100 rounded-xl">
-      <div className="absolute inset-0 pattern-dots pattern-natural-200 pattern-bg-transparent pattern-size-4 opacity-40"></div>
+    <div className="relative overflow-hidden bg-gradient-to-br from-[#EBF5FF] to-[#E3F2FD] rounded-xl">
+      <div className="absolute inset-0 pattern-dots pattern-[#0A66C2]/10 pattern-bg-transparent pattern-size-4 opacity-40"></div>
       <div className="relative container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center justify-center p-2 bg-natural-200 rounded-full mb-4">
-            <Instagram className="h-6 w-6 text-natural-700" />
+          <div className="inline-flex items-center justify-center p-2 bg-[#0A66C2]/10 rounded-full mb-4">
+            <Instagram className="h-6 w-6 text-[#0A66C2]" />
           </div>
-          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight">
+          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight text-[#0A66C2]">
             Rejoignez notre communauté sur Instagram
           </h2>
           <p className="text-lg text-muted-foreground">
@@ -20,7 +20,7 @@ const InstagramCTA = () => {
           </p>
           <div className="pt-4">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <Button className="px-8 py-6 text-lg bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700 shadow-lg hover:shadow-xl transition-shadow">
+              <Button className="px-8 py-6 text-lg bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47] text-white shadow-lg hover:shadow-xl transition-shadow">
                 <Instagram className="h-5 w-5 mr-2" />
                 Suivre @NaturalAndPure
               </Button>
