@@ -19,6 +19,16 @@ const badgeVariants = cva(
           "text-foreground",
         natural:
           "border-transparent bg-natural-100 text-natural-800 hover:bg-natural-200",
+        teal: 
+          "border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200",
+        amber: 
+          "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-200",
+        sky: 
+          "border-transparent bg-sky-100 text-sky-800 hover:bg-sky-200",
+        rose: 
+          "border-transparent bg-rose-100 text-rose-800 hover:bg-rose-200",
+        highlight:
+          "border-transparent bg-gradient-to-r from-teal-400 to-cyan-400 text-white font-semibold",
       },
     },
     defaultVariants: {
