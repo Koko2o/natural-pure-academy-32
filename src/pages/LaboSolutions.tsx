@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Beaker, Search, Dna, Microscope, ChevronRight, ArrowUpRight, GraduationCap } from 'lucide-react';
-import { LabIntro } from '@/components/LabIntro';
+import LabIntro from '@/components/LabIntro';
 
 const LaboSolutions = () => {
   const [searchQuery, setSearchQuery] = useState('');
