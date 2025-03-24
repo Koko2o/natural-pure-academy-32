@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,13 @@ const getCategoryIcon = (category: string) => {
 const getCategoryColor = (category: string) => {
   switch (category.toLowerCase()) {
     case "compléments":
-      return "bg-purple-50 text-purple-600 border-purple-100";
+      return "bg-purple-100 text-purple-700 border-purple-200";
     case "bien-être":
-      return "bg-rose-50 text-rose-600 border-rose-100";
+      return "bg-rose-100 text-rose-700 border-rose-200";
     case "nutrition":
-      return "bg-emerald-50 text-emerald-600 border-emerald-100";
+      return "bg-emerald-100 text-emerald-700 border-emerald-200";
     default:
-      return "bg-blue-50 text-blue-600 border-blue-100";
+      return "bg-blue-100 text-blue-700 border-blue-200";
   }
 };
 
@@ -43,32 +44,34 @@ const Recommendations = ({ recommendations }: RecommendationsProps) => {
   const capitalizedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
   return (
-    <Card className="border-none shadow-md overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-t-lg border-b border-purple-100">
+    <Card className="border shadow-lg overflow-hidden bg-gradient-to-b from-white to-natural-50/30">
+      <CardHeader className="bg-gradient-to-r from-natural-100 to-natural-50 border-b border-natural-200">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-purple-600" />
-          <CardTitle className="text-purple-700">Recommandations personnalisées</CardTitle>
+          <div className="p-1.5 rounded-full bg-natural-500/10">
+            <Sparkles className="h-5 w-5 text-natural-600" />
+          </div>
+          <CardTitle className="text-natural-800 font-display">Recommandations personnalisées</CardTitle>
         </div>
-        <CardDescription>
-          Suggestions spéciales pour vous ce mois de {capitalizedMonth}
+        <CardDescription className="text-natural-600">
+          Suggestions spéciales pour vous en {capitalizedMonth}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {recommendations.map((rec) => (
             <div 
               key={rec.id} 
-              className="bg-white border rounded-lg p-5 hover:shadow-lg transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1"
+              className="bg-white border border-natural-100 rounded-xl p-5 hover:shadow-lg transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1 hover:border-natural-300"
             >
-              <Badge className={`mb-3 self-start flex items-center gap-1.5 ${getCategoryColor(rec.category)}`}>
+              <Badge className={`mb-3 self-start flex items-center gap-1.5 font-medium ${getCategoryColor(rec.category)}`}>
                 {getCategoryIcon(rec.category)}
                 <span>{rec.category}</span>
               </Badge>
-              <h3 className="font-medium text-lg mb-4 flex-grow">{rec.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Recommandation personnalisée basée sur votre profil et vos objectifs de santé actuels.
+              <h3 className="font-medium text-lg mb-2 text-natural-800">{rec.title}</h3>
+              <p className="text-sm text-natural-600 mb-4 line-clamp-2">
+                Basé sur votre profil et vos objectifs actuels.
               </p>
-              <Button variant="outline" size="sm" asChild className="w-full group">
+              <Button variant="outline" size="sm" asChild className="w-full group mt-auto border-natural-200 hover:bg-natural-50 hover:border-natural-300">
                 <Link to={`/article/${rec.id}`} className="flex items-center justify-center gap-2">
                   <span>Découvrir</span>
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -78,24 +81,26 @@ const Recommendations = ({ recommendations }: RecommendationsProps) => {
           ))}
           
           {/* Carte personnalisée du mois */}
-          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border rounded-lg p-5 flex flex-col h-full shadow-sm">
-            <Badge className="mb-3 self-start bg-purple-100 text-purple-600 border-purple-200">
+          <div className="bg-gradient-to-br from-natural-100 to-natural-50 border border-natural-200 rounded-xl p-5 flex flex-col h-full shadow-sm">
+            <Badge className="mb-3 self-start bg-white text-natural-700 border-natural-300 font-medium">
               Spécial {capitalizedMonth}
             </Badge>
-            <h3 className="font-medium text-lg mb-2 text-purple-700">
-              Votre bilan nutritionnel mensuel
+            <h3 className="font-display text-lg mb-2 text-natural-800">
+              Votre bilan nutritionnel
             </h3>
-            <p className="text-sm text-purple-600/80 mb-4 flex-grow">
-              Découvrez votre analyse personnalisée et vos tendances de santé du mois de {capitalizedMonth}.
-            </p>
-            <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+            <ul className="text-sm text-natural-700 space-y-1 mb-4 flex-grow list-disc list-inside">
+              <li>État des carences</li>
+              <li>Équilibre alimentaire</li>
+              <li>Recommandations sur mesure</li>
+            </ul>
+            <Button size="sm" className="bg-natural-600 hover:bg-natural-700 text-white w-full">
               Voir mon bilan
             </Button>
           </div>
         </div>
         
         <div className="mt-8 text-center">
-          <Button className="gap-2 bg-purple-600 hover:bg-purple-700 text-white">
+          <Button className="gap-2 bg-natural-600 hover:bg-natural-700 text-white px-6">
             <span>Voir toutes les recommandations</span>
             <ArrowRight className="h-4 w-4" />
           </Button>

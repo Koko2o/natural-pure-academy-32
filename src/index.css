@@ -35,7 +35,7 @@
     --input: 150 20% 90%;
     --ring: 150 40% 40%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -93,7 +93,7 @@
   
   /* Glass effect for cards */
   .glass {
-    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm;
+    @apply bg-white/90 backdrop-blur-md border border-white/50 shadow-sm;
   }
   
   .glass-dark {
@@ -115,11 +115,11 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/50 rounded-full;
+    @apply bg-primary/70 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary/80;
+    @apply bg-primary;
   }
   
   /* Hover effect for links */
@@ -168,5 +168,45 @@
   
   .delay-500 {
     animation-delay: 500ms;
+  }
+  
+  /* Nouvelles classes pour textes concis */
+  .text-concise h2 {
+    @apply text-xl font-medium my-4 text-natural-800;
+  }
+  
+  .text-concise p {
+    @apply my-2 text-natural-700 leading-relaxed max-w-prose;
+  }
+  
+  .text-concise ul {
+    @apply my-3 space-y-1 list-disc list-inside text-natural-700;
+  }
+  
+  .text-concise ol {
+    @apply my-3 space-y-1 list-decimal list-inside text-natural-700;
+  }
+  
+  /* Ajouts pour les cadres et sections */
+  .section-frame {
+    @apply border border-natural-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition-shadow;
+  }
+  
+  .section-frame-accent {
+    @apply border-l-4 border-natural-500 pl-4 py-2;
+  }
+  
+  /* Boutons améliorés */
+  .btn-natural {
+    @apply bg-natural-600 text-white hover:bg-natural-700 rounded-lg px-5 py-2.5 transition-colors;
+  }
+  
+  .btn-natural-outline {
+    @apply border border-natural-600 text-natural-700 hover:bg-natural-50 rounded-lg px-5 py-2.5 transition-colors;
+  }
+  
+  /* Cartes avec bordures plus visibles */
+  .card-enhanced {
+    @apply border-2 border-natural-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-natural-400;
   }
 }
