@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -19,9 +18,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import InstagramCarousel from "@/components/InstagramCarousel";
 import { toast } from "sonner";
 
-// Fonction fictive pour récupérer un article
 const fetchArticle = async (id: string) => {
-  // Simulation d'une requête API
   await new Promise(resolve => setTimeout(resolve, 500));
   
   return {
@@ -90,10 +87,6 @@ const Article = () => {
     queryFn: () => fetchArticle(id || '1')
   });
   
-  // Référence pour la popup Instagram (pour la rendre fixe)
-  const popupRef = useRef<HTMLDivElement>(null);
-  
-  // Afficher la popup Instagram après 2 secondes
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowInstagramPopup(true);
@@ -102,14 +95,11 @@ const Article = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  // Simuler un article partiellement visible (pour démonstration)
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Activer le flou après 10 secondes (simulation)
       setIsBlurred(true);
     }, 10000);
     
-    // Afficher la bannière du quiz après 15 secondes
     const quizTimer = setTimeout(() => {
       if (!quizPromptShown) {
         setQuizPromptShown(true);
@@ -122,20 +112,6 @@ const Article = () => {
     };
   }, [quizPromptShown]);
 
-  // Gérer le défilement pour la popup Instagram
-  useEffect(() => {
-    const handleScroll = () => {
-      if (popupRef.current) {
-        const scrollY = window.scrollY;
-        // Calculer la nouvelle position top basée sur le défilement
-        popupRef.current.style.top = `${Math.max(20, scrollY + 20)}px`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const handleShowStats = () => {
     setShowGraph(true);
     toast.success("Données scientifiques chargées");
@@ -147,7 +123,6 @@ const Article = () => {
 
   const handleAnalyzeProfile = () => {
     toast.success("Analyse de profil lancée");
-    // Redirection vers le quiz
     setTimeout(() => {
       window.location.href = "/quiz";
     }, 1500);
@@ -193,7 +168,6 @@ const Article = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero section with study badges */}
         <div className="w-full h-[40vh] md:h-[50vh] relative">
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30 z-10"></div>
           <img 
@@ -251,7 +225,6 @@ const Article = () => {
           </div>
         </div>
 
-        {/* Scientific credibility section */}
         <div className="bg-gradient-to-r from-indigo-50 to-blue-50 py-4 border-y border-indigo-100">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center justify-between">
@@ -326,7 +299,6 @@ const Article = () => {
           </div>
         </div>
         
-        {/* Article content */}
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">
             <div 
@@ -334,7 +306,6 @@ const Article = () => {
               dangerouslySetInnerHTML={{ __html: article?.content || '' }}
             />
             
-            {/* Drawer pour le graphique interactif */}
             <Drawer open={isGraphDrawerOpen} onOpenChange={setIsGraphDrawerOpen}>
               <DrawerTrigger asChild>
                 <div className="my-8 p-5 border rounded-lg bg-gradient-to-r from-indigo-50 to-blue-50 shadow-md hover:shadow-lg transition-all cursor-pointer">
@@ -433,7 +404,6 @@ const Article = () => {
               </DrawerContent>
             </Drawer>
             
-            {/* CTA Banner for Quiz */}
             {quizPromptShown && (
               <div className="my-8 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl p-6 text-white shadow-lg animate-fade-in">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -484,7 +454,6 @@ const Article = () => {
           </div>
         </div>
         
-        {/* Scientific proof section améliorée */}
         <div className="bg-gradient-to-r from-indigo-50 to-blue-50 py-12">
           <div className="container mx-auto px-4">
             <div className="text-center mb-8">
@@ -500,30 +469,32 @@ const Article = () => {
             
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {[1, 2, 3].map((index) => (
-                <Card key={index} className="border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-md">
-                  <CardContent className="p-5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-indigo-100 p-2 rounded-full">
-                        <Microscope className="h-5 w-5 text-indigo-700" />
+                <Card key={index} className="border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-md cursor-pointer group">
+                  <CardContent className="p-4 flex flex-col h-full">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="bg-indigo-100 p-1.5 rounded-full">
+                        <Microscope className="h-4 w-4 text-indigo-700" />
                       </div>
-                      <div>
-                        <p className="font-medium text-indigo-900">Étude {index}</p>
-                        <p className="text-xs text-slate-500">Université de Paris</p>
-                      </div>
+                      <span className="font-medium text-indigo-900">Découverte {index}</span>
                     </div>
-                    <p className="text-sm text-slate-600 mb-3">
-                      Une supplémentation de 8 semaines a montré une amélioration significative des marqueurs immunitaires.
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <Badge variant="pill">2022</Badge>
-                      <Button 
-                        variant="pill" 
-                        size="sm" 
-                        onClick={() => handleViewStudy(index)}
-                      >
-                        Voir l'étude
-                      </Button>
+                    
+                    <div className="text-sm text-indigo-800 font-medium my-2">
+                      {index === 1 ? "+72% d'efficacité immunitaire" : 
+                       index === 2 ? "Réduction stress: 3x meilleur" : 
+                       "Absorption optimisée: +68%"}
                     </div>
+                    
+                    <Badge variant="pill" className="self-start mb-3">{2020 + index}</Badge>
+                    
+                    <Button 
+                      variant="pill" 
+                      size="sm"
+                      className="self-end mt-auto group-hover:bg-indigo-600 group-hover:text-white transition-colors"
+                      onClick={() => handleViewStudy(index)}
+                    >
+                      Voir l'étude
+                      <ChevronRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -531,44 +502,46 @@ const Article = () => {
           </div>
         </div>
         
-        {/* Carousel Instagram */}
         <div className="container mx-auto px-4 py-12">
           <Separator className="mb-12" />
           <InstagramCarousel />
         </div>
         
-        {/* Popup Instagram fixe et améliorée */}
         {showInstagramPopup && (
-          <div 
-            ref={popupRef}
-            className="fixed right-4 z-50 w-80 bg-white rounded-xl shadow-2xl border border-indigo-100 animate-fade-in transition-all duration-300"
-            style={{ top: '20px' }}
-          >
-            <button 
-              onClick={() => setShowInstagramPopup(false)} 
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100 p-1"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <div className="p-5">
-              <div className="flex items-center justify-center">
-                <div className="bg-indigo-100 p-2.5 rounded-full mb-3">
-                  <Microscope className="h-6 w-6 text-indigo-700" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-indigo-100 animate-fade-in transition-all duration-300">
+              <div className="p-5 relative">
+                <button 
+                  onClick={() => setShowInstagramPopup(false)} 
+                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100 p-1 z-10"
+                  aria-label="Fermer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                
+                <div className="flex items-center justify-center">
+                  <div className="bg-indigo-100 p-3 rounded-full mb-3">
+                    <Microscope className="h-6 w-6 text-indigo-700" />
+                  </div>
                 </div>
+                
+                <h3 className="text-xl font-bold mb-3 text-center">Accédez à nos découvertes exclusives</h3>
+                
+                <p className="text-sm text-gray-600 mb-5 text-center">
+                  Suivez-nous sur Instagram pour accéder à l'intégralité de nos articles et recevoir des conseils personnalisés basés sur nos recherches scientifiques.
+                </p>
+                
+                <Button asChild className="w-full bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47]">
+                  <a href="https://instagram.com/naturalandpure" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+                    <Instagram className="mr-2 h-5 w-5" />
+                    Suivre sur Instagram
+                  </a>
+                </Button>
+                
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                  Rejoignez plus de 10,000 lecteurs passionnés par la science de la nutrition
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-center">Accédez à nos découvertes exclusives</h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Suivez-nous sur Instagram pour accéder à l'intégralité de nos articles et recevoir des conseils personnalisés basés sur nos recherches scientifiques.
-              </p>
-              <Button asChild className="w-full bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47]">
-                <a href="https://instagram.com/naturalandpure" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
-                  <Instagram className="mr-2 h-5 w-5" />
-                  Suivre sur Instagram
-                </a>
-              </Button>
-              <p className="text-xs text-gray-500 mt-3 text-center">
-                Rejoignez plus de 10,000 lecteurs passionnés par la science de la nutrition
-              </p>
             </div>
           </div>
         )}
@@ -580,4 +553,3 @@ const Article = () => {
 };
 
 export default Article;
-
