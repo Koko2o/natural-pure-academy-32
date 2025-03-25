@@ -20,8 +20,8 @@ const Progress = React.forwardRef<
   >
     <ProgressPrimitive.Indicator
       className={cn(
-        "h-full w-full flex-1 bg-indigo-500 transition-all",
-        indicatorColor
+        "h-full w-full flex-1 transition-all",
+        indicatorColor || "bg-indigo-500" // Utilise la couleur personnalisée ou la couleur par défaut
       )}
       style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
     />
