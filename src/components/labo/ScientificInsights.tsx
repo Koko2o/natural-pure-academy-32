@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   BookOpen, FileText, Beaker, Calculator, ArrowRight, 
-  ChevronDown, Users, Award, Flask, Microscope, PieChart
+  ChevronDown, Users, Award, Microscope, PieChart, Clock
 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
@@ -119,7 +119,7 @@ export function ScientificInsights() {
             value="recherche"
             className="data-[state=active]:bg-white data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm"
           >
-            <Flask className="h-4 w-4 mr-2" />
+            <Beaker className="h-4 w-4 mr-2" />
             R&D en cours
           </TabsTrigger>
           <TabsTrigger 
