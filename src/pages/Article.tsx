@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import InstagramCarousel from "@/components/InstagramCarousel";
+import InstagramCTA from "@/components/InstagramCTA";
 import { toast } from "sonner";
 
 const fetchArticle = async (id: string) => {
@@ -82,11 +84,6 @@ const Article = () => {
   const [showInstagramPopup, setShowInstagramPopup] = useState(false);
   const [isGraphDrawerOpen, setIsGraphDrawerOpen] = useState(false);
   
-  const { data: article, isLoading, error } = useQuery({
-    queryKey: ['article', id],
-    queryFn: () => fetchArticle(id || '1')
-  });
-  
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowInstagramPopup(true);
@@ -127,6 +124,11 @@ const Article = () => {
       window.location.href = "/quiz";
     }, 1500);
   };
+
+  const { data: article, isLoading, error } = useQuery({
+    queryKey: ['article', id],
+    queryFn: () => fetchArticle(id || '1')
+  });
 
   if (isLoading) return (
     <div className="min-h-screen flex flex-col">
@@ -507,9 +509,10 @@ const Article = () => {
           <InstagramCarousel />
         </div>
         
+        {/* Nouvelle popup Instagram avec position fixe centrée */}
         {showInstagramPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-indigo-100 animate-fade-in transition-all duration-300">
+            <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-indigo-100 transition-all duration-300">
               <div className="p-5 relative">
                 <button 
                   onClick={() => setShowInstagramPopup(false)} 
