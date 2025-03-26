@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -132,6 +133,32 @@ const studyHighlights = [
     description: "Réduction des symptômes"
   }
 ];
+
+// Fonction pour améliorer le contenu de l'article avec des éléments visuels
+const renderEnhancedContent = (content: string) => {
+  // Ajouter des éléments visuels aux titres
+  content = content.replace(/<h2>(.*?)<\/h2>/g, (match, title) => {
+    return `<h2 class="flex items-center font-display text-2xl md:text-3xl font-bold mt-10 mb-4 text-natural-800 group relative">
+      <span class="absolute -left-4 h-full w-1 bg-gradient-to-b from-indigo-500 to-indigo-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+      <span class="mr-2 text-indigo-500">✦</span>${title}
+    </h2>`;
+  });
+  
+  // Mettre en évidence les paragraphes importants
+  content = content.replace(/<p class="lead">(.*?)<\/p>/g, (match, text) => {
+    return `<p class="lead text-xl md:text-2xl text-natural-700 font-medium mb-6 border-l-4 border-indigo-400 pl-4 italic">${text}</p>`;
+  });
+  
+  // Améliorer les paragraphes normaux
+  content = content.replace(/<p>([^<]*?)<\/p>/g, (match, text) => {
+    if (text.includes("Nos recherches ont démontré") || text.includes("85% des produits")) {
+      return `<p class="text-lg leading-relaxed mb-5 py-3 px-4 bg-indigo-50/50 border-l-4 border-indigo-400 rounded-r-md">${text}</p>`;
+    }
+    return `<p class="text-lg leading-relaxed mb-5">${text}</p>`;
+  });
+  
+  return content;
+};
 
 const Article = () => {
   const { id } = useParams();
@@ -565,7 +592,7 @@ const Article = () => {
                 )}
                 
                 <div ref={articleRef} className="prose prose-lg max-w-none article-content">
-                  <div dangerouslySetInnerHTML={{ __html: renderEnhancedContent(article?.content || '') }} />
+                  <div dangerouslySetInnerHTML={{ __html: article?.content ? renderEnhancedContent(article.content) : '' }} />
                 </div>
                 
                 {/* Réactions des lecteurs */}
@@ -592,3 +619,321 @@ const Article = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
+                      onClick={handleShare}
+                      className="flex items-center gap-2"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span>Partager</span>
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="bg-indigo-500 hover:bg-indigo-600">
+                          <LucideArrowDownToLine className="h-4 w-4 mr-2" />
+                          Télécharger l'étude complète
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Accéder à l'étude complète</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <p className="text-sm text-natural-600">
+                            Pour accéder à l'étude complète, nous vous recommandons de créer un compte pour sauvegarder vos documents.
+                          </p>
+                          <div className="bg-indigo-50 p-4 rounded-lg">
+                            <h4 className="font-medium text-natural-800 flex items-center">
+                              <BookMarked className="h-4 w-4 mr-2 text-indigo-600" />
+                              Cette étude comprend:
+                            </h4>
+                            <ul className="mt-2 space-y-2 text-sm">
+                              {[
+                                "Données complètes sur 243 participants",
+                                "Protocole détaillé et méthodologie",
+                                "Résultats des analyses sanguines",
+                                "Recommandations personnalisées"
+                              ].map((item, i) => (
+                                <li key={i} className="flex items-center gap-2">
+                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="flex justify-end gap-2 mt-4">
+                            <Button variant="outline" size="sm" onClick={() => toast.success("Étude ajoutée à votre liste de lecture")}>
+                              Sauvegarder pour plus tard
+                            </Button>
+                            <Button size="sm" onClick={handleAnalyzeProfile}>
+                              Créer un compte
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
+                {/* CTA Quiz personalisé */}
+                {quizPromptShown && (
+                  <div className="my-16 bg-gradient-to-r from-indigo-50 via-white to-indigo-50 border border-indigo-100 rounded-xl p-8 relative overflow-hidden">
+                    <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-100/50 rounded-full"></div>
+                    <div className="absolute -bottom-16 -left-16 w-60 h-60 bg-indigo-100/30 rounded-full"></div>
+                    
+                    <div className="relative z-10">
+                      <Badge variant="indigo" className="mb-4">Recommandation personnalisée</Badge>
+                      
+                      <h3 className="text-2xl font-bold text-natural-800 mb-3">
+                        Et si ces compléments étaient trop ou pas assez pour vous?
+                      </h3>
+                      
+                      <p className="text-natural-600 mb-6 max-w-2xl">
+                        Nos recherches montrent que <strong>76% des personnes</strong> prennent des compléments qui ne correspondent pas à leurs besoins réels. Découvrez votre profil nutritionnel unique en 3 minutes.
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-4 items-center">
+                        <Button 
+                          size="lg"
+                          className="bg-indigo-600 hover:bg-indigo-700"
+                          onClick={handleAnalyzeProfile}
+                        >
+                          <Microscope className="h-4 w-4 mr-2" />
+                          <span>Analyser mon profil</span>
+                        </Button>
+                        
+                        <div className="flex items-center text-natural-500 text-sm">
+                          <Clock className="h-4 w-4 mr-1.5" />
+                          <span>Seulement 3 minutes</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6 flex items-center gap-4">
+                        <div className="flex -space-x-2">
+                          {[...Array(4)].map((_, i) => (
+                            <div 
+                              key={i}
+                              className={`w-8 h-8 rounded-full border-2 border-white ${
+                                ['bg-indigo-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400'][i]
+                              }`}
+                            ></div>
+                          ))}
+                        </div>
+                        <p className="text-sm text-natural-600">
+                          <strong>+842 personnes</strong> ont découvert leur profil cette semaine
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Autres études scientifiques liées */}
+                <div className="my-12">
+                  <h3 className="text-2xl font-bold text-natural-800 mb-6 flex items-center">
+                    <BookOpen className="h-5 w-5 mr-2 text-indigo-500" />
+                    Études scientifiques en lien
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      {
+                        title: "Étude sur l'impact de la vitamine D sur la réponse immunitaire",
+                        authors: "Johnson et al.",
+                        journal: "Journal of Immunology",
+                        year: 2022
+                      },
+                      {
+                        title: "Efficacité des probiotiques dans la prévention des infections respiratoires",
+                        authors: "Garcia et al.",
+                        journal: "European Journal of Nutrition",
+                        year: 2021
+                      }
+                    ].map((study, i) => (
+                      <Card key={i} className="border-l-4 border-l-indigo-400 hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <h4 className="font-medium text-natural-800">{study.title}</h4>
+                          <p className="text-sm text-natural-500 mt-2">
+                            {study.authors}, {study.journal} ({study.year})
+                          </p>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="px-0 h-auto mt-2 text-indigo-600"
+                            onClick={() => handleViewStudy(i+1)}
+                          >
+                            Voir l'étude 
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Articles suggérés */}
+                <div className="my-16 border-t border-natural-200 pt-12">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-2xl font-bold text-natural-800">Articles recommandés</h3>
+                    <Button variant="link" className="text-indigo-600" asChild>
+                      <Link to="/articles">
+                        Tous les articles
+                        <ArrowRight className="h-4 w-4 ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {relatedArticles.map((article) => (
+                      <Link 
+                        key={article.id} 
+                        to={`/article/${article.id}`}
+                        className="group"
+                      >
+                        <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-natural-200 h-full flex flex-col">
+                          <div className="h-48 overflow-hidden relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10"></div>
+                            <img 
+                              src={article.image} 
+                              alt={article.title} 
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+                            <Badge className="absolute top-3 left-3 z-20 bg-white/90">{article.category}</Badge>
+                          </div>
+                          <div className="p-5 flex-grow flex flex-col">
+                            <h4 className="font-bold text-natural-800 mb-2 group-hover:text-indigo-600 transition-colors">
+                              {article.title}
+                            </h4>
+                            <p className="text-sm text-natural-600 mb-4 flex-grow">
+                              {article.excerpt}
+                            </p>
+                            <div className="flex items-center justify-between text-xs text-natural-500">
+                              <span>{article.date}</span>
+                              <span className="flex items-center">
+                                <Clock className="h-3 w-3 mr-1" />
+                                {article.readTime}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Call to Action Instagram */}
+                <div className="my-16">
+                  <InstagramCTA />
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h3 className="text-xl font-semibold text-natural-800 mb-4">
+                  Insights scientifiques
+                </h3>
+                
+                <div className="space-y-6">
+                  {studyHighlights.map((highlight, i) => (
+                    <div 
+                      key={i}
+                      className="flex items-start gap-4 p-4 bg-indigo-50/40 rounded-lg border border-indigo-100"
+                    >
+                      <div className="bg-white p-2 rounded-full shadow-sm">
+                        {highlight.icon}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-natural-800">{highlight.title}</h4>
+                        <p className="text-sm text-natural-600">{highlight.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <Button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700">
+                  Obtenir le rapport complet
+                </Button>
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-xl font-semibold text-natural-800 mb-4">
+                  Points importants
+                </h3>
+                
+                <div className="space-y-4">
+                  {[
+                    "La vitamine D à 2000 UI par jour a montré une réduction de 42% des infections respiratoires.",
+                    "Les participants prenant du zinc ont récupéré en moyenne 3.1 jours plus rapidement.",
+                    "La combinaison de plusieurs micronutriments a démontré une synergie de 67% supérieure aux prises individuelles."
+                  ].map((point, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Star className="h-3.5 w-3.5 text-indigo-600" />
+                      </div>
+                      <p className="text-natural-700">{point}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+      
+      <Dialog open={showInstagramPopup} onOpenChange={setShowInstagramPopup}>
+        <DialogContent className="max-w-md p-0 bg-white">
+          <div className="p-0 overflow-hidden rounded-lg">
+            <InstagramCarousel />
+            <div className="p-6">
+              <DialogTitle className="text-xl mb-3">Rejoignez notre communauté Instagram</DialogTitle>
+              <p className="text-sm text-natural-600 mb-4">
+                Suivez notre compte pour des conseils quotidiens, des infographies explicatives et les dernières découvertes scientifiques.
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 w-full"
+                  onClick={() => {
+                    toast.success("Redirection vers Instagram");
+                    setShowInstagramPopup(false);
+                  }}
+                >
+                  <Instagram className="h-4 w-4 mr-2" />
+                  <span>Suivez-nous</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowInstagramPopup(false)}
+                >
+                  Plus tard
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <Footer />
+    </div>
+  );
+};
+
+// Composant auxiliaire pour l'icône de CheckIcon
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
+
+export default Article;
