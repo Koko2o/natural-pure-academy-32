@@ -4,10 +4,11 @@ import FeaturedArticle from "@/components/FeaturedArticle";
 import InstagramCTA from "@/components/InstagramCTA";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { MoveRight, Microscope, Award, Users, CheckCircle } from "lucide-react";
+import { MoveRight, Microscope, Award, Users, CheckCircle, Beaker, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const [animatedCounter, setAnimatedCounter] = useState(963);
@@ -17,17 +18,17 @@ const Index = () => {
     {
       title: "Stress et Fatigue",
       description: "Identifiez les micronutriments qui vous manquent réellement",
-      bgColor: "from-indigo-600 to-blue-600"
+      bgGradient: "from-indigo-600 via-purple-600 to-indigo-700"
     },
     {
       title: "Sommeil Perturbé",
       description: "Découvrez les solutions naturelles validées scientifiquement",
-      bgColor: "from-blue-600 to-purple-600"
+      bgGradient: "from-blue-600 via-violet-600 to-purple-700"
     },
     {
       title: "Problèmes Digestifs",
       description: "Révélez les causes profondes validées par notre laboratoire",
-      bgColor: "from-emerald-600 to-teal-600"
+      bgGradient: "from-emerald-600 via-teal-600 to-emerald-700"
     }
   ];
   
@@ -64,20 +65,30 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <section className={`bg-gradient-to-r ${heroProblemsCycle[activeHeroProblem].bgColor} text-white py-16 md:py-24 relative overflow-hidden transition-colors duration-1000`}>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTIuNWEuNS41IDAgMDAtLjUtLjVoLTd2LTJoLTV2Mmgtd2EuNS41IDAgMDAtLjUuNVYyOGgydi02aDE0djZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10"></div>
+      <section className={`bg-gradient-to-r ${heroProblemsCycle[activeHeroProblem].bgGradient} text-white py-16 md:py-24 relative overflow-hidden transition-colors duration-1000`}>
+        {/* Effet de particules pour un aspect laboratoire */}
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M36 34h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4z'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: '16px 16px'
+        }}></div>
         
+        {/* Cercles lumineux animés */}
         <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse delay-300"></div>
+        <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-white/20 rounded-full blur-3xl animate-pulse delay-300"></div>
+        <div className="absolute bottom-40 right-1/4 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse delay-700"></div>
+        
+        {/* Bulles de laboratoire qui flottent */}
+        <div className="hidden md:block absolute top-40 left-10 w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float"></div>
+        <div className="hidden md:block absolute bottom-20 right-10 w-12 h-12 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float-delayed"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 animate-fadeIn">
-              <Microscope className="h-5 w-5 text-white mr-2" />
+            <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 animate-fadeIn shadow-xl">
+              <Beaker className="h-5 w-5 text-white mr-2" />
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
             
-            <div className="h-48 mb-6 relative">
+            <div className="h-56 mb-6 relative">
               {heroProblemsCycle.map((problem, index) => (
                 <div 
                   key={index}
@@ -87,11 +98,12 @@ const Index = () => {
                       : 'opacity-0 translate-y-8 pointer-events-none'
                   }`}
                 >
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn delay-100">
-                    <span className="bg-white/20 px-3 py-1 rounded backdrop-blur-sm">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                    <span className="bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm inline-block mb-4">
                       {problem.title}
-                    </span><br />
-                    <span className="mt-3 inline-block">
+                    </span>
+                    <div className="mt-6"></div>
+                    <span className="block mt-3">
                       {problem.description}
                     </span>
                   </h1>
@@ -99,7 +111,7 @@ const Index = () => {
               ))}
             </div>
             
-            <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200">
+            <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200 max-w-3xl mx-auto">
               Basé sur une étude exclusive menée sur 243 participants.<br />
               Identifiez vos besoins réels en micronutriments.
             </p>
@@ -108,8 +120,7 @@ const Index = () => {
               <Button 
                 asChild
                 size="jumbo"
-                variant="cta" 
-                className="group relative z-10 shadow-lg pulse-animation"
+                className="group relative z-10 shadow-lg pulse-animation bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black border-0"
               >
                 <Link to="/quiz">
                   🧪 Démarrer Mon Test Gratuit
@@ -130,7 +141,7 @@ const Index = () => {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 animate-fadeIn delay-400">
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Users className="h-5 w-5 mr-2 text-amber-300" />
                 <div>
                   <span className="font-bold text-2xl">{animatedCounter}</span>
@@ -138,30 +149,40 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Award className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">72% d'efficacité prouvée</span>
               </div>
               
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Microscope className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">3 universités partenaires</span>
               </div>
 
-              <div className="mt-2 sm:mt-0 bg-amber-500/30 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center border border-amber-500/50">
-                <span className="text-sm">Analyses restantes aujourd'hui: <span className="font-bold">{analysesLeft}/100</span></span>
-                <div className="w-full bg-white/20 h-1.5 rounded-full mt-1 ml-2">
-                  <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: `${analysesLeft}%` }}></div>
+              <div className="mt-2 sm:mt-0 bg-amber-500/30 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center border border-amber-500/50 shadow-lg">
+                <div className="w-full">
+                  <span className="text-sm">Analyses restantes aujourd'hui: <span className="font-bold">{analysesLeft}/100</span></span>
+                  <div className="w-full bg-white/20 h-1.5 rounded-full mt-1">
+                    <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: `${analysesLeft}%` }}></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        
+        {/* Motif de laboratoire en bas */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/10 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-white/0 via-white/20 to-white/0"></div>
       </section>
       
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
+            <Badge variant="indigo" className="mb-2">
+              <Sparkles className="h-3 w-3 mr-1" /> 
+              Validé Scientifiquement
+            </Badge>
             <h2 className="text-3xl font-bold text-slate-800 mb-4">Problèmes de Santé Courants</h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
               Nous avons identifié les solutions scientifiques à vos problèmes les plus courants grâce à notre équipe de chercheurs.
@@ -173,37 +194,43 @@ const Index = () => {
               {
                 title: "Stress Chronique",
                 description: "La science a identifié les nutriments exacts pour réduire vos hormones de stress",
-                badge: "72% d'efficacité prouvée"
+                badge: "72% d'efficacité prouvée",
+                gradient: "from-amber-100 to-amber-50"
               },
               {
                 title: "Troubles du Sommeil",
                 description: "Des composés naturels peuvent améliorer votre sommeil de 71% sans effets secondaires",
-                badge: "85% des participants ont vu une amélioration"
+                badge: "85% des participants ont vu une amélioration",
+                gradient: "from-blue-100 to-blue-50"
               },
               {
                 title: "Fatigue Persistante",
                 description: "Découvrez les 3 minéraux essentiels que 78% des adultes sous-consomment",
-                badge: "91% de gain d'énergie en 3 semaines"
+                badge: "91% de gain d'énergie en 3 semaines",
+                gradient: "from-orange-100 to-orange-50"
               },
               {
                 title: "Défenses Immunitaires",
                 description: "Notre étude sur 243 participants démontre l'efficacité des antioxydants spécifiques",
-                badge: "68% moins de maladies saisonnières"
+                badge: "68% moins de maladies saisonnières",
+                gradient: "from-green-100 to-green-50"
               },
               {
                 title: "Problèmes Digestifs",
                 description: "Identifiez les 5 composés naturels qui ont transformé la santé intestinale de nos participants",
-                badge: "89% de satisfaction"
+                badge: "89% de satisfaction",
+                gradient: "from-red-100 to-red-50"
               },
               {
                 title: "Performances Cognitives",
                 description: "La combinaison optimale de nutriments pour votre cerveau validée par nos chercheurs",
-                badge: "76% de gain de concentration"
+                badge: "76% de gain de concentration",
+                gradient: "from-purple-100 to-purple-50"
               }
             ].map((problem, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all animate-fadeIn"
+                className={`bg-gradient-to-br ${problem.gradient} rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all animate-fadeIn border border-slate-100`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="p-6">
@@ -233,7 +260,7 @@ const Index = () => {
               asChild
               variant="natural"
               size="lg"
-              className="animate-pulse-slow"
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg animate-pulse-slow"
             >
               <Link to="/quiz">
                 Découvrir vos problèmes de santé cachés
@@ -247,6 +274,10 @@ const Index = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
+            <Badge variant="indigo" className="mb-2">
+              <Microscope className="h-3 w-3 mr-1" /> 
+              Approche Scientifique
+            </Badge>
             <h2 className="text-3xl font-bold text-slate-800 mb-4">Pourquoi Faire Notre Test ?</h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
               Notre approche scientifique a déjà aidé des milliers de personnes à identifier leurs besoins réels.
@@ -258,26 +289,29 @@ const Index = () => {
               {
                 title: "Base Scientifique",
                 description: "Nos recommandations sont basées sur des études cliniques réelles et des données validées",
-                icon: <Microscope className="h-10 w-10 text-indigo-600" />
+                icon: <Microscope className="h-10 w-10 text-indigo-600" />,
+                bgGradient: "from-indigo-50 to-blue-50"
               },
               {
                 title: "Personnalisation Complète",
                 description: "Des résultats uniques adaptés à votre profil, vos symptômes et votre mode de vie",
-                icon: <Users className="h-10 w-10 text-indigo-600" />
+                icon: <Users className="h-10 w-10 text-indigo-600" />,
+                bgGradient: "from-purple-50 to-indigo-50"
               },
               {
                 title: "Solutions Garanties",
                 description: "72% de nos utilisateurs rapportent une amélioration significative en 16 semaines",
-                icon: <CheckCircle className="h-10 w-10 text-indigo-600" />
+                icon: <CheckCircle className="h-10 w-10 text-indigo-600" />,
+                bgGradient: "from-blue-50 to-cyan-50"
               }
             ].map((advantage, index) => (
               <div 
                 key={index} 
-                className="p-6 border border-slate-200 rounded-xl hover:border-indigo-200 transition-all animate-fadeIn"
+                className={`p-6 border border-slate-200 rounded-xl hover:border-indigo-200 transition-all animate-fadeIn bg-gradient-to-br ${advantage.bgGradient}`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-indigo-100 rounded-full mb-4">
+                  <div className="p-3 bg-white rounded-full mb-4 shadow-md">
                     {advantage.icon}
                   </div>
                   <h3 className="text-lg font-semibold mb-2 text-slate-800">{advantage.title}</h3>
@@ -306,13 +340,13 @@ const Index = () => {
 {`
 @keyframes pulse-animation {
   0% {
-    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+    box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
   }
 }
 
@@ -335,6 +369,26 @@ const Index = () => {
   animation: fadeIn 0.8s forwards;
 }
 
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 8s 1s ease-in-out infinite;
+}
+
 .delay-100 {
   animation-delay: 0.1s;
 }
@@ -349,6 +403,10 @@ const Index = () => {
 
 .delay-400 {
   animation-delay: 0.4s;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
 }
 
 .animate-pulse-slow {
