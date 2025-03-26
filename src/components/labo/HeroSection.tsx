@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, Brain, Activity, Heart, Moon, 
   Flame, ShieldCheck, Beaker, Sparkles, 
-  MoveRight, Users, Award, ScrollText 
+  MoveRight, Users, Award, ScrollText, 
+  Clock, Zap, Calculator
 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,60 +19,81 @@ interface HeroSectionProps {
 export function HeroSection({ onSearch }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [animateHero, setAnimateHero] = useState(false);
-  const [problemFocus, setProblemFocus] = useState('stress'); // Default problem focus
+  const [problemFocus, setProblemFocus] = useState(0); // Index of current problem
   const [counter, setCounter] = useState(968);
+  const [progressCounter, setProgressCounter] = useState(87);
+  const ctaButtonRef = useRef<HTMLButtonElement>(null);
   
-  const problems = {
-    stress: {
+  const problems = [
+    {
+      id: "stress",
       title: "Stress Chronique",
       description: "La science a identifié les nutriments exacts pour réduire vos hormones de stress",
       image: "https://images.unsplash.com/photo-1616531758364-731528408b3d?auto=format&fit=crop&q=80&w=1000&h=1000",
-      color: "from-red-500 to-orange-500"
+      color: "from-red-500 to-orange-500",
+      statistic: "72% d'efficacité prouvée"
     },
-    sommeil: {
+    {
+      id: "sommeil",
       title: "Troubles du Sommeil",
       description: "Des composés naturels peuvent améliorer votre sommeil de 71% sans effets secondaires",
       image: "https://images.unsplash.com/photo-1514190051997-0f9f2d5b906f?auto=format&fit=crop&q=80&w=1000&h=1000",
-      color: "from-blue-500 to-indigo-600"
+      color: "from-blue-500 to-indigo-600",
+      statistic: "85% des participants ont amélioré leur sommeil"
     },
-    énergie: {
+    {
+      id: "énergie",
       title: "Fatigue Persistante",
       description: "Découvrez les 3 minéraux essentiels que 78% des adultes sous-consomment",
       image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1000&h=1000",
-      color: "from-amber-500 to-orange-600"
+      color: "from-amber-500 to-orange-600",
+      statistic: "91% de gain d'énergie en 3 semaines"
     },
-    immunité: {
+    {
+      id: "immunité",
       title: "Défenses Immunitaires",
       description: "Notre étude sur 243 participants démontre l'efficacité des antioxydants spécifiques",
       image: "https://images.unsplash.com/photo-1584649096650-85cd8b8033c9?auto=format&fit=crop&q=80&w=1000&h=1000",
-      color: "from-green-500 to-teal-600"
+      color: "from-green-500 to-teal-600",
+      statistic: "68% moins de maladies saisonnières"
     }
-  };
+  ];
 
   useEffect(() => {
     setAnimateHero(true);
     
+    // Rotation automatique des problèmes pour capter l'attention
+    const problemRotation = setInterval(() => {
+      setProblemFocus(prev => (prev + 1) % problems.length);
+    }, 5000);
+    
     // Simuler un compteur qui augmente pour l'effet psychologique
-    const interval = setInterval(() => {
+    const counterInterval = setInterval(() => {
       setCounter(prev => {
         const increment = Math.floor(Math.random() * 3) + 1;
         return prev + increment;
       });
+      
+      // Diminuer progressivement le nombre d'analyses restantes
+      setProgressCounter(prev => Math.max(12, prev - 1));
     }, 8000);
     
-    // Rotation automatique des problèmes pour capter l'attention
-    const problemRotation = setInterval(() => {
-      setProblemFocus(prev => {
-        const problemKeys = Object.keys(problems);
-        const currentIndex = problemKeys.indexOf(prev);
-        const nextIndex = (currentIndex + 1) % problemKeys.length;
-        return problemKeys[nextIndex];
-      });
-    }, 7000);
+    // Ajouter un effet de pulsation sur le CTA principal
+    const pulseCTA = setInterval(() => {
+      if (ctaButtonRef.current) {
+        ctaButtonRef.current.classList.add('pulse-animation');
+        setTimeout(() => {
+          if (ctaButtonRef.current) {
+            ctaButtonRef.current.classList.remove('pulse-animation');
+          }
+        }, 1000);
+      }
+    }, 10000);
     
     return () => {
-      clearInterval(interval);
       clearInterval(problemRotation);
+      clearInterval(counterInterval);
+      clearInterval(pulseCTA);
     };
   }, []);
 
@@ -107,7 +129,7 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
     }
   };
 
-  const currentProblem = problems[problemFocus as keyof typeof problems];
+  const currentProblem = problems[problemFocus];
 
   return (
     <section className={`relative py-16 md:py-20 lg:py-24 overflow-hidden transition-all duration-700 ${animateHero ? 'opacity-100' : 'opacity-0'}`}>
@@ -127,21 +149,22 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
             </div>
             
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn delay-100 leading-tight">
-              <span className="block mb-2">{currentProblem.title} :</span>
+              <span className="block mb-2">🔬 {currentProblem.title} :</span>
               <Sparkles className="inline-block h-8 w-8 mr-2 mb-1" />
               <span className="bg-white/20 px-2 py-1 rounded backdrop-blur-sm">Solution Scientifique</span>
             </h1>
             
             <p className="text-white/90 text-lg md:text-xl mb-8 leading-relaxed animate-fadeIn delay-200 max-w-2xl mx-auto lg:mx-0">
-              {currentProblem.description}. Découvrez votre profil en seulement 2 minutes !
+              {currentProblem.description}. <span className="font-semibold">Découvrez votre profil en seulement 2 minutes !</span>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center lg:justify-start animate-fadeIn delay-300">
               <Button 
+                ref={ctaButtonRef}
                 asChild
                 size="jumbo"
                 variant="cta" 
-                className="group"
+                className="group relative z-10 shadow-lg"
               >
                 <Link to="/quiz">
                   🧪 Démarrer Mon Test Gratuit
@@ -162,6 +185,7 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
               </Button>
             </div>
 
+            {/* Preuves Irréfutables Section */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 animate-fadeIn delay-400">
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
                 <Users className="h-5 w-5 mr-2 text-amber-300" />
@@ -173,12 +197,23 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
               
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
                 <Award className="h-5 w-5 mr-2 text-amber-300" />
-                <span className="text-sm">72% d'efficacité prouvée</span>
+                <span className="text-sm">{currentProblem.statistic}</span>
               </div>
               
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
                 <Beaker className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">3 universités partenaires</span>
+              </div>
+
+              {/* Analyses restantes aujourd'hui */}
+              <div className="mt-2 sm:mt-0 bg-amber-500/30 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center border border-amber-500/50">
+                <Clock className="h-5 w-5 mr-2 text-amber-300" />
+                <div>
+                  <span className="text-sm">Analyses restantes aujourd'hui: <span className="font-bold">{progressCounter}/100</span></span>
+                  <div className="w-full bg-white/20 h-1.5 rounded-full mt-1">
+                    <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: `${progressCounter}%` }}></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -196,8 +231,17 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-6">
                 <Badge className="self-start mb-3 bg-white/90 text-natural-800">Étude clinique</Badge>
                 <h3 className="text-white text-xl font-medium mb-2">Solution naturelle validée</h3>
-                <p className="text-white/80 text-sm">Notre étude démontre l'efficacité des solutions naturelles pour le {problemFocus}</p>
+                <p className="text-white/80 text-sm">Notre étude démontre l'efficacité des solutions naturelles pour {currentProblem.id}</p>
               </div>
+            </div>
+
+            {/* Badge de validation universitaire */}
+            <div className="absolute -top-5 -right-5 bg-white rounded-full p-3 shadow-lg transform rotate-12">
+              <img 
+                src="https://placehold.co/60x60/fff/6553B8?text=UMR" 
+                alt="Validation universitaire" 
+                className="h-12 w-12 rounded-full"
+              />
             </div>
           </div>
         </div>
@@ -248,6 +292,13 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Outil de calcul rapide pour capturer l'attention */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md rounded-lg border border-white/30 py-2 px-4 text-sm text-white hidden md:flex items-center gap-2">
+        <Calculator className="h-4 w-4" />
+        <span>Test rapide : </span>
+        <Button size="sm" variant="natural" className="py-0 h-7">Calculer votre risque</Button>
       </div>
     </section>
   );

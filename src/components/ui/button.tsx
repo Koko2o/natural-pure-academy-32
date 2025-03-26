@@ -35,6 +35,9 @@ const buttonVariants = cva(
         problem: "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all",
         solution: "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all",
         quiz: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all",
+        urgency: "bg-gradient-to-r from-rose-500 to-pink-600 text-white font-medium hover:from-rose-600 hover:to-pink-700 shadow-md hover:shadow-lg transition-all relative overflow-hidden",
+        scientific: "bg-gradient-to-r from-blue-500 to-teal-400 text-white font-medium hover:from-blue-600 hover:to-teal-500 shadow-md hover:shadow-lg transition-all",
+        magicCta: "relative bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-medium shadow-lg hover:shadow-xl transition-all overflow-hidden",
       },
       size: {
         default: "h-10 px-4 py-2",
