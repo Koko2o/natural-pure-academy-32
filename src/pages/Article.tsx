@@ -77,8 +77,6 @@ const fetchArticle = async (id: string) => {
 
 const Article = () => {
   const { id } = useParams();
-  const [isBlurred, setIsBlurred] = useState(false);
-  const [showGraph, setShowGraph] = useState(false);
   const [quizPromptShown, setQuizPromptShown] = useState(false);
   const [showInstagramPopup, setShowInstagramPopup] = useState(false);
   const [isGraphDrawerOpen, setIsGraphDrawerOpen] = useState(false);
@@ -92,10 +90,6 @@ const Article = () => {
   }, []);
   
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsBlurred(false);
-    }, 10000);
-    
     const quizTimer = setTimeout(() => {
       if (!quizPromptShown) {
         setQuizPromptShown(true);
@@ -103,13 +97,11 @@ const Article = () => {
     }, 15000);
     
     return () => {
-      clearTimeout(timer);
       clearTimeout(quizTimer);
     };
   }, [quizPromptShown]);
 
   const handleShowStats = () => {
-    setShowGraph(true);
     toast.success("Données scientifiques chargées");
   };
 
