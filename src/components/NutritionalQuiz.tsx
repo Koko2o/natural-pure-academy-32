@@ -5,7 +5,7 @@ import { quizSteps } from "./quiz/QuizSteps";
 import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
-import { ArrowLeft, ArrowRight, Flask } from "lucide-react";
+import { ArrowLeft, ArrowRight, TestTube, Microscope } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -62,7 +62,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         <div className="absolute top-20 right-0 z-10 max-w-xs bg-indigo-50 border border-indigo-100 rounded-lg p-4 shadow-md animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="bg-indigo-100 p-1.5 rounded-full mt-0.5">
-              <Flask className="h-4 w-4 text-indigo-700" />
+              <Microscope className="h-4 w-4 text-indigo-700" />
             </div>
             <div>
               <p className="text-sm text-indigo-800 font-medium">{randomInsight}</p>

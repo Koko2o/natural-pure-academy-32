@@ -1,6 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Beaker } from "lucide-react";
+import { Beaker, TestTube } from "lucide-react";
 
 interface QuizProgressProps {
   currentStep: number;
@@ -22,15 +22,28 @@ const QuizProgress = ({ currentStep, totalSteps }: QuizProgressProps) => {
         </Badge>
       </div>
       
-      <div className="relative w-full h-8 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-        {/* Éprouvette graduée */}
-        <div className="absolute inset-0 flex justify-between p-0.5">
+      <div className="relative w-full h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+        {/* Tube gradué - mesures verticales */}
+        <div className="absolute inset-0 flex justify-between px-0.5">
           {Array.from({ length: 10 }).map((_, index) => (
             <div 
               key={index} 
               className="h-full w-px bg-slate-200"
               style={{ left: `${index * 10}%` }}
             ></div>
+          ))}
+        </div>
+        
+        {/* Echelle de mesure - chiffres */}
+        <div className="absolute -bottom-6 w-full flex justify-between px-2 text-xs text-slate-500">
+          {[0, 20, 40, 60, 80, 100].map((value) => (
+            <div 
+              key={value} 
+              className="relative"
+              style={{ left: `${value - 2}%` }}
+            >
+              {value}%
+            </div>
           ))}
         </div>
         
@@ -50,20 +63,57 @@ const QuizProgress = ({ currentStep, totalSteps }: QuizProgressProps) => {
           </div>
         </div>
         
-        {/* Bulle */}
+        {/* Reflet et effet tube à essai */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-white/30 to-transparent"></div>
+        
+        {/* Bulles d'animation */}
         {progressPercentage > 5 && progressPercentage < 95 && (
           <>
             <div 
               className="absolute rounded-full bg-white/50 w-2 h-2 animate-pulse"
-              style={{ left: `${progressPercentage * 0.7}%`, bottom: '8px' }}
+              style={{ 
+                left: `${progressPercentage * 0.7}%`, 
+                bottom: '8px',
+                animation: 'bubble 2.5s infinite ease-in-out'
+              }}
             ></div>
             <div 
               className="absolute rounded-full bg-white/50 w-1.5 h-1.5 animate-pulse"
-              style={{ left: `${progressPercentage * 0.4}%`, bottom: '16px', animationDelay: '0.5s' }}
+              style={{ 
+                left: `${progressPercentage * 0.4}%`, 
+                bottom: '16px',
+                animation: 'bubble 3s infinite ease-in-out'
+              }}
+            ></div>
+            <div 
+              className="absolute rounded-full bg-white/50 w-1 h-1 animate-pulse"
+              style={{ 
+                left: `${progressPercentage * 0.2}%`, 
+                bottom: '12px',
+                animation: 'bubble 2s infinite ease-in-out' 
+              }}
             ></div>
           </>
         )}
+        
+        {/* Icône tube à essai qui avance avec la progression */}
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 transition-all duration-500"
+          style={{ left: `${Math.min(progressPercentage, 96)}%` }}
+        >
+          <div className="bg-white rounded-full p-1 shadow-md relative -left-4">
+            <TestTube className="h-4 w-4 text-indigo-700" />
+          </div>
+        </div>
       </div>
+      
+      {/* Ajout d'un style pour l'animation des bulles */}
+      <style jsx>{`
+        @keyframes bubble {
+          0%, 100% { transform: translateY(0); opacity: 0.5; }
+          50% { transform: translateY(-8px); opacity: 0.8; }
+        }
+      `}</style>
     </div>
   );
 };
