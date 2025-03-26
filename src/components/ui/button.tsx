@@ -31,6 +31,10 @@ const buttonVariants = cva(
         glossy: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white shadow-sm transition-all",
         naturalGradient: "bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700 text-white shadow-sm hover:shadow-md transition-all",
         imageCard: "p-0 h-auto rounded-xl overflow-hidden hover:shadow-lg transition-all border border-slate-200",
+        cta: "bg-gradient-to-r from-amber-400 to-amber-500 text-amber-900 font-medium hover:from-amber-500 hover:to-amber-600 hover:text-amber-950 shadow-md hover:shadow-lg transition-all",
+        problem: "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all",
+        solution: "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all",
+        quiz: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -39,6 +43,7 @@ const buttonVariants = cva(
         icon: "h-10 w-10",
         pill: "h-9 rounded-full px-4",
         xl: "h-12 rounded-md px-10 text-base",
+        jumbo: "h-14 rounded-md px-12 text-lg font-medium",
       },
     },
     defaultVariants: {
