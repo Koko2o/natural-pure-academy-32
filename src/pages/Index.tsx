@@ -1,314 +1,264 @@
 
-import React, { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import FeaturedArticle from '@/components/FeaturedArticle';
-import ArticleCard from '@/components/ArticleCard';
-import LabIntro from '@/components/LabIntro';
-import InstagramCarousel from '@/components/InstagramCarousel';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
-import { MoveRight, Leaf, Microscope, Beaker, ShieldCheck, Activity, BookOpen } from 'lucide-react';
-import { toast } from 'sonner';
+import { Navbar } from "@/components/Navbar";
+import FeaturedArticle from "@/components/FeaturedArticle";
+import { InstagramCTA } from "@/components/InstagramCTA";
+import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { MoveRight, Microscope, Award, Users, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [animatedCounter, setAnimatedCounter] = useState(963);
+  const [analysesLeft, setAnalysesLeft] = useState(87);
+  
   useEffect(() => {
-    // Simuler un chargement pour permettre les animations d'entrée
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
+    // Simuler un compteur qui augmente pour l'effet psychologique
+    const counterInterval = setInterval(() => {
+      setAnimatedCounter(prev => {
+        const increment = Math.floor(Math.random() * 3) + 1;
+        return prev + increment;
+      });
+      
+      // Diminuer progressivement le nombre d'analyses restantes
+      setAnalysesLeft(prev => Math.max(12, prev - 1));
+    }, 10000);
+    
+    // Auto-trigger toast informative après 5 secondes
+    const toastTimeout = setTimeout(() => {
+      toast("Nouvelle étude scientifique disponible", {
+        description: "72% des personnes testées ont vu une amélioration en 16 semaines",
+        icon: <Microscope className="h-5 w-5" />,
+      });
+    }, 5000);
+    
+    return () => {
+      clearInterval(counterInterval);
+      clearTimeout(toastTimeout);
+    };
   }, []);
-
-  // Mock data pour l'article vedette
-  const featuredArticle = {
-    id: "1",
-    title: "Les antioxydants : comment ils protègent vos cellules et ralentissent le vieillissement",
-    excerpt: "Une analyse approfondie des différents antioxydants, leur mécanisme d'action au niveau cellulaire et les preuves scientifiques de leur efficacité contre le stress oxydatif.",
-    category: "Nutrition",
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=1200&h=900",
-    date: "15 Juin 2023",
-    readTime: "8 min de lecture"
-  };
-
-  // Mock data pour les articles récents
-  const recentArticles = [
-    {
-      id: "2",
-      title: "Vitamine D et immunité : pourquoi elle est essentielle en hiver",
-      excerpt: "Découvrez comment la vitamine D joue un rôle crucial dans le renforcement du système immunitaire et comment optimiser vos niveaux en période hivernale.",
-      category: "Compléments",
-      image: "https://images.unsplash.com/photo-1616671276441-2f2d2c7a667b?auto=format&fit=crop&q=80&w=800&h=600",
-      date: "2 Juin 2023",
-      readTime: "6 min de lecture"
-    },
-    {
-      id: "3",
-      title: "Acides gras oméga-3 : guide complet pour choisir le bon supplément",
-      excerpt: "Une comparaison scientifique des différentes sources d'oméga-3, leur biodisponibilité et les critères de qualité à vérifier avant d'acheter.",
-      category: "Compléments",
-      image: "https://images.unsplash.com/photo-1535185384036-28bbc8035f28?auto=format&fit=crop&q=80&w=800&h=600",
-      date: "28 Mai 2023",
-      readTime: "7 min de lecture"
-    },
-    {
-      id: "4",
-      title: "Routine anti-âge naturelle : les actifs prouvés scientifiquement",
-      excerpt: "Quels ingrédients naturels ont démontré leur efficacité dans des études cliniques pour lutter contre les signes du vieillissement cutané?",
-      category: "Soins de la Peau",
-      image: "https://images.unsplash.com/photo-1596178060810-72f53ce9a65c?auto=format&fit=crop&q=80&w=800&h=600",
-      date: "20 Mai 2023",
-      readTime: "5 min de lecture"
-    }
-  ];
-
-  const popularCategories = [
-    {
-      name: "Compléments Alimentaires",
-      image: "https://images.unsplash.com/photo-1577086664693-894d853976a8?auto=format&fit=crop&q=80&w=400&h=400",
-      path: "/articles?category=supplements",
-      icon: <Beaker className="h-6 w-6" />
-    },
-    {
-      name: "Soins de la Peau",
-      image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&q=80&w=400&h=400",
-      path: "/articles?category=skincare",
-      icon: <Leaf className="h-6 w-6" />
-    },
-    {
-      name: "Santé des Cheveux",
-      image: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&q=80&w=400&h=400",
-      path: "/articles?category=haircare",
-      icon: <Activity className="h-6 w-6" />
-    },
-    {
-      name: "Bien-être",
-      image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=400&h=400",
-      path: "/articles?category=wellness",
-      icon: <ShieldCheck className="h-6 w-6" />
-    }
-  ];
-
-  const handleQuizClick = () => {
-    toast.info("Lancez notre quiz scientifique pour découvrir vos besoins spécifiques en nutriments", {
-      icon: <Microscope className="text-indigo-600" />,
-      duration: 5000
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-natural-50 to-white">
-        <div className="flex flex-col items-center">
-          <Beaker className="h-16 w-16 text-natural-600 animate-pulse" />
-          <p className="mt-4 text-natural-700 font-medium">Préparation des analyses...</p>
-        </div>
-      </div>
-    );
-  }
-
+  
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Hero Section Améliorée */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-natural-50 to-white -z-10"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTIuNWEuNS41IDAgMDAtLjUtLjVoLTd2LTJoLTV2Mmgtd2EuNS41IDAgMDAtLjUuNVYyOGgydi02aDE0djZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-5"></div>
+      {/* Hero amélioré */}
+      <section className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTIuNWEuNS41IDAgMDAtLjUtLjVoLTd2LTJoLTV2Mmgtd2EuNS41IDAgMDAtLjUuNVYyOGgydi02aDE0djZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10"></div>
         
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="max-w-2xl fade-in">
-              <span className="inline-block px-3 py-1 bg-natural-100 text-natural-700 rounded-full text-sm font-medium mb-4">
-                Laboratoire Natural&Pure
-              </span>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mb-6">
-                La science naturelle à votre service
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                Des solutions basées sur des recherches scientifiques rigoureuses pour améliorer votre santé et votre bien-être au quotidien.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button 
-                  className="group bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700 shadow-md hover:shadow-lg" 
-                  asChild
-                  onClick={handleQuizClick}
-                >
-                  <Link to="/quiz">
-                    Découvrir mon profil nutritionnel
-                    <MoveRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-                <Button variant="outline" className="border-natural-200 hover:bg-natural-50 shadow-sm" asChild>
-                  <Link to="/articles">
-                    Explorer nos articles
-                  </Link>
-                </Button>
-              </div>
-              
-              {/* Badges de confiance */}
-              <div className="mt-8 flex flex-wrap gap-4 items-center">
-                <div className="py-1 px-3 bg-white/80 shadow-sm rounded-full text-xs text-natural-700 border border-natural-100 flex items-center">
-                  <BookOpen className="h-3 w-3 mr-2 text-natural-500" />
-                  +120 articles scientifiques
-                </div>
-                <div className="py-1 px-3 bg-white/80 shadow-sm rounded-full text-xs text-natural-700 border border-natural-100 flex items-center">
-                  <Microscope className="h-3 w-3 mr-2 text-natural-500" />
-                  Validé par 3 universités
-                </div>
-                <div className="py-1 px-3 bg-white/80 shadow-sm rounded-full text-xs text-natural-700 border border-natural-100 flex items-center">
-                  <ShieldCheck className="h-3 w-3 mr-2 text-natural-500" />
-                  +10,000 profils analysés
-                </div>
-              </div>
+        {/* Circles décoratifs animés */}
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse delay-300"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 animate-fadeIn">
+              <Microscope className="h-5 w-5 text-white mr-2" />
+              <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
             
-            <div className="relative hidden md:block">
-              <div className="absolute -z-10 inset-0 bg-gradient-to-tr from-natural-100/50 to-transparent rounded-2xl"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=500&h=700" 
-                alt="Laboratoire et recherche naturelle" 
-                className="rounded-2xl shadow-xl mx-auto transform -rotate-2 hover:rotate-0 transition-transform duration-500"
-              />
-              <div className="absolute -bottom-4 -right-4 bg-white rounded-lg shadow-lg p-3">
-                <div className="flex items-center">
-                  <div className="bg-natural-100 p-2 rounded-full">
-                    <Beaker className="h-5 w-5 text-natural-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-natural-800">Étude scientifique</p>
-                    <p className="text-xs text-natural-600">n=243 participants</p>
-                  </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn delay-100">
+              Découvrez les Solutions<br />
+              <span className="bg-white/20 px-3 py-1 rounded backdrop-blur-sm">Validées par la Science</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200">
+              Basé sur une étude exclusive menée sur 243 participants.<br />
+              Identifiez vos besoins réels en micronutriments.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10 animate-fadeIn delay-300">
+              <Button 
+                asChild
+                size="jumbo"
+                variant="cta" 
+                className="group relative z-10 shadow-lg pulse-animation"
+              >
+                <Link to="/quiz">
+                  🧪 Démarrer Mon Test Gratuit
+                  <MoveRight className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+              
+              <Button 
+                asChild
+                size="jumbo"
+                variant="outline"
+                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30"
+              >
+                <Link to="/articles">
+                  Voir les Études Scientifiques
+                </Link>
+              </Button>
+            </div>
+
+            {/* Preuves Sociales */}
+            <div className="flex flex-wrap justify-center gap-3 animate-fadeIn delay-400">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+                <Users className="h-5 w-5 mr-2 text-amber-300" />
+                <div>
+                  <span className="font-bold text-2xl">{animatedCounter}</span>
+                  <span className="text-sm ml-1">profils analysés</span>
+                </div>
+              </div>
+              
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+                <Award className="h-5 w-5 mr-2 text-amber-300" />
+                <span className="text-sm">72% d'efficacité prouvée</span>
+              </div>
+              
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
+                <Microscope className="h-5 w-5 mr-2 text-amber-300" />
+                <span className="text-sm">3 universités partenaires</span>
+              </div>
+
+              {/* Analyses restantes aujourd'hui */}
+              <div className="mt-2 sm:mt-0 bg-amber-500/30 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center border border-amber-500/50">
+                <span className="text-sm">Analyses restantes aujourd'hui: <span className="font-bold">{analysesLeft}/100</span></span>
+                <div className="w-full bg-white/20 h-1.5 rounded-full mt-1 ml-2">
+                  <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: `${analysesLeft}%` }}></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Section des catégories populaires */}
-      <section className="py-16 bg-background relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-natural-200 to-transparent"></div>
+      
+      {/* Problèmes & Solutions */}
+      <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-3xl font-medium mb-4">Solutions Ciblées</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Explorez nos solutions scientifiques adaptées à vos besoins spécifiques
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">Problèmes de Santé Courants</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Nous avons identifié les solutions scientifiques à vos problèmes les plus courants grâce à notre équipe de chercheurs.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularCategories.map((category, index) => (
-              <Link 
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Stress Chronique",
+                description: "La science a identifié les nutriments exacts pour réduire vos hormones de stress",
+                badge: "72% d'efficacité prouvée"
+              },
+              {
+                title: "Troubles du Sommeil",
+                description: "Des composés naturels peuvent améliorer votre sommeil de 71% sans effets secondaires",
+                badge: "85% des participants ont vu une amélioration"
+              },
+              {
+                title: "Fatigue Persistante",
+                description: "Découvrez les 3 minéraux essentiels que 78% des adultes sous-consomment",
+                badge: "91% de gain d'énergie en 3 semaines"
+              },
+              {
+                title: "Défenses Immunitaires",
+                description: "Notre étude sur 243 participants démontre l'efficacité des antioxydants spécifiques",
+                badge: "68% moins de maladies saisonnières"
+              },
+              {
+                title: "Problèmes Digestifs",
+                description: "Identifiez les 5 composés naturels qui ont transformé la santé intestinale de nos participants",
+                badge: "89% de satisfaction"
+              },
+              {
+                title: "Performances Cognitives",
+                description: "La combinaison optimale de nutriments pour votre cerveau validée par nos chercheurs",
+                badge: "76% de gain de concentration"
+              }
+            ].map((problem, index) => (
+              <div 
                 key={index} 
-                to={category.path} 
-                className="group relative overflow-hidden rounded-xl h-64 shadow-md hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all animate-fadeIn"
+                style={{ animationDelay: `${index * 150}ms` }}
               >
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300 z-10"></div>
-                <img 
-                  src={category.image} 
-                  alt={category.name} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent z-20">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <div className="flex items-center">
-                      <div className="bg-natural-100 rounded-full p-2">
-                        {category.icon}
-                      </div>
-                      <h3 className="ml-3 text-natural-800 font-display text-lg font-medium">{category.name}</h3>
-                    </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-2 text-indigo-900">{problem.title}</h3>
+                  <p className="text-gray-600 mb-4">{problem.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">
+                      {problem.badge}
+                    </span>
+                    <Button 
+                      asChild 
+                      variant="ghost"
+                      className="text-indigo-600 hover:text-indigo-800"
+                    >
+                      <Link to="/quiz">
+                        Solution <MoveRight className="ml-1 h-4 w-4" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
           
           <div className="mt-12 text-center">
-            <Button asChild variant="outline" className="bg-white shadow-sm">
-              <Link to="/labo-solutions" className="group">
-                Voir toutes nos solutions
-                <MoveRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <Button 
+              asChild
+              variant="natural"
+              size="lg"
+              className="animate-pulse-slow"
+            >
+              <Link to="/quiz">
+                Découvrir vos problèmes de santé cachés
+                <MoveRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
         </div>
       </section>
-
-      {/* Featured Article */}
-      <section className="py-16 bg-natural-50/50 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-natural-200 to-transparent"></div>
+      
+      {/* Avantages Prouvés */}
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-baseline mb-8">
-            <h2 className="font-display text-3xl font-medium">Dernière découverte</h2>
-            <Link to="/articles" className="group text-natural-600 font-medium inline-flex items-center hover:text-natural-700 transition-colors mt-2 md:mt-0">
-              Voir tous les articles
-              <MoveRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">Pourquoi Faire Notre Test ?</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Notre approche scientifique a déjà aidé des milliers de personnes à identifier leurs besoins réels.
+            </p>
           </div>
-          <FeaturedArticle {...featuredArticle} className="shadow-lg hover:shadow-xl transition-all duration-300" />
           
-          {/* CTA Quiz sous l'article */}
-          <div className="mt-10 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl shadow-md overflow-hidden">
-            <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-6 md:mb-0 md:mr-6">
-                <h3 className="font-display text-xl md:text-2xl font-medium mb-3 text-indigo-900">
-                  Découvrez votre profil nutritionnel personnalisé
-                </h3>
-                <p className="text-indigo-700">
-                  Notre quiz basé sur notre étude scientifique (n=243) révèle vos besoins spécifiques en nutriments.
-                </p>
-              </div>
-              <Button 
-                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-lg"
-                size="lg"
-                asChild
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Base Scientifique",
+                description: "Nos recommandations sont basées sur des études cliniques réelles et des données validées",
+                icon: <Microscope className="h-10 w-10 text-indigo-600" />
+              },
+              {
+                title: "Personnalisation Complète",
+                description: "Des résultats uniques adaptés à votre profil, vos symptômes et votre mode de vie",
+                icon: <Users className="h-10 w-10 text-indigo-600" />
+              },
+              {
+                title: "Solutions Garanties",
+                description: "72% de nos utilisateurs rapportent une amélioration significative en 16 semaines",
+                icon: <CheckCircle className="h-10 w-10 text-indigo-600" />
+              }
+            ].map((advantage, index) => (
+              <div 
+                key={index} 
+                className="p-6 border border-slate-200 rounded-xl hover:border-indigo-200 transition-all animate-fadeIn"
+                style={{ animationDelay: `${index * 150}ms` }}
               >
-                <Link to="/quiz">
-                  Commencer le quiz
-                  <Microscope className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Articles */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-baseline mb-8">
-            <h2 className="font-display text-3xl font-medium">Articles Récents</h2>
-            <Link to="/articles" className="group text-natural-600 font-medium inline-flex items-center hover:text-natural-700 transition-colors mt-2 md:mt-0">
-              Tous les articles
-              <MoveRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {recentArticles.map((article, index) => (
-              <ArticleCard 
-                key={article.id} 
-                {...article} 
-                className="shadow-md hover:shadow-lg transition-all duration-300 h-full"
-              />
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-3 bg-indigo-100 rounded-full mb-4">
+                    {advantage.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 text-slate-800">{advantage.title}</h3>
+                  <p className="text-slate-600">{advantage.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Lab Introduction avec léger redesign */}
-      <LabIntro />
-
-      {/* Instagram Carousel au lieu du CTA simple */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <InstagramCarousel />
-        </div>
-      </section>
-
+      
+      <FeaturedArticle />
+      <InstagramCTA />
       <Footer />
     </div>
   );

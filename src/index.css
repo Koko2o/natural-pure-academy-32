@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -81,9 +80,9 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* Animation du bouton CTA */
+/* Animation du bouton CTA améliorée */
 .pulse-animation {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
@@ -97,7 +96,154 @@
   }
 }
 
-/* Animations générales */
+/* Animation de défilement des problèmes */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-slide-in {
+  animation: fadeSlideIn 0.6s ease-out forwards;
+}
+
+/* Animation de focus sur la recommandation principale */
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
+  }
+}
+
+.highlight-pulse {
+  animation: highlightPulse 2s infinite;
+}
+
+/* Rotation des mots clés pour captiver l'attention */
+.rotating-words {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 1.5em;
+}
+
+.rotating-words span {
+  display: block;
+  height: 100%;
+  animation: rotateWords 8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+@keyframes rotateWords {
+  0%, 20% {
+    transform: translateY(0);
+  }
+  25%, 45% {
+    transform: translateY(-100%);
+  }
+  50%, 70% {
+    transform: translateY(-200%);
+  }
+  75%, 95% {
+    transform: translateY(-300%);
+  }
+  100% {
+    transform: translateY(-400%);
+  }
+}
+
+/* Effet laboratoire sur les éléments clés */
+.lab-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.lab-effect::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: labSweep 3s linear infinite;
+}
+
+@keyframes labSweep {
+  0% {
+    transform: translate(-100%, -100%) rotate(30deg);
+  }
+  100% {
+    transform: translate(100%, 100%) rotate(30deg);
+  }
+}
+
+/* Animation scientifique pour les badges */
+.scientific-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.scientific-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.2) 50%, 
+    rgba(255,255,255,0) 100%);
+  transform: translateX(-100%);
+  animation: scientificScan 3s infinite;
+}
+
+@keyframes scientificScan {
+  0% {
+    transform: translateX(-100%);
+  }
+  50%, 100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Animation pour simuler l'analyse des données */
+@keyframes dataAnalysis {
+  0%, 100% {
+    height: 20%;
+  }
+  20% {
+    height: 60%;
+  }
+  40% {
+    height: 40%;
+  }
+  60% {
+    height: 80%;
+  }
+  80% {
+    height: 30%;
+  }
+}
+
+.data-bar {
+  animation: dataAnalysis 3s infinite;
+}
+
+/* Animation générales */
 .animate-fadeIn {
   animation: fadeIn 0.8s ease forwards;
 }

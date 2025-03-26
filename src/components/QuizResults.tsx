@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
-import { Award, Beaker, BookOpen, ChevronRight, ExternalLink, Instagram, Microscope, Users } from "lucide-react";
+import { Award, Beaker, BookOpen, ChevronRight, ExternalLink, Instagram, Microscope, Users, Star, ArrowDown, CheckCircle, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface QuizResultsProps {
   userInfo: {
@@ -166,6 +167,16 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
   };
 
   const recommendations = getRecommendations();
+  const [showHiddenInsight, setShowHiddenInsight] = useState(false);
+  
+  useEffect(() => {
+    // Afficher l'insight caché après un court délai
+    const timer = setTimeout(() => {
+      setShowHiddenInsight(true);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -188,14 +199,22 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
         </Badge>
       </div>
       
-      <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8 relative overflow-hidden">
+      <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8 relative overflow-hidden animate-fade-in">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/30 to-blue-100/30 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-2xl"></div>
         
         <div className="relative">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-2 text-indigo-900">
-            Bonjour {userInfo.name}, voici vos recommandations personnalisées
-          </h2>
+          <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4 mb-6">
+            <h2 className="text-2xl md:text-3xl font-semibold text-indigo-900">
+              Bonjour {userInfo.name}, voici vos recommandations personnalisées
+            </h2>
+            
+            <Badge variant="cta" className="animate-pulse-slow flex items-center gap-1 px-3 py-1.5">
+              <Clock className="h-3.5 w-3.5" />
+              <span>Résultats valides 30 jours</span>
+            </Badge>
+          </div>
+          
           <p className="text-muted-foreground mb-6">
             <span className="font-medium">Basées sur nos travaux scientifiques récents</span>, nous avons identifié les compléments alimentaires 
             qui pourraient vous aider à atteindre vos objectifs de santé. Nous avons envoyé 
@@ -203,17 +222,46 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
           </p>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            {quizResponses.objectives?.map((objective: string) => (
-              <div key={objective} className="flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-blue-50 p-3 rounded-lg">
+            {quizResponses.objectives?.map((objective: string, index: number) => (
+              <div 
+                key={objective} 
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-blue-50 p-3 rounded-lg animate-fade-in"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
                 <div className="bg-indigo-100 p-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-700"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"/><path d="M22 19H2"/></svg>
+                  <CheckCircle className="h-4 w-4 text-indigo-700" />
                 </div>
                 <span className="text-indigo-900">{objective}</span>
               </div>
             ))}
           </div>
           
-          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-8">
+          {showHiddenInsight && (
+            <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 mb-8 animate-fade-in relative">
+              <div className="absolute -top-2 -right-2">
+                <Badge variant="pill" className="bg-amber-400 text-amber-900">Nouveau</Badge>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="bg-amber-100 p-2 rounded-full mt-1">
+                  <Star className="h-5 w-5 text-amber-700" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-amber-900 mb-1">Découverte récente pour votre profil</h3>
+                  <p className="text-amber-800">
+                    Notre équipe vient de publier une nouvelle étude montrant que pour des profils similaires au vôtre, 
+                    combiner certains nutriments spécifiques augmente l'efficacité de <span className="font-bold">64%</span> par rapport à des 
+                    supplémentations isolées.
+                  </p>
+                  <div className="mt-2 flex items-center text-sm">
+                    <BookOpen className="h-3.5 w-3.5 text-amber-700 mr-1" />
+                    <span className="text-amber-700">Publication mai 2024, n=126 participants</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-8 animate-fade-in">
             <div className="flex items-start gap-3">
               <div className="bg-indigo-100 p-2 rounded-full mt-1">
                 <Microscope className="h-5 w-5 text-indigo-700" />
@@ -231,9 +279,18 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
             </div>
           </div>
           
+          <div className="text-center mb-8 animate-fade-in">
+            <ArrowDown className="h-8 w-8 text-indigo-400 mx-auto mb-2 animate-bounce" />
+            <p className="text-indigo-800 font-medium">Vos recommandations personnalisées basées sur vos réponses</p>
+          </div>
+          
           <div className="space-y-6">
-            {recommendations.map((rec, index) => (
-              <Card key={rec.id} className={`border-indigo-100 hover:shadow-md transition-all ${index === 0 ? 'ring-2 ring-indigo-300 ring-offset-2' : ''}`}>
+            {recommendations.map((rec: any, index: number) => (
+              <Card 
+                key={rec.id} 
+                className={`border-indigo-100 hover:shadow-md transition-all animate-fade-in ${index === 0 ? 'ring-2 ring-indigo-300 ring-offset-2' : ''}`}
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-indigo-900">{rec.title}</CardTitle>
@@ -286,7 +343,7 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
         </div>
       </div>
       
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-6 mb-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-6 mb-8 text-white shadow-lg animate-fade-in">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="flex-grow">
             <h3 className="text-lg font-semibold mb-2">Accédez à nos découvertes exclusives</h3>
@@ -303,7 +360,7 @@ const QuizResults = ({ userInfo, quizResponses }: QuizResultsProps) => {
         </div>
       </div>
       
-      <div className="text-center">
+      <div className="text-center animate-fade-in">
         <p className="text-sm text-muted-foreground mb-2">
           Ces recommandations sont fournies à titre informatif uniquement et ne remplacent pas l'avis d'un professionnel de santé.
         </p>

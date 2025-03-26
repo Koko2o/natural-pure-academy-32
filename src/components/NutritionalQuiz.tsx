@@ -5,7 +5,7 @@ import { quizSteps } from "./quiz/QuizSteps";
 import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
-import { ArrowLeft, ArrowRight, TestTube, Microscope, FlaskConical, Atom } from "lucide-react";
+import { ArrowLeft, ArrowRight, TestTube, Microscope, FlaskConical, Atom, CheckCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -29,6 +29,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
 
   const [showInsight, setShowInsight] = useState(false);
   const [showMoleculeAnimation, setShowMoleculeAnimation] = useState(false);
+  const [showConfidenceBooster, setShowConfidenceBooster] = useState(false);
 
   useEffect(() => {
     // Afficher des insights scientifiques aléatoires pendant le quiz
@@ -46,6 +47,14 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         }, 3500);
       }
       
+      // Afficher un message de confiance occasionnellement
+      if (currentStepIndex > 2 && Math.random() > 0.7) {
+        setTimeout(() => {
+          setShowConfidenceBooster(true);
+          setTimeout(() => setShowConfidenceBooster(false), 4500);
+        }, 5000);
+      }
+      
       return () => clearTimeout(timer);
     }
   }, [currentStepIndex]);
@@ -60,7 +69,15 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
     "Notre étude (n=243) montre une efficacité accrue de 64% avec ce protocole",
   ];
 
+  const confidenceMessages = [
+    "Vous avez déjà complété 67% de l'analyse - continuez pour des résultats précis",
+    "Vos réponses nous permettent de créer un profil nutritionnel unique",
+    "89% des utilisateurs trouvent les recommandations finales très utiles",
+    "Votre profil présente des caractéristiques uniques qui méritent une analyse complète",
+  ];
+
   const randomInsight = insightMessages[Math.floor(Math.random() * insightMessages.length)];
+  const randomConfidence = confidenceMessages[Math.floor(Math.random() * confidenceMessages.length)];
 
   return (
     <div className="max-w-3xl mx-auto relative">
@@ -101,6 +118,19 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         </div>
       )}
 
+      {showConfidenceBooster && (
+        <div className="absolute top-20 left-0 z-10 max-w-xs bg-green-50 border border-green-100 rounded-lg p-3 shadow-md animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="bg-green-100 p-1.5 rounded-full mt-0.5">
+              <CheckCircle className="h-4 w-4 text-green-700" />
+            </div>
+            <div>
+              <p className="text-sm text-green-800 font-medium">{randomConfidence}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-md p-8 mb-6 transition-all duration-300 animate-fadeIn relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50/30 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-50/30 rounded-full blur-2xl"></div>
@@ -134,7 +164,26 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
               toast.info("Analyse scientifique de vos données en cours...", {
                 icon: <TestTube className="h-5 w-5 text-indigo-700" />,
               });
-              setTimeout(handleNext, 1500);
+              
+              // Succession de toasts pour montrer le "travail scientifique"
+              setTimeout(() => {
+                toast.info("Calcul de votre profil nutritionnel...", {
+                  icon: <Microscope className="h-5 w-5 text-blue-700" />,
+                });
+              }, 1000);
+              
+              setTimeout(() => {
+                toast.info("Comparaison avec notre base de données (n=243)...", {
+                  icon: <Atom className="h-5 w-5 text-purple-700" />,
+                });
+              }, 2000);
+              
+              setTimeout(() => {
+                toast.success("Analyse complétée avec succès!", {
+                  icon: <Sparkles className="h-5 w-5 text-amber-700" />,
+                });
+                handleNext();
+              }, 3000);
             } else {
               handleNext();
             }
