@@ -1,8 +1,7 @@
-
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import FeaturedArticle from "@/components/FeaturedArticle";
-import { InstagramCTA } from "@/components/InstagramCTA";
-import { Footer } from "@/components/Footer";
+import InstagramCTA from "@/components/InstagramCTA";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { MoveRight, Microscope, Award, Users, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,18 +13,15 @@ const Index = () => {
   const [analysesLeft, setAnalysesLeft] = useState(87);
   
   useEffect(() => {
-    // Simuler un compteur qui augmente pour l'effet psychologique
     const counterInterval = setInterval(() => {
       setAnimatedCounter(prev => {
         const increment = Math.floor(Math.random() * 3) + 1;
         return prev + increment;
       });
       
-      // Diminuer progressivement le nombre d'analyses restantes
       setAnalysesLeft(prev => Math.max(12, prev - 1));
     }, 10000);
     
-    // Auto-trigger toast informative après 5 secondes
     const toastTimeout = setTimeout(() => {
       toast("Nouvelle étude scientifique disponible", {
         description: "72% des personnes testées ont vu une amélioration en 16 semaines",
@@ -43,11 +39,9 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Hero amélioré */}
       <section className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTIuNWEuNS41IDAgMDAtLjUtLjVoLTd2LTJoLTV2Mmgtd2EuNS41IDAgMDAtLjUuNVYyOGgydi02aDE0djZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10"></div>
         
-        {/* Circles décoratifs animés */}
         <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse delay-300"></div>
         
@@ -93,7 +87,6 @@ const Index = () => {
               </Button>
             </div>
 
-            {/* Preuves Sociales */}
             <div className="flex flex-wrap justify-center gap-3 animate-fadeIn delay-400">
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center">
                 <Users className="h-5 w-5 mr-2 text-amber-300" />
@@ -113,7 +106,6 @@ const Index = () => {
                 <span className="text-sm">3 universités partenaires</span>
               </div>
 
-              {/* Analyses restantes aujourd'hui */}
               <div className="mt-2 sm:mt-0 bg-amber-500/30 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center border border-amber-500/50">
                 <span className="text-sm">Analyses restantes aujourd'hui: <span className="font-bold">{analysesLeft}/100</span></span>
                 <div className="w-full bg-white/20 h-1.5 rounded-full mt-1 ml-2">
@@ -125,7 +117,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Problèmes & Solutions */}
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -211,7 +202,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Avantages Prouvés */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -257,7 +247,15 @@ const Index = () => {
         </div>
       </section>
       
-      <FeaturedArticle />
+      <FeaturedArticle 
+        id="featured-article-1"
+        title="Les Micronutriments Essentiels pour Combattre le Stress Chronique"
+        excerpt="Découvrez les dernières avancées scientifiques sur le lien entre carence en magnésium et stress chronique."
+        category="Bien-être"
+        author="Dr. Marie Laurent"
+        date="15 mars 2024"
+        imageUrl="/lovable-uploads/181492cf-3c62-402e-b203-ee4b362e5d6c.png"
+      />
       <InstagramCTA />
       <Footer />
     </div>
