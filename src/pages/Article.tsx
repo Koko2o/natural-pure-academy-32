@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -94,7 +93,7 @@ const Article = () => {
   
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsBlurred(true);
+      setIsBlurred(false);
     }, 10000);
     
     const quizTimer = setTimeout(() => {
@@ -304,7 +303,7 @@ const Article = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">
             <div 
-              className={`prose prose-lg max-w-none ${isBlurred ? 'relative' : ''}`}
+              className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: article?.content || '' }}
             />
             
@@ -430,43 +429,17 @@ const Article = () => {
                 </div>
               </div>
             )}
-            
-            {isBlurred && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white to-transparent h-96 flex flex-col justify-end items-center pb-8">
-                <div className="bg-white border border-indigo-200 rounded-lg p-6 mb-6 max-w-md text-center shadow-xl">
-                  <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
-                    <Microscope className="h-6 w-6 text-indigo-700" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Accédez à nos découvertes exclusives</h3>
-                  <p className="text-slate-600 mb-4">
-                    Suivez-nous sur Instagram pour accéder à l'intégralité de nos articles et recevoir des conseils personnalisés basés sur nos recherches scientifiques.
-                  </p>
-                  <Button asChild className="w-full bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47]">
-                    <a href="https://instagram.com/naturalandpure" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
-                      <Instagram className="mr-2 h-5 w-5" />
-                      Suivre sur Instagram
-                    </a>
-                  </Button>
-                  <p className="text-xs text-slate-500 mt-3">
-                    Rejoignez plus de 10,000 lecteurs passionnés par la science de la nutrition
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         
         <div className="bg-gradient-to-r from-indigo-50 to-blue-50 py-12">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <Badge variant="indigo" className="mb-2">
                 <BookOpen className="h-3.5 w-3.5 mr-1.5" />
                 Preuves scientifiques
               </Badge>
-              <h2 className="text-2xl font-semibold text-indigo-900 mb-2">Soutenu par la recherche</h2>
-              <p className="text-slate-600 max-w-2xl mx-auto">
-                Nos recommandations sont basées sur des études cliniques rigoureuses et des recherches scientifiques récentes
-              </p>
+              <h2 className="text-2xl font-semibold text-indigo-900">Efficacité prouvée</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -477,7 +450,7 @@ const Article = () => {
                       <div className="bg-indigo-100 p-1.5 rounded-full">
                         <Microscope className="h-4 w-4 text-indigo-700" />
                       </div>
-                      <span className="font-medium text-indigo-900">Découverte {index}</span>
+                      <span className="font-medium text-indigo-900">Impact {index}</span>
                     </div>
                     
                     <div className="text-sm text-indigo-800 font-medium my-2">
@@ -509,7 +482,6 @@ const Article = () => {
           <InstagramCarousel />
         </div>
         
-        {/* Nouvelle popup Instagram avec position fixe centrée */}
         {showInstagramPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-indigo-100 transition-all duration-300">
