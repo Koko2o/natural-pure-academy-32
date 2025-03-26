@@ -1,3 +1,4 @@
+
 import Navbar from "@/components/Navbar";
 import FeaturedArticle from "@/components/FeaturedArticle";
 import InstagramCTA from "@/components/InstagramCTA";
@@ -11,8 +12,31 @@ import { toast } from "sonner";
 const Index = () => {
   const [animatedCounter, setAnimatedCounter] = useState(963);
   const [analysesLeft, setAnalysesLeft] = useState(87);
+  const [activeHeroProblem, setActiveHeroProblem] = useState(0);
+  const heroProblemsCycle = [
+    {
+      title: "Stress et Fatigue",
+      description: "Identifiez les micronutriments qui vous manquent réellement",
+      bgColor: "from-indigo-600 to-blue-600"
+    },
+    {
+      title: "Sommeil Perturbé",
+      description: "Découvrez les solutions naturelles validées scientifiquement",
+      bgColor: "from-blue-600 to-purple-600"
+    },
+    {
+      title: "Problèmes Digestifs",
+      description: "Révélez les causes profondes validées par notre laboratoire",
+      bgColor: "from-emerald-600 to-teal-600"
+    }
+  ];
   
   useEffect(() => {
+    // Automatically cycle through hero problems
+    const problemInterval = setInterval(() => {
+      setActiveHeroProblem(prev => (prev + 1) % heroProblemsCycle.length);
+    }, 5000);
+    
     const counterInterval = setInterval(() => {
       setAnimatedCounter(prev => {
         const increment = Math.floor(Math.random() * 3) + 1;
@@ -31,15 +55,16 @@ const Index = () => {
     
     return () => {
       clearInterval(counterInterval);
+      clearInterval(problemInterval);
       clearTimeout(toastTimeout);
     };
-  }, []);
+  }, [heroProblemsCycle.length]);
   
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <section className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-16 md:py-24 relative overflow-hidden">
+      <section className={`bg-gradient-to-r ${heroProblemsCycle[activeHeroProblem].bgColor} text-white py-16 md:py-24 relative overflow-hidden transition-colors duration-1000`}>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTIuNWEuNS41IDAgMDAtLjUtLjVoLTd2LTJoLTV2Mmgtd2EuNS41IDAgMDAtLjUuNVYyOGgydi02aDE0djZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10"></div>
         
         <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
@@ -52,10 +77,27 @@ const Index = () => {
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn delay-100">
-              Découvrez les Solutions<br />
-              <span className="bg-white/20 px-3 py-1 rounded backdrop-blur-sm">Validées par la Science</span>
-            </h1>
+            <div className="h-36 mb-6">
+              {heroProblemsCycle.map((problem, index) => (
+                <div 
+                  key={index}
+                  className={`transition-all duration-700 ${
+                    activeHeroProblem === index 
+                      ? 'opacity-100 translate-y-0 h-auto' 
+                      : 'opacity-0 translate-y-8 h-0 overflow-hidden'
+                  }`}
+                >
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn delay-100">
+                    <span className="bg-white/20 px-3 py-1 rounded backdrop-blur-sm">
+                      {problem.title}
+                    </span><br />
+                    <span className="mt-3 inline-block">
+                      {problem.description}
+                    </span>
+                  </h1>
+                </div>
+              ))}
+            </div>
             
             <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200">
               Basé sur une étude exclusive menée sur 243 participants.<br />
@@ -252,12 +294,66 @@ const Index = () => {
         title="Les Micronutriments Essentiels pour Combattre le Stress Chronique"
         excerpt="Découvrez les dernières avancées scientifiques sur le lien entre carence en magnésium et stress chronique."
         category="Bien-être"
-        author="Dr. Marie Laurent"
+        image="/lovable-uploads/181492cf-3c62-402e-b203-ee4b362e5d6c.png"
         date="15 mars 2024"
-        imageUrl="/lovable-uploads/181492cf-3c62-402e-b203-ee4b362e5d6c.png"
+        readTime="8 min"
+        keyInsight="72% d'efficacité prouvée"
       />
       <InstagramCTA />
       <Footer />
+      
+      <style jsx>{`
+        @keyframes pulse-animation {
+          0% {
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+          }
+        }
+        
+        .pulse-animation {
+          animation: pulse-animation 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.8s forwards;
+        }
+        
+        .delay-100 {
+          animation-delay: 0.1s;
+        }
+        
+        .delay-200 {
+          animation-delay: 0.2s;
+        }
+        
+        .delay-300 {
+          animation-delay: 0.3s;
+        }
+        
+        .delay-400 {
+          animation-delay: 0.4s;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-animation 3s infinite;
+        }
+      `}</style>
     </div>
   );
 };

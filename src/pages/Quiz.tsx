@@ -6,28 +6,50 @@ import QuizResults from "@/components/QuizResults";
 import { toast } from "sonner";
 import { Beaker, ChevronRight, Award, Microscope, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { QuizResponse } from "@/components/quiz/types";
 
 const Quiz = () => {
   const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
-  const [userInfo, setUserInfo] = useState({
+  const [quizResponses, setQuizResponses] = useState<QuizResponse>({
     name: '',
     email: '',
+    objectives: [],
+    dietaryHabits: '',
+    meatConsumption: '',
+    fishConsumption: '',
+    fruitVegConsumption: '',
+    exerciseFrequency: '',
+    sleepQuality: '',
+    stressLevel: '',
+    symptoms: []
   });
-  const [quizResponses, setQuizResponses] = useState<Record<string, any>>({});
 
   const startQuiz = () => {
     setStep('quiz');
     toast.success("Préparation de votre profil nutritionnel...");
   };
 
-  const handleQuizComplete = (responses: Record<string, any>) => {
+  const handleQuizComplete = (responses: QuizResponse) => {
     setQuizResponses(responses);
     setStep('results');
     toast.success("Analyse complétée ! Voici vos recommandations personnalisées");
   };
 
-  const handleUserInfoUpdate = (info: {name: string, email: string}) => {
-    setUserInfo(info);
+  const handleRestartQuiz = () => {
+    setStep('intro');
+    setQuizResponses({
+      name: '',
+      email: '',
+      objectives: [],
+      dietaryHabits: '',
+      meatConsumption: '',
+      fishConsumption: '',
+      fruitVegConsumption: '',
+      exerciseFrequency: '',
+      sleepQuality: '',
+      stressLevel: '',
+      symptoms: []
+    });
   };
 
   return (
@@ -123,14 +145,13 @@ const Quiz = () => {
         {step === 'quiz' && (
           <NutritionalQuiz 
             onComplete={handleQuizComplete}
-            onUserInfoUpdate={handleUserInfoUpdate}
           />
         )}
         
         {step === 'results' && (
           <QuizResults 
-            userInfo={userInfo}
-            quizResponses={quizResponses}
+            responses={quizResponses}
+            onRestart={handleRestartQuiz}
           />
         )}
       </div>
