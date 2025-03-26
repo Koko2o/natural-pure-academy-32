@@ -186,7 +186,7 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
               <span>Analyse de votre profil</span>
               <span className="text-amber-600 font-medium">{Math.round(analysisProgress)}%</span>
             </div>
-            <Progress value={analysisProgress} className="h-2 bg-amber-100" indicatorClassName="bg-amber-500" />
+            <Progress value={analysisProgress} className="h-2 bg-amber-100" />
           </div>
           
           <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-amber-800">
@@ -369,7 +369,6 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
                         <Progress 
                           value={primaryRecommendation.confidence * 100} 
                           className="h-2 bg-indigo-100" 
-                          indicatorClassName="bg-indigo-600" 
                         />
                       </div>
                       
@@ -557,41 +556,43 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
         </div>
       </div>
       
-      <style jsx>{`
-        @keyframes confetti-fall {
-          0% {
-            transform: translateY(-100vh);
-          }
-          100% {
-            transform: translateY(100vh);
-          }
-        }
-        
-        @keyframes confetti-shake {
-          0% {
-            transform: skew(0deg);
-          }
-          100% {
-            transform: skew(5deg);
-          }
-        }
-        
-        .pulse-animation {
-          animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-          }
-          70% {
-            box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-          }
-        }
-      `}</style>
+      <style>
+{`
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes confetti-shake {
+  0% {
+    transform: skew(0deg);
+  }
+  100% {
+    transform: skew(5deg);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+`}
+      </style>
     </div>
   );
 };

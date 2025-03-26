@@ -35,6 +35,14 @@ const Quiz = () => {
     toast.success("Analyse complétée ! Voici vos recommandations personnalisées");
   };
 
+  const handleUserInfoUpdate = (info: {name: string, email: string}) => {
+    setQuizResponses(prev => ({
+      ...prev,
+      name: info.name,
+      email: info.email
+    }));
+  };
+
   const handleRestartQuiz = () => {
     setStep('intro');
     setQuizResponses({
@@ -145,6 +153,7 @@ const Quiz = () => {
         {step === 'quiz' && (
           <NutritionalQuiz 
             onComplete={handleQuizComplete}
+            onUserInfoUpdate={handleUserInfoUpdate}
           />
         )}
         

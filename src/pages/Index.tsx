@@ -77,14 +77,14 @@ const Index = () => {
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
             
-            <div className="h-36 mb-6">
+            <div className="h-48 mb-6 relative">
               {heroProblemsCycle.map((problem, index) => (
                 <div 
                   key={index}
-                  className={`transition-all duration-700 ${
+                  className={`absolute w-full transition-all duration-700 ${
                     activeHeroProblem === index 
-                      ? 'opacity-100 translate-y-0 h-auto' 
-                      : 'opacity-0 translate-y-8 h-0 overflow-hidden'
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-8 pointer-events-none'
                   }`}
                 >
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn delay-100">
@@ -302,58 +302,60 @@ const Index = () => {
       <InstagramCTA />
       <Footer />
       
-      <style jsx>{`
-        @keyframes pulse-animation {
-          0% {
-            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
-          }
-          70% {
-            box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
-          }
-        }
-        
-        .pulse-animation {
-          animation: pulse-animation 2s infinite;
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.8s forwards;
-        }
-        
-        .delay-100 {
-          animation-delay: 0.1s;
-        }
-        
-        .delay-200 {
-          animation-delay: 0.2s;
-        }
-        
-        .delay-300 {
-          animation-delay: 0.3s;
-        }
-        
-        .delay-400 {
-          animation-delay: 0.4s;
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse-animation 3s infinite;
-        }
-      `}</style>
+      <style>
+{`
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+.pulse-animation {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animate-pulse-slow {
+  animation: pulse-animation 3s infinite;
+}
+`}
+      </style>
     </div>
   );
 };

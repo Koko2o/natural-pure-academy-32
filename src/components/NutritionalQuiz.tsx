@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 interface NutritionalQuizProps {
   onComplete: (responses: QuizResponse) => void;
-  onUserInfoUpdate: (info: {name: string, email: string}) => void;
+  onUserInfoUpdate?: (info: {name: string, email: string}) => void;
 }
 
 const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps) => {
