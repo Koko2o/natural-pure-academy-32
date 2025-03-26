@@ -108,12 +108,14 @@ const QuizProgress = ({ currentStep, totalSteps }: QuizProgressProps) => {
       </div>
       
       {/* Ajout d'un style pour l'animation des bulles */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes bubble {
           0%, 100% { transform: translateY(0); opacity: 0.5; }
           50% { transform: translateY(-8px); opacity: 0.8; }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
