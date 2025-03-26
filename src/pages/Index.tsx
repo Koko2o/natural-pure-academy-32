@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import FeaturedArticle from "@/components/FeaturedArticle";
 import InstagramCTA from "@/components/InstagramCTA";
@@ -9,11 +8,14 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [animatedCounter, setAnimatedCounter] = useState(963);
   const [analysesLeft, setAnalysesLeft] = useState(87);
   const [activeHeroProblem, setActiveHeroProblem] = useState(0);
+  const isMobile = useIsMobile();
+  
   const heroProblemsCycle = [
     {
       title: "Stress et Fatigue",
@@ -68,7 +70,7 @@ const Index = () => {
       <section className={`bg-gradient-to-r ${heroProblemsCycle[activeHeroProblem].bgGradient} text-white py-16 md:py-24 relative overflow-hidden transition-colors duration-1000`}>
         {/* Effet de particules pour un aspect laboratoire */}
         <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M36 34h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4z'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M36 34h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4z'/%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: '16px 16px'
         }}></div>
         
@@ -81,6 +83,13 @@ const Index = () => {
         <div className="hidden md:block absolute top-40 left-10 w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float"></div>
         <div className="hidden md:block absolute bottom-20 right-10 w-12 h-12 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float-delayed"></div>
         
+        {/* Animation de molécules */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-6 h-6 bg-white/10 backdrop-blur-md rounded-full top-1/4 left-1/3 animate-molecule-1"></div>
+          <div className="absolute w-4 h-4 bg-white/20 backdrop-blur-md rounded-full top-2/3 left-1/5 animate-molecule-2"></div>
+          <div className="absolute w-8 h-8 bg-white/15 backdrop-blur-md rounded-full bottom-1/4 right-1/4 animate-molecule-3"></div>
+        </div>
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 animate-fadeIn shadow-xl">
@@ -88,32 +97,34 @@ const Index = () => {
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
             
-            <div className="h-56 mb-6 relative">
+            <div className="h-auto mb-6 relative">
               {heroProblemsCycle.map((problem, index) => (
                 <div 
                   key={index}
-                  className={`absolute w-full transition-all duration-700 ${
+                  className={`w-full transition-all duration-700 ${
                     activeHeroProblem === index 
-                      ? 'opacity-100 translate-y-0' 
-                      : 'opacity-0 translate-y-8 pointer-events-none'
+                      ? 'opacity-100' 
+                      : 'opacity-0 absolute inset-0 pointer-events-none'
                   }`}
                 >
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
                     <span className="bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm inline-block mb-4">
                       {problem.title}
                     </span>
-                    <div className="mt-6"></div>
-                    <span className="block mt-3">
-                      {problem.description}
-                    </span>
                   </h1>
+                  
+                  <div className="mt-6 mb-8">
+                    <h2 className="text-2xl md:text-3xl text-white/90 font-semibold mb-3">
+                      {problem.description}
+                    </h2>
+                  </div>
                 </div>
               ))}
             </div>
             
             <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200 max-w-3xl mx-auto">
-              Basé sur une étude exclusive menée sur 243 participants.<br />
-              Identifiez vos besoins réels en micronutriments.
+              <span className="block mb-2">Basé sur une étude exclusive menée sur 243 participants.</span>
+              <span className="block">Identifiez vos besoins réels en micronutriments.</span>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10 animate-fadeIn delay-300">
@@ -171,9 +182,21 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Motif de laboratoire en bas */}
+        {/* Effet de motif scientifique en bas */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/10 to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-white/0 via-white/20 to-white/0"></div>
+        
+        {/* Tubes à essai animés sur les côtés (visible uniquement sur desktop) */}
+        <div className="hidden lg:block absolute bottom-10 left-5 w-24 h-96">
+          <div className="absolute bottom-0 w-8 h-48 rounded-b-full rounded-t-lg overflow-hidden border-2 border-white/30 backdrop-blur-sm transform -rotate-12">
+            <div className="absolute bottom-0 w-full bg-gradient-to-t from-amber-300 to-amber-500 h-3/4 animate-bubble"></div>
+          </div>
+        </div>
+        <div className="hidden lg:block absolute bottom-16 right-10 w-24 h-72">
+          <div className="absolute bottom-0 w-8 h-36 rounded-b-full rounded-t-lg overflow-hidden border-2 border-white/30 backdrop-blur-sm transform rotate-6">
+            <div className="absolute bottom-0 w-full bg-gradient-to-t from-blue-300 to-blue-500 h-2/3 animate-bubble-delayed"></div>
+          </div>
+        </div>
       </section>
       
       <section className="py-16 bg-slate-50">
@@ -411,6 +434,83 @@ const Index = () => {
 
 .animate-pulse-slow {
   animation: pulse-animation 3s infinite;
+}
+
+@keyframes bubble {
+  0%, 100% {
+    height: 75%;
+  }
+  50% {
+    height: 78%;
+  }
+}
+
+.animate-bubble {
+  animation: bubble 5s ease-in-out infinite;
+}
+
+.animate-bubble-delayed {
+  animation: bubble 7s ease-in-out infinite;
+}
+
+@keyframes molecule-1 {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(20px, 30px);
+  }
+  50% {
+    transform: translate(-10px, 50px);
+  }
+  75% {
+    transform: translate(-30px, 20px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-molecule-1 {
+  animation: molecule-1 25s ease-in-out infinite;
+}
+
+@keyframes molecule-2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-25px, -30px);
+  }
+  66% {
+    transform: translate(35px, -15px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-molecule-2 {
+  animation: molecule-2 30s ease-in-out infinite;
+}
+
+@keyframes molecule-3 {
+  0% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(30px, 30px);
+  }
+  66% {
+    transform: translate(-20px, 40px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-molecule-3 {
+  animation: molecule-3 20s ease-in-out infinite;
 }
 `}
       </style>
