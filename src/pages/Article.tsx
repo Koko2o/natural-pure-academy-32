@@ -9,7 +9,8 @@ import { Link } from "react-router-dom";
 import { 
   ArrowLeft, ArrowRight, Calendar, User, Tag, Instagram, 
   Beaker, Clock, Users, Award, Microscope, PieChart, BookOpen, X, ChevronRight,
-  Sparkles, Brain, Heart, MessageCircle, Share2, Bookmark, ThumbsUp, Download
+  Sparkles, Brain, Heart, MessageCircle, Share2, Bookmark, ThumbsUp, Download,
+  ScrollText, ExternalLink, Leaf, FileCheck, BadgeCheck, LightbulbIcon
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import InstagramCarousel from "@/components/InstagramCarousel";
 import InstagramCTA from "@/components/InstagramCTA";
 import { toast } from "sonner";
+import FeaturedArticle from "@/components/FeaturedArticle";
 
 const fetchArticle = async (id: string) => {
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -77,6 +79,59 @@ const fetchArticle = async (id: string) => {
   };
 };
 
+const relatedArticles = [
+  {
+    id: "2",
+    title: "Le magnésium et son impact sur la récupération musculaire",
+    excerpt: "Découvrez comment le magnésium peut améliorer votre récupération après l'exercice physique.",
+    category: "Fitness",
+    image: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60",
+    date: "2 Mai 2023",
+    readTime: "6 min"
+  },
+  {
+    id: "3",
+    title: "Les antioxydants naturels à intégrer dans votre alimentation",
+    excerpt: "Les meilleurs aliments riches en antioxydants pour lutter contre le stress oxydatif.",
+    category: "Nutrition",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60",
+    date: "10 Juin 2023",
+    readTime: "5 min"
+  },
+  {
+    id: "4",
+    title: "Comment optimiser l'absorption des nutriments",
+    excerpt: "Les combinaisons alimentaires qui maximisent l'assimilation des vitamines et minéraux.",
+    category: "Santé",
+    image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60",
+    date: "25 Mai 2023",
+    readTime: "7 min"
+  }
+];
+
+const studyHighlights = [
+  {
+    icon: <BadgeCheck className="h-5 w-5 text-natural-600" />,
+    title: "Étude randomisée",
+    description: "Contrôlée en double aveugle"
+  },
+  {
+    icon: <Users className="h-5 w-5 text-natural-600" />,
+    title: "243 participants",
+    description: "Âgés de 25 à 64 ans"
+  },
+  {
+    icon: <Clock className="h-5 w-5 text-natural-600" />,
+    title: "16 semaines",
+    description: "Suivi rigoureux"
+  },
+  {
+    icon: <FileCheck className="h-5 w-5 text-natural-600" />,
+    title: "72% d'efficacité",
+    description: "Réduction des symptômes"
+  }
+];
+
 const Article = () => {
   const { id } = useParams();
   const [quizPromptShown, setQuizPromptShown] = useState(false);
@@ -86,12 +141,14 @@ const Article = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [reactionCount, setReactionCount] = useState(128);
   const [hasReacted, setHasReacted] = useState(false);
+  const [showKeyInsight, setShowKeyInsight] = useState(false);
+  const [activeTab, setActiveTab] = useState("article");
   const articleRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowInstagramPopup(true);
-    }, 2000);
+    }, 15000); // Longer delay for better user experience
     
     return () => clearTimeout(timer);
   }, []);
@@ -101,12 +158,21 @@ const Article = () => {
       if (!quizPromptShown) {
         setQuizPromptShown(true);
       }
-    }, 15000);
+    }, 20000); // Longer delay
     
     return () => {
       clearTimeout(quizTimer);
     };
   }, [quizPromptShown]);
+
+  // Show key insight after a delay
+  useEffect(() => {
+    const insightTimer = setTimeout(() => {
+      setShowKeyInsight(true);
+    }, 10000);
+    
+    return () => clearTimeout(insightTimer);
+  }, []);
 
   // Tracker de progression de lecture
   useEffect(() => {
@@ -222,13 +288,13 @@ const Article = () => {
       {/* Barre de progression de lecture */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50">
         <div 
-          className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-natural-500 to-natural-600 transition-all duration-300 ease-out"
           style={{ width: `${readingProgress}%` }}
         ></div>
       </div>
       
       <main className="flex-grow">
-        <div className="w-full h-[50vh] md:h-[60vh] relative">
+        <div className="w-full h-[50vh] md:h-[70vh] relative">
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-10"></div>
           <img 
             src={article?.image} 
@@ -236,6 +302,16 @@ const Article = () => {
             className="w-full h-full object-cover"
           />
           <div className="container mx-auto px-4 absolute inset-0 z-20 flex flex-col justify-end pb-8">
+            {/* Lecteurs actuels - Social proof */}
+            <div className="mb-4 bg-black/30 backdrop-blur-sm w-fit px-3 py-1.5 rounded-full text-white text-sm flex items-center animate-pulse">
+              <div className="flex -space-x-2 mr-2">
+                <div className="w-6 h-6 rounded-full bg-indigo-400 border border-white"></div>
+                <div className="w-6 h-6 rounded-full bg-natural-400 border border-white"></div>
+                <div className="w-6 h-6 rounded-full bg-blue-400 border border-white"></div>
+              </div>
+              <span>42 personnes lisent cet article</span>
+            </div>
+            
             <div className="flex flex-wrap gap-3 mb-4 animate-fadeIn">
               <Badge variant="indigo" className="flex items-center gap-1 text-sm font-medium">
                 <Beaker className="h-3.5 w-3.5" />
@@ -288,7 +364,7 @@ const Article = () => {
               <Button 
                 variant="pill" 
                 size="sm" 
-                className="bg-indigo-500 hover:bg-indigo-600 text-white border-none"
+                className="bg-natural-500 hover:bg-natural-600 text-white border-none"
                 onClick={handleAnalyzeProfile}
               >
                 <Microscope className="h-4 w-4 mr-1.5" />
@@ -316,381 +392,580 @@ const Article = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 py-4 border-y border-indigo-100 sticky top-0 z-30 shadow-sm">
+        {/* Onglets article/insights */}
+        <div className="bg-white border-b border-natural-100 sticky top-0 z-30 shadow-sm">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <Microscope className="h-5 w-5 text-indigo-700 mr-2" />
-                  <span className="text-sm font-medium text-indigo-900">Validé par notre laboratoire</span>
-                </div>
-                <div className="hidden md:flex items-center">
-                  <BookOpen className="h-5 w-5 text-indigo-700 mr-2" />
-                  <span className="text-sm font-medium text-indigo-900">Basé sur 3 études scientifiques</span>
-                </div>
-              </div>
-              <div>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="pill" 
-                      size="sm" 
-                      className="text-indigo-700 border-indigo-200 hover:bg-indigo-100"
-                      onClick={handleShowStats}
-                    >
-                      <PieChart className="h-4 w-4 mr-1.5" />
-                      <span>Voir les statistiques</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Statistiques de l'étude</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-6 py-4">
-                      <div>
-                        <h3 className="text-lg font-medium mb-3">Efficacité comparée</h3>
-                        <div className="space-y-3">
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium">Vitamine D</span>
-                              <span className="text-sm font-medium">76%</span>
-                            </div>
-                            <Progress value={76} className="h-2" indicatorColor="bg-indigo-500" />
-                          </div>
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium">Zinc</span>
-                              <span className="text-sm font-medium">68%</span>
-                            </div>
-                            <Progress value={68} className="h-2" indicatorColor="bg-indigo-400" />
-                          </div>
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium">Probiotiques</span>
-                              <span className="text-sm font-medium">82%</span>
-                            </div>
-                            <Progress value={82} className="h-2" indicatorColor="bg-indigo-600" />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 bg-blue-50">
-                        <h4 className="font-medium text-indigo-900 mb-2 flex items-center">
-                          <Sparkles className="h-4 w-4 mr-1.5 text-indigo-600" />
-                          Découverte exclusive
-                        </h4>
-                        <p className="text-sm text-slate-700">
-                          Nos chercheurs ont découvert qu'une combinaison de ces nutriments offre une synergie 
-                          augmentant leur efficacité de 62% par rapport à la prise individuelle.
-                        </p>
-                        <Badge variant="indigo" className="mt-2">Seulement 15% des laboratoires connaissent cette synergie</Badge>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab("article")}
+                className={`px-6 py-4 font-medium text-sm transition-colors ${activeTab === "article" ? "border-b-2 border-natural-600 text-natural-800" : "text-natural-500 hover:text-natural-700"}`}
+              >
+                Article
+              </button>
+              <button
+                onClick={() => setActiveTab("insights")}
+                className={`px-6 py-4 font-medium text-sm transition-colors flex items-center ${activeTab === "insights" ? "border-b-2 border-natural-600 text-natural-800" : "text-natural-500 hover:text-natural-700"}`}
+              >
+                Insights
+                <span className="ml-2 bg-natural-100 text-natural-800 text-xs rounded-full px-2 py-0.5">4</span>
+              </button>
             </div>
           </div>
         </div>
         
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto">
-            {/* Nouvelle introduction simplifiée */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-natural-100">
-              <p className="text-lg text-natural-800 font-medium leading-relaxed">
-                Avec la pandémie mondiale et les saisons qui changent, maintenir un système immunitaire fort n'a jamais été aussi important. 
-                Bien que rien ne remplace une alimentation équilibrée, nos recherches scientifiques ont identifié des compléments 
-                qui offrent un soutien puissant à votre système immunitaire.
-              </p>
-              
-              <div className="mt-4 flex items-center gap-2">
-                <Brain className="h-5 w-5 text-indigo-600" />
-                <span className="text-sm text-indigo-700 font-medium">Notre étude a analysé 5 ans de données scientifiques</span>
-              </div>
-            </div>
-            
-            <div ref={articleRef} className="prose prose-lg max-w-none article-content">
-              <div dangerouslySetInnerHTML={{ __html: article?.content || '' }} />
-            </div>
-            
-            {/* Réactions des lecteurs */}
-            <div className="my-8 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={`flex items-center gap-2 ${hasReacted ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : ''}`}
-                  onClick={handleReaction}
-                >
-                  <ThumbsUp className={`h-4 w-4 ${hasReacted ? 'fill-indigo-600 text-indigo-600' : ''}`} />
-                  <span>{reactionCount}</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleBookmark}
-                  className={`flex items-center gap-2 ${isBookmarked ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : ''}`}
-                >
-                  <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-indigo-600 text-indigo-600' : ''}`} />
-                  <span>Sauvegarder</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2"
-                  onClick={handleShare}
-                >
-                  <Share2 className="h-4 w-4" />
-                  <span>Partager</span>
-                </Button>
-              </div>
-              
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
-                onClick={() => handleAnalyzeProfile()}
-              >
-                <Microscope className="h-4 w-4" />
-                <span>Analyser mon profil</span>
-              </Button>
-            </div>
-            
-            <Drawer open={isGraphDrawerOpen} onOpenChange={setIsGraphDrawerOpen}>
-              <DrawerTrigger asChild>
-                <div className="my-8 p-5 border rounded-lg bg-gradient-to-r from-indigo-50 to-blue-50 shadow-md hover:shadow-lg transition-all cursor-pointer group">
-                  <h3 className="text-xl font-semibold mb-4 text-indigo-900 flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-indigo-600 group-hover:animate-pulse" />
-                    Votre niveau de stress vs la norme
-                  </h3>
-                  <div className="relative h-60 w-full bg-white rounded-lg p-4 overflow-hidden flex flex-col items-center justify-center border border-indigo-100 group-hover:border-indigo-200 transition-all">
-                    <div className="text-2xl font-bold text-indigo-600 mb-3">Graphique interactif</div>
-                    <p className="text-center text-sm text-muted-foreground mb-4">
-                      Cliquez pour voir la visualisation détaillée de votre niveau de stress
-                    </p>
-                    <div className="relative w-2/3 h-12 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="absolute top-0 left-0 bottom-0 w-[65%] bg-gradient-to-r from-green-400 to-indigo-500 animate-pulse"></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-medium text-white drop-shadow-md">Votre niveau</span>
-                      </div>
+        {activeTab === "article" ? (
+          <>
+            <div className="bg-gradient-to-r from-natural-50 to-white py-4 border-b border-natural-100">
+              <div className="container mx-auto px-4">
+                <div className="flex flex-wrap items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center">
+                      <Microscope className="h-5 w-5 text-natural-700 mr-2" />
+                      <span className="text-sm font-medium text-natural-900">Validé par notre laboratoire</span>
                     </div>
-                    <div className="absolute bottom-3 right-3 bg-indigo-50 p-1.5 rounded-full border border-indigo-100 hidden sm:block group-hover:animate-bounce">
-                      <ChevronRight className="h-5 w-5 text-indigo-600" />
+                    <div className="hidden md:flex items-center">
+                      <BookOpen className="h-5 w-5 text-natural-700 mr-2" />
+                      <span className="text-sm font-medium text-natural-900">Basé sur 3 études scientifiques</span>
                     </div>
                   </div>
-                  <div className="flex justify-end mt-4">
-                    <Button 
-                      variant="purple" 
-                      size="sm" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAnalyzeProfile();
-                      }}
-                      className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white group"
-                    >
-                      <span>Analyser mon profil</span>
-                      <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                  </div>
-                </div>
-              </DrawerTrigger>
-              <DrawerContent className="max-h-[85vh] overflow-y-auto">
-                <div className="px-4 py-6 max-w-3xl mx-auto">
-                  <h2 className="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
-                    <Brain className="h-6 w-6 mr-2 text-indigo-600" />
-                    Analyse détaillée de votre niveau de stress
-                  </h2>
-                  <div className="h-80 bg-indigo-50 rounded-lg p-6 mb-6 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="relative w-full h-40 bg-white rounded-lg shadow-inner p-4 mb-4">
-                        <div className="absolute bottom-4 left-4 right-4 h-16 bg-gradient-to-r from-green-200 via-blue-300 to-indigo-400 rounded-md">
-                          <div className="absolute bottom-full left-[65%] transform -translate-x-1/2 mb-2">
-                            <div className="h-10 w-1 bg-indigo-600 mb-1 mx-auto"></div>
-                            <div className="text-xs font-bold text-indigo-700">VOTRE<br />NIVEAU</div>
+                  <div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="pill" 
+                          size="sm" 
+                          className="text-natural-700 border-natural-200 hover:bg-natural-100"
+                          onClick={handleShowStats}
+                        >
+                          <PieChart className="h-4 w-4 mr-1.5" />
+                          <span>Voir les statistiques</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Statistiques de l'étude</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-6 py-4">
+                          <div>
+                            <h3 className="text-lg font-medium mb-3">Efficacité comparée</h3>
+                            <div className="space-y-3">
+                              <div>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-sm font-medium">Vitamine D</span>
+                                  <span className="text-sm font-medium">76%</span>
+                                </div>
+                                <Progress value={76} className="h-2" />
+                              </div>
+                              <div>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-sm font-medium">Zinc</span>
+                                  <span className="text-sm font-medium">68%</span>
+                                </div>
+                                <Progress value={68} className="h-2" />
+                              </div>
+                              <div>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-sm font-medium">Probiotiques</span>
+                                  <span className="text-sm font-medium">82%</span>
+                                </div>
+                                <Progress value={82} className="h-2" />
+                              </div>
+                            </div>
                           </div>
-                          <div className="absolute bottom-full left-[30%] transform -translate-x-1/2 mb-2">
-                            <div className="h-7 w-1 bg-green-500 mb-1 mx-auto"></div>
-                            <div className="text-xs font-bold text-green-600">OPTIMAL</div>
-                          </div>
-                          <div className="absolute bottom-full left-[85%] transform -translate-x-1/2 mb-2">
-                            <div className="h-7 w-1 bg-red-400 mb-1 mx-auto"></div>
-                            <div className="text-xs font-bold text-red-500">ÉLEVÉ</div>
+                          
+                          <div className="border rounded-lg p-4 bg-natural-50">
+                            <h4 className="font-medium text-natural-900 mb-2 flex items-center">
+                              <Sparkles className="h-4 w-4 mr-1.5 text-natural-600" />
+                              Découverte exclusive
+                            </h4>
+                            <p className="text-sm text-slate-700">
+                              Nos chercheurs ont découvert qu'une combinaison de ces nutriments offre une synergie 
+                              augmentant leur efficacité de 62% par rapport à la prise individuelle.
+                            </p>
+                            <Badge variant="indigo" className="mt-2">Seulement 15% des laboratoires connaissent cette synergie</Badge>
                           </div>
                         </div>
-                      </div>
-                      <p className="text-indigo-700 font-medium mb-2">Analyse basée sur 1,203 profils similaires</p>
-                      <p className="text-sm text-gray-600">Votre niveau de stress est 35% plus élevé que la moyenne optimale</p>
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4 mb-6">
-                    <div className="border rounded-lg p-4 bg-white shadow-sm">
-                      <h3 className="font-semibold text-indigo-700 mb-2 flex items-center">
-                        <Heart className="h-4 w-4 mr-1.5 text-indigo-600" />
-                        Impact physiologique
-                      </h3>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">!</span>
-                          <span>Niveaux de cortisol potentiellement élevés</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">!</span>
-                          <span>Risque accru de tension musculaire</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">⚠</span>
-                          <span>Impact possible sur la qualité du sommeil</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="border rounded-lg p-4 bg-white shadow-sm">
-                      <h3 className="font-semibold text-indigo-700 mb-2 flex items-center">
-                        <Beaker className="h-4 w-4 mr-1.5 text-indigo-600" />
-                        Recommandations
-                      </h3>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
-                          <span>Magnésium (400mg/jour)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
-                          <span>Vitamines B complexes</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
-                          <span>Adaptogènes (Ashwagandha)</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <Button 
-                      onClick={handleAnalyzeProfile} 
-                      className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white px-6 py-2.5 shadow-md hover:shadow-lg group"
-                    >
-                      Obtenir une analyse complète
-                      <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
-              </DrawerContent>
-            </Drawer>
+              </div>
+            </div>
             
-            {quizPromptShown && (
-              <div className="my-8 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl p-6 text-white shadow-lg animate-fade-in relative overflow-hidden">
-                <div className="absolute -top-16 -right-16 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl"></div>
-                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl"></div>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-2 flex items-center">
-                      <Microscope className="h-6 w-6 mr-2 text-indigo-200" />
-                      Découvrez Votre Profil Personnalisé en 2 Min 🧪
-                    </h3>
-                    <p className="text-indigo-100 mb-4">
-                      Basé sur les données de cette étude, notre algorithme peut déterminer vos besoins nutritionnels spécifiques.
-                    </p>
-                    <p className="text-xs text-indigo-200 flex items-center">
-                      <Award className="h-3.5 w-3.5 mr-1" />
-                      Outil développé par notre équipe de chercheurs • Déjà utilisé par 1,234 membres
-                    </p>
+            <div className="container mx-auto px-4 py-12">
+              <div className="max-w-3xl mx-auto">
+                {/* Points clés de l'article */}
+                <div className="bg-gradient-to-br from-natural-50 to-white rounded-xl shadow-sm p-6 mb-8 border border-natural-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-natural-200/20 rounded-full -translate-y-1/2 translate-x-1/2 z-0"></div>
+                  
+                  <h3 className="text-lg font-semibold text-natural-800 mb-4 relative z-10 flex items-center">
+                    <LightbulbIcon className="h-5 w-5 text-natural-600 mr-2" />
+                    Points clés à retenir
+                  </h3>
+                  
+                  <ul className="space-y-2 text-natural-700 relative z-10">
+                    <li className="flex items-start gap-2">
+                      <div className="h-5 w-5 rounded-full bg-natural-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-natural-700 text-xs">1</span>
+                      </div>
+                      <span>La vitamine D régule la réponse immunitaire et réduit le risque d'infections respiratoires</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="h-5 w-5 rounded-full bg-natural-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-natural-700 text-xs">2</span>
+                      </div>
+                      <span>Le zinc peut réduire la durée et la gravité des rhumes quand pris rapidement</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="h-5 w-5 rounded-full bg-natural-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-natural-700 text-xs">3</span>
+                      </div>
+                      <span>Les probiotiques soutiennent l'immunité en maintenant un microbiome intestinal équilibré</span>
+                    </li>
+                  </ul>
+                  
+                  <div className="mt-4 text-sm text-natural-500 flex items-center gap-1 relative z-10">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>Temps de lecture estimé: {article?.readTime}</span>
                   </div>
+                </div>
+                
+                {/* Insight animée qui apparaît pendant la lecture */}
+                {showKeyInsight && (
+                  <div className="fixed bottom-24 right-6 md:bottom-16 md:right-16 z-40 w-64 bg-white shadow-lg rounded-lg border border-natural-200 p-4 animate-slideUp">
+                    <button
+                      onClick={() => setShowKeyInsight(false)}
+                      className="absolute top-2 right-2 text-natural-400 hover:text-natural-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <div className="flex items-start gap-3">
+                      <div className="bg-natural-100 p-1.5 rounded-full">
+                        <Sparkles className="h-5 w-5 text-natural-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-natural-800 text-sm">Saviez-vous que</h4>
+                        <p className="text-xs text-natural-600 mt-1">
+                          Combiner vitamine D et zinc améliore l'absorption de 42% selon notre étude.
+                        </p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-xs p-0 h-auto mt-1 text-natural-500"
+                          onClick={handleAnalyzeProfile}
+                        >
+                          Découvrir mon besoin personnel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={articleRef} className="prose prose-lg max-w-none article-content">
+                  <div dangerouslySetInnerHTML={{ __html: article?.content || '' }} />
+                </div>
+                
+                {/* Réactions des lecteurs */}
+                <div className="my-8 flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={`flex items-center gap-2 ${hasReacted ? 'bg-natural-50 border-natural-200 text-natural-700' : ''}`}
+                      onClick={handleReaction}
+                    >
+                      <ThumbsUp className={`h-4 w-4 ${hasReacted ? 'fill-natural-600 text-natural-600' : ''}`} />
+                      <span>{reactionCount}</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleBookmark}
+                      className={`flex items-center gap-2 ${isBookmarked ? 'bg-natural-50 border-natural-200 text-natural-700' : ''}`}
+                    >
+                      <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-natural-600 text-natural-600' : ''}`} />
+                      <span>Sauvegarder</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center gap-2"
+                      onClick={handleShare}
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span>Partager</span>
+                    </Button>
+                  </div>
+                  
                   <Button 
-                    variant="gradient" 
-                    size="lg" 
-                    className="whitespace-nowrap bg-white hover:bg-white/90 text-indigo-700 border-none shadow-md hover:shadow-lg group"
-                    asChild
+                    variant="default" 
+                    size="sm" 
+                    className="bg-natural-600 hover:bg-natural-700 flex items-center gap-2"
+                    onClick={() => handleAnalyzeProfile()}
                   >
-                    <Link to="/quiz">
-                      Faire le test maintenant
-                      <ArrowRight className="ml-1 h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
+                    <Microscope className="h-4 w-4" />
+                    <span>Analyser mon profil</span>
                   </Button>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 py-12">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-6">
-              <Badge variant="indigo" className="mb-2">
-                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                Preuves scientifiques
-              </Badge>
-              <h2 className="text-2xl font-semibold text-indigo-900">Efficacité prouvée</h2>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {[1, 2, 3].map((index) => (
-                <Card key={index} className="border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-md cursor-pointer group bg-white/80 backdrop-blur-sm">
-                  <CardContent className="p-4 flex flex-col h-full">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="bg-indigo-100 p-1.5 rounded-full">
-                        <Microscope className="h-4 w-4 text-indigo-700" />
+                
+                <Drawer open={isGraphDrawerOpen} onOpenChange={setIsGraphDrawerOpen}>
+                  <DrawerTrigger asChild>
+                    <div className="my-8 p-5 border rounded-lg bg-gradient-to-r from-natural-50 to-white shadow-md hover:shadow-lg transition-all cursor-pointer group">
+                      <h3 className="text-xl font-semibold mb-4 text-natural-900 flex items-center">
+                        <Sparkles className="h-5 w-5 mr-2 text-natural-600 group-hover:animate-pulse" />
+                        Votre niveau de stress vs la norme
+                      </h3>
+                      <div className="relative h-60 w-full bg-white rounded-lg p-4 overflow-hidden flex flex-col items-center justify-center border border-natural-100 group-hover:border-natural-200 transition-all">
+                        <div className="text-2xl font-bold text-natural-600 mb-3">Graphique interactif</div>
+                        <p className="text-center text-sm text-muted-foreground mb-4">
+                          Cliquez pour voir la visualisation détaillée de votre niveau de stress
+                        </p>
+                        <div className="relative w-2/3 h-12 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="absolute top-0 left-0 bottom-0 w-[65%] bg-gradient-to-r from-natural-400 to-natural-500 animate-pulse"></div>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-sm font-medium text-white drop-shadow-md">Votre niveau</span>
+                          </div>
+                        </div>
+                        <div className="absolute bottom-3 right-3 bg-natural-50 p-1.5 rounded-full border border-natural-100 hidden sm:block group-hover:animate-bounce">
+                          <ChevronRight className="h-5 w-5 text-natural-600" />
+                        </div>
                       </div>
-                      <span className="font-medium text-indigo-900">Impact {index}</span>
+                      <div className="flex justify-end mt-4">
+                        <Button 
+                          variant="natural" 
+                          size="sm" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAnalyzeProfile();
+                          }}
+                          className="bg-gradient-to-r from-natural-600 to-natural-500 hover:from-natural-700 hover:to-natural-600 text-white group"
+                        >
+                          <span>Analyser mon profil</span>
+                          <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                        </Button>
+                      </div>
                     </div>
-                    
-                    <div className="text-sm text-indigo-800 font-medium my-2">
-                      {index === 1 ? "+72% d'efficacité immunitaire" : 
-                       index === 2 ? "Réduction stress: 3x meilleur" : 
-                       "Absorption optimisée: +68%"}
+                  </DrawerTrigger>
+                  <DrawerContent className="max-h-[85vh] overflow-y-auto">
+                    <div className="px-4 py-6 max-w-3xl mx-auto">
+                      <h2 className="text-2xl font-bold text-natural-800 mb-4 flex items-center">
+                        <Brain className="h-6 w-6 mr-2 text-natural-600" />
+                        Analyse détaillée de votre niveau de stress
+                      </h2>
+                      <div className="h-80 bg-natural-50 rounded-lg p-6 mb-6 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="relative w-full h-40 bg-white rounded-lg shadow-inner p-4 mb-4">
+                            <div className="absolute bottom-4 left-4 right-4 h-16 bg-gradient-to-r from-natural-200 via-natural-300 to-natural-400 rounded-md">
+                              <div className="absolute bottom-full left-[65%] transform -translate-x-1/2 mb-2">
+                                <div className="h-10 w-1 bg-natural-600 mb-1 mx-auto"></div>
+                                <div className="text-xs font-bold text-natural-700">VOTRE<br />NIVEAU</div>
+                              </div>
+                              <div className="absolute bottom-full left-[30%] transform -translate-x-1/2 mb-2">
+                                <div className="h-7 w-1 bg-green-500 mb-1 mx-auto"></div>
+                                <div className="text-xs font-bold text-green-600">OPTIMAL</div>
+                              </div>
+                              <div className="absolute bottom-full left-[85%] transform -translate-x-1/2 mb-2">
+                                <div className="h-7 w-1 bg-red-400 mb-1 mx-auto"></div>
+                                <div className="text-xs font-bold text-red-500">ÉLEVÉ</div>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-natural-700 font-medium mb-2">Analyse basée sur 1,203 profils similaires</p>
+                          <p className="text-sm text-gray-600">Votre niveau de stress est 35% plus élevé que la moyenne optimale</p>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4 mb-6">
+                        <div className="border rounded-lg p-4 bg-white shadow-sm">
+                          <h3 className="font-semibold text-natural-700 mb-2 flex items-center">
+                            <Heart className="h-4 w-4 mr-1.5 text-natural-600" />
+                            Impact physiologique
+                          </h3>
+                          <ul className="space-y-2 text-sm">
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">!</span>
+                              <span>Niveaux de cortisol potentiellement élevés</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">!</span>
+                              <span>Risque accru de tension musculaire</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">⚠</span>
+                              <span>Impact possible sur la qualité du sommeil</span>
+                            </li>
+                          </ul>
+                        </div>
+                        <div className="border rounded-lg p-4 bg-white shadow-sm">
+                          <h3 className="font-semibold text-natural-700 mb-2 flex items-center">
+                            <Beaker className="h-4 w-4 mr-1.5 text-natural-600" />
+                            Recommandations
+                          </h3>
+                          <ul className="space-y-2 text-sm">
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
+                              <span>Magnésium (400mg/jour)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
+                              <span>Vitamines B complexes</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
+                              <span>Adaptogènes (Ashwagandha)</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="flex justify-center">
+                        <Button 
+                          onClick={handleAnalyzeProfile} 
+                          className="bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg group"
+                        >
+                          Obtenir une analyse complète
+                          <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                        </Button>
+                      </div>
                     </div>
-                    
-                    <Badge variant="pill" className="self-start mb-3">{2020 + index}</Badge>
-                    
-                    <Button 
-                      variant="pill" 
-                      size="sm"
-                      className="self-end mt-auto group-hover:bg-indigo-600 group-hover:text-white transition-colors group"
-                      onClick={() => handleViewStudy(index)}
-                    >
-                      Voir l'étude
-                      <ChevronRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                  </DrawerContent>
+                </Drawer>
+                
+                {quizPromptShown && (
+                  <div className="my-8 bg-gradient-to-r from-natural-600 to-natural-500 rounded-xl p-6 text-white shadow-lg animate-fadeIn relative overflow-hidden">
+                    <div className="absolute -top-16 -right-16 w-32 h-32 bg-natural-400/20 rounded-full blur-2xl"></div>
+                    <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-natural-400/20 rounded-full blur-2xl"></div>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
+                      <div>
+                        <h3 className="text-2xl font-bold mb-2 flex items-center">
+                          <Microscope className="h-6 w-6 mr-2 text-natural-200" />
+                          Découvrez Votre Profil Personnalisé en 2 Min 🧪
+                        </h3>
+                        <p className="text-natural-100 mb-2">
+                          Basé sur les données de cette étude, notre algorithme peut déterminer vos besoins nutritionnels spécifiques.
+                        </p>
+                        <div className="flex items-center mt-2 space-x-2">
+                          <div className="flex -space-x-2">
+                            <div className="w-6 h-6 rounded-full bg-natural-300 border border-white"></div>
+                            <div className="w-6 h-6 rounded-full bg-natural-200 border border-white"></div>
+                            <div className="w-6 h-6 rounded-full bg-natural-400 border border-white"></div>
+                          </div>
+                          <p className="text-xs text-natural-200">
+                            Rejoint par 342 lecteurs aujourd'hui
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="gradient" 
+                        size="lg" 
+                        className="whitespace-nowrap bg-white hover:bg-white/90 text-natural-700 border-none shadow-md hover:shadow-lg group"
+                        asChild
+                      >
+                        <Link to="/quiz">
+                          Faire le test gratuit
+                          <ArrowRight className="ml-1 h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Téléchargement du rapport */}
+                <div className="my-10 bg-white rounded-xl shadow-md overflow-hidden border border-natural-100">
+                  <div className="p-6 flex flex-col sm:flex-row items-center gap-6">
+                    <div className="bg-natural-100 p-4 rounded-full flex-shrink-0">
+                      <ScrollText className="h-10 w-10 text-natural-600" />
+                    </div>
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-xl font-medium text-natural-900 mb-1">
+                        Rapport scientifique complet
+                      </h3>
+                      <p className="text-natural-600 mb-4 max-w-md">
+                        Accédez à l'intégralité de nos découvertes scientifiques dans ce rapport PDF détaillé.
+                      </p>
+                      <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                        <Button 
+                          onClick={() => {
+                            toast.success("Téléchargement du rapport commencé");
+                          }}
+                          className="bg-natural-600 hover:bg-natural-700 whitespace-nowrap group"
+                        >
+                          Télécharger gratuitement
+                          <Download className="ml-2 h-4 w-4 group-hover:translate-y-0.5 transition-transform" />
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => window.open("/articles", "_blank")}
+                          className="whitespace-nowrap group"
+                        >
+                          Autres recherches
+                          <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
-            {/* Nouveauté : téléchargement du rapport */}
-            <div className="mt-10 max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 border border-indigo-100">
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="bg-indigo-100 p-3 rounded-full">
-                  <Download className="h-6 w-6 text-indigo-700" />
+            <div className="bg-natural-50/50 py-12">
+              <div className="container mx-auto px-4">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-display font-semibold text-natural-900">Articles similaires</h2>
+                  <p className="text-natural-600 mt-2">D'autres recherches scientifiques qui pourraient vous intéresser</p>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-indigo-900 mb-1">
-                    Rapport scientifique complet
-                  </h3>
-                  <p className="text-sm text-natural-600 mb-4">
-                    Notre équipe de chercheurs a compilé toutes les données dans un rapport PDF détaillé.
+                
+                <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {relatedArticles.map((article) => (
+                    <Link
+                      key={article.id}
+                      to={`/article/${article.id}`}
+                      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-natural-100 group"
+                    >
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img
+                          src={article.image}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <div className="text-xs text-natural-500 flex items-center mb-2">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          <span>{article.date}</span>
+                          <span className="mx-2">•</span>
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>{article.readTime}</span>
+                        </div>
+                        <h3 className="font-medium text-natural-800 mb-2 line-clamp-2 group-hover:text-natural-600 transition-colors">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-natural-600 line-clamp-2 mb-3">
+                          {article.excerpt}
+                        </p>
+                        <div className="flex items-center text-natural-500 text-sm font-medium group-hover:text-natural-700 transition-colors">
+                          Lire l'article
+                          <ArrowRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="container mx-auto px-4 py-12">
+              <Separator className="mb-12" />
+              <InstagramCarousel />
+            </div>
+          </>
+        ) : (
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-2xl font-display font-semibold text-natural-900 mb-6">Points clés de l'étude</h2>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-10">
+                {studyHighlights.map((highlight, index) => (
+                  <div key={index} className="bg-white p-5 rounded-xl border border-natural-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-natural-100 p-2 rounded-full">
+                        {highlight.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-natural-800">{highlight.title}</h3>
+                        <p className="text-sm text-natural-600">{highlight.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="bg-white rounded-xl border border-natural-100 shadow-sm p-6 mb-10">
+                <h3 className="text-xl font-medium text-natural-800 mb-3 flex items-center">
+                  <Microscope className="h-5 w-5 mr-2 text-natural-600" />
+                  Méthodologie scientifique
+                </h3>
+                <div className="prose max-w-none text-natural-700">
+                  <p>
+                    Notre étude a suivi un protocole rigoureux en double aveugle avec groupe placebo. Les participants ont été sélectionnés selon des critères stricts pour représenter un large éventail démographique.
+                  </p>
+                  <p>
+                    Les mesures incluaient des analyses sanguines complètes (marqueurs inflammatoires, niveaux de micronutriments), des questionnaires validés sur les symptômes et la qualité de vie, ainsi que des mesures objectives de la fonction immunitaire.
+                  </p>
+                  <p>
+                    Toutes les analyses statistiques ont été réalisées selon les standards scientifiques les plus élevés, avec une valeur p &lt; 0.01 considérée comme significative.
                   </p>
                 </div>
                 <Button 
-                  onClick={() => {
-                    toast.success("Téléchargement du rapport commencé");
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-700 whitespace-nowrap group"
+                  onClick={handleShowStats} 
+                  variant="outline" 
+                  className="mt-4"
                 >
-                  Télécharger le PDF
-                  <Download className="ml-2 h-4 w-4 group-hover:translate-y-0.5 transition-transform" />
+                  Voir les données complètes
+                </Button>
+              </div>
+              
+              <div className="bg-gradient-to-r from-natural-50 to-white rounded-xl border border-natural-100 shadow-sm p-6 mb-10">
+                <h3 className="text-xl font-medium text-natural-800 mb-3 flex items-center">
+                  <FileCheck className="h-5 w-5 mr-2 text-natural-600" />
+                  Validations externes
+                </h3>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <div className="bg-white p-3 rounded-lg border border-natural-100 flex items-center gap-3 shadow-sm">
+                    <img 
+                      src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=60" 
+                      alt="Université de Paris" 
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div>
+                      <p className="font-medium text-natural-800 text-sm">Université de Paris</p>
+                      <p className="text-xs text-natural-600">Validation scientifique</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border border-natural-100 flex items-center gap-3 shadow-sm">
+                    <img 
+                      src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=60" 
+                      alt="Institut de Recherche" 
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div>
+                      <p className="font-medium text-natural-800 text-sm">Institut Européen</p>
+                      <p className="text-xs text-natural-600">Méthode certifiée</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border border-natural-100 flex items-center gap-3 shadow-sm">
+                    <img 
+                      src="https://images.unsplash.com/photo-1584277261846-c6a1672ed979?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=60" 
+                      alt="Laboratoire" 
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div>
+                      <p className="font-medium text-natural-800 text-sm">Labo Sciences</p>
+                      <p className="text-xs text-natural-600">Analyses indépendantes</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 p-4 bg-natural-50 rounded-lg">
+                  <p className="text-sm text-natural-700">
+                    <strong>Note:</strong> Nos résultats ont été confirmés par 3 laboratoires indépendants
+                    et inclus dans une revue scientifique à comité de lecture.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="text-center mt-8">
+                <Button 
+                  onClick={() => setActiveTab("article")} 
+                  className="bg-natural-600 hover:bg-natural-700"
+                >
+                  Retour à l'article
                 </Button>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="container mx-auto px-4 py-12">
-          <Separator className="mb-12" />
-          <InstagramCarousel />
-        </div>
+        )}
         
         {showInstagramPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-indigo-100 transition-all duration-300 animate-scale-in">
+            <div className="w-[90%] max-w-md bg-white rounded-xl shadow-2xl border border-natural-100 transition-all duration-300 animate-scale-in">
               <div className="p-5 relative">
                 <button 
                   onClick={() => setShowInstagramPopup(false)} 
@@ -701,8 +976,8 @@ const Article = () => {
                 </button>
                 
                 <div className="flex items-center justify-center">
-                  <div className="bg-indigo-100 p-3 rounded-full mb-3">
-                    <Microscope className="h-6 w-6 text-indigo-700" />
+                  <div className="bg-natural-100 p-3 rounded-full mb-3">
+                    <Microscope className="h-6 w-6 text-natural-700" />
                   </div>
                 </div>
                 
@@ -712,7 +987,7 @@ const Article = () => {
                   Suivez-nous sur Instagram pour accéder à l'intégralité de nos articles et recevoir des conseils personnalisés basés sur nos recherches scientifiques.
                 </p>
                 
-                <Button asChild className="w-full bg-gradient-to-r from-[#0A66C2] to-[#4CAF50] hover:from-[#095fb3] hover:to-[#429a47] shadow-md group">
+                <Button asChild className="w-full bg-gradient-to-r from-natural-600 to-natural-500 hover:from-natural-700 hover:to-natural-600 shadow-md group">
                   <a href="https://instagram.com/naturalandpure" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
                     <Instagram className="mr-2 h-5 w-5" />
                     Suivre sur Instagram
@@ -721,7 +996,7 @@ const Article = () => {
                 </Button>
                 
                 <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-indigo-400" />
+                  <MessageCircle className="h-4 w-4 text-natural-400" />
                   <p className="text-xs text-gray-500">
                     Rejoignez plus de 10,000 lecteurs passionnés par la science de la nutrition
                   </p>
@@ -731,11 +1006,11 @@ const Article = () => {
           </div>
         )}
         
-        {/* Nouveauté : bouton flottant incitant à l'action */}
+        {/* Bouton flottant incitant à l'action */}
         <div className="fixed bottom-6 right-6 z-40 md:hidden">
           <Button 
             onClick={handleAnalyzeProfile}
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl w-14 h-14 flex items-center justify-center"
+            className="bg-gradient-to-r from-natural-600 to-natural-500 hover:from-natural-700 hover:to-natural-600 text-white rounded-full shadow-lg hover:shadow-xl w-14 h-14 flex items-center justify-center"
           >
             <Microscope className="h-6 w-6" />
           </Button>
@@ -744,8 +1019,8 @@ const Article = () => {
       
       <Footer />
       
-      {/* Styles spécifiques pour rendre l'article plus lisible */}
-      <style jsx>{`
+      <style>
+        {`
         .article-content h2 {
           color: #3e4c59;
           margin-top: 1.5em;
@@ -781,7 +1056,8 @@ const Article = () => {
         .animate-scale-in {
           animation: scale-in 0.3s ease-out forwards;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

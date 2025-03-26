@@ -28,6 +28,9 @@ const buttonVariants = cva(
         conditionActive: "bg-indigo-50 text-indigo-700 border border-indigo-200 justify-start px-4 shadow-sm",
         pill: "rounded-full bg-white border border-slate-200 text-slate-700 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50",
         pillActive: "rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 shadow-sm",
+        glossy: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white shadow-sm transition-all",
+        naturalGradient: "bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700 text-white shadow-sm hover:shadow-md transition-all",
+        imageCard: "p-0 h-auto rounded-xl overflow-hidden hover:shadow-lg transition-all border border-slate-200",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -35,6 +38,7 @@ const buttonVariants = cva(
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
         pill: "h-9 rounded-full px-4",
+        xl: "h-12 rounded-md px-10 text-base",
       },
     },
     defaultVariants: {
