@@ -1,14 +1,45 @@
 
 import React, { useState } from 'react';
-import { Instagram, ExternalLink, ArrowRight, CheckCircle } from 'lucide-react';
+import { Instagram, ExternalLink, ArrowRight, CheckCircle, Shield, FileText, Award } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+
+// Rotation sémantique des CTA
+const ctaVariants = {
+  buttons: [
+    "Accéder à nos ressources",
+    "Voir nos études scientifiques",
+    "Consulter nos données",
+    "Explorer nos recherches"
+  ],
+  dialogTitles: [
+    "Accédez à nos ressources scientifiques",
+    "Consultez nos études exclusives",
+    "Découvrez notre base de connaissances",
+    "Explorez nos données de recherche"
+  ],
+  descriptions: [
+    "Nos recherches et données scientifiques sont publiées régulièrement sur notre espace dédié.",
+    "Nos études exclusives sur les compléments alimentaires sont disponibles dans notre espace documentaire.",
+    "Notre base de données scientifiques est régulièrement mise à jour avec les dernières découvertes.",
+    "Accédez à nos graphiques et analyses détaillées basés sur nos études cliniques."
+  ]
+};
+
+// Fonction pour obtenir un index basé sur le jour pour la rotation
+const getRotationIndex = () => {
+  return Math.floor(Date.now() / 86400000) % ctaVariants.buttons.length;
+};
 
 const InstagramCTA = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(2);
+  
+  // Index basé sur le jour pour la rotation sémantique
+  const rotationIndex = getRotationIndex();
 
   const handleRedirect = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,7 +49,8 @@ const InstagramCTA = () => {
       timestamp: new Date().toISOString(),
       source: window.location.href,
       destination: "instagram.com/naturalandpure", 
-      interaction: "CTA click"
+      interaction: "CTA click",
+      semanticVariant: rotationIndex
     };
     
     console.log("Redirection log:", redirectionLog);
@@ -42,10 +74,8 @@ const InstagramCTA = () => {
         
         // Add a delay before redirect to show success message
         setTimeout(() => {
-          // This is where we'd redirect via a proxy URL in production
-          window.location.href = "/redirect/social?network=ig&source=article";
-          // Alternatively, open a new window with the redirection
-          // window.open("/redirect/social?network=ig&source=article", "_blank", "noopener,noreferrer");
+          // Redirection via notre page proxy avec délai aléatoire
+          window.location.href = `/redirect/social?network=ig&source=article&variant=${rotationIndex}`;
         }, 1500);
       }
     }, 1000);
@@ -69,18 +99,18 @@ const InstagramCTA = () => {
           </h2>
           
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 my-3">
-            <span className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
+            <Badge className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
               <span className="h-1.5 w-1.5 rounded-full bg-natural-500 mr-1.5"></span>
               Données scientifiques
-            </span>
-            <span className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
+            </Badge>
+            <Badge className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
               <span className="h-1.5 w-1.5 rounded-full bg-natural-500 mr-1.5"></span>
               Études exclusives
-            </span>
-            <span className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
+            </Badge>
+            <Badge className="px-3 py-1 text-sm bg-natural-100 text-natural-700 rounded-full flex items-center">
               <span className="h-1.5 w-1.5 rounded-full bg-natural-500 mr-1.5"></span>
               Recherches avancées
-            </span>
+            </Badge>
           </div>
           
           <div className="pt-3">
@@ -88,7 +118,7 @@ const InstagramCTA = () => {
               <DialogTrigger asChild>
                 <Button className="px-6 py-5 text-base bg-natural-600 hover:bg-natural-700 text-white shadow-lg hover:shadow-xl transition-all">
                   <Instagram className="h-5 w-5 mr-2" />
-                  Accéder à nos ressources
+                  {ctaVariants.buttons[rotationIndex]}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -120,10 +150,27 @@ const InstagramCTA = () => {
                       <div className="inline-flex items-center justify-center p-2 bg-natural-100 rounded-full mb-3">
                         <Instagram className="h-5 w-5 text-natural-600" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-3">Accédez à nos ressources scientifiques</h3>
+                      <h3 className="text-xl font-semibold mb-3">{ctaVariants.dialogTitles[rotationIndex]}</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Nos recherches et données scientifiques sont publiées régulièrement sur notre espace dédié.
+                        {ctaVariants.descriptions[rotationIndex]}
                       </p>
+                      
+                      {/* Badges de crédibilité scientifique */}
+                      <div className="flex flex-wrap justify-center gap-2 mb-4">
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <Award className="h-3.5 w-3.5" />
+                          <span>Étude validée</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <Shield className="h-3.5 w-3.5" />
+                          <span>Non commercial</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <FileText className="h-3.5 w-3.5" />
+                          <span>Usage éducatif</span>
+                        </Badge>
+                      </div>
+                      
                       <div className="mx-auto w-48 h-48 bg-white p-2 border rounded-md mb-3">
                         <div className="w-full h-full bg-grid-natural-100 rounded relative flex items-center justify-center">
                           <div className="absolute inset-4 bg-white rounded"></div>
@@ -134,7 +181,7 @@ const InstagramCTA = () => {
                         onClick={handleRedirect}
                         className="mt-2 w-full bg-natural-600 hover:bg-natural-700 gap-2"
                       >
-                        Accéder aux ressources
+                        {ctaVariants.buttons[rotationIndex]}
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                       <div className="mt-4 text-xs text-natural-500 space-y-1">

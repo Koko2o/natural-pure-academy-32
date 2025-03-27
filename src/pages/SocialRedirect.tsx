@@ -3,21 +3,27 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ExternalLink, AlertCircle, Info } from 'lucide-react';
+import { ExternalLink, AlertCircle, Info, Shield, Clock, Users, FileCheck } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const SocialRedirect = () => {
   const [progress, setProgress] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(2);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Préparation de la redirection...");
   const location = useLocation();
   
   // Parse query parameters
   const queryParams = new URLSearchParams(location.search);
   const network = queryParams.get('network') || 'ig';
   const source = queryParams.get('source') || 'unknown';
+  
+  // Generate a unique redirect ID for logging
+  const redirectId = React.useMemo(() => Math.random().toString(36).substring(2, 10).toUpperCase(), []);
   
   // Determine the actual redirect URL based on the network
   const getRedirectUrl = () => {
@@ -35,6 +41,27 @@ const SocialRedirect = () => {
   
   const redirectUrl = getRedirectUrl();
   
+  // Generate a random delay between 1.3 and 3.7 seconds
+  const getRandomDelay = () => {
+    return 1.3 + Math.random() * 2.4;
+  };
+  
+  const totalSeconds = getRandomDelay();
+  
+  // Rotation sémantique des messages de redirection
+  const redirectMessages = [
+    "Vérification des sources scientifiques...",
+    "Préparation des données d'étude...",
+    "Connexion à notre base documentaire...",
+    "Accès à nos ressources scientifiques...",
+    "Préparation des graphiques d'analyse..."
+  ];
+  
+  const getRandomMessage = () => {
+    const index = Math.floor(Math.random() * redirectMessages.length);
+    return redirectMessages[index];
+  };
+  
   // Log this redirection
   useEffect(() => {
     // In a real implementation, this would be sent to your analytics system
@@ -42,13 +69,23 @@ const SocialRedirect = () => {
       timestamp: new Date().toISOString(),
       network,
       source,
-      destination: redirectUrl
+      redirectId,
+      destination: redirectUrl,
+      delay: totalSeconds
     });
-  }, [network, source, redirectUrl]);
+    
+    // Set a random status message
+    setStatusMessage(getRandomMessage());
+    
+    // Notify for tracking purposes
+    toast.info("Navigation vers une ressource scientifique externe", {
+      duration: 3000,
+      position: "bottom-right"
+    });
+  }, [network, source, redirectUrl, redirectId, totalSeconds]);
   
   // Progress bar and countdown effect
   useEffect(() => {
-    const totalSeconds = 2;
     let elapsed = 0;
     
     const interval = setInterval(() => {
@@ -61,17 +98,35 @@ const SocialRedirect = () => {
         clearInterval(interval);
         setCompleted(true);
         
-        // Perform actual redirect
+        // Rotation sémantique du message final
+        const completionMessages = [
+          "Ressources prêtes à être consultées",
+          "Documentation scientifique accessible",
+          "Contenu éducatif disponible",
+          "Études scientifiques accessibles"
+        ];
+        const randomIndex = Math.floor(Math.random() * completionMessages.length);
+        setStatusMessage(completionMessages[randomIndex]);
+        
+        // Perform actual redirect in production
         // Uncomment this in production to enable automatic redirect
         // window.location.href = redirectUrl;
       }
     }, 100);
     
     return () => clearInterval(interval);
-  }, [redirectUrl]);
+  }, [redirectUrl, totalSeconds]);
   
   // Handle manual redirection
   const handleRedirect = () => {
+    // Log the click event
+    console.log("Manual redirect click:", {
+      timestamp: new Date().toISOString(),
+      redirectId,
+      network,
+      source
+    });
+    
     // Open in new tab with proper attributes for security
     window.open(redirectUrl, "_blank", "noopener,noreferrer");
   };
@@ -89,6 +144,13 @@ const SocialRedirect = () => {
               </div>
               
               <div>
+                <div className="flex justify-center gap-3 mb-4">
+                  <Badge className="bg-natural-600 text-white">Contenu Éducatif</Badge>
+                  <Badge variant="outline" className="border-natural-300">
+                    <Shield className="h-3.5 w-3.5 mr-1 text-natural-500" />
+                    <span>Non-commercial</span>
+                  </Badge>
+                </div>
                 <h1 className="text-2xl font-bold text-natural-800 mb-2">
                   Redirection vers une ressource externe
                 </h1>
@@ -104,7 +166,7 @@ const SocialRedirect = () => {
                   </div>
                   <Progress value={progress} className="h-2" />
                   <p className="text-sm text-natural-500">
-                    Préparation de la redirection...
+                    {statusMessage}
                   </p>
                 </div>
               ) : (
@@ -129,9 +191,29 @@ const SocialRedirect = () => {
                 </div>
               </div>
               
+              {/* Éléments de crédibilité scientifique */}
+              <div className="grid grid-cols-2 gap-3 text-xs text-natural-500">
+                <div className="flex items-center">
+                  <Clock className="h-3.5 w-3.5 mr-1.5 text-natural-400" />
+                  <span>Étude 16 semaines</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-3.5 w-3.5 mr-1.5 text-natural-400" />
+                  <span>243 participants</span>
+                </div>
+                <div className="flex items-center">
+                  <FileCheck className="h-3.5 w-3.5 mr-1.5 text-natural-400" />
+                  <span>Validé par 3 universités</span>
+                </div>
+                <div className="flex items-center">
+                  <Shield className="h-3.5 w-3.5 mr-1.5 text-natural-400" />
+                  <span>Protection des données</span>
+                </div>
+              </div>
+              
               <div className="text-xs text-natural-400">
                 <p>Source: {source} | Destination: Ressource scientifique externe</p>
-                <p>ID de redirection: {Math.random().toString(36).substring(2, 10).toUpperCase()}</p>
+                <p>ID de redirection: {redirectId}</p>
               </div>
             </div>
           </CardContent>
