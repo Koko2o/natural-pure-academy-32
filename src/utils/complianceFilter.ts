@@ -43,7 +43,7 @@ export const validateRedirectUrl = (url: string): boolean => {
  * Crée une redirection sécurisée avec délai aléatoire amélioré
  */
 export const safeRedirect = (url: string): Promise<void> => {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     if (!validateRedirectUrl(url)) {
       console.warn('Tentative de redirection vers un domaine non autorisé:', url);
       resolve();
@@ -54,7 +54,7 @@ export const safeRedirect = (url: string): Promise<void> => {
     const delay = Math.floor(Math.random() * 2400) + 1300;
     
     // Générer un hash cryptographique pour le paramètre URL
-    const generateHash = async (input: string): Promise<string> => {
+    const generateCryptoHash = async (input: string): Promise<string> => {
       try {
         // Utiliser l'API Web Crypto pour générer un hash SHA-256
         const encoder = new TextEncoder();
@@ -72,7 +72,7 @@ export const safeRedirect = (url: string): Promise<void> => {
     setTimeout(async () => {
       try {
         // Générer un hash unique pour cette redirection
-        const urlHash = await generateHash(url);
+        const urlHash = await generateCryptoHash(url);
         // Rediriger via la passerelle de conformité avec un hash cryptographique
         window.location.href = `/redirect/social?target=${btoa(url)}&ref=${urlHash}`;
         resolve();
@@ -84,6 +84,83 @@ export const safeRedirect = (url: string): Promise<void> => {
     }, delay);
   });
 };
+
+// Clé de chiffrement pour le stockage sécurisé
+let encryptionKey: string | null = null;
+
+// Génère une clé de chiffrement unique pour cette session
+const generateEncryptionKey = (): string => {
+  if (encryptionKey) return encryptionKey;
+  
+  try {
+    // Générer une clé aléatoire
+    const key = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    // Stocker la clé pour cette session
+    encryptionKey = key;
+    return key;
+  } catch (e) {
+    // Fallback si l'API crypto n'est pas disponible
+    const fallbackKey = Math.random().toString(36).substring(2, 15) + 
+                         Math.random().toString(36).substring(2, 15);
+    encryptionKey = fallbackKey;
+    return fallbackKey;
+  }
+};
+
+// Fonction pour chiffrer les données
+const encryptData = (data: string): string => {
+  try {
+    const key = generateEncryptionKey();
+    // Chiffrement simple XOR
+    const encrypted = Array.from(data).map((char, i) => {
+      const keyChar = key[i % key.length];
+      return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
+    }).join('');
+    
+    return btoa(encrypted);
+  } catch (e) {
+    console.error('Erreur lors du chiffrement des données:', e);
+    return btoa(data); // Fallback: juste encoder en base64
+  }
+};
+
+// Fonction pour déchiffrer les données
+const decryptData = (encryptedData: string): string => {
+  try {
+    const key = generateEncryptionKey();
+    const encrypted = atob(encryptedData);
+    
+    // Déchiffrement XOR
+    const decrypted = Array.from(encrypted).map((char, i) => {
+      const keyChar = key[i % key.length];
+      return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
+    }).join('');
+    
+    return decrypted;
+  } catch (e) {
+    console.error('Erreur lors du déchiffrement des données:', e);
+    return atob(encryptedData); // Fallback: juste décoder du base64
+  }
+};
+
+// Rotation automatique des clés
+const setupKeyRotation = () => {
+  // Rotation toutes les 24 heures
+  const rotationInterval = 24 * 60 * 60 * 1000;
+  
+  setInterval(() => {
+    // Réinitialiser la clé de chiffrement
+    encryptionKey = null;
+    generateEncryptionKey();
+    console.log('Clé de chiffrement régénérée pour raisons de sécurité');
+  }, rotationInterval);
+};
+
+// Initialiser la rotation des clés
+setupKeyRotation();
 
 /**
  * Interface pour les données utilisateur sécurisées
@@ -100,8 +177,11 @@ export interface SecureUserData {
 export const secureStorage = {
   set: (key: string, value: any): void => {
     try {
+      // Chiffrer les données avant de les stocker
+      const encryptedValue = encryptData(JSON.stringify(value));
+      
       // Utiliser sessionStorage au lieu de localStorage pour la conformité
-      sessionStorage.setItem(key, JSON.stringify(value));
+      sessionStorage.setItem(key, encryptedValue);
     } catch (error) {
       console.error('Erreur lors du stockage sécurisé:', error);
     }
@@ -109,8 +189,13 @@ export const secureStorage = {
   
   get: <T>(key: string, defaultValue: T): T => {
     try {
-      const item = sessionStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
+      const encryptedItem = sessionStorage.getItem(key);
+      
+      if (!encryptedItem) return defaultValue;
+      
+      // Déchiffrer les données
+      const decryptedItem = decryptData(encryptedItem);
+      return JSON.parse(decryptedItem);
     } catch (error) {
       console.error('Erreur lors de la récupération du stockage sécurisé:', error);
       return defaultValue;
@@ -213,5 +298,54 @@ export const detectBannedTermsWithNLP = (content: string): {
   return {
     terms: [...new Set(terms)], // Éliminer les doublons
     contexts
+  };
+};
+
+// Analyse sémantique avancée pour détecter les cas à risque
+export const semanticAnalysis = (text: string): {
+  isRisky: boolean,
+  riskScore: number,
+  riskTerms: string[]
+} => {
+  if (!text) return { isRisky: false, riskScore: 0, riskTerms: [] };
+  
+  const lowerText = text.toLowerCase();
+  const riskTerms: string[] = [];
+  let riskScore = 0;
+  
+  // Patterns à risque pour l'analyse sémantique
+  const riskPatterns = [
+    { pattern: /exclusiv/i, weight: 3, safe: /exclusiv.*étude|recherche.*exclusiv/i },
+    { pattern: /limit/i, weight: 2, safe: /limit.*recherche|étude.*limit/i },
+    { pattern: /gratuit/i, weight: 2, safe: /à titre gratuit|accès gratuit.*recherche/i },
+    { pattern: /promotion/i, weight: 3, safe: /promotion de la santé|promotion.*recherche/i },
+    { pattern: /solution.*exclus/i, weight: 4, safe: /solution.*recherche|solution scientifique/i },
+    { pattern: /offre spécial/i, weight: 4, safe: /offre spéciale d'étude|participation.*offre/i },
+    { pattern: /réserv/i, weight: 2, safe: /réservé aux chercheurs|étude réservée/i },
+    { pattern: /réduction/i, weight: 3, safe: /réduction des symptômes|réduction.*risque/i }
+  ];
+  
+  // Analyser chaque pattern
+  riskPatterns.forEach(({ pattern, weight, safe }) => {
+    if (pattern.test(lowerText)) {
+      // Vérifier si le contexte est sécurisé
+      const isSafeContext = safe.test(lowerText) || 
+                           SAFE_CONTEXTS.some(ctx => lowerText.includes(ctx));
+      
+      if (!isSafeContext) {
+        // Trouver l'occurrence réelle pour l'ajouter aux termes à risque
+        const match = text.match(pattern);
+        if (match && match[0]) {
+          riskTerms.push(match[0]);
+          riskScore += weight;
+        }
+      }
+    }
+  });
+  
+  return {
+    isRisky: riskScore > 5,
+    riskScore,
+    riskTerms
   };
 };

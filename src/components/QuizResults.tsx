@@ -25,6 +25,9 @@ import { cn } from "@/lib/utils";
 import { Progress } from "./ui/progress";
 import { generateNeuroProfile, getUrgencyMessage } from "./quiz/NeuroEngine";
 import { calculateRiskScore, getRiskColor } from "@/utils/contentSafety";
+import UrgencyCountdown from "./quiz/UrgencyCountdown";
+import DynamicSocialProof from "./quiz/DynamicSocialProof";
+import { getPersonalizedMessage, generatePersonalizedRecommendations } from "@/utils/dynamicPersonalization";
 
 interface Recommendation {
   title: string;
@@ -39,9 +42,10 @@ interface Recommendation {
 interface QuizResultsProps {
   responses: QuizResponse;
   onRestart: () => void;
+  personalizationFactors?: any;
 }
 
-const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
+const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResultsProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"recommendations" | "report" | "neuroProfile">("recommendations");
@@ -58,11 +62,16 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
   
   // Simuler la récupération de la localisation de l'utilisateur
   useEffect(() => {
-    // Dans un cas réel, nous utiliserions une API de géolocalisation
-    const cities = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg'];
-    const randomCity = cities[Math.floor(Math.random() * cities.length)];
-    setUserLocation(randomCity);
-  }, []);
+    // Utiliser la localisation des facteurs de personnalisation si disponible
+    if (personalizationFactors && personalizationFactors.geo) {
+      setUserLocation(personalizationFactors.geo);
+    } else {
+      // Sinon, utiliser une valeur par défaut
+      const cities = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg'];
+      const randomCity = cities[Math.floor(Math.random() * cities.length)];
+      setUserLocation(randomCity);
+    }
+  }, [personalizationFactors]);
 
   useEffect(() => {
     // Récupérer le temps passé (simulé pour l'exemple)
@@ -201,91 +210,120 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
       const hasDigestiveIssues = userSymptoms.includes("digestion");
       const hasImmuneIssues = userSymptoms.includes("immunité");
 
-      const personalRecommendations: Recommendation[] = [];
+      let personalRecommendations: Recommendation[] = [];
       
-      // Add recommendations based on symptoms
-      if (hasFatigue || hasStress) {
+      // Si nous avons des facteurs de personnalisation, les utiliser pour générer des recommandations
+      if (personalizationFactors) {
+        const { primary, secondary } = generatePersonalizedRecommendations(personalizationFactors);
+        
+        // Ajouter la recommandation principale
         personalRecommendations.push({
-          title: "Complexe Magnésium Premium",
-          description: "Formule avancée de magnésium marin hautement biodisponible pour combattre le stress et la fatigue.",
-          url: "https://example.com/magnesium",
-          confidence: 0.93,
-          benefits: ["Réduction du stress", "Amélioration du sommeil", "Augmentation de l'énergie"],
-          timeToEffect: "2-3 semaines",
-          popularity: 95,
-        });
-      }
-      
-      if (hasSleepIssues) {
-        personalRecommendations.push({
-          title: "Mélatonine Naturelle Plus",
-          description: "Association unique de mélatonine, valériane et passiflore pour un sommeil profond et réparateur.",
-          url: "https://example.com/melatonine",
-          confidence: 0.89,
-          benefits: ["Endormissement rapide", "Sommeil ininterrompu", "Réveil sans fatigue"],
-          timeToEffect: "3-5 jours",
-          popularity: 91,
-        });
-      }
-      
-      if (hasDigestiveIssues) {
-        personalRecommendations.push({
-          title: "Probiotiques Digestifs Avancés",
-          description: "25 milliards d'UFC et 10 souches bactériennes pour restaurer l'équilibre intestinal et améliorer la digestion.",
-          url: "https://example.com/probiotiques",
-          confidence: 0.85,
-          benefits: ["Réduction des ballonnements", "Amélioration de la digestion", "Renforcement de la flore intestinale"],
-          timeToEffect: "1-2 semaines",
-          popularity: 88,
-        });
-      }
-      
-      if (hasImmuneIssues || responses.fruitVegConsumption === "peu") {
-        personalRecommendations.push({
-          title: "Complexe Immunité Zinc & Vitamine C",
-          description: "Association synergique de zinc, vitamine C, échinacée et propolis pour renforcer vos défenses naturelles.",
-          url: "https://example.com/immunite",
-          confidence: 0.82,
-          benefits: ["Protection immunitaire", "Réduction du temps de convalescence", "Soutien en période hivernale"],
-          timeToEffect: "1-4 semaines",
-          popularity: 79,
-        });
-      }
-      
-      // Add a general recommendation if none of the specific ones apply
-      if (personalRecommendations.length === 0) {
-        personalRecommendations.push({
-          title: "Complexe Multivitamines Premium",
-          description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
-          url: "https://example.com/multivitamines",
-          confidence: 0.78,
-          benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
-          timeToEffect: "2-4 semaines",
-          popularity: 85,
+          title: primary,
+          description: "Formule avancée spécifiquement adaptée à votre profil et vos besoins nutritionnels.",
+          url: "https://example.com/produit",
+          confidence: 0.9 + (Math.random() * 0.09),
+          benefits: ["Adaptation à votre profil", "Efficacité scientifiquement prouvée", "Formule premium"],
+          timeToEffect: `${Math.floor(Math.random() * 3) + 1}-${Math.floor(Math.random() * 3) + 3} semaines`,
+          popularity: 85 + Math.floor(Math.random() * 14),
         });
         
-        personalRecommendations.push({
-          title: "Oméga-3 Haute Concentration",
-          description: "Huile de poisson purifiée avec haute teneur en EPA et DHA pour la santé cardiovasculaire et cérébrale.",
-          url: "https://example.com/omega3",
-          confidence: 0.76,
-          benefits: ["Soutien cardiovasculaire", "Fonction cognitive", "Réduction de l'inflammation"],
-          timeToEffect: "4-8 semaines",
-          popularity: 82,
+        // Ajouter les recommandations secondaires
+        secondary.forEach(title => {
+          personalRecommendations.push({
+            title,
+            description: "Complément idéal à votre formule principale pour une action synergique optimale.",
+            url: "https://example.com/secondaire",
+            confidence: 0.75 + (Math.random() * 0.15),
+            benefits: ["Action synergique", "Complément idéal", "Qualité supérieure"],
+            timeToEffect: `${Math.floor(Math.random() * 2) + 1}-${Math.floor(Math.random() * 4) + 4} semaines`,
+            popularity: 75 + Math.floor(Math.random() * 20),
+          });
         });
-      }
-      
-      // Always add a general multivitamin as a secondary recommendation if not already added
-      if (!personalRecommendations.some(rec => rec.title.includes("Multivitamines"))) {
-        personalRecommendations.push({
-          title: "Complexe Multivitamines Premium",
-          description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
-          url: "https://example.com/multivitamines",
-          confidence: 0.75,
-          benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
-          timeToEffect: "2-4 semaines",
-          popularity: 85,
-        });
+      } else {
+        // Add recommendations based on symptoms
+        if (hasFatigue || hasStress) {
+          personalRecommendations.push({
+            title: "Complexe Magnésium Premium",
+            description: "Formule avancée de magnésium marin hautement biodisponible pour combattre le stress et la fatigue.",
+            url: "https://example.com/magnesium",
+            confidence: 0.93,
+            benefits: ["Réduction du stress", "Amélioration du sommeil", "Augmentation de l'énergie"],
+            timeToEffect: "2-3 semaines",
+            popularity: 95,
+          });
+        }
+        
+        if (hasSleepIssues) {
+          personalRecommendations.push({
+            title: "Mélatonine Naturelle Plus",
+            description: "Association unique de mélatonine, valériane et passiflore pour un sommeil profond et réparateur.",
+            url: "https://example.com/melatonine",
+            confidence: 0.89,
+            benefits: ["Endormissement rapide", "Sommeil ininterrompu", "Réveil sans fatigue"],
+            timeToEffect: "3-5 jours",
+            popularity: 91,
+          });
+        }
+        
+        if (hasDigestiveIssues) {
+          personalRecommendations.push({
+            title: "Probiotiques Digestifs Avancés",
+            description: "25 milliards d'UFC et 10 souches bactériennes pour restaurer l'équilibre intestinal et améliorer la digestion.",
+            url: "https://example.com/probiotiques",
+            confidence: 0.85,
+            benefits: ["Réduction des ballonnements", "Amélioration de la digestion", "Renforcement de la flore intestinale"],
+            timeToEffect: "1-2 semaines",
+            popularity: 88,
+          });
+        }
+        
+        if (hasImmuneIssues || responses.fruitVegConsumption === "peu") {
+          personalRecommendations.push({
+            title: "Complexe Immunité Zinc & Vitamine C",
+            description: "Association synergique de zinc, vitamine C, échinacée et propolis pour renforcer vos défenses naturelles.",
+            url: "https://example.com/immunite",
+            confidence: 0.82,
+            benefits: ["Protection immunitaire", "Réduction du temps de convalescence", "Soutien en période hivernale"],
+            timeToEffect: "1-4 semaines",
+            popularity: 79,
+          });
+        }
+        
+        // Add a general recommendation if none of the specific ones apply
+        if (personalRecommendations.length === 0) {
+          personalRecommendations.push({
+            title: "Complexe Multivitamines Premium",
+            description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
+            url: "https://example.com/multivitamines",
+            confidence: 0.78,
+            benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
+            timeToEffect: "2-4 semaines",
+            popularity: 85,
+          });
+          
+          personalRecommendations.push({
+            title: "Oméga-3 Haute Concentration",
+            description: "Huile de poisson purifiée avec haute teneur en EPA et DHA pour la santé cardiovasculaire et cérébrale.",
+            url: "https://example.com/omega3",
+            confidence: 0.76,
+            benefits: ["Soutien cardiovasculaire", "Fonction cognitive", "Réduction de l'inflammation"],
+            timeToEffect: "4-8 semaines",
+            popularity: 82,
+          });
+        }
+        
+        // Always add a general multivitamin as a secondary recommendation if not already added
+        if (!personalRecommendations.some(rec => rec.title.includes("Multivitamines"))) {
+          personalRecommendations.push({
+            title: "Complexe Multivitamines Premium",
+            description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
+            url: "https://example.com/multivitamines",
+            confidence: 0.75,
+            benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
+            timeToEffect: "2-4 semaines",
+            popularity: 85,
+          });
+        }
       }
       
       setRecommendations(personalRecommendations);
@@ -305,7 +343,7 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
     }, 3500);
 
     return () => clearInterval(interval);
-  }, [responses]);
+  }, [responses, personalizationFactors]);
 
   if (loading) {
     return (
@@ -437,66 +475,28 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
           </div>
         </div>
         
-        {/* Message d'urgence contextuel */}
-        {urgencyMessage.message && (
-          <div className={cn(
-            "mb-6 p-4 rounded-lg flex items-center gap-3",
-            urgencyMessage.level === 'high' ? "bg-red-50 border border-red-100" :
-            urgencyMessage.level === 'medium' ? "bg-amber-50 border border-amber-100" :
-            "bg-blue-50 border border-blue-100"
-          )}>
-            <div className={cn(
-              "p-2 rounded-full",
-              urgencyMessage.level === 'high' ? "bg-red-100" :
-              urgencyMessage.level === 'medium' ? "bg-amber-100" :
-              "bg-blue-100"
-            )}>
-              {urgencyMessage.level === 'high' ? (
-                <Clock className={cn("h-5 w-5", urgencyMessage.level === 'high' ? "text-red-600" : 
-                  urgencyMessage.level === 'medium' ? "text-amber-600" : "text-blue-600")} />
-              ) : (
-                <Info className={cn("h-5 w-5", urgencyMessage.level === 'high' ? "text-red-600" : 
-                  urgencyMessage.level === 'medium' ? "text-amber-600" : "text-blue-600")} />
-              )}
-            </div>
-            <div className="flex-1">
-              <p className={cn(
-                "font-medium",
-                urgencyMessage.level === 'high' ? "text-red-800" :
-                urgencyMessage.level === 'medium' ? "text-amber-800" :
-                "text-blue-800"
-              )}>
-                {urgencyMessage.message}
-              </p>
-              {timeRemaining !== null && timeRemaining > 0 && (
-                <p className={cn(
-                  "text-sm mt-1",
-                  urgencyMessage.level === 'high' ? "text-red-600" :
-                  urgencyMessage.level === 'medium' ? "text-amber-600" :
-                  "text-blue-600"
-                )}>
-                  Expire dans : {formatTime(timeRemaining)}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Message d'urgence contextuel avec nouveau composant */}
+        <div className="mb-6">
+          <UrgencyCountdown 
+            initialMinutes={45}
+            message={personalizationFactors ? 
+              getPersonalizedMessage(personalizationFactors, 'urgency') : 
+              urgencyMessage.message
+            }
+            variant="featured"
+          />
+        </div>
         
-        {/* Affichage du profil social */}
-        <div className="mb-6 p-4 bg-white border border-indigo-100 rounded-lg">
-          <div className="flex items-start gap-3">
-            <div className="bg-indigo-100 p-2 rounded-full">
-              <Users className="h-5 w-5 text-indigo-600" />
-            </div>
-            <div>
-              <p className="text-indigo-900 font-medium">
-                {Math.round(40 + Math.random() * 45)}% des utilisateurs de {userLocation} ont complété leur analyse
-              </p>
-              <p className="text-sm text-indigo-600">
-                Vous faites partie des {neuroProfile ? Math.round(neuroProfile.attentionScore / 10) : 8}% des utilisateurs les plus engagés
-              </p>
-            </div>
-          </div>
+        {/* Affichage du profil social avec le nouveau composant */}
+        <div className="mb-6">
+          <DynamicSocialProof
+            baseText={personalizationFactors ? 
+              getPersonalizedMessage(personalizationFactors, 'social') : 
+              "des utilisateurs ont complété leur analyse"
+            }
+            location={userLocation}
+            variant="detailed"
+          />
         </div>
         
         <div className="flex border-b border-gray-200 mb-6">
@@ -669,6 +669,8 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
             </div>
           </>
         )}
+        
+        {/* ... reste du code inchangé */}
         
         {activeTab === "report" && (
           <div className="space-y-6">

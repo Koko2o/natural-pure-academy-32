@@ -9,6 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/components/quiz/types";
 import LabEffects from "@/components/quiz/LabEffects";
 import { secureStorage } from "@/utils/complianceFilter";
+import GDPRCompliance from "@/components/GDPRCompliance";
+import UrgencyCountdown from "@/components/quiz/UrgencyCountdown";
+import DynamicSocialProof from "@/components/quiz/DynamicSocialProof";
+import { collectPersonalizationFactors, getPersonalizedMessage } from "@/utils/dynamicPersonalization";
 
 const Quiz = () => {
   const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
@@ -26,6 +30,28 @@ const Quiz = () => {
     symptoms: []
   });
   const [showMolecules, setShowMolecules] = useState(false);
+  const [userLocation, setUserLocation] = useState<string>('');
+  const [personalizationFactors, setPersonalizationFactors] = useState<any>(null);
+  const [welcomeMessage, setWelcomeMessage] = useState<string>('');
+  
+  // Récupérer les facteurs de personnalisation
+  useEffect(() => {
+    const fetchPersonalizationData = async () => {
+      const factors = await collectPersonalizationFactors();
+      setPersonalizationFactors(factors);
+      
+      // Stocker la localisation pour utilisation dans les composants enfants
+      if (factors.geo) {
+        setUserLocation(factors.geo);
+      }
+      
+      // Générer le message de bienvenue personnalisé
+      const message = getPersonalizedMessage(factors, 'welcome');
+      setWelcomeMessage(message);
+    };
+    
+    fetchPersonalizationData();
+  }, []);
   
   // Utilisation du stockage sécurisé pour le suivi de progression
   useEffect(() => {
@@ -51,6 +77,20 @@ const Quiz = () => {
       step,
       responses: quizResponses
     });
+    
+    // Mettre à jour les facteurs de personnalisation lorsque les réponses au quiz changent
+    if (quizResponses.symptoms.length > 0 || quizResponses.objectives.length > 0) {
+      const updatePersonalization = async () => {
+        const factors = await collectPersonalizationFactors({
+          symptoms: quizResponses.symptoms,
+          objectives: quizResponses.objectives,
+          progress: step === 'intro' ? 0 : step === 'quiz' ? 0.5 : 1
+        });
+        setPersonalizationFactors(factors);
+      };
+      
+      updatePersonalization();
+    }
   }, [step, quizResponses]);
 
   const startQuiz = () => {
@@ -103,6 +143,13 @@ const Quiz = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-slate-50 relative">
       <LabEffects active={showMolecules} />
       
+      {/* Bannière de consentement GDPR */}
+      <GDPRCompliance 
+        services={['basic_analytics', 'heatmaps']}
+        lang="fr"
+        policyLink="/politique-confidentialite"
+      />
+      
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         {step === 'intro' && (
           <div className="text-center mb-10">
@@ -136,7 +183,7 @@ const Quiz = () => {
               Votre Profil Nutritionnel Personnalisé
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Basé sur les dernières recherches scientifiques en nutrition
+              {welcomeMessage || "Basé sur les dernières recherches scientifiques en nutrition"}
             </p>
           </div>
         )}
@@ -197,18 +244,22 @@ const Quiz = () => {
               Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
             </p>
             
-            <div className="mt-8 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-center gap-3">
-              <div className="bg-amber-100 p-1.5 rounded-full flex-shrink-0">
-                <Clock className="h-4 w-4 text-amber-700" />
-              </div>
-              <div>
-                <p className="text-sm text-amber-800 font-medium">
-                  Dernière session d'analyse disponible aujourd'hui
-                </p>
-                <p className="text-xs text-amber-700">
-                  {Math.floor(Math.random() * 10) + 3} places restantes pour cette session
-                </p>
-              </div>
+            {/* Urgency countdown */}
+            <div className="mt-8">
+              <UrgencyCountdown 
+                initialMinutes={30}
+                message={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'urgency') : "Dernière session d'analyse disponible aujourd'hui"}
+                variant="featured"
+              />
+            </div>
+            
+            {/* Social proof */}
+            <div className="mt-8">
+              <DynamicSocialProof
+                baseText={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'social') : undefined}
+                location={userLocation}
+                variant="detailed"
+              />
             </div>
           </div>
         )}
@@ -224,6 +275,7 @@ const Quiz = () => {
           <QuizResults 
             responses={quizResponses}
             onRestart={handleRestartQuiz}
+            personalizationFactors={personalizationFactors}
           />
         )}
       </div>
