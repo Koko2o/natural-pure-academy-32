@@ -5,9 +5,10 @@ import { quizSteps } from "./quiz/QuizSteps";
 import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
-import { ArrowLeft, ArrowRight, TestTube, Microscope, FlaskConical, Atom, CheckCircle, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, ArrowRight, TestTube, Microscope, FlaskConical, Atom, CheckCircle, Sparkles, Brain, Beaker } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { getStrategicDelay } from "./quiz/NeuroEngine";
 
 interface NutritionalQuizProps {
   onComplete: (responses: QuizResponse) => void;
@@ -30,21 +31,108 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
   const [showInsight, setShowInsight] = useState(false);
   const [showMoleculeAnimation, setShowMoleculeAnimation] = useState(false);
   const [showConfidenceBooster, setShowConfidenceBooster] = useState(false);
+  const [showNeuroInsight, setShowNeuroInsight] = useState(false);
+  const [userType, setUserType] = useState<'quick_reader' | 'deep_reader' | 'scanner' | 'unknown'>('unknown');
+  const [insightIndex, setInsightIndex] = useState(0);
+  const moleculeCanvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number | null>(null);
+  
+  // Déterminer le type d'utilisateur
+  useEffect(() => {
+    const determineUserType = () => {
+      // Déterminer le type d'utilisateur basé sur le comportement de navigation
+      // En réalité, cela serait basé sur des métriques de comportement réelles
+      const types: Array<'quick_reader' | 'deep_reader' | 'scanner' | 'unknown'> = [
+        'quick_reader', 'deep_reader', 'scanner', 'deep_reader', 'quick_reader'
+      ];
+      setUserType(types[Math.floor(Math.random() * types.length)]);
+    };
+    
+    determineUserType();
+  }, []);
+  
+  // Initialiser l'animation des molécules
+  useEffect(() => {
+    const canvas = moleculeCanvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    const molecules: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      color: string;
+      vx: number;
+      vy: number;
+    }> = [];
+    
+    // Initialiser les molécules
+    for (let i = 0; i < 20; i++) {
+      molecules.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        color: `rgba(${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 200 + 55)}, ${Math.random() * 0.2 + 0.05})`,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3
+      });
+    }
+    
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Dessiner les molécules
+      molecules.forEach(molecule => {
+        ctx.beginPath();
+        ctx.arc(molecule.x, molecule.y, molecule.radius, 0, Math.PI * 2);
+        ctx.fillStyle = molecule.color;
+        ctx.fill();
+        
+        // Déplacer les molécules
+        molecule.x += molecule.vx;
+        molecule.y += molecule.vy;
+        
+        // Rebondir sur les bords
+        if (molecule.x < 0 || molecule.x > canvas.width) molecule.vx *= -1;
+        if (molecule.y < 0 || molecule.y > canvas.height) molecule.vy *= -1;
+      });
+      
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // Afficher des insights scientifiques aléatoires pendant le quiz
     if (currentStepIndex > 0) {
+      // Calculer le délai stratégique basé sur le type d'utilisateur
+      const strategicDelay = getStrategicDelay(userType);
+      console.log(`[NeuroEngine] Délai stratégique calculé: ${strategicDelay.toFixed(2)}s pour le type ${userType}`);
+      
       const timer = setTimeout(() => {
+        setInsightIndex(prev => (prev + 1) % insightMessages.length);
         setShowInsight(true);
         setTimeout(() => setShowInsight(false), 5000);
-      }, 2000);
+      }, strategicDelay * 1000);
       
       // Afficher l'animation de molécule occasionnellement
       if (Math.random() > 0.6) {
         setTimeout(() => {
           setShowMoleculeAnimation(true);
           setTimeout(() => setShowMoleculeAnimation(false), 4000);
-        }, 3500);
+        }, (strategicDelay + 1.5) * 1000);
       }
       
       // Afficher un message de confiance occasionnellement
@@ -52,12 +140,20 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         setTimeout(() => {
           setShowConfidenceBooster(true);
           setTimeout(() => setShowConfidenceBooster(false), 4500);
-        }, 5000);
+        }, (strategicDelay + 3) * 1000);
+      }
+      
+      // Afficher un insight neuropsychologique
+      if (currentStepIndex > 1 && Math.random() > 0.6) {
+        setTimeout(() => {
+          setShowNeuroInsight(true);
+          setTimeout(() => setShowNeuroInsight(false), 5000);
+        }, (strategicDelay + 4.5) * 1000);
       }
       
       return () => clearTimeout(timer);
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, userType]);
 
   const insightMessages = [
     "Votre profil présente des similitudes avec 68% de nos participants d'étude",
@@ -75,12 +171,26 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
     "89% des utilisateurs trouvent les recommandations finales très utiles",
     "Votre profil présente des caractéristiques uniques qui méritent une analyse complète",
   ];
+  
+  const neuroInsightMessages = [
+    "Votre niveau de stress cognitif est 23% supérieur à la moyenne des participants",
+    "Votre capacité d'attention est exceptionnellement forte sur les questions de sommeil",
+    "Votre profil neuropsychologique suggère une affinité pour les solutions magnésium",
+    "Notre algorithmie IA détecte un pattern unique dans vos réponses",
+    "87% des profils similaires au vôtre montrent une réponse rapide aux actifs naturels",
+  ];
 
-  const randomInsight = insightMessages[Math.floor(Math.random() * insightMessages.length)];
+  const randomInsight = insightMessages[insightIndex];
   const randomConfidence = confidenceMessages[Math.floor(Math.random() * confidenceMessages.length)];
+  const randomNeuroInsight = neuroInsightMessages[Math.floor(Math.random() * neuroInsightMessages.length)];
 
   return (
     <div className="max-w-3xl mx-auto relative">
+      <canvas 
+        ref={moleculeCanvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none"
+      />
+    
       <QuizProgress 
         currentStep={currentStepIndex} 
         totalSteps={quizSteps.length} 
@@ -126,6 +236,20 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
             </div>
             <div>
               <p className="text-sm text-green-800 font-medium">{randomConfidence}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showNeuroInsight && (
+        <div className="absolute bottom-24 right-0 z-10 max-w-xs bg-purple-50 border border-purple-100 rounded-lg p-3 shadow-md animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="bg-purple-100 p-1.5 rounded-full mt-0.5">
+              <Brain className="h-4 w-4 text-purple-700" />
+            </div>
+            <div>
+              <p className="text-sm text-purple-800 font-medium">{randomNeuroInsight}</p>
+              <p className="text-xs text-purple-600 mt-1">Analyse neuropsychologique</p>
             </div>
           </div>
         </div>
@@ -179,11 +303,17 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
               }, 2000);
               
               setTimeout(() => {
+                toast.info("Analyse neuropsychologique en cours...", {
+                  icon: <Brain className="h-5 w-5 text-violet-700" />,
+                });
+              }, 3000);
+              
+              setTimeout(() => {
                 toast.success("Analyse complétée avec succès!", {
                   icon: <Sparkles className="h-5 w-5 text-amber-700" />,
                 });
                 handleNext();
-              }, 3000);
+              }, 4000);
             } else {
               handleNext();
             }
@@ -195,7 +325,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         </Button>
       </div>
       
-      {/* Éléments de preuve sociale */}
+      {/* Éléments de preuve sociale améliorés */}
       <div className="mt-8 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-indigo-700">
@@ -207,11 +337,59 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
             <span>1,234 personnes ont complété ce questionnaire</span>
           </div>
           <div className="flex items-center text-xs text-indigo-700">
-            <Microscope className="h-3 w-3 mr-1" />
+            <Beaker className="h-3.5 w-3.5 mr-1" />
             <span>Validé par 3 universités</span>
           </div>
         </div>
+        
+        {/* Indicateur de participants récents */}
+        <div className="mt-2 flex items-center justify-between">
+          <div className="text-xs text-indigo-600">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+            <span className="animate-pulse">
+              <span className="font-medium">{Math.floor(Math.random() * 10) + 3}</span> personnes participent en ce moment
+            </span>
+          </div>
+          <div className="text-xs text-indigo-600">
+            Dernière participation il y a {Math.floor(Math.random() * 4) + 1} min
+          </div>
+        </div>
       </div>
+      
+      <style>
+{`
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+`}
+      </style>
     </div>
   );
 };

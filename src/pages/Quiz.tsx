@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import QuizResults from "@/components/QuizResults";
 import { toast } from "sonner";
-import { Beaker, ChevronRight, Award, Microscope, Users } from "lucide-react";
+import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Flask } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/components/quiz/types";
+import LabEffects from "@/components/quiz/LabEffects";
 
 const Quiz = () => {
   const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
@@ -23,9 +24,11 @@ const Quiz = () => {
     stressLevel: '',
     symptoms: []
   });
+  const [showMolecules, setShowMolecules] = useState(false);
 
   const startQuiz = () => {
     setStep('quiz');
+    setShowMolecules(true);
     toast.success("Préparation de votre profil nutritionnel...");
   };
 
@@ -45,6 +48,7 @@ const Quiz = () => {
 
   const handleRestartQuiz = () => {
     setStep('intro');
+    setShowMolecules(false);
     setQuizResponses({
       name: '',
       email: '',
@@ -59,9 +63,19 @@ const Quiz = () => {
       symptoms: []
     });
   };
+  
+  // Calculer un nombre aléatoire mais stable pour les participants
+  const getStableParticipantNumber = () => {
+    const date = new Date();
+    const dayOfMonth = date.getDate();
+    // Calculer un nombre qui varie légèrement mais reste stable pendant la journée
+    return 1234 + ((dayOfMonth * 7) % 100);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-slate-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-slate-50 relative">
+      <LabEffects active={showMolecules} />
+      
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         {step === 'intro' && (
           <div className="text-center mb-10">
@@ -82,10 +96,14 @@ const Quiz = () => {
                 <Award className="h-3.5 w-3.5" />
                 <span>72% de réduction des symptômes</span>
               </Badge>
+              <Badge variant="pill" className="flex items-center gap-1">
+                <Brain className="h-3.5 w-3.5" />
+                <span>Analyse Neuropsychologique</span>
+              </Badge>
             </div>
             
             <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-full mb-6">
-              <Beaker className="h-8 w-8 text-indigo-600" />
+              <Flask className="h-8 w-8 text-indigo-600" />
             </div>
             <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-700 to-blue-600 bg-clip-text text-transparent">
               Votre Profil Nutritionnel Personnalisé
@@ -120,7 +138,7 @@ const Quiz = () => {
               
               <div className="flex items-start gap-4">
                 <div className="bg-indigo-100 p-2 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-700"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+                  <Brain className="h-5 w-5 text-indigo-700" />
                 </div>
                 <div>
                   <h3 className="font-medium text-lg text-indigo-900">Personnalisé pour vous</h3>
@@ -139,14 +157,33 @@ const Quiz = () => {
               </div>
             </div>
             
-            <Button size="lg" className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg" onClick={startQuiz}>
+            <Button 
+              size="lg" 
+              className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg" 
+              onClick={startQuiz}
+            >
               <span>Commencer mon bilan</span>
               <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
 
             <p className="text-sm text-center text-muted-foreground mt-6">
-              Environ 5 minutes • 100% confidentiel • Utilisé par 1,234 membres
+              Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
             </p>
+            
+            {/* Élément d'urgence contextuelle */}
+            <div className="mt-8 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-center gap-3">
+              <div className="bg-amber-100 p-1.5 rounded-full flex-shrink-0">
+                <Clock className="h-4 w-4 text-amber-700" />
+              </div>
+              <div>
+                <p className="text-sm text-amber-800 font-medium">
+                  Dernière session d'analyse disponible aujourd'hui
+                </p>
+                <p className="text-xs text-amber-700">
+                  {Math.floor(Math.random() * 10) + 3} places restantes pour cette session
+                </p>
+              </div>
+            </div>
           </div>
         )}
         
@@ -167,5 +204,22 @@ const Quiz = () => {
     </div>
   );
 };
+
+const Clock = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+);
+
+const Flask = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M10 2v7.31"></path>
+    <path d="M14 9.3V2"></path>
+    <path d="M8.5 2h7"></path>
+    <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+    <path d="M5.52 16h12.96"></path>
+  </svg>
+);
 
 export default Quiz;

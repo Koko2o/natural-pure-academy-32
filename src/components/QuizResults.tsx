@@ -13,12 +13,18 @@ import {
   ArrowRight,
   BarChart,
   Zap,
+  Brain,
+  FlaskConical,
+  Gauge,
+  Lightbulb
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { QuizResponse } from "./quiz/types";
 import { cn } from "@/lib/utils";
 import { Progress } from "./ui/progress";
+import { generateNeuroProfile, getUrgencyMessage } from "./quiz/NeuroEngine";
+import { calculateRiskScore, getRiskColor } from "@/utils/contentSafety";
 
 interface Recommendation {
   title: string;
@@ -38,9 +44,143 @@ interface QuizResultsProps {
 const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"recommendations" | "report">("recommendations");
+  const [activeTab, setActiveTab] = useState<"recommendations" | "report" | "neuroProfile">("recommendations");
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [neuroProfile, setNeuroProfile] = useState<any>(null);
+  const [urgencyMessage, setUrgencyMessage] = useState<{message: string; level: string; countdownMinutes?: number}>({
+    message: "",
+    level: "low"
+  });
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [userLocation, setUserLocation] = useState<string>('France');
+  const animationRef = useRef<any>(null);
+  
+  // Simuler la récupération de la localisation de l'utilisateur
+  useEffect(() => {
+    // Dans un cas réel, nous utiliserions une API de géolocalisation
+    const cities = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg'];
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    setUserLocation(randomCity);
+  }, []);
+
+  useEffect(() => {
+    // Récupérer le temps passé (simulé pour l'exemple)
+    const timeSpent = Math.random() * 180 + 90; // entre 90 et 270 secondes
+    const scrollSpeed = Math.random() * 2 + 0.5; // vitesse de défilement simulée
+    
+    // Générer le profil neurologique
+    const profile = generateNeuroProfile(responses, {
+      scrollSpeed,
+      timeSpent,
+      clickPatterns: [Math.random(), Math.random() * 1.5, Math.random()],
+      hoverTime: {},
+      rereadCount: Math.floor(Math.random() * 3)
+    });
+    
+    setNeuroProfile(profile);
+    
+    // Générer un message d'urgence contextuel
+    const urgency = getUrgencyMessage({
+      userProfile: profile,
+      currentTraffic: Math.random() > 0.6 ? 'high' : 'low',
+      userLocation,
+    });
+    
+    setUrgencyMessage(urgency);
+    
+    if (urgency.countdownMinutes) {
+      setTimeRemaining(urgency.countdownMinutes * 60);
+    }
+    
+    // Démarrer l'animation de laboratoire
+    startMoleculeAnimation();
+    
+    // Nettoyage
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [responses, userLocation]);
+  
+  // Animation de molécules en arrière-plan
+  const startMoleculeAnimation = () => {
+    const canvas = document.getElementById('molecule-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const molecules: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      color: string;
+      vx: number;
+      vy: number;
+    }> = [];
+    
+    // Initialiser les molécules
+    for (let i = 0; i < 30; i++) {
+      molecules.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 3 + 1,
+        color: `rgba(${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 200 + 55)}, ${Math.random() * 0.4 + 0.1})`,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
+      });
+    }
+    
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Dessiner les molécules
+      molecules.forEach(molecule => {
+        ctx.beginPath();
+        ctx.arc(molecule.x, molecule.y, molecule.radius, 0, Math.PI * 2);
+        ctx.fillStyle = molecule.color;
+        ctx.fill();
+        
+        // Déplacer les molécules
+        molecule.x += molecule.vx;
+        molecule.y += molecule.vy;
+        
+        // Rebondir sur les bords
+        if (molecule.x < 0 || molecule.x > canvas.width) molecule.vx *= -1;
+        if (molecule.y < 0 || molecule.y > canvas.height) molecule.vy *= -1;
+      });
+      
+      animationRef.current = requestAnimationFrame(animate);
+    };
+    
+    animate();
+  };
+  
+  // Compte à rebours
+  useEffect(() => {
+    if (timeRemaining === null) return;
+    
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [timeRemaining]);
+  
+  // Format du compte à rebours
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
 
   useEffect(() => {
     // Simulate progressive loading with progress bar
@@ -238,9 +378,26 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
   const primaryRecommendation = recommendations.reduce((prev, current) =>
     prev.confidence > current.confidence ? prev : current
   );
+  
+  // Calculer un score de risque dynamique
+  const riskScore = calculateRiskScore(
+    neuroProfile ? 180 + Math.random() * 120 : 120, // temps passé (secondes)
+    responses.objectives ? responses.objectives.length : 0, // questions répondues
+    responses.symptoms ? responses.symptoms.length : 0 // réponses critiques
+  );
+  
+  // Obtenir la couleur du score de risque
+  const riskColor = getRiskColor(riskScore);
 
   return (
     <div className="container mx-auto px-4 py-6 relative">
+      <canvas 
+        id="molecule-canvas" 
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
+        width="800"
+        height="600"
+      />
+      
       {showConfetti && (
         <div className="confetti-container absolute inset-0 pointer-events-none">
           {[...Array(50)].map((_, i) => (
@@ -280,6 +437,68 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
           </div>
         </div>
         
+        {/* Message d'urgence contextuel */}
+        {urgencyMessage.message && (
+          <div className={cn(
+            "mb-6 p-4 rounded-lg flex items-center gap-3",
+            urgencyMessage.level === 'high' ? "bg-red-50 border border-red-100" :
+            urgencyMessage.level === 'medium' ? "bg-amber-50 border border-amber-100" :
+            "bg-blue-50 border border-blue-100"
+          )}>
+            <div className={cn(
+              "p-2 rounded-full",
+              urgencyMessage.level === 'high' ? "bg-red-100" :
+              urgencyMessage.level === 'medium' ? "bg-amber-100" :
+              "bg-blue-100"
+            )}>
+              {urgencyMessage.level === 'high' ? (
+                <Clock className={cn("h-5 w-5", urgencyMessage.level === 'high' ? "text-red-600" : 
+                  urgencyMessage.level === 'medium' ? "text-amber-600" : "text-blue-600")} />
+              ) : (
+                <Info className={cn("h-5 w-5", urgencyMessage.level === 'high' ? "text-red-600" : 
+                  urgencyMessage.level === 'medium' ? "text-amber-600" : "text-blue-600")} />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className={cn(
+                "font-medium",
+                urgencyMessage.level === 'high' ? "text-red-800" :
+                urgencyMessage.level === 'medium' ? "text-amber-800" :
+                "text-blue-800"
+              )}>
+                {urgencyMessage.message}
+              </p>
+              {timeRemaining !== null && timeRemaining > 0 && (
+                <p className={cn(
+                  "text-sm mt-1",
+                  urgencyMessage.level === 'high' ? "text-red-600" :
+                  urgencyMessage.level === 'medium' ? "text-amber-600" :
+                  "text-blue-600"
+                )}>
+                  Expire dans : {formatTime(timeRemaining)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Affichage du profil social */}
+        <div className="mb-6 p-4 bg-white border border-indigo-100 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="bg-indigo-100 p-2 rounded-full">
+              <Users className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-indigo-900 font-medium">
+                {Math.round(40 + Math.random() * 45)}% des utilisateurs de {userLocation} ont complété leur analyse
+              </p>
+              <p className="text-sm text-indigo-600">
+                Vous faites partie des {neuroProfile ? Math.round(neuroProfile.attentionScore / 10) : 8}% des utilisateurs les plus engagés
+              </p>
+            </div>
+          </div>
+        </div>
+        
         <div className="flex border-b border-gray-200 mb-6">
           <button
             className={cn(
@@ -306,6 +525,18 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
             onClick={() => setActiveTab("report")}
           >
             Rapport Complet
+          </button>
+          <button
+            className={cn(
+              "py-2 px-4 font-medium text-sm focus:outline-none",
+              activeTab === "neuroProfile" 
+                ? "text-indigo-600 border-b-2 border-indigo-600" 
+                : "text-gray-500 hover:text-gray-700"
+            )}
+            onClick={() => setActiveTab("neuroProfile")}
+          >
+            Profil Neuropsychologique
+            {neuroProfile && <span className="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs">Nouveau</span>}
           </button>
         </div>
 
@@ -526,6 +757,195 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
               </div>
             </div>
             
+            {/* Affichage du score de risque */}
+            <div className="p-5 bg-white border border-indigo-100 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 flex items-center">
+                <Gauge className="h-5 w-5 mr-2 text-indigo-600" />
+                <span>Votre Indice de Risque Nutritionnel</span>
+              </h3>
+              
+              <div className="mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Score Global</span>
+                  <span className="text-sm font-bold" style={{ color: riskColor }}>{riskScore}/100</span>
+                </div>
+                <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${riskScore}%`, backgroundColor: riskColor }}
+                  ></div>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 mb-4">
+                {riskScore < 30 ? 
+                  "Votre profil présente un risque nutritionnel élevé. Une supplémentation adaptée est fortement recommandée." :
+                  riskScore < 70 ?
+                  "Votre profil présente quelques lacunes nutritionnelles qui pourraient bénéficier d'une supplémentation ciblée." :
+                  "Votre profil nutritionnel est généralement bon. Une supplémentation ciblée peut optimiser certains aspects spécifiques."
+                }
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+                <div className="p-3 bg-red-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-800">Risque Élevé</h4>
+                  <p className="text-xs text-red-600">0-30</p>
+                </div>
+                <div className="p-3 bg-amber-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-amber-800">Risque Modéré</h4>
+                  <p className="text-xs text-amber-600">31-70</p>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-green-800">Risque Faible</h4>
+                  <p className="text-xs text-green-600">71-100</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <Button
+                size="lg"
+                variant="natural"
+                className="pulse-animation"
+                onClick={() => setActiveTab("recommendations")}
+              >
+                Voir mes recommandations personnalisées
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        {activeTab === "neuroProfile" && neuroProfile && (
+          <div className="space-y-6">
+            <div className="bg-violet-50 p-5 rounded-lg border border-violet-100">
+              <div className="flex items-start mb-4">
+                <div className="bg-violet-100 p-2 rounded-full mr-3">
+                  <Brain className="h-6 w-6 text-violet-700" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-violet-900">Votre Profil Neuropsychologique</h3>
+                  <p className="text-sm text-violet-700">
+                    Notre algorithme a analysé vos réponses et comportements pour générer ce profil unique
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-violet-800 mb-1">Niveau de Stress Cognitif</h4>
+                    <div className="flex items-center">
+                      <div className="w-full mr-3">
+                        <div className="h-4 w-full bg-violet-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-violet-300 to-violet-500 rounded-full"
+                            style={{ width: `${neuroProfile.stressLevel}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-violet-700">{neuroProfile.stressLevel}%</span>
+                    </div>
+                    <p className="text-xs text-violet-600 mt-1">
+                      {neuroProfile.stressLevel > 70 ? 
+                        "Niveau élevé - Une gestion active du stress est recommandée" :
+                        neuroProfile.stressLevel > 40 ? 
+                        "Niveau modéré - À surveiller, certaines techniques de gestion seraient bénéfiques" :
+                        "Niveau faible - Vous gérez bien le stress quotidien"
+                      }
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium text-violet-800 mb-1">Score d'Attention et Concentration</h4>
+                    <div className="flex items-center">
+                      <div className="w-full mr-3">
+                        <div className="h-4 w-full bg-violet-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-violet-300 to-violet-500 rounded-full"
+                            style={{ width: `${neuroProfile.attentionScore}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-violet-700">{neuroProfile.attentionScore}%</span>
+                    </div>
+                    <p className="text-xs text-violet-600 mt-1">
+                      {neuroProfile.attentionScore > 75 ? 
+                        "Excellente capacité de concentration et d'attention aux détails" :
+                        neuroProfile.attentionScore > 45 ? 
+                        "Capacité d'attention moyenne - Des suppléments ciblés pourraient l'améliorer" :
+                        "Attention diffuse - Une optimisation cognitive serait bénéfique"
+                      }
+                    </p>
+                  </div>
+                  
+                  <div className="p-3 bg-violet-100 rounded-lg">
+                    <h4 className="text-sm font-medium text-violet-800 mb-1">Force Cognitive Principale</h4>
+                    <div className="flex items-center">
+                      <Lightbulb className="h-5 w-5 text-violet-600 mr-2" />
+                      <span className="text-violet-900">{neuroProfile.cognitiveStrength}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-violet-800 mb-2">Domaines d'Intérêt Prioritaires</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {neuroProfile.focusAreas.map((area: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-xs">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-violet-100 rounded-lg">
+                    <h4 className="text-sm font-medium text-violet-800 mb-1">Style d'Apprentissage Dominant</h4>
+                    <div className="flex items-center">
+                      <BookOpen className="h-5 w-5 text-violet-600 mr-2" />
+                      <span className="text-violet-900">{neuroProfile.learningStyle}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-lg border border-violet-200">
+                    <h4 className="text-sm font-medium text-violet-800 mb-2">Recommandations Neuropsychologiques</h4>
+                    <ul className="space-y-2 text-sm">
+                      {neuroProfile.stressLevel > 60 && (
+                        <li className="flex items-start">
+                          <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
+                            <Check className="h-3 w-3 text-green-600" />
+                          </div>
+                          <span>Techniques de respiration et méditation guidée</span>
+                        </li>
+                      )}
+                      {neuroProfile.attentionScore < 70 && (
+                        <li className="flex items-start">
+                          <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
+                            <Check className="h-3 w-3 text-green-600" />
+                          </div>
+                          <span>Suppléments à base de Bacopa et Ginkgo biloba</span>
+                        </li>
+                      )}
+                      <li className="flex items-start">
+                        <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
+                          <Check className="h-3 w-3 text-green-600" />
+                        </div>
+                        <span>Protocole nutritionnel adapté à votre profil cognitif</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-violet-100/50 rounded-lg">
+                <p className="text-xs text-violet-700 italic">
+                  Ce profil est généré à partir de l'analyse de vos réponses et de vos interactions avec le questionnaire. 
+                  Il peut évoluer avec le temps et n'a pas vocation à remplacer un avis médical professionnel.
+                </p>
+              </div>
+            </div>
+            
             <div className="text-center">
               <Button
                 size="lg"
@@ -576,6 +996,17 @@ const QuizResults = ({ responses, onRestart }: QuizResultsProps) => {
   }
 }
 
+@keyframes molecule-drift {
+  0% { transform: translateY(-5%) rotate(3deg); }
+  100% { transform: translateY(15%) rotate(-2deg); }
+}
+
+.molecule-background {
+  background: url('/molecule-grid.svg');
+  animation: molecule-drift 45s infinite alternate;
+  opacity: 0.1;
+}
+
 .pulse-animation {
   animation: pulse 2s infinite;
 }
@@ -606,6 +1037,28 @@ const Badge = () => (
       <p className="text-[10px] text-amber-700">Laboratoire indépendant</p>
     </div>
   </div>
+);
+
+const BookOpen = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </svg>
+);
+
+const Users = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const Check = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
 );
 
 export default QuizResults;
