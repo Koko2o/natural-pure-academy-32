@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import QuizResults from "@/components/QuizResults";
 import { toast } from "sonner";
-import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Flask } from "lucide-react";
+import { Beaker, ChevronRight, Award, Microscope, Users, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/components/quiz/types";
 import LabEffects from "@/components/quiz/LabEffects";
@@ -64,11 +63,9 @@ const Quiz = () => {
     });
   };
   
-  // Calculer un nombre aléatoire mais stable pour les participants
   const getStableParticipantNumber = () => {
     const date = new Date();
     const dayOfMonth = date.getDate();
-    // Calculer un nombre qui varie légèrement mais reste stable pendant la journée
     return 1234 + ((dayOfMonth * 7) % 100);
   };
 
@@ -103,7 +100,7 @@ const Quiz = () => {
             </div>
             
             <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-full mb-6">
-              <Flask className="h-8 w-8 text-indigo-600" />
+              <FlaskIcon className="h-8 w-8 text-indigo-600" />
             </div>
             <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-700 to-blue-600 bg-clip-text text-transparent">
               Votre Profil Nutritionnel Personnalisé
@@ -170,7 +167,6 @@ const Quiz = () => {
               Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
             </p>
             
-            {/* Élément d'urgence contextuelle */}
             <div className="mt-8 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-center gap-3">
               <div className="bg-amber-100 p-1.5 rounded-full flex-shrink-0">
                 <Clock className="h-4 w-4 text-amber-700" />
@@ -212,7 +208,7 @@ const Clock = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const Flask = ({ className }: { className?: string }) => (
+const FlaskIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M10 2v7.31"></path>
     <path d="M14 9.3V2"></path>
