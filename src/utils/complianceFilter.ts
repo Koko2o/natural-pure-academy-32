@@ -40,7 +40,7 @@ export const validateRedirectUrl = (url: string): boolean => {
 };
 
 /**
- * Crée une redirection sécurisée avec délai aléatoire
+ * Crée une redirection sécurisée avec délai aléatoire amélioré
  */
 export const safeRedirect = (url: string): Promise<void> => {
   return new Promise((resolve) => {
@@ -50,13 +50,37 @@ export const safeRedirect = (url: string): Promise<void> => {
       return;
     }
     
-    // Générer un délai aléatoire entre 1000 et 3000ms
-    const delay = Math.floor(Math.random() * 2000) + 1000;
+    // Générer un délai aléatoire entre 1300 et 3700ms (plus réaliste)
+    const delay = Math.floor(Math.random() * 2400) + 1300;
     
-    setTimeout(() => {
-      // Rediriger via la passerelle de conformité
-      window.location.href = `/redirect/social?target=${btoa(url)}`;
-      resolve();
+    // Générer un hash cryptographique pour le paramètre URL
+    const generateHash = async (input: string): Promise<string> => {
+      try {
+        // Utiliser l'API Web Crypto pour générer un hash SHA-256
+        const encoder = new TextEncoder();
+        const data = encoder.encode(input + Date.now().toString());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex.substring(0, 16); // Utiliser uniquement les 16 premiers caractères
+      } catch (e) {
+        // Fallback si l'API Web Crypto n'est pas disponible
+        return btoa(input).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+      }
+    };
+
+    setTimeout(async () => {
+      try {
+        // Générer un hash unique pour cette redirection
+        const urlHash = await generateHash(url);
+        // Rediriger via la passerelle de conformité avec un hash cryptographique
+        window.location.href = `/redirect/social?target=${btoa(url)}&ref=${urlHash}`;
+        resolve();
+      } catch (error) {
+        // Fallback en cas d'erreur
+        window.location.href = `/redirect/social?target=${btoa(url)}`;
+        resolve();
+      }
     }, delay);
   });
 };
@@ -108,4 +132,86 @@ export const secureStorage = {
       console.error('Erreur lors de la suppression du stockage sécurisé:', error);
     }
   }
+};
+
+/**
+ * Amélioration: Détection de termes interdits avec analyse contextuelle (NLP simplifié)
+ */
+
+// Contextes sécurisés qui peuvent contenir des termes normalement interdits
+const SAFE_CONTEXTS = [
+  'étude scientifique',
+  'recherche montre',
+  'selon les études',
+  'à titre informatif',
+  'but éducatif',
+  'contexte pédagogique',
+  'recherche médicale',
+  'publication scientifique'
+];
+
+// Fonctionnalité NLP simplifiée pour analyser le contexte
+export const analyzeContext = (text: string, term: string): boolean => {
+  if (!text || !term) return false;
+  
+  // Convertir en minuscules pour la comparaison
+  const lowerText = text.toLowerCase();
+  const lowerTerm = term.toLowerCase();
+  
+  // Trouver la position du terme
+  const termIndex = lowerText.indexOf(lowerTerm);
+  if (termIndex === -1) return false;
+  
+  // Extraire un segment de contexte autour du terme (100 caractères)
+  const contextStart = Math.max(0, termIndex - 50);
+  const contextEnd = Math.min(lowerText.length, termIndex + term.length + 50);
+  const context = lowerText.substring(contextStart, contextEnd);
+  
+  // Vérifier si le contexte contient l'un des contextes sécurisés
+  return SAFE_CONTEXTS.some(safeContext => context.includes(safeContext));
+};
+
+// Fonction améliorée pour détecter les termes interdits avec NLP
+export const detectBannedTermsWithNLP = (content: string): { 
+  terms: string[], 
+  contexts: { term: string, context: string, isSafe: boolean }[] 
+} => {
+  if (!content) return { terms: [], contexts: [] };
+  
+  const lowerContent = content.toLowerCase();
+  const contexts: { term: string, context: string, isSafe: boolean }[] = [];
+  
+  // Extraire tous les termes potentiellement interdits
+  const bannedTermsRegex = /\b(offre|promo|exclusivité|achat|commander|prix|rabais|boutique|vente|acheter|soldes|discount|bon marché|économies|réduction)\b/gi;
+  const terms: string[] = [];
+  
+  let match;
+  while ((match = bannedTermsRegex.exec(lowerContent)) !== null) {
+    const term = match[0];
+    const termIndex = match.index;
+    
+    // Extraire le contexte
+    const contextStart = Math.max(0, termIndex - 50);
+    const contextEnd = Math.min(lowerContent.length, termIndex + term.length + 50);
+    const context = content.substring(contextStart, contextEnd);
+    
+    // Analyser le contexte
+    const isSafe = analyzeContext(context, term);
+    
+    // Ajouter aux résultats si non sécurisé
+    if (!isSafe) {
+      terms.push(term);
+    }
+    
+    contexts.push({
+      term,
+      context,
+      isSafe
+    });
+  }
+  
+  return {
+    terms: [...new Set(terms)], // Éliminer les doublons
+    contexts
+  };
 };
