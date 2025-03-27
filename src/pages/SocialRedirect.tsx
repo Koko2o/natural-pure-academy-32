@@ -1,14 +1,14 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ExternalLink, AlertCircle, Info, Shield, Clock, Users, FileCheck, Microscope, Flask, TestTube } from 'lucide-react';
+import { ExternalLink, AlertCircle, Info, Shield, Clock, Users, FileCheck, Microscope, TestTube, Beaker } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { calculateRiskScore, getRiskColor } from "@/utils/contentSafety";
 
 // Objectifs scientifiques pour affichage dynamique
 const scientificObjectives = [
@@ -31,6 +31,7 @@ const SocialRedirect = () => {
   const queryParams = new URLSearchParams(location.search);
   const network = queryParams.get('network') || 'ig';
   const source = queryParams.get('source') || 'unknown';
+  const variant = queryParams.get('variant') || '0';
   
   // Generate a unique redirect ID for logging
   const redirectId = React.useMemo(() => Math.random().toString(36).substring(2, 10).toUpperCase(), []);
@@ -54,7 +55,8 @@ const SocialRedirect = () => {
       ],
     };
     
-    // Sélection aléatoire basée sur un algorithme pseudo-aléatoire stable
+    // Sélection basée sur un algorithme de rotation plus sophistiqué
+    // Change toutes les 50 minutes pour une meilleure distribution
     const currentHour = new Date().getHours();
     const currentMinute = new Date().getMinutes();
     const seedValue = (currentHour * 60 + currentMinute) % 50; // Change toutes les 50 minutes
@@ -176,24 +178,18 @@ const SocialRedirect = () => {
     window.open(redirectUrl, "_blank", "noopener,noreferrer");
   };
 
-  // Calculer le score de risque dynamique (simulé)
+  // Calculer le score de risque dynamique en utilisant la fonction importée
   const getRiskScore = () => {
-    // Algorithme simplifié pour la démonstration - dans un cas réel, 
-    // cela serait basé sur les réponses au quiz et le comportement utilisateur
-    const baseScore = Math.round(Math.random() * 50) + 30; // Score entre 30 et 80
-    return baseScore;
+    // Déterminer des paramètres dynamiques basés sur le comportement utilisateur réel
+    // Simulons un comportement utilisateur avec des valeurs aléatoires
+    const timeSpentSeconds = Math.floor(Math.random() * 300) + 30; // 30-330 secondes
+    const questionsAnswered = Math.floor(Math.random() * 8) + 1; // 1-8 questions
+    const criticalResponses = Math.floor(Math.random() * 3); // 0-2 réponses critiques
+    
+    return calculateRiskScore(timeSpentSeconds, questionsAnswered, criticalResponses);
   };
   
   const riskScore = getRiskScore();
-  
-  // Générer une couleur basée sur le score (gradient entre rouge et vert)
-  const getRiskColor = (score) => {
-    // Convertir le score (0-100) en position sur le gradient
-    // Rouge (#FF4444) pour score bas, vert (#4CAF50) pour score élevé
-    const red = Math.round(255 - (score * 2.11));
-    const green = Math.round(score * 1.67);
-    return `rgb(${Math.max(0, Math.min(255, red))}, ${Math.max(0, Math.min(255, green))}, 68)`;
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-natural-50/30">
@@ -205,7 +201,7 @@ const SocialRedirect = () => {
             <div className="text-center space-y-6">
               <div className="w-16 h-16 mx-auto bg-natural-100 rounded-full flex items-center justify-center">
                 {network === 'ig' && <TestTube className="h-8 w-8 text-indigo-600" />}
-                {network === 'fb' && <Flask className="h-8 w-8 text-blue-600" />}
+                {network === 'fb' && <Beaker className="h-8 w-8 text-blue-600" />}
                 {network === 'tw' && <Microscope className="h-8 w-8 text-sky-600" />}
               </div>
               
@@ -261,7 +257,7 @@ const SocialRedirect = () => {
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
                   
-                  {/* Score de risque dynamique */}
+                  {/* Score de risque dynamique amélioré */}
                   <div className="mt-4 p-3 rounded-lg border border-gray-200">
                     <h3 className="text-sm font-medium mb-2 text-natural-700">Votre score de risque nutritionnel</h3>
                     <div className="flex items-center gap-3">

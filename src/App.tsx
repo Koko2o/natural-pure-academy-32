@@ -16,7 +16,7 @@ import NotFound from "./pages/NotFound";
 import ProfileSante from "./pages/ProfileSante";
 import LaboSolutions from "./pages/LaboSolutions";
 import SocialRedirect from "./pages/SocialRedirect";
-import { bannedTerms, detectBannedTerms } from "./utils/contentSafety";
+import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,8 +43,17 @@ const runContentSafetyCheck = () => {
     // 2. Déclencher une alerte pour l'administrateur
     // 3. Appliquer un système de filtrage automatique
     
-    // Logique pour détecter les sections problématiques (exemple simplifié)
-    document.querySelectorAll('p, h1, h2, h3, h4, h5, div').forEach((element) => {
+    // Analyse complète de la page pour détection de contexte
+    const auditResults = auditPageContent(document.body.innerHTML);
+    
+    console.warn("[GoogleAdGrantsSafety] Compliance audit:", {
+      isCompliant: auditResults.isCompliant,
+      issuesCount: auditResults.issues.length,
+      details: auditResults.issues
+    });
+    
+    // Logique pour détecter les sections problématiques (exemple amélioré)
+    document.querySelectorAll('p, h1, h2, h3, h4, h5, div, button, a').forEach((element) => {
       const content = element.textContent?.toLowerCase() || '';
       const hasBannedTerm = foundTerms.some(term => content.includes(term));
       
@@ -55,8 +64,14 @@ const runContentSafetyCheck = () => {
           element: element.tagName,
           path: getElementPath(element as HTMLElement)
         });
+        
+        // Option : ajouter un attribut data pour des outils de visualisation
+        element.setAttribute('data-compliance-issue', 'true');
       }
     });
+    
+    // Tester la présence de cookies (localStorage)
+    console.assert(window.localStorage.length === 0, "COOKIE LEAK DETECTED");
   } else {
     console.log("[GoogleAdGrantsSafety] No banned terms detected on this page");
   }
@@ -84,16 +99,21 @@ const getElementPath = (element: HTMLElement) => {
 const App = () => {
   // Lancer la détection au chargement de chaque page avec un délai adaptatif
   useEffect(() => {
+    // Amélioration : utiliser un timestamp précis pour mesurer le temps réel
+    const startTime = performance.now();
+    
     // Délai pour s'assurer que la page est complètement chargée
     // Utiliser requestIdleCallback pour les navigateurs modernes
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(() => {
         runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] First scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
       }, { timeout: 2000 });
     } else {
       // Fallback pour les navigateurs qui ne supportent pas requestIdleCallback
       const timer = setTimeout(() => {
         runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] First scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
       }, 1000);
       
       return () => clearTimeout(timer);
@@ -101,7 +121,10 @@ const App = () => {
     
     // Vérification supplémentaire après le chargement complet des ressources
     window.addEventListener('load', () => {
-      setTimeout(runContentSafetyCheck, 2500);
+      setTimeout(() => {
+        runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] Post-load scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+      }, 2500);
     }, { once: true });
   }, []);
 
