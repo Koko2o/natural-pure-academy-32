@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import QuizResults from "@/components/QuizResults";
@@ -7,6 +8,7 @@ import { Beaker, ChevronRight, Award, Microscope, Users, Brain } from "lucide-re
 import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/components/quiz/types";
 import LabEffects from "@/components/quiz/LabEffects";
+import { secureStorage } from "@/utils/complianceFilter";
 
 const Quiz = () => {
   const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
@@ -24,6 +26,32 @@ const Quiz = () => {
     symptoms: []
   });
   const [showMolecules, setShowMolecules] = useState(false);
+  
+  // Utilisation du stockage sécurisé pour le suivi de progression
+  useEffect(() => {
+    const savedProgress = secureStorage.get<{
+      step?: 'intro' | 'quiz' | 'results';
+      responses?: QuizResponse;
+    }>('quiz_progress', {});
+    
+    if (savedProgress.step) {
+      setStep(savedProgress.step);
+      if (savedProgress.responses) {
+        setQuizResponses(savedProgress.responses);
+      }
+      if (savedProgress.step !== 'intro') {
+        setShowMolecules(true);
+      }
+    }
+  }, []);
+  
+  // Sauvegarder la progression à chaque changement d'étape
+  useEffect(() => {
+    secureStorage.set('quiz_progress', {
+      step,
+      responses: quizResponses
+    });
+  }, [step, quizResponses]);
 
   const startQuiz = () => {
     setStep('quiz');
@@ -61,6 +89,8 @@ const Quiz = () => {
       stressLevel: '',
       symptoms: []
     });
+    // Effacer les données du quiz pour la conformité
+    secureStorage.remove('quiz_progress');
   };
   
   const getStableParticipantNumber = () => {
@@ -156,7 +186,7 @@ const Quiz = () => {
             
             <Button 
               size="lg" 
-              className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg" 
+              className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
               onClick={startQuiz}
             >
               <span>Commencer mon bilan</span>
@@ -197,6 +227,28 @@ const Quiz = () => {
           />
         )}
       </div>
+      
+      {/* Styles pour l'animation pulse-glow */}
+      <style>
+      {`
+        @keyframes pulse-glow {
+          0% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.02); filter: brightness(1.1); }
+          100% { transform: scale(1); filter: brightness(1); }
+        }
+        
+        .quiz-cta {
+          animation: pulse-glow 2s infinite ease-in-out;
+          box-shadow: 0 4px 14px rgba(89, 86, 213, 0.3);
+          transition: all 0.3s ease;
+        }
+        
+        .quiz-cta:hover {
+          box-shadow: 0 6px 20px rgba(89, 86, 213, 0.4);
+          animation: none;
+        }
+      `}
+      </style>
     </div>
   );
 };
