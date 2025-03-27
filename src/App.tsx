@@ -16,43 +16,93 @@ import NotFound from "./pages/NotFound";
 import ProfileSante from "./pages/ProfileSante";
 import LaboSolutions from "./pages/LaboSolutions";
 import SocialRedirect from "./pages/SocialRedirect";
+import { bannedTerms, detectBannedTerms } from "./utils/contentSafety";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 60 * 2, // 2 heures exactement (ISR)
+    },
+  },
+});
 
-// Liste des termes interdits par Google Ad Grants
-const bannedTerms = [
-  'achat', 'promo', 'commander', 'prix', 'offre', 'rabais', 
-  'boutique', 'vente', 'acheter', 'soldes', 'discount', 'bon marché',
-  'économies', 'réduction', 'promotion', 'meilleur prix', 'tarif'
-];
-
-// Fonction pour détecter les termes interdits
-const detectBannedTerms = () => {
-  // Cette fonction pourrait être utilisée dans un contexte réel pour scanner le contenu
-  // et alerter ou nettoyer automatiquement les termes interdits
+// Fonction pour détecter les termes interdits de manière optimisée
+const runContentSafetyCheck = () => {
   console.log("[GoogleAdGrantsSafety] Scanning for banned terms:", bannedTerms.join(', '));
   
-  // Version simplifiée pour la démonstration
+  // Version améliorée qui scanne le contenu complet
   const pageContent = document.body.textContent?.toLowerCase() || '';
-  const foundTerms = bannedTerms.filter(term => pageContent.includes(term.toLowerCase()));
+  const foundTerms = detectBannedTerms(pageContent);
   
   if (foundTerms.length > 0) {
     console.warn("[GoogleAdGrantsSafety] Detected potentially problematic terms:", foundTerms);
-    // Dans un contexte réel, on pourrait envoyer ces données à un système de surveillance
+    
+    // Dans un contexte réel, on pourrait:
+    // 1. Envoyer ces données à un système de surveillance
+    // 2. Déclencher une alerte pour l'administrateur
+    // 3. Appliquer un système de filtrage automatique
+    
+    // Logique pour détecter les sections problématiques (exemple simplifié)
+    document.querySelectorAll('p, h1, h2, h3, h4, h5, div').forEach((element) => {
+      const content = element.textContent?.toLowerCase() || '';
+      const hasBannedTerm = foundTerms.some(term => content.includes(term));
+      
+      if (hasBannedTerm) {
+        // Enregistrer les sections problématiques pour faciliter le nettoyage
+        console.warn("[GoogleAdGrantsSafety] Problematic section:", {
+          content: element.textContent,
+          element: element.tagName,
+          path: getElementPath(element as HTMLElement)
+        });
+      }
+    });
   } else {
     console.log("[GoogleAdGrantsSafety] No banned terms detected on this page");
   }
 };
 
+// Fonction utilitaire pour obtenir le chemin d'un élément dans le DOM
+const getElementPath = (element: HTMLElement) => {
+  const path: string[] = [];
+  let currentElement: HTMLElement | null = element;
+  
+  while (currentElement && currentElement !== document.body) {
+    let selector = currentElement.tagName.toLowerCase();
+    if (currentElement.id) {
+      selector += `#${currentElement.id}`;
+    } else if (currentElement.className) {
+      selector += `.${Array.from(currentElement.classList).join('.')}`;
+    }
+    path.unshift(selector);
+    currentElement = currentElement.parentElement;
+  }
+  
+  return path.join(' > ');
+};
+
 const App = () => {
-  // Lancer la détection au chargement de chaque page
+  // Lancer la détection au chargement de chaque page avec un délai adaptatif
   useEffect(() => {
     // Délai pour s'assurer que la page est complètement chargée
-    const timer = setTimeout(() => {
-      detectBannedTerms();
-    }, 1000);
+    // Utiliser requestIdleCallback pour les navigateurs modernes
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        runContentSafetyCheck();
+      }, { timeout: 2000 });
+    } else {
+      // Fallback pour les navigateurs qui ne supportent pas requestIdleCallback
+      const timer = setTimeout(() => {
+        runContentSafetyCheck();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
     
-    return () => clearTimeout(timer);
+    // Vérification supplémentaire après le chargement complet des ressources
+    window.addEventListener('load', () => {
+      setTimeout(runContentSafetyCheck, 2500);
+    }, { once: true });
   }, []);
 
   return (
