@@ -80,20 +80,24 @@ const SocialRedirect = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4"
+      role="main"
+      aria-labelledby="redirect-title"
+    >
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <div className="text-center mb-6">
           {isValid ? (
-            <div className="inline-flex items-center justify-center p-3 bg-green-100 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center p-3 bg-green-100 rounded-full mb-4" aria-hidden="true">
               <ShieldCheck className="h-8 w-8 text-green-600" />
             </div>
           ) : (
-            <div className="inline-flex items-center justify-center p-3 bg-amber-100 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center p-3 bg-amber-100 rounded-full mb-4" aria-hidden="true">
               <AlertTriangle className="h-8 w-8 text-amber-600" />
             </div>
           )}
           
-          <h1 className="text-2xl font-bold mb-2">
+          <h1 id="redirect-title" className="text-2xl font-bold mb-2">
             {isValid ? "Redirection scientifique" : "Redirection non autorisée"}
           </h1>
           <p className="text-slate-600 mb-4">
@@ -108,7 +112,7 @@ const SocialRedirect = () => {
             <div className="border border-slate-200 rounded-lg p-4 mb-6 break-all">
               <p className="text-sm text-slate-500 mb-1">Destination scientifique:</p>
               <div className="flex items-center gap-2 text-slate-700">
-                <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                <ExternalLink className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 <span>{isMobile ? extractDomain(url) : url}</span>
               </div>
               {hash && (
@@ -118,8 +122,8 @@ const SocialRedirect = () => {
               )}
             </div>
             
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Clock className="h-5 w-5 text-indigo-600" />
+            <div className="flex items-center justify-center gap-2 mb-6" aria-live="polite">
+              <Clock className="h-5 w-5 text-indigo-600" aria-hidden="true" />
               <p className="text-center">
                 Redirection dans <span className="font-semibold text-indigo-600">{countdown}</span> secondes...
               </p>
@@ -130,12 +134,14 @@ const SocialRedirect = () => {
                 variant="outline" 
                 className="flex-1" 
                 onClick={handleReturn}
+                aria-label="Retourner à la page précédente"
               >
                 Retour
               </Button>
               <Button 
                 className="flex-1 bg-indigo-600 hover:bg-indigo-700"
                 onClick={handleContinue}
+                aria-label="Continuer vers la destination externe"
               >
                 Continuer
               </Button>
@@ -149,7 +155,11 @@ const SocialRedirect = () => {
         
         {!isValid && (
           <div className="text-center">
-            <Button onClick={handleReturn} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button 
+              onClick={handleReturn} 
+              className="bg-indigo-600 hover:bg-indigo-700"
+              aria-label="Retourner au site principal"
+            >
               Retour au site
             </Button>
           </div>

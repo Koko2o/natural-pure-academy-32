@@ -40,7 +40,7 @@ export const validateRedirectUrl = (url: string): boolean => {
 };
 
 /**
- * Crée une redirection sécurisée avec délai aléatoire amélioré
+ * Crée une redirection sécurisée avec délai aléatoire amélioré et rotation d'URLs
  */
 export const safeRedirect = (url: string): Promise<void> => {
   return new Promise(async (resolve) => {
@@ -50,8 +50,23 @@ export const safeRedirect = (url: string): Promise<void> => {
       return;
     }
     
-    // Générer un délai aléatoire entre 1300 et 3700ms (plus réaliste)
-    const delay = Math.floor(Math.random() * 2400) + 1300;
+    // Générer un délai aléatoire cryptographique entre 1300 et 3700ms
+    // Utilisation de crypto.getRandomValues pour une génération vraiment aléatoire
+    const randomBuffer = new Uint32Array(1);
+    crypto.getRandomValues(randomBuffer);
+    const delay = (randomBuffer[0] % 2400) + 1300;
+    
+    // Rotation d'URLs pour empêcher la détection de pattern
+    const redirectPaths = [
+      '/redirect/social',
+      '/redirect/academic',
+      '/redirect/research',
+      '/redirect/study'
+    ];
+    
+    // Sélection aléatoire cryptographique du chemin de redirection
+    crypto.getRandomValues(randomBuffer);
+    const selectedPath = redirectPaths[randomBuffer[0] % redirectPaths.length];
     
     // Générer un hash cryptographique pour le paramètre URL
     const generateCryptoHash = async (input: string): Promise<string> => {
@@ -74,75 +89,106 @@ export const safeRedirect = (url: string): Promise<void> => {
         // Générer un hash unique pour cette redirection
         const urlHash = await generateCryptoHash(url);
         // Rediriger via la passerelle de conformité avec un hash cryptographique
-        window.location.href = `/redirect/social?target=${btoa(url)}&ref=${urlHash}`;
+        window.location.href = `${selectedPath}?target=${btoa(url)}&ref=${urlHash}`;
         resolve();
       } catch (error) {
         // Fallback en cas d'erreur
-        window.location.href = `/redirect/social?target=${btoa(url)}`;
+        window.location.href = `${selectedPath}?target=${btoa(url)}`;
         resolve();
       }
     }, delay);
   });
 };
 
+// Implémentation du chiffrement AES-256
 // Clé de chiffrement pour le stockage sécurisé
-let encryptionKey: string | null = null;
+let encryptionKey: CryptoKey | null = null;
 
-// Génère une clé de chiffrement unique pour cette session
-const generateEncryptionKey = (): string => {
+// Générer une clé de chiffrement AES-256 pour cette session
+const generateEncryptionKey = async (): Promise<CryptoKey> => {
   if (encryptionKey) return encryptionKey;
   
   try {
-    // Générer une clé aléatoire
-    const key = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    // Générer une clé aléatoire AES-256
+    const key = await crypto.subtle.generateKey(
+      {
+        name: 'AES-GCM',
+        length: 256,
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
     
     // Stocker la clé pour cette session
     encryptionKey = key;
     return key;
   } catch (e) {
-    // Fallback si l'API crypto n'est pas disponible
-    const fallbackKey = Math.random().toString(36).substring(2, 15) + 
-                         Math.random().toString(36).substring(2, 15);
-    encryptionKey = fallbackKey;
-    return fallbackKey;
+    console.error('Erreur lors de la génération de la clé de chiffrement:', e);
+    throw new Error('Impossible de générer une clé de chiffrement sécurisée');
   }
 };
 
-// Fonction pour chiffrer les données
-const encryptData = (data: string): string => {
+// Fonction pour chiffrer les données avec AES-256
+const encryptData = async (data: string): Promise<string> => {
   try {
-    const key = generateEncryptionKey();
-    // Chiffrement simple XOR
-    const encrypted = Array.from(data).map((char, i) => {
-      const keyChar = key[i % key.length];
-      return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
-    }).join('');
+    const key = await generateEncryptionKey();
+    // Générer un vecteur d'initialisation aléatoire
+    const iv = crypto.getRandomValues(new Uint8Array(12));
     
-    return btoa(encrypted);
+    // Chiffrer les données
+    const encodedData = new TextEncoder().encode(data);
+    const encryptedBuffer = await crypto.subtle.encrypt(
+      {
+        name: 'AES-GCM',
+        iv,
+      },
+      key,
+      encodedData
+    );
+    
+    // Combiner IV et données chiffrées
+    const encryptedArray = new Uint8Array(iv.length + encryptedBuffer.byteLength);
+    encryptedArray.set(iv);
+    encryptedArray.set(new Uint8Array(encryptedBuffer), iv.length);
+    
+    // Encoder en base64 pour le stockage
+    return btoa(String.fromCharCode(...encryptedArray));
   } catch (e) {
     console.error('Erreur lors du chiffrement des données:', e);
-    return btoa(data); // Fallback: juste encoder en base64
+    // Fallback: juste encoder en base64
+    return btoa(data);
   }
 };
 
 // Fonction pour déchiffrer les données
-const decryptData = (encryptedData: string): string => {
+const decryptData = async (encryptedData: string): Promise<string> => {
   try {
-    const key = generateEncryptionKey();
-    const encrypted = atob(encryptedData);
+    const key = await generateEncryptionKey();
     
-    // Déchiffrement XOR
-    const decrypted = Array.from(encrypted).map((char, i) => {
-      const keyChar = key[i % key.length];
-      return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
-    }).join('');
+    // Décoder le base64
+    const encryptedBytes = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
     
-    return decrypted;
+    // Extraire l'IV (12 premiers octets)
+    const iv = encryptedBytes.slice(0, 12);
+    // Extraire les données chiffrées
+    const data = encryptedBytes.slice(12);
+    
+    // Déchiffrer
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv,
+      },
+      key,
+      data
+    );
+    
+    // Convertir en chaîne
+    return new TextDecoder().decode(decryptedBuffer);
   } catch (e) {
     console.error('Erreur lors du déchiffrement des données:', e);
-    return atob(encryptedData); // Fallback: juste décoder du base64
+    // Fallback: juste décoder du base64
+    return atob(encryptedData);
   }
 };
 
@@ -154,7 +200,7 @@ const setupKeyRotation = () => {
   setInterval(() => {
     // Réinitialiser la clé de chiffrement
     encryptionKey = null;
-    generateEncryptionKey();
+    generateEncryptionKey().catch(console.error);
     console.log('Clé de chiffrement régénérée pour raisons de sécurité');
   }, rotationInterval);
 };
@@ -175,10 +221,10 @@ export interface SecureUserData {
  * Stockage sécurisé des données utilisateur (sans cookies persistants)
  */
 export const secureStorage = {
-  set: (key: string, value: any): void => {
+  set: async (key: string, value: any): Promise<void> => {
     try {
       // Chiffrer les données avant de les stocker
-      const encryptedValue = encryptData(JSON.stringify(value));
+      const encryptedValue = await encryptData(JSON.stringify(value));
       
       // Utiliser sessionStorage au lieu de localStorage pour la conformité
       sessionStorage.setItem(key, encryptedValue);
@@ -187,14 +233,14 @@ export const secureStorage = {
     }
   },
   
-  get: <T>(key: string, defaultValue: T): T => {
+  get: async <T>(key: string, defaultValue: T): Promise<T> => {
     try {
       const encryptedItem = sessionStorage.getItem(key);
       
       if (!encryptedItem) return defaultValue;
       
       // Déchiffrer les données
-      const decryptedItem = decryptData(encryptedItem);
+      const decryptedItem = await decryptData(encryptedItem);
       return JSON.parse(decryptedItem);
     } catch (error) {
       console.error('Erreur lors de la récupération du stockage sécurisé:', error);
@@ -215,6 +261,33 @@ export const secureStorage = {
       sessionStorage.clear();
     } catch (error) {
       console.error('Erreur lors de la suppression du stockage sécurisé:', error);
+    }
+  },
+  
+  // Version synchrone pour la compatibilité avec le code existant
+  setSync: (key: string, value: any): void => {
+    try {
+      // Fallback pour les opérations synchrones (moins sécurisé)
+      const serialized = JSON.stringify(value);
+      const encoded = btoa(serialized);
+      sessionStorage.setItem(key, encoded);
+    } catch (error) {
+      console.error('Erreur lors du stockage sécurisé (sync):', error);
+    }
+  },
+  
+  getSync: <T>(key: string, defaultValue: T): T => {
+    try {
+      const encoded = sessionStorage.getItem(key);
+      
+      if (!encoded) return defaultValue;
+      
+      // Déchiffrer les données (version simple)
+      const serialized = atob(encoded);
+      return JSON.parse(serialized);
+    } catch (error) {
+      console.error('Erreur lors de la récupération du stockage sécurisé (sync):', error);
+      return defaultValue;
     }
   }
 };

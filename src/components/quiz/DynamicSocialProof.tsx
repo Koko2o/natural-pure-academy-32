@@ -53,8 +53,11 @@ const DynamicSocialProof = ({
   
   if (variant === "minimal") {
     return (
-      <div className={`inline-flex items-center gap-1 text-xs text-indigo-600 ${className}`}>
-        <Users className="h-3 w-3" />
+      <div 
+        className={`inline-flex items-center gap-1 text-xs text-indigo-600 ${className}`}
+        aria-label={`Statistique de participation: ${participantCount} participants`}
+      >
+        <Users className="h-3 w-3" aria-hidden="true" />
         <span>{participantCount} participants</span>
       </div>
     );
@@ -62,9 +65,12 @@ const DynamicSocialProof = ({
   
   if (variant === "detailed") {
     return (
-      <div className={`bg-indigo-50 border border-indigo-100 rounded-lg p-3 ${className}`}>
+      <div 
+        className={`bg-indigo-50 border border-indigo-100 rounded-lg p-3 ${className}`}
+        aria-label="Informations détaillées sur les participants à l'étude"
+      >
         <div className="flex items-start gap-3">
-          <div className="bg-indigo-100 p-1.5 rounded-full mt-0.5">
+          <div className="bg-indigo-100 p-1.5 rounded-full mt-0.5" aria-hidden="true">
             <Users className="h-4 w-4 text-indigo-700" />
           </div>
           <div>
@@ -73,11 +79,11 @@ const DynamicSocialProof = ({
             </p>
             <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
               <div className="flex items-center text-xs text-indigo-600">
-                <MapPin className="h-3 w-3 mr-1" />
+                <MapPin className="h-3 w-3 mr-1" aria-hidden="true" />
                 <span>{localPercentage}% dans {userCity}</span>
               </div>
               <div className="flex items-center text-xs text-indigo-600">
-                <Clock className="h-3 w-3 mr-1" />
+                <Clock className="h-3 w-3 mr-1" aria-hidden="true" />
                 <span>Dernière: il y a {getTimeAgo()}</span>
               </div>
             </div>
@@ -89,8 +95,11 @@ const DynamicSocialProof = ({
   
   // Standard variant (default)
   return (
-    <div className={`flex items-center gap-2 text-sm ${className}`}>
-      <Users className="h-4 w-4 text-indigo-600" />
+    <div 
+      className={`flex items-center gap-2 text-sm ${className}`}
+      aria-label={`Statistique: ${Math.floor(Math.random() * 15) + 70}% ${baseText}`}
+    >
+      <Users className="h-4 w-4 text-indigo-600" aria-hidden="true" />
       <span>
         <span className="font-medium">{Math.floor(Math.random() * 15) + 70}%</span> {baseText}
       </span>

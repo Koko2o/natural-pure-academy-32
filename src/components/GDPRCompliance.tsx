@@ -20,17 +20,21 @@ const GDPRCompliance = ({
   
   useEffect(() => {
     // Vérifier si l'utilisateur a déjà donné son consentement
-    const userConsent = secureStorage.get<{ consented: boolean }>("gdpr_consent", { consented: false });
-    setConsented(userConsent.consented);
+    const checkConsent = async () => {
+      const userConsent = await secureStorage.get<{ consented: boolean }>("gdpr_consent", { consented: false });
+      setConsented(userConsent.consented);
+      
+      // Afficher la bannière si l'utilisateur n'a pas encore consenti
+      if (!userConsent.consented) {
+        setShowBanner(true);
+      }
+    };
     
-    // Afficher la bannière si l'utilisateur n'a pas encore consenti
-    if (!userConsent.consented) {
-      setShowBanner(true);
-    }
+    checkConsent();
   }, []);
   
-  const handleAccept = () => {
-    secureStorage.set("gdpr_consent", { 
+  const handleAccept = async () => {
+    await secureStorage.set("gdpr_consent", { 
       consented: true, 
       date: new Date().toISOString(),
       services: services
@@ -39,8 +43,8 @@ const GDPRCompliance = ({
     setShowBanner(false);
   };
   
-  const handleReject = () => {
-    secureStorage.set("gdpr_consent", { 
+  const handleReject = async () => {
+    await secureStorage.set("gdpr_consent", { 
       consented: false, 
       date: new Date().toISOString()
     });
@@ -78,26 +82,35 @@ const GDPRCompliance = ({
   if (!showBanner) return null;
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
+    <div 
+      className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gdpr-title"
+    >
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg border border-indigo-100 overflow-hidden">
         <div className="p-4 md:p-6">
           <div className="flex items-start">
             <div className="flex-shrink-0 mr-4">
-              <div className="bg-indigo-100 p-2 rounded-full">
+              <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
                 <Shield className="h-6 w-6 text-indigo-600" />
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">{t.title}</h3>
+              <h3 id="gdpr-title" className="text-lg font-semibold text-gray-900 mb-1">{t.title}</h3>
               <p className="text-gray-600 mb-3">{t.description}</p>
               
               {services.length > 0 && (
                 <div className="mb-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">{t.services}</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2" role="list">
                     {services.map((service) => (
-                      <div key={service} className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs flex items-center">
-                        <CheckCircle className="h-3 w-3 mr-1" />
+                      <div 
+                        key={service} 
+                        className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs flex items-center"
+                        role="listitem"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" aria-hidden="true" />
                         {t[service as keyof typeof t] || service}
                       </div>
                     ))}
@@ -109,12 +122,14 @@ const GDPRCompliance = ({
                 <Button 
                   onClick={handleAccept}
                   className="bg-indigo-600 hover:bg-indigo-700"
+                  aria-label={t.accept}
                 >
                   {t.accept}
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={handleReject}
+                  aria-label={t.reject}
                 >
                   {t.reject}
                 </Button>
@@ -122,6 +137,7 @@ const GDPRCompliance = ({
                   <a 
                     href={policyLink} 
                     className="text-indigo-600 text-sm hover:underline sm:mr-auto"
+                    aria-label={t.policy}
                   >
                     {t.policy}
                   </a>
@@ -131,8 +147,9 @@ const GDPRCompliance = ({
             <button 
               onClick={() => setShowBanner(false)} 
               className="flex-shrink-0 ml-2 p-1 rounded-full hover:bg-gray-100"
+              aria-label="Fermer"
             >
-              <X className="h-5 w-5 text-gray-400" />
+              <X className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </button>
           </div>
         </div>

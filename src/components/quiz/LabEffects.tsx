@@ -6,8 +6,12 @@ import { useEffect, useRef } from "react";
 export const LabEffects = ({ active = true }: { active?: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+  const isUnmountedRef = useRef(false);
   
   useEffect(() => {
+    // Marquer comme non démonté au montage
+    isUnmountedRef.current = false;
+    
     if (!active) return;
     
     const canvas = canvasRef.current;
@@ -17,13 +21,18 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
     if (!ctx) return;
     
     // Définir les dimensions
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const setCanvasDimensions = () => {
+      if (canvas && !isUnmountedRef.current) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    };
+    
+    setCanvasDimensions();
     
     // Réinitialiser le canvas lors du redimensionnement
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      setCanvasDimensions();
     };
     
     window.addEventListener('resize', handleResize);
@@ -68,6 +77,15 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
     
     // Fonction d'animation
     const animate = () => {
+      // Vérifier si le composant est démonté pour éviter les fuites mémoire
+      if (isUnmountedRef.current || !ctx || !canvas) {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+          animationRef.current = null;
+        }
+        return;
+      }
+      
       // Effacer avec un effet de traînée
       ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -106,16 +124,24 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
       }
       
       // Continuer l'animation
-      animationRef.current = requestAnimationFrame(animate);
+      if (!isUnmountedRef.current) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
     };
     
     // Démarrer l'animation
-    animate();
+    if (!isUnmountedRef.current) {
+      animate();
+    }
     
     // Nettoyer
     return () => {
+      // Marquer comme démonté pour arrêter les animations
+      isUnmountedRef.current = true;
+      
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
       window.removeEventListener('resize', handleResize);
     };
@@ -126,6 +152,7 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none"
       style={{ opacity: 0.3, zIndex: -1 }}
+      aria-hidden="true"
     />
   );
 };
