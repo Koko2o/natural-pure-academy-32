@@ -3,7 +3,17 @@ import { useEffect, useRef } from "react";
 
 // Composant pour créer un effet de laboratoire scientifique
 // Ajoute des effets visuels subtils qui renforcent l'impression d'analyse scientifique
-export const LabEffects = ({ active = true }: { active?: boolean }) => {
+export const LabEffects = ({ 
+  active = true, 
+  density = 50,
+  speed = 1,
+  colors = ["indigo", "blue", "purple", "teal"]
+}: { 
+  active?: boolean; 
+  density?: number;
+  speed?: number;
+  colors?: string[];
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const isUnmountedRef = useRef(false);
@@ -50,12 +60,12 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
     const particles: Particle[] = [];
     
     // Générer des particules avec différentes propriétés
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < density; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 3 + 0.5,
-        speed: Math.random() * 0.3 + 0.1,
+        speed: (Math.random() * 0.3 + 0.1) * speed,
         opacity: Math.random() * 0.2 + 0.1,
         color: getRandomColor()
       });
@@ -63,15 +73,16 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
     
     // Générer des couleurs scientifiques aléatoires
     function getRandomColor() {
-      const colors = [
-        "rgba(63, 81, 181, X)", // Indigo
-        "rgba(30, 136, 229, X)", // Bleu
-        "rgba(121, 134, 203, X)", // Violet clair
-        "rgba(156, 39, 176, X)", // Violet
-        "rgba(0, 137, 123, X)", // Teal
-      ];
+      const colorMap: Record<string, string> = {
+        "indigo": "rgba(63, 81, 181, X)",
+        "blue": "rgba(30, 136, 229, X)",
+        "purple": "rgba(156, 39, 176, X)",
+        "teal": "rgba(0, 137, 123, X)",
+        "cyan": "rgba(0, 188, 212, X)",
+        "green": "rgba(76, 175, 80, X)"
+      };
       
-      const selectedColor = colors[Math.floor(Math.random() * colors.length)];
+      const selectedColor = colorMap[colors[Math.floor(Math.random() * colors.length)]] || colorMap["indigo"];
       return selectedColor.replace("X", (Math.random() * 0.3 + 0.05).toString());
     }
     
@@ -145,7 +156,7 @@ export const LabEffects = ({ active = true }: { active?: boolean }) => {
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [active]);
+  }, [active, density, speed, colors]);
   
   return (
     <canvas 
