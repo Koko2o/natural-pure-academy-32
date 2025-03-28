@@ -1,7 +1,7 @@
 
 import { useState, ReactNode } from 'react';
 import { Info } from 'lucide-react';
-import { useTooltip, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface ScienceTerm {
   title: string;

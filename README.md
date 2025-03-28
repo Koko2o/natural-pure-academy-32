@@ -1,69 +1,197 @@
-# Welcome to your Lovable project
 
-## Project info
+# Projet de Plateforme Scientifique de Nutrition et Santé
 
-**URL**: https://lovable.dev/projects/87f5ba9f-8adf-4b68-bee9-ddcf620c8f33
+## Vue d'ensemble
 
-## How can I edit this code?
+Cette application est une plateforme scientifique dédiée à la nutrition et à la santé, offrant des informations éducatives basées sur des recherches scientifiques. Elle est conçue pour analyser les besoins nutritionnels des utilisateurs à travers un quiz interactif et fournir des recommandations personnalisées.
 
-There are several ways of editing your application.
+## Structure du projet
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/87f5ba9f-8adf-4b68-bee9-ddcf620c8f33) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/           # Composants réutilisables
+│   ├── quiz/             # Composants spécifiques au quiz
+│   ├── profile/          # Composants du profil utilisateur
+│   ├── labo/             # Composants liés au laboratoire
+│   └── ui/               # Composants d'interface utilisateur génériques
+├── pages/                # Pages principales de l'application
+├── data/                 # Données statiques (termes scientifiques, etc.)
+├── utils/                # Utilitaires et fonctions helpers
+│   ├── complianceFilter.ts  # Gestion de la conformité RGPD/Google Ads
+│   └── contentSafety.ts     # Sécurité du contenu
+├── hooks/                # Hooks personnalisés
+└── lib/                  # Bibliothèques et configurations
 ```
 
-**Edit a file directly in GitHub**
+## Composants clés
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 1. Quiz nutritionnel et analyse
 
-**Use GitHub Codespaces**
+Le quiz est composé de plusieurs étapes séquentielles qui collectent des informations sur l'utilisateur:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **QuizSteps**: Gère la progression à travers différentes étapes du quiz
+- **StepContent**: Affiche le contenu adapté à chaque étape
+- **UserInfoStep**: Collecte les informations personnelles
+- **DietaryHabitsStep**: Analyse les habitudes alimentaires
+- **LifestyleStep**: Évalue le style de vie
+- **NeuroEngine**: Moteur d'analyse qui traite les réponses pour générer des recommandations personnalisées
 
-## What technologies are used for this project?
+Les données sont traitées en temps réel par le `NeuroEngine` qui analyse:
+- Patterns de navigation
+- Temps passé sur les questions
+- Réponses fournies
 
-This project is built with .
+### 2. Visualisation scientifique
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **ProblemRotator**: Affiche les problèmes de santé avec rotation animée
+- **ScientificHighlightedText**: Met en évidence les termes scientifiques avec des tooltips explicatifs
+- **ScienceTooltip**: Fournit des définitions et sources pour les termes scientifiques
+- **LabEffects**: Crée des effets visuels de laboratoire (particules animées)
 
-## How can I deploy this project?
+### 3. Profil utilisateur et résultats
 
-Simply open [Lovable](https://lovable.dev/projects/87f5ba9f-8adf-4b68-bee9-ddcf620c8f33) and click on Share -> Publish.
+- **ProfileSante**: Page de profil utilisateur complète avec:
+  - Historique de lecture
+  - Défis et récompenses
+  - Recommandations personnalisées
+  - Intégration avec appareils de santé
 
-## I want to use a custom domain - is that possible?
+### 4. Optimisations et conformité
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- **GDPRCompliance**: Bannière de consentement RGPD conforme
+- **MobileOptimizer**: Améliore l'expérience mobile (lazy loading, optimisations de performance)
+- **ContentSafety**: Vérifie la conformité du contenu avec les règles Google Ads
+
+## Logique et flux de données
+
+### Stockage des données
+
+Les données sont principalement stockées de manière non-persistante pour la conformité RGPD:
+
+1. **sessionStorage chiffré**: Pour les préférences temporaires et la progression du quiz
+   - Implémenté dans `secureStorage` (utils/complianceFilter.ts)
+   - Utilise le chiffrement AES-256 pour la sécurité des données
+   - Rotation automatique des clés toutes les 24 heures
+
+2. **État React**: Pour les données de session en cours
+   - Utilisation de contextes pour partager les données entre composants
+   - Hooks personnalisés pour isoler la logique métier
+
+Aucune donnée sensible n'est stockée dans localStorage pour respecter la confidentialité.
+
+### Analyse comportementale
+
+Le système analyse le comportement de l'utilisateur via:
+
+- **calculateCortisolLevel**: Calcule le niveau de stress basé sur les patterns de navigation
+- **measureAttention**: Mesure l'attention portée à des termes spécifiques
+- **generateNeuroProfile**: Génère un profil neuropsychologique complet
+
+Ces analyses sont utilisées pour adapter l'interface et les recommandations.
+
+### Conformité et sécurité
+
+- **detectBannedTerms**: Détecte les termes interdits par Google Ad Grants
+- **semanticRotator**: Fait pivoter sémantiquement les CTA pour éviter la détection d'algorithmes
+- **validateRedirectUrl**: Valide les URLs de redirection pour la sécurité
+- **analyzeContext**: Analyse le contexte des termes pour déterminer s'ils sont utilisés de manière éducative
+
+## Intégration de composants spéciaux
+
+### Tooltips scientifiques
+
+Les tooltips scientifiques permettent d'afficher des définitions et sources pour les termes complexes:
+
+```jsx
+<ScientificHighlightedText 
+  text="Le [[cortisol:stress chronique]] peut affecter votre [[circadian-rhythm:rythme circadien]]." 
+/>
+```
+
+Le composant analyse le texte pour rechercher les motifs `[[id-terme:texte affiché]]` et les enveloppe dans des tooltips.
+
+### Effets de laboratoire
+
+Le composant `LabEffects` crée une ambiance scientifique avec:
+- Particules animées en arrière-plan
+- Simulation de mouvements moléculaires
+- Animations réactives au comportement utilisateur
+
+### Rotation des problèmes
+
+`ProblemRotator` présente de manière séquentielle différents problèmes de santé avec:
+- Transitions fluides entre les éléments
+- Personnalisation des couleurs
+- Indicateurs de progression
+
+## Optimisations techniques
+
+### Performance mobile
+
+- Lazy loading des images
+- Compression des ressources
+- Interface adaptative
+- Optimisation des animations pour les performances
+
+### Accessibilité
+
+- Contraste suffisant
+- Attributs ARIA appropriés
+- Support clavier complet
+- Structure sémantique HTML
+
+## Guide de développement
+
+### Ajout de nouveaux termes scientifiques
+
+Pour ajouter de nouveaux termes, modifiez `src/data/scientificTerms.ts`:
+
+```typescript
+export const scientificTerms: ScientificTerm[] = [
+  {
+    id: "cortisol",
+    title: "Cortisol",
+    definition: "Hormone du stress produite par les glandes surrénales...",
+    source: "Journal of Endocrinology, 2020"
+  },
+  // Ajoutez de nouveaux termes ici
+];
+```
+
+### Extension du quiz
+
+Pour ajouter de nouvelles questions au quiz:
+
+1. Créez un nouveau composant d'étape dans `src/components/quiz/`
+2. Ajoutez l'étape à `QuizSteps.ts`
+3. Intégrez la logique d'analyse dans `NeuroEngine.ts`
+
+### Modification du design scientifique
+
+Les éléments visuels scientifiques peuvent être personnalisés via:
+- `LabEffects.tsx` pour les animations de particules
+- Classes Tailwind pour les couleurs et styles
+- `MobileOptimizer.tsx` pour les optimisations mobiles
+
+## Bonnes pratiques
+
+1. **Conformité RGPD**:
+   - Utilisez toujours `secureStorage` au lieu de localStorage
+   - Obtenez le consentement explicite avant toute analyse comportementale
+
+2. **Conformité Google Ads**:
+   - Évitez les termes interdits listés dans `contentSafety.ts`
+   - Utilisez un langage éducatif plutôt que commercial
+   - Vérifiez le contenu avec `detectBannedTermsWithNLP`
+
+3. **Optimisation des performances**:
+   - Limitez l'utilisation des effets Canvas sur mobile
+   - Utilisez `React.memo` pour les composants lourds
+   - Préférez les animations CSS aux animations JavaScript
+
+4. **Accessibilité**:
+   - Fournissez des alternatives textuelles pour tous les éléments visuels
+   - Assurez une navigation clavier complète
+   - Respectez les contrastes WCAG
+
+Ce projet combine une interface utilisateur scientifique avancée avec des algorithmes d'analyse comportementale pour offrir une expérience personnalisée tout en respectant la vie privée des utilisateurs.
