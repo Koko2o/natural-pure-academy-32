@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
+import ScientificHighlightedText from '../ScientificHighlightedText';
 
 interface Problem {
   title: string;
@@ -18,22 +19,22 @@ const ProblemRotator = ({
   problems = [
     {
       title: "Stress Chronique",
-      description: "Identifiez les micronutriments qui vous manquent réellement",
+      description: "Identifiez les [[cortisol:micronutriments]] qui vous manquent réellement",
       color: "from-red-500 to-orange-500"
     },
     {
       title: "Troubles du Sommeil",
-      description: "Découvrez les solutions naturelles validées scientifiquement",
+      description: "Découvrez les [[circadian-rhythm:solutions naturelles]] validées scientifiquement",
       color: "from-blue-500 to-indigo-600"
     },
     {
       title: "Fatigue Persistante",
-      description: "Révélez les causes profondes validées par notre laboratoire",
+      description: "Révélez les causes profondes validées par notre [[adaptogens:laboratoire]]",
       color: "from-amber-500 to-orange-600"
     },
     {
       title: "Problèmes Digestifs",
-      description: "Révélez les causes profondes validées par notre laboratoire",
+      description: "Révélez les causes des [[microbiome:troubles digestifs]] validées par notre laboratoire",
       color: "from-green-500 to-teal-600"
     }
   ],
@@ -76,7 +77,7 @@ const ProblemRotator = ({
           </h2>
           
           <p className="text-white/90 text-lg max-w-xl">
-            {currentProblem.description}
+            <ScientificHighlightedText text={currentProblem.description} />
           </p>
         </div>
       </div>
