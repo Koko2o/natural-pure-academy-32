@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
@@ -39,13 +38,29 @@ interface Recommendation {
   popularity: number;
 }
 
-interface QuizResultsProps {
-  responses: QuizResponse;
-  onRestart: () => void;
-  personalizationFactors?: any;
+interface BehavioralMetrics {
+  // Add your behavioral metrics here.  Example:
+  scrollSpeed: number;
+  timeSpent: number;
+  clickPatterns: number[];
+  hoverTime: object;
+  rereadCount: number;
 }
 
-const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResultsProps) => {
+interface QuizResultsProps {
+  responses: QuizResponse;
+  behavioralMetrics: BehavioralMetrics;
+  onRestart: () => void;
+  personalizationFactors?: {
+    device?: string;
+    geo?: string;
+    timeOfDay?: string;
+    dayOfWeek?: string;
+    referrer?: string;
+  };
+}
+
+const QuizResults = ({ responses, onRestart, personalizationFactors, behavioralMetrics }: QuizResultsProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"recommendations" | "report" | "neuroProfile">("recommendations");
@@ -59,7 +74,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [userLocation, setUserLocation] = useState<string>('France');
   const animationRef = useRef<any>(null);
-  
+
   // Simuler la récupération de la localisation de l'utilisateur
   useEffect(() => {
     // Utiliser la localisation des facteurs de personnalisation si disponible
@@ -77,7 +92,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
     // Récupérer le temps passé (simulé pour l'exemple)
     const timeSpent = Math.random() * 180 + 90; // entre 90 et 270 secondes
     const scrollSpeed = Math.random() * 2 + 0.5; // vitesse de défilement simulée
-    
+
     // Générer le profil neurologique
     const profile = generateNeuroProfile(responses, {
       scrollSpeed,
@@ -86,25 +101,25 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
       hoverTime: {},
       rereadCount: Math.floor(Math.random() * 3)
     });
-    
+
     setNeuroProfile(profile);
-    
+
     // Générer un message d'urgence contextuel
     const urgency = getUrgencyMessage({
       userProfile: profile,
       currentTraffic: Math.random() > 0.6 ? 'high' : 'low',
       userLocation,
     });
-    
+
     setUrgencyMessage(urgency);
-    
+
     if (urgency.countdownMinutes) {
       setTimeRemaining(urgency.countdownMinutes * 60);
     }
-    
+
     // Démarrer l'animation de laboratoire
     startMoleculeAnimation();
-    
+
     // Nettoyage
     return () => {
       if (animationRef.current) {
@@ -112,15 +127,15 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
       }
     };
   }, [responses, userLocation]);
-  
+
   // Animation de molécules en arrière-plan
   const startMoleculeAnimation = () => {
     const canvas = document.getElementById('molecule-canvas') as HTMLCanvasElement;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     const molecules: Array<{
       x: number;
       y: number;
@@ -129,7 +144,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
       vx: number;
       vy: number;
     }> = [];
-    
+
     // Initialiser les molécules
     for (let i = 0; i < 30; i++) {
       molecules.push({
@@ -141,36 +156,36 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
         vy: (Math.random() - 0.5) * 0.5
       });
     }
-    
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Dessiner les molécules
       molecules.forEach(molecule => {
         ctx.beginPath();
         ctx.arc(molecule.x, molecule.y, molecule.radius, 0, Math.PI * 2);
         ctx.fillStyle = molecule.color;
         ctx.fill();
-        
+
         // Déplacer les molécules
         molecule.x += molecule.vx;
         molecule.y += molecule.vy;
-        
+
         // Rebondir sur les bords
         if (molecule.x < 0 || molecule.x > canvas.width) molecule.vx *= -1;
         if (molecule.y < 0 || molecule.y > canvas.height) molecule.vy *= -1;
       });
-      
+
       animationRef.current = requestAnimationFrame(animate);
     };
-    
+
     animate();
   };
-  
+
   // Compte à rebours
   useEffect(() => {
     if (timeRemaining === null) return;
-    
+
     const interval = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev === null || prev <= 0) {
@@ -180,10 +195,10 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
         return prev - 1;
       });
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [timeRemaining]);
-  
+
   // Format du compte à rebours
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -211,11 +226,11 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
       const hasImmuneIssues = userSymptoms.includes("immunité");
 
       let personalRecommendations: Recommendation[] = [];
-      
+
       // Si nous avons des facteurs de personnalisation, les utiliser pour générer des recommandations
       if (personalizationFactors) {
         const { primary, secondary } = generatePersonalizedRecommendations(personalizationFactors);
-        
+
         // Ajouter la recommandation principale
         personalRecommendations.push({
           title: primary,
@@ -226,7 +241,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
           timeToEffect: `${Math.floor(Math.random() * 3) + 1}-${Math.floor(Math.random() * 3) + 3} semaines`,
           popularity: 85 + Math.floor(Math.random() * 14),
         });
-        
+
         // Ajouter les recommandations secondaires
         secondary.forEach(title => {
           personalRecommendations.push({
@@ -252,7 +267,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             popularity: 95,
           });
         }
-        
+
         if (hasSleepIssues) {
           personalRecommendations.push({
             title: "Mélatonine Naturelle Plus",
@@ -264,7 +279,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             popularity: 91,
           });
         }
-        
+
         if (hasDigestiveIssues) {
           personalRecommendations.push({
             title: "Probiotiques Digestifs Avancés",
@@ -276,7 +291,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             popularity: 88,
           });
         }
-        
+
         if (hasImmuneIssues || responses.fruitVegConsumption === "peu") {
           personalRecommendations.push({
             title: "Complexe Immunité Zinc & Vitamine C",
@@ -288,7 +303,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             popularity: 79,
           });
         }
-        
+
         // Add a general recommendation if none of the specific ones apply
         if (personalRecommendations.length === 0) {
           personalRecommendations.push({
@@ -300,7 +315,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             timeToEffect: "2-4 semaines",
             popularity: 85,
           });
-          
+
           personalRecommendations.push({
             title: "Oméga-3 Haute Concentration",
             description: "Huile de poisson purifiée avec haute teneur en EPA et DHA pour la santé cardiovasculaire et cérébrale.",
@@ -311,7 +326,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             popularity: 82,
           });
         }
-        
+
         // Always add a general multivitamin as a secondary recommendation if not already added
         if (!personalRecommendations.some(rec => rec.title.includes("Multivitamines"))) {
           personalRecommendations.push({
@@ -325,18 +340,18 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
           });
         }
       }
-      
+
       setRecommendations(personalRecommendations);
       setLoading(false);
       clearInterval(interval);
       setAnalysisProgress(100);
       setShowConfetti(true);
-      
+
       // Hide confetti after animation
       setTimeout(() => {
         setShowConfetti(false);
       }, 3000);
-      
+
       toast.success("Analyse terminée !", {
         description: "Nous avons identifié les compléments idéaux pour votre profil",
       });
@@ -357,7 +372,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             Nous analysons vos réponses et préparons vos recommandations personnalisées
           </p>
         </div>
-        
+
         <div className="space-y-6 max-w-md mx-auto">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
@@ -366,7 +381,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             </div>
             <Progress value={analysisProgress} className="h-2 bg-amber-100" />
           </div>
-          
+
           <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-amber-800">
             <div className="flex">
               <Info className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
@@ -375,7 +390,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
               </p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
             <div className="bg-indigo-50 p-3 rounded-lg">
               <Heart className="h-6 w-6 text-indigo-500 mx-auto mb-1" />
@@ -416,14 +431,14 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
   const primaryRecommendation = recommendations.reduce((prev, current) =>
     prev.confidence > current.confidence ? prev : current
   );
-  
+
   // Calculer un score de risque dynamique
   const riskScore = calculateRiskScore(
     neuroProfile ? 180 + Math.random() * 120 : 120, // temps passé (secondes)
     responses.objectives ? responses.objectives.length : 0, // questions répondues
     responses.symptoms ? responses.symptoms.length : 0 // réponses critiques
   );
-  
+
   // Obtenir la couleur du score de risque
   const riskColor = getRiskColor(riskScore);
 
@@ -435,7 +450,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
         width="800"
         height="600"
       />
-      
+
       {showConfetti && (
         <div className="confetti-container absolute inset-0 pointer-events-none">
           {[...Array(50)].map((_, i) => (
@@ -457,7 +472,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
       <div className="bg-white rounded-xl shadow-md p-8 relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/20 to-blue-100/20 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-green-100/20 to-teal-100/20 rounded-full blur-2xl"></div>
-        
+
         <div className="flex items-center justify-between mb-6 relative">
           <div>
             <div className="flex items-center gap-2">
@@ -474,7 +489,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             <Badge />
           </div>
         </div>
-        
+
         {/* Message d'urgence contextuel avec nouveau composant */}
         <div className="mb-6">
           <UrgencyCountdown 
@@ -486,7 +501,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             variant="featured"
           />
         </div>
-        
+
         {/* Affichage du profil social avec le nouveau composant */}
         <div className="mb-6">
           <DynamicSocialProof
@@ -498,7 +513,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             variant="detailed"
           />
         </div>
-        
+
         <div className="flex border-b border-gray-200 mb-6">
           <button
             className={cn(
@@ -552,20 +567,20 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                   <span>Efficacité prouvée {(primaryRecommendation.confidence * 100).toFixed(0)}%</span>
                 </div>
               </div>
-              
+
               <div className="p-6 rounded-xl border-2 border-indigo-100 bg-gradient-to-r from-indigo-50 to-indigo-50/30 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-100 text-indigo-800 px-3 py-1 text-sm font-medium rounded-bl-lg">
                   <Zap className="h-4 w-4 inline mr-1" />
                   Top Solution
                 </div>
-                
+
                 <div className="md:flex gap-6 items-center">
                   <div className="md:w-3/5">
                     <h4 className="font-semibold text-xl text-indigo-900 mb-2">
                       {primaryRecommendation.title}
                     </h4>
                     <p className="text-gray-700 mb-4">{primaryRecommendation.description}</p>
-                    
+
                     <div className="mb-4">
                       <h5 className="font-medium text-indigo-800 mb-2 text-sm">Bénéfices principaux :</h5>
                       <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -577,7 +592,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-4 text-sm mb-4">
                       <div className="flex items-center">
                         <Clock className="h-4 w-4 text-indigo-600 mr-1" />
@@ -589,7 +604,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="md:w-2/5 mt-6 md:mt-0">
                     <div className="bg-white p-4 rounded-lg shadow-sm">
                       <div className="mb-4">
@@ -602,7 +617,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                           className="h-2 bg-indigo-100" 
                         />
                       </div>
-                      
+
                       <Button
                         size="lg"
                         variant="natural"
@@ -617,7 +632,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                         <ShoppingCart className="h-5 w-5" />
                         Découvrir votre solution
                       </Button>
-                      
+
                       <p className="text-xs text-center text-gray-500 mt-3">
                         Satisfait ou remboursé pendant 30 jours
                       </p>
@@ -643,7 +658,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                         {rec.title}
                       </h4>
                       <p className="text-gray-700 text-sm mb-3">{rec.description}</p>
-                      
+
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center text-sm text-blue-600">
                           <Info className="h-4 w-4 mr-1" />
@@ -654,7 +669,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                           {rec.timeToEffect}
                         </div>
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         className="w-full mt-3 group border-blue-200 text-blue-700 hover:bg-blue-50"
@@ -669,14 +684,14 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             </div>
           </>
         )}
-        
+
         {/* ... reste du code inchangé */}
-        
+
         {activeTab === "report" && (
           <div className="space-y-6">
             <div className="bg-slate-50 p-5 rounded-lg">
               <h3 className="text-lg font-semibold mb-3 text-slate-800">Résumé de Votre Profil</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium text-slate-700 mb-2">Objectifs principaux :</h4>
@@ -688,7 +703,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="font-medium">Habitudes alimentaires :</p>
@@ -718,7 +733,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                     <p className="text-slate-600">{responses.stressLevel || "Non spécifié"}</p>
                   </div>
                 </div>
-                
+
                 {responses.symptoms && responses.symptoms.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-slate-700 mb-2">Symptômes signalés :</h4>
@@ -733,15 +748,13 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                 )}
               </div>
             </div>
-            
+
             <div className="bg-indigo-50 p-5 rounded-lg">
               <h3 className="text-lg font-semibold mb-3 text-indigo-900">Analyse Scientifique</h3>
               <p className="text-indigo-700 mb-4">
                 Sur la base de votre profil, nous avons identifié plusieurs besoins nutritionnels spécifiques que
                 nos solutions recommandées peuvent adresser efficacement.
-              </p>
-              
-              <div className="space-y-3">
+              </p>              <div className="space-y-3">
                 <div className="bg-white p-3 rounded border border-indigo-100">
                   <h4 className="font-medium text-indigo-800">Étude de référence :</h4>
                   <p className="text-sm text-slate-600">
@@ -758,14 +771,14 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                 </div>
               </div>
             </div>
-            
+
             {/* Affichage du score de risque */}
             <div className="p-5 bg-white border border-indigo-100 rounded-lg">
               <h3 className="text-lg font-semibold mb-3 flex items-center">
                 <Gauge className="h-5 w-5 mr-2 text-indigo-600" />
                 <span>Votre Indice de Risque Nutritionnel</span>
               </h3>
-              
+
               <div className="mb-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium">Score Global</span>
@@ -778,7 +791,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                   ></div>
                 </div>
               </div>
-              
+
               <p className="text-sm text-gray-600 mb-4">
                 {riskScore < 30 ? 
                   "Votre profil présente un risque nutritionnel élevé. Une supplémentation adaptée est fortement recommandée." :
@@ -787,7 +800,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                   "Votre profil nutritionnel est généralement bon. Une supplémentation ciblée peut optimiser certains aspects spécifiques."
                 }
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
                 <div className="p-3 bg-red-50 rounded-lg">
                   <h4 className="text-sm font-medium text-red-800">Risque Élevé</h4>
@@ -803,7 +816,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                 </div>
               </div>
             </div>
-            
+
             <div className="text-center">
               <Button
                 size="lg"
@@ -817,7 +830,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             </div>
           </div>
         )}
-        
+
         {activeTab === "neuroProfile" && neuroProfile && (
           <div className="space-y-6">
             <div className="bg-violet-50 p-5 rounded-lg border border-violet-100">
@@ -832,7 +845,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                   </p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
@@ -857,7 +870,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                       }
                     </p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-violet-800 mb-1">Score d'Attention et Concentration</h4>
                     <div className="flex items-center">
@@ -880,7 +893,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                       }
                     </p>
                   </div>
-                  
+
                   <div className="p-3 bg-violet-100 rounded-lg">
                     <h4 className="text-sm font-medium text-violet-800 mb-1">Force Cognitive Principale</h4>
                     <div className="flex items-center">
@@ -889,7 +902,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-violet-800 mb-2">Domaines d'Intérêt Prioritaires</h4>
@@ -901,7 +914,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="p-3 bg-violet-100 rounded-lg">
                     <h4 className="text-sm font-medium text-violet-800 mb-1">Style d'Apprentissage Dominant</h4>
                     <div className="flex items-center">
@@ -909,7 +922,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                       <span className="text-violet-900">{neuroProfile.learningStyle}</span>
                     </div>
                   </div>
-                  
+
                   <div className="bg-white p-4 rounded-lg border border-violet-200">
                     <h4 className="text-sm font-medium text-violet-800 mb-2">Recommandations Neuropsychologiques</h4>
                     <ul className="space-y-2 text-sm">
@@ -939,7 +952,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4 p-3 bg-violet-100/50 rounded-lg">
                 <p className="text-xs text-violet-700 italic">
                   Ce profil est généré à partir de l'analyse de vos réponses et de vos interactions avec le questionnaire. 
@@ -947,7 +960,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
                 </p>
               </div>
             </div>
-            
+
             <div className="text-center">
               <Button
                 size="lg"
@@ -961,7 +974,7 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
             </div>
           </div>
         )}
-        
+
         <div className="mt-8 border-t border-gray-100 pt-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
           <Button 
             onClick={onRestart} 
@@ -970,14 +983,14 @@ const QuizResults = ({ responses, onRestart, personalizationFactors }: QuizResul
           >
             Refaire le Quiz
           </Button>
-          
+
           <div className="text-xs text-gray-500 order-1 sm:order-2 text-center sm:text-right">
             Analyse générée le {new Date().toLocaleDateString()} à {new Date().toLocaleTimeString()} • 
             Données confidentielles et sécurisées
           </div>
         </div>
       </div>
-      
+
       <style>
 {`
 @keyframes confetti-fall {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
@@ -13,6 +12,21 @@ import GDPRCompliance from "@/components/GDPRCompliance";
 import UrgencyCountdown from "@/components/quiz/UrgencyCountdown";
 import DynamicSocialProof from "@/components/quiz/DynamicSocialProof";
 import { collectPersonalizationFactors, getPersonalizedMessage } from "@/utils/dynamicPersonalization";
+
+// Placeholder for behavioral metrics hook (replace with actual implementation)
+const useBehavioralMetrics = () => ({
+  metrics: {
+    responseTime: [],
+    questionOrder: [],
+    // Add other behavioral metrics as needed
+  },
+  resetMetrics: () => {
+    //Implementation to reset metrics
+  }
+});
+
+type BehavioralMetrics = ReturnType<typeof useBehavioralMetrics>['metrics'];
+
 
 const Quiz = () => {
   const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
@@ -33,26 +47,27 @@ const Quiz = () => {
   const [userLocation, setUserLocation] = useState<string>('');
   const [personalizationFactors, setPersonalizationFactors] = useState<any>(null);
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
-  
+  const { metrics, resetMetrics } = useBehavioralMetrics(); // Integrate behavioral metrics
+
   // Récupérer les facteurs de personnalisation
   useEffect(() => {
     const fetchPersonalizationData = async () => {
       const factors = await collectPersonalizationFactors();
       setPersonalizationFactors(factors);
-      
+
       // Stocker la localisation pour utilisation dans les composants enfants
       if (factors.geo) {
         setUserLocation(factors.geo);
       }
-      
+
       // Générer le message de bienvenue personnalisé
       const message = getPersonalizedMessage(factors, 'welcome');
       setWelcomeMessage(message);
     };
-    
+
     fetchPersonalizationData();
   }, []);
-  
+
   // Utilisation du stockage sécurisé pour le suivi de progression
   useEffect(() => {
     const loadProgress = async () => {
@@ -61,7 +76,7 @@ const Quiz = () => {
           step?: 'intro' | 'quiz' | 'results';
           responses?: QuizResponse;
         }>('quiz_progress', {});
-        
+
         if (savedProgress.step) {
           setStep(savedProgress.step);
           if (savedProgress.responses) {
@@ -78,7 +93,7 @@ const Quiz = () => {
           step?: 'intro' | 'quiz' | 'results';
           responses?: QuizResponse;
         }>('quiz_progress', {});
-        
+
         if (fallbackProgress.step) {
           setStep(fallbackProgress.step);
           if (fallbackProgress.responses) {
@@ -90,10 +105,10 @@ const Quiz = () => {
         }
       }
     };
-    
+
     loadProgress();
   }, []);
-  
+
   // Sauvegarder la progression à chaque changement d'étape
   useEffect(() => {
     const saveProgress = async () => {
@@ -102,7 +117,7 @@ const Quiz = () => {
           step,
           responses: quizResponses
         });
-        
+
         // Mettre à jour les facteurs de personnalisation lorsque les réponses au quiz changent
         if (quizResponses.symptoms.length > 0 || quizResponses.objectives.length > 0) {
           const factors = await collectPersonalizationFactors({
@@ -121,7 +136,7 @@ const Quiz = () => {
         });
       }
     };
-    
+
     saveProgress();
   }, [step, quizResponses]);
 
@@ -146,6 +161,7 @@ const Quiz = () => {
   };
 
   const handleRestartQuiz = async () => {
+    resetMetrics(); // Reset metrics on restart
     setStep('intro');
     setShowMolecules(false);
     setQuizResponses({
@@ -164,7 +180,7 @@ const Quiz = () => {
     // Effacer les données du quiz pour la conformité
     await secureStorage.remove('quiz_progress');
   };
-  
+
   const getStableParticipantNumber = () => {
     const date = new Date();
     const dayOfMonth = date.getDate();
@@ -174,14 +190,14 @@ const Quiz = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-slate-50 relative">
       <LabEffects active={showMolecules} />
-      
+
       {/* Bannière de consentement GDPR */}
       <GDPRCompliance 
         services={['basic_analytics', 'heatmaps']}
         lang="fr"
         policyLink="/politique-confidentialite"
       />
-      
+
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         {step === 'intro' && (
           <div className="text-center mb-10">
@@ -207,7 +223,7 @@ const Quiz = () => {
                 <span>Analyse Neuropsychologique</span>
               </Badge>
             </div>
-            
+
             <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-full mb-6" aria-hidden="true">
               <FlaskIcon className="h-8 w-8 text-indigo-600" />
             </div>
@@ -219,18 +235,18 @@ const Quiz = () => {
             </p>
           </div>
         )}
-        
+
         {step === 'intro' && (
           <div className="relative bg-white rounded-xl shadow-lg p-8 md:p-10 max-w-3xl mx-auto overflow-hidden">
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/30 to-blue-100/30 rounded-full blur-2xl" aria-hidden="true"></div>
             <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-2xl" aria-hidden="true"></div>
-            
+
             <h2 className="text-2xl font-semibold mb-4 text-indigo-900">Découvrez les compléments dont vous avez besoin</h2>
             <p className="text-muted-foreground mb-8">
               Répondez à notre questionnaire de 5 minutes et obtenez des recommandations personnalisées 
               basées sur votre mode de vie, votre alimentation et vos objectifs de santé.
             </p>
-            
+
             <div className="grid gap-6 mb-10" role="list" aria-label="Avantages de notre quiz">
               <div className="flex items-start gap-4" role="listitem">
                 <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
@@ -241,7 +257,7 @@ const Quiz = () => {
                   <p className="text-muted-foreground">Nos recommandations s'appuient sur une étude menée auprès de 243 participants</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4" role="listitem">
                 <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
                   <Brain className="h-5 w-5 text-indigo-700" />
@@ -251,7 +267,7 @@ const Quiz = () => {
                   <p className="text-muted-foreground">Notre algorithme analyse vos besoins spécifiques que 15% des laboratoires connaissent</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4" role="listitem">
                 <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-700" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2"/><path d="M9 14c-.2-1-.7-1.7-1.5-2"/><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/><path d="M18 5a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5Z"/></svg>
@@ -262,7 +278,7 @@ const Quiz = () => {
                 </div>
               </div>
             </div>
-            
+
             <Button 
               size="lg" 
               className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
@@ -276,7 +292,7 @@ const Quiz = () => {
             <p className="text-sm text-center text-muted-foreground mt-6">
               Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
             </p>
-            
+
             {/* Urgency countdown */}
             <div className="mt-8">
               <UrgencyCountdown 
@@ -285,7 +301,7 @@ const Quiz = () => {
                 variant="featured"
               />
             </div>
-            
+
             {/* Social proof */}
             <div className="mt-8">
               <DynamicSocialProof
@@ -296,23 +312,24 @@ const Quiz = () => {
             </div>
           </div>
         )}
-        
+
         {step === 'quiz' && (
           <NutritionalQuiz 
             onComplete={handleQuizComplete}
             onUserInfoUpdate={handleUserInfoUpdate}
           />
         )}
-        
-        {step === 'results' && (
+
+        {step === 'results' && quizResponses && (
           <QuizResults 
             responses={quizResponses}
+            behavioralMetrics={metrics} // Pass behavioral metrics
             onRestart={handleRestartQuiz}
             personalizationFactors={personalizationFactors}
           />
         )}
       </div>
-      
+
       {/* Styles pour l'animation pulse-glow */}
       <style>
       {`
@@ -321,13 +338,13 @@ const Quiz = () => {
           50% { transform: scale(1.02); filter: brightness(1.1); }
           100% { transform: scale(1); filter: brightness(1); }
         }
-        
+
         .quiz-cta {
           animation: pulse-glow 2s infinite ease-in-out;
           box-shadow: 0 4px 14px rgba(89, 86, 213, 0.3);
           transition: all 0.3s ease;
         }
-        
+
         .quiz-cta:hover {
           box-shadow: 0 6px 20px rgba(89, 86, 213, 0.4);
           animation: none;
