@@ -8,12 +8,7 @@ interface ScientificHighlightedTextProps {
   dataLovId?: string;
 }
 
-export const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({
-  children,
-  highlightColor = 'bg-gradient-to-r from-blue-500 to-indigo-600',
-  className = '',
-  dataLovId
-}) => {
+export function ScientificHighlightedText({ children, highlightColor = 'bg-gradient-to-r from-blue-500 to-indigo-600', className = '', dataLovId }: ScientificHighlightedTextProps) {
   return (
     <span
       className={`relative inline-block ${className}`}
@@ -28,4 +23,4 @@ export const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps>
       />
     </span>
   );
-};
+}
