@@ -46,7 +46,7 @@ const Quiz = () => {
   const [userLocation, setUserLocation] = useState<string>('');
   const [personalizationFactors, setPersonalizationFactors] = useState<any>(null);
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
-  const { metrics, resetMetrics } = useBehavioralMetrics(); // Integrate behavioral metrics
+  const { metrics: behavioralData, resetMetrics } = useBehavioralMetrics(); // Integrate behavioral metrics
 
   // Récupérer les facteurs de personnalisation
   useEffect(() => {
@@ -320,57 +320,71 @@ const Quiz = () => {
         )}
 
         {step === 'results' && quizResponses && (
-          <QuizResults 
-            responses={quizResponses}
-            behavioralMetrics={metrics} // Pass behavioral metrics
-            onRestart={handleRestartQuiz}
-            personalizationFactors={personalizationFactors}
-            data={{
-              score: 74,
-              metabolicAge: 32,
-              stressLevel: 'Moderate',
-              mainNeeds: [
-                'Optimisation Énergétique',
-                'Gestion du Stress',
-                'Santé Digestive',
-                'Fonction Cognitive'
-              ],
-              recommendations: [
+          <div className="px-4 py-8">
+            <QuizResults
+              recommendations={[
                 {
-                  title: 'Augmenter les antioxydants alimentaires',
-                  description: 'Vos résultats indiquent un besoin d\'optimisation du système antioxydant pour contrer le stress oxydatif observé.',
-                  priority: 'high',
-                  scientificBasis: 'Étude PREDIMED 2018, Journal of Nutrition'
+                  title: 'Complexe Multivitamines Scientifique',
+                  description: 'Formulation complète basée sur les dernières découvertes en micronutrition',
+                  confidence: 0.92,
+                  benefits: [
+                    'Support nutritionnel complet',
+                    'Optimisation des fonctions cellulaires',
+                    'Vitalité quotidienne',
+                    'Amélioration du système immunitaire'
+                  ],
+                  timeToEffect: '2-4 semaines',
+                  popularity: 87,
+                  url: '/labo/multivitamines'
                 },
                 {
-                  title: 'Optimiser votre microbiote intestinal',
-                  description: 'L\'analyse comportementale suggère un déséquilibre potentiel de votre flore intestinale qui pourrait impacter votre énergie.',
-                  priority: 'medium'
+                  title: 'Support Anti-Stress Naturel',
+                  description: 'Complexe adaptogène naturel pour équilibrer les hormones du stress',
+                  confidence: 0.87,
+                  benefits: [
+                    'Réduction des niveaux de cortisol',
+                    'Amélioration de la résilience au stress',
+                    'Meilleure qualité de sommeil',
+                    'Clarté mentale accrue'
+                  ],
+                  timeToEffect: '1-3 semaines',
+                  popularity: 92,
+                  url: '/labo/anti-stress'
                 },
                 {
-                  title: 'Techniques de respiration pour la gestion du stress',
-                  description: 'Vos patterns de réponse indiquent un niveau de cortisol potentiellement élevé pendant certaines périodes de la journée.',
-                  priority: 'medium',
-                  scientificBasis: 'American Journal of Physiology, 2020'
-                },
-                {
-                  title: 'Optimisation du sommeil par la chronobiologie',
-                  description: 'Votre rythme circadien pourrait bénéficier d\'ajustements ciblés pour améliorer la qualité du sommeil.',
-                  priority: 'low'
+                  title: 'Complexe Neuro-Cognitif Avancé',
+                  description: 'Formulation scientifique pour soutenir les fonctions cognitives et la mémoire',
+                  confidence: 0.78,
+                  benefits: [
+                    'Amélioration de la concentration',
+                    'Support de la mémoire à court et long terme',
+                    'Protection neuronale',
+                    'Clarté mentale et vivacité d\'esprit'
+                  ],
+                  timeToEffect: '3-6 semaines',
+                  popularity: 76,
+                  url: '/labo/neuro-cognitif'
                 }
-              ]
-            }}
-            onSaveProfile={() => {
-              // Future implementation: Save profile to account
-              window.alert("Cette fonctionnalité sera bientôt disponible!");
-            }}
-            onViewArticles={() => {
-              // Navigate to articles page
-              // Assuming 'navigate' is available from a routing library
-              //  like react-router-dom
-              // navigate("/articles");
-            }}
-          />
+              ]}
+              quizResponses={responses}
+              behavioralMetrics={behavioralData}
+              neuroProfile={{
+                stressIndex: 68,
+                decisionConfidence: 73,
+                attentionScore: 81,
+                consistencyIndex: 85
+              }}
+              onSaveProfile={() => {
+                // Sauvegarde du profil (simulation)
+                toast.success('Votre profil a été sauvegardé avec succès!');
+              }}
+              onViewArticles={() => {
+                // Navigation vers les articles recommandés
+                toast.info('Découvrez nos articles scientifiques recommandés...');
+                // Redirection vers la page d'articles serait implémentée ici
+              }}
+            />
+          </div>
         )}
       </div>
 
@@ -417,31 +431,28 @@ const FlaskIcon = ({ className }: { className?: string }) => (
 );
 
 // Added QuizResults component
-const QuizResults = ({ data, onSaveProfile, onViewArticles, responses, behavioralMetrics, personalizationFactors }: { data: any, onSaveProfile: () => void, onViewArticles: () => void, responses: QuizResponse, behavioralMetrics: BehavioralMetrics, personalizationFactors: any }) => {
+const QuizResults = ({ recommendations, onSaveProfile, onViewArticles, quizResponses, behavioralMetrics, neuroProfile }: { recommendations: any[], onSaveProfile: () => void, onViewArticles: () => void, quizResponses: QuizResponse, behavioralMetrics: BehavioralMetrics, neuroProfile: any }) => {
   return (
     <div>
-      <h1>Your Quiz Results</h1>
-      <p>Score: {data.score}</p>
-      <p>Metabolic Age: {data.metabolicAge}</p>
-      <p>Stress Level: {data.stressLevel}</p>
-      <h2>Main Needs:</h2>
+      <h1>Vos Résultats</h1>
+      <h2>Recommandations Personnalisées:</h2>
       <ul>
-        {data.mainNeeds.map((need) => (
-          <li key={need}>{need}</li>
-        ))}
-      </ul>
-      <h2>Recommendations:</h2>
-      <ul>
-        {data.recommendations.map((recommendation) => (
-          <li key={recommendation.title}>
-            <h3>{recommendation.title}</h3>
-            <p>{recommendation.description}</p>
-            {recommendation.scientificBasis && <p>Scientific Basis: {recommendation.scientificBasis}</p>}
+        {recommendations.map((recommendation) => (
+          <li key={recommendation.title} className="mb-4 border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-medium">{recommendation.title}</h3>
+            <p className="text-gray-600">{recommendation.description}</p>
+            <p className="text-gray-500">Confiance: {Math.round(recommendation.confidence * 100)}%</p>
+            <ul className="list-disc list-inside text-gray-700">
+              {recommendation.benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}
+            </ul>
+            <p className="text-gray-600">Temps d'effet estimé: {recommendation.timeToEffect}</p>
+            <p className="text-gray-500">Popularité: {recommendation.popularity}%</p>
+            <a href={recommendation.url} className="text-blue-500 hover:underline">Voir le produit</a>
           </li>
         ))}
       </ul>
-      <Button onClick={onSaveProfile}>Save Profile</Button>
-      <Button onClick={onViewArticles}>View Articles</Button>
+      <Button onClick={onSaveProfile}>Enregistrer mon profil</Button>
+      <Button onClick={onViewArticles}>Voir les articles</Button>
     </div>
   );
 };
