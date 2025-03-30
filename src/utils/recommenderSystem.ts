@@ -1,4 +1,8 @@
 
+/**
+ * Système de recommandation nutritionnelle avancé avec IA
+ */
+
 import { 
   QuizResponse, 
   Recommendation, 
@@ -7,549 +11,611 @@ import {
   UserFeedback,
   LearningData
 } from './types';
-import { aiModel } from './aiLearning';
+
+import { secureStorageService } from './secureStorage';
 import { findSimilarProfiles } from './userSimilarity';
-import { secureStorageService as secureStorage } from './secureStorage';
+import { 
+  SYMPTOM_MAPPING, 
+  SYMPTOM_CATEGORIES, 
+  SYMPTOM_RECOMMENDATIONS,
+  GOAL_RECOMMENDATIONS
+} from '../data/recommendationMappings';
+import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
 
 /**
- * Base de connaissance pour les recommandations basées sur les symptômes
+ * Génère des recommandations basées sur les réponses au quiz et les données comportementales
  */
-const SYMPTOM_RECOMMENDATIONS = {
-  // Symptômes de stress
-  'stress': [
-    { id: 'ashwagandha', priority: 5, doseVegetarian: '500mg x2/jour', doseStandard: '500mg x2/jour' },
-    { id: 'rhodiola', priority: 4, doseVegetarian: '400mg/jour', doseStandard: '400mg/jour' },
-    { id: 'magnesium-glycinate', priority: 4, doseVegetarian: '300mg/jour', doseStandard: '300mg/jour' },
-    { id: 'l-theanine', priority: 3, doseVegetarian: '200mg/jour', doseStandard: '200mg/jour' }
-  ],
-  
-  // Symptômes de fatigue et manque d'énergie
-  'fatigue': [
-    { id: 'coq10', priority: 5, doseVegetarian: '100mg/jour', doseStandard: '100mg/jour' },
-    { id: 'b-complex', priority: 4, doseVegetarian: '1 comprimé/jour', doseStandard: '1 comprimé/jour' },
-    { id: 'iron-complex', priority: 4, doseVegetarian: '18mg/jour', doseStandard: '8mg/jour' },
-    { id: 'maca-root', priority: 3, doseVegetarian: '1500mg/jour', doseStandard: '1500mg/jour' }
-  ],
-  
-  // Symptômes de troubles du sommeil
-  'insomnia': [
-    { id: 'melatonin', priority: 5, doseVegetarian: '1-3mg avant le coucher', doseStandard: '1-3mg avant le coucher' },
-    { id: 'valerian-root', priority: 4, doseVegetarian: '300-600mg avant le coucher', doseStandard: '300-600mg avant le coucher' },
-    { id: 'magnesium-glycinate', priority: 3, doseVegetarian: '300mg avant le coucher', doseStandard: '300mg avant le coucher' }
-  ],
-  
-  // Symptômes de troubles de concentration
-  'concentration': [
-    { id: 'omega-3-algae', priority: 5, doseVegetarian: '1000mg EPA+DHA/jour', doseStandard: null },
-    { id: 'omega-3-fish-oil', priority: 5, doseVegetarian: null, doseStandard: '1000mg EPA+DHA/jour' },
-    { id: 'ginkgo-biloba', priority: 4, doseVegetarian: '120mg/jour', doseStandard: '120mg/jour' },
-    { id: 'bacopa-monnieri', priority: 4, doseVegetarian: '300mg/jour', doseStandard: '300mg/jour' },
-    { id: 'lions-mane', priority: 3, doseVegetarian: '1000mg/jour', doseStandard: '1000mg/jour' }
-  ],
-  
-  // Symptômes digestifs
-  'digestion': [
-    { id: 'probiotics', priority: 5, doseVegetarian: '10-30 milliards CFU/jour', doseStandard: '10-30 milliards CFU/jour' },
-    { id: 'digestive-enzymes', priority: 4, doseVegetarian: '1 capsule avant repas', doseStandard: '1 capsule avant repas' },
-    { id: 'ginger-extract', priority: 3, doseVegetarian: '500mg/jour', doseStandard: '500mg/jour' }
-  ]
-};
-
-/**
- * Base de connaissance pour les recommandations basées sur les objectifs
- */
-const GOAL_RECOMMENDATIONS = {
-  'weight-loss': [
-    { id: 'green-tea-extract', priority: 4, doseVegetarian: '400-500mg EGCG/jour', doseStandard: '400-500mg EGCG/jour' },
-    { id: 'fiber-supplement', priority: 3, doseVegetarian: '5g x2/jour', doseStandard: '5g x2/jour' }
-  ],
-  'energy': [
-    { id: 'coq10', priority: 4, doseVegetarian: '100mg/jour', doseStandard: '100mg/jour' },
-    { id: 'b-complex', priority: 3, doseVegetarian: '1 comprimé/jour', doseStandard: '1 comprimé/jour' }
-  ],
-  'focus': [
-    { id: 'omega-3-algae', priority: 4, doseVegetarian: '1000mg EPA+DHA/jour', doseStandard: null },
-    { id: 'omega-3-fish-oil', priority: 4, doseVegetarian: null, doseStandard: '1000mg EPA+DHA/jour' },
-    { id: 'nootropic-complex', priority: 3, doseVegetarian: 'Selon produit', doseStandard: 'Selon produit' }
-  ]
-};
-
-/**
- * Catalogue des compléments avec détails
- */
-const SUPPLEMENT_CATALOG = {
-  'ashwagandha': {
-    name: 'Ashwagandha',
-    scientificName: 'Withania somnifera',
-    benefits: ['Réduction du stress', 'Équilibre hormonal', 'Amélioration du sommeil'],
-    timeToEffect: '2-3 semaines',
-    scientificBasis: 'Études cliniques sur la réduction du cortisol',
-    vegetarian: true
-  },
-  'rhodiola': {
-    name: 'Rhodiola Rosea',
-    scientificName: 'Rhodiola rosea',
-    benefits: ['Adaptation au stress', 'Amélioration de l\'énergie', 'Fonction cognitive'],
-    timeToEffect: '1-2 semaines',
-    scientificBasis: 'Études sur la fatigue mentale et physique',
-    vegetarian: true
-  },
-  'magnesium-glycinate': {
-    name: 'Magnésium Glycinate',
-    scientificName: 'Magnesium bis-glycinate',
-    benefits: ['Relaxation musculaire', 'Qualité du sommeil', 'Fonction nerveuse'],
-    timeToEffect: '1-2 semaines',
-    scientificBasis: 'Études sur la biodisponibilité et l\'anxiété',
-    vegetarian: true
-  },
-  'l-theanine': {
-    name: 'L-Théanine',
-    scientificName: 'L-theanine',
-    benefits: ['Relaxation sans somnolence', 'Concentration calme', 'Qualité du sommeil'],
-    timeToEffect: '30-60 minutes',
-    scientificBasis: 'Études sur les ondes alpha cérébrales',
-    vegetarian: true
-  },
-  'coq10': {
-    name: 'Coenzyme Q10',
-    scientificName: 'Ubiquinone/Ubiquinol',
-    benefits: ['Production d\'énergie cellulaire', 'Santé cardiovasculaire', 'Antioxydant'],
-    timeToEffect: '2-4 semaines',
-    scientificBasis: 'Études sur la production d\'ATP mitochondrial',
-    vegetarian: false
-  },
-  'b-complex': {
-    name: 'Complexe Vitamines B',
-    scientificName: 'Vitamines B1, B2, B3, B5, B6, B7, B9, B12',
-    benefits: ['Métabolisme énergétique', 'Fonction nerveuse', 'Santé cognitive'],
-    timeToEffect: '1-2 semaines',
-    scientificBasis: 'Rôle essentiel dans le métabolisme cellulaire',
-    vegetarian: true
-  },
-  'iron-complex': {
-    name: 'Complexe de Fer',
-    scientificName: 'Fer + Vitamine C',
-    benefits: ['Transport d\'oxygène', 'Production d\'énergie', 'Fonction cognitive'],
-    timeToEffect: '4-8 semaines',
-    scientificBasis: 'Études sur l\'anémie et la fatigue',
-    vegetarian: true
-  },
-  'maca-root': {
-    name: 'Racine de Maca',
-    scientificName: 'Lepidium meyenii',
-    benefits: ['Énergie et endurance', 'Équilibre hormonal', 'Vitalité'],
-    timeToEffect: '2-3 semaines',
-    scientificBasis: 'Études sur les performances physiques',
-    vegetarian: true
-  },
-  'melatonin': {
-    name: 'Mélatonine',
-    scientificName: 'N-acetyl-5-methoxytryptamine',
-    benefits: ['Régulation du sommeil', 'Rythme circadien', 'Qualité du sommeil'],
-    timeToEffect: '30-60 minutes',
-    scientificBasis: 'Études sur les cycles de sommeil',
-    vegetarian: true
-  },
-  'valerian-root': {
-    name: 'Valériane',
-    scientificName: 'Valeriana officinalis',
-    benefits: ['Relaxation', 'Amélioration du sommeil', 'Réduction de l\'anxiété'],
-    timeToEffect: '1-2 heures',
-    scientificBasis: 'Études sur les récepteurs GABA',
-    vegetarian: true
-  },
-  'omega-3-algae': {
-    name: 'Oméga-3 d\'Algues',
-    scientificName: 'EPA et DHA d\'origine algale',
-    benefits: ['Fonction cognitive', 'Santé cardiovasculaire', 'Anti-inflammatoire'],
-    timeToEffect: '4-6 semaines',
-    scientificBasis: 'Études sur le développement neuronal',
-    vegetarian: true
-  },
-  'omega-3-fish-oil': {
-    name: 'Huile de Poisson Oméga-3',
-    scientificName: 'EPA et DHA',
-    benefits: ['Fonction cognitive', 'Santé cardiovasculaire', 'Anti-inflammatoire'],
-    timeToEffect: '4-6 semaines',
-    scientificBasis: 'Études sur le développement neuronal et l\'inflammation',
-    vegetarian: false
-  },
-  'ginkgo-biloba': {
-    name: 'Ginkgo Biloba',
-    scientificName: 'Ginkgo biloba',
-    benefits: ['Circulation cérébrale', 'Fonction cognitive', 'Mémoire'],
-    timeToEffect: '4-6 semaines',
-    scientificBasis: 'Études sur le flux sanguin cérébral',
-    vegetarian: true
-  },
-  'bacopa-monnieri': {
-    name: 'Bacopa Monnieri',
-    scientificName: 'Bacopa monnieri',
-    benefits: ['Mémoire', 'Apprentissage', 'Neuroprotection'],
-    timeToEffect: '8-12 semaines',
-    scientificBasis: 'Études sur les fonctions cognitives',
-    vegetarian: true
-  },
-  'lions-mane': {
-    name: 'Crinière de Lion',
-    scientificName: 'Hericium erinaceus',
-    benefits: ['Neurogénèse', 'Fonction cognitive', 'Neuroprotection'],
-    timeToEffect: '2-4 semaines',
-    scientificBasis: 'Études sur les facteurs de croissance nerveuse',
-    vegetarian: true
-  },
-  'probiotics': {
-    name: 'Probiotiques',
-    scientificName: 'Cultures bactériennes diverses',
-    benefits: ['Santé intestinale', 'Digestion', 'Immunité'],
-    timeToEffect: '2-4 semaines',
-    scientificBasis: 'Études sur le microbiome intestinal',
-    vegetarian: true
-  },
-  'digestive-enzymes': {
-    name: 'Enzymes Digestives',
-    scientificName: 'Protéases, Lipases, Amylases',
-    benefits: ['Digestion optimisée', 'Absorption des nutriments', 'Confort digestif'],
-    timeToEffect: 'Immédiat (pendant les repas)',
-    scientificBasis: 'Études sur la digestion et l\'absorption',
-    vegetarian: true
-  },
-  'ginger-extract': {
-    name: 'Extrait de Gingembre',
-    scientificName: 'Zingiber officinale',
-    benefits: ['Digestion', 'Anti-nausée', 'Anti-inflammatoire'],
-    timeToEffect: '30-60 minutes',
-    scientificBasis: 'Études sur la motilité gastrique',
-    vegetarian: true
-  },
-  'green-tea-extract': {
-    name: 'Extrait de Thé Vert',
-    scientificName: 'Camellia sinensis',
-    benefits: ['Métabolisme', 'Antioxydant', 'Thermogénèse'],
-    timeToEffect: '2-4 semaines',
-    scientificBasis: 'Études sur le métabolisme et EGCG',
-    vegetarian: true
-  },
-  'fiber-supplement': {
-    name: 'Supplément de Fibres',
-    scientificName: 'Psyllium/Inuline/Acacia',
-    benefits: ['Satiété', 'Santé intestinale', 'Stabilité glycémique'],
-    timeToEffect: '1-2 semaines',
-    scientificBasis: 'Études sur le microbiome et le transit',
-    vegetarian: true
-  },
-  'nootropic-complex': {
-    name: 'Complexe Nootropique',
-    scientificName: 'Combinaison de composés',
-    benefits: ['Fonction cognitive', 'Mémoire', 'Concentration'],
-    timeToEffect: '2-4 semaines',
-    scientificBasis: 'Études sur les fonctions cognitives',
-    vegetarian: true
-  }
-};
-
-/**
- * Mappage des symptômes du quiz aux catégories de recommandations
- */
-const SYMPTOM_MAPPING = {
-  'stressLevel': { category: 'stress', threshold: 3 },
-  'sleepIssues': { category: 'insomnia', threshold: 3 },
-  'energyLevel': { category: 'fatigue', threshold: 3, inverse: true },
-  'focusIssues': { category: 'concentration', threshold: 3 },
-  'digestiveIssues': { category: 'digestion', threshold: 3 }
-};
-
-/**
- * Mappage des objectifs du quiz
- */
-const GOAL_MAPPING = {
-  'weightLoss': 'weight-loss',
-  'increaseEnergy': 'energy',
-  'improveFocus': 'focus'
-};
-
-/**
- * Génère des recommandations personnalisées basées sur les réponses au quiz
- */
-export function generateRecommendations(
+export const generateRecommendations = (
   quizResponses: QuizResponse,
-  behavioralMetrics: BehavioralMetrics,
-  neuroProfile: NeuroProfile
-): Recommendation[] {
-  // Initialiser les recommendations
-  let recommendations: Recommendation[] = [];
-  
-  // 1. Analyser les symptômes et déterminer les priorités
-  const activeSymptoms: {category: string, priority: number}[] = [];
-  
-  if (quizResponses.healthConcerns) {
-    Object.entries(quizResponses.healthConcerns).forEach(([symptomKey, value]) => {
-      const mapping = SYMPTOM_MAPPING[symptomKey as keyof typeof SYMPTOM_MAPPING];
-      if (mapping) {
-        let symptomValue = parseInt(value as string);
+  behavioralMetrics?: BehavioralMetrics,
+  neuroProfile?: NeuroProfile
+): Recommendation[] => {
+  try {
+    // Extraire les données essentielles du quiz
+    const { 
+      stressLevel = 0, 
+      sleepQuality = 0, 
+      energyLevel = 0,
+      concentration = 0,
+      digestion = 0,
+      personalGoals = [],
+      dietaryRestrictions = {}
+    } = quizResponses;
+    
+    // Déterminer si l'utilisateur est végétarien
+    const isVegetarian = dietaryRestrictions.vegetarian || dietaryRestrictions.vegan;
+    
+    // Convertir les réponses de quiz en catégories de symptômes
+    const activeSymptoms = [];
+    
+    if (stressLevel >= SYMPTOM_MAPPING.stress.mild) {
+      const symptomCategory = SYMPTOM_CATEGORIES.find(cat => cat.id === 'stress');
+      if (symptomCategory) {
+        activeSymptoms.push({
+          ...symptomCategory,
+          intensity: stressLevel
+        });
+      }
+    }
+    
+    if (sleepQuality <= 10 - SYMPTOM_MAPPING.sleep.mild) {
+      const symptomCategory = SYMPTOM_CATEGORIES.find(cat => cat.id === 'sleep');
+      if (symptomCategory) {
+        activeSymptoms.push({
+          ...symptomCategory,
+          intensity: 10 - sleepQuality
+        });
+      }
+    }
+    
+    if (energyLevel <= 10 - SYMPTOM_MAPPING.energy.mild) {
+      const symptomCategory = SYMPTOM_CATEGORIES.find(cat => cat.id === 'energy');
+      if (symptomCategory) {
+        activeSymptoms.push({
+          ...symptomCategory,
+          intensity: 10 - energyLevel
+        });
+      }
+    }
+    
+    if (concentration <= 10 - SYMPTOM_MAPPING.focus.mild) {
+      const symptomCategory = SYMPTOM_CATEGORIES.find(cat => cat.id === 'focus');
+      if (symptomCategory) {
+        activeSymptoms.push({
+          ...symptomCategory,
+          intensity: 10 - concentration
+        });
+      }
+    }
+    
+    if (digestion <= 10 - SYMPTOM_MAPPING.digestion.mild) {
+      const symptomCategory = SYMPTOM_CATEGORIES.find(cat => cat.id === 'digestion');
+      if (symptomCategory) {
+        activeSymptoms.push({
+          ...symptomCategory,
+          intensity: 10 - digestion
+        });
+      }
+    }
+    
+    // Traiter les objectifs personnels
+    const activeGoals = personalGoals || [];
+    
+    // Map pour éviter les doublons de recommandations
+    const recommendationMap = new Map();
+    
+    // D'abord, ajouter les recommandations basées sur les symptômes
+    activeSymptoms.forEach(symptom => {
+      const recommendations = SYMPTOM_RECOMMENDATIONS[symptom.id] || [];
+      
+      recommendations.forEach(rec => {
+        // Vérifier si le complément est compatible avec les préférences alimentaires
+        const supplementInfo = SUPPLEMENT_CATALOG[rec.id];
         
-        // Inverser la valeur pour les échelles inversées (comme le niveau d'énergie)
-        if (mapping.inverse) {
-          symptomValue = 6 - symptomValue; // Sur une échelle de 1-5, transformer 1->5, 2->4, etc.
+        // Filtrer les suppléments non végétariens pour les utilisateurs végétariens
+        if (isVegetarian && !supplementInfo.vegetarian) {
+          return;
         }
         
-        if (symptomValue >= mapping.threshold) {
-          // Calculer la priorité en fonction de l'intensité du symptôme
-          const priority = Math.min(5, Math.round(symptomValue * 1.2));
-          activeSymptoms.push({
-            category: mapping.category,
-            priority: priority
+        // Déterminer la dose appropriée
+        const dose = isVegetarian ? rec.doseVegetarian : rec.doseStandard;
+        
+        // Si la dose est null, cela signifie que ce supplément n'est pas adapté à ce régime
+        if (dose === null) {
+          return;
+        }
+        
+        // Si ce supplément n'est pas déjà dans la liste ou si sa priorité est plus élevée
+        if (!recommendationMap.has(rec.id) || 
+            (recommendationMap.get(rec.id)!.priority < rec.priority + symptom.priority)) {
+          
+          const scoreBase = rec.priority * 10 + symptom.priority * 5;
+          
+          recommendationMap.set(rec.id, {
+            id: rec.id,
+            name: supplementInfo.name,
+            description: `${supplementInfo.name} (${supplementInfo.scientificName})`,
+            priority: rec.priority + symptom.priority,
+            matchScore: scoreBase,
+            benefits: supplementInfo.benefits,
+            recommendedDose: dose,
+            timeToEffect: supplementInfo.timeToEffect,
+            scientificBasis: supplementInfo.scientificBasis,
+            confidence: 0.7 + (rec.priority * 0.05),
+            reason: `Recommandé principalement pour ${symptom.name}`
           });
         }
-      }
+      });
     });
+    
+    // Ensuite, ajouter les recommandations basées sur les objectifs
+    activeGoals.forEach(goal => {
+      const goalRecs = GOAL_RECOMMENDATIONS[goal] || [];
+      
+      goalRecs.forEach(rec => {
+        // Vérifier si le complément est compatible avec les préférences alimentaires
+        const supplementInfo = SUPPLEMENT_CATALOG[rec.id];
+        
+        // Filtrer les suppléments non végétariens pour les utilisateurs végétariens
+        if (isVegetarian && !supplementInfo.vegetarian) {
+          return;
+        }
+        
+        // Déterminer la dose appropriée
+        const dose = isVegetarian ? rec.doseVegetarian : rec.doseStandard;
+        
+        // Si la dose est null, cela signifie que ce supplément n'est pas adapté à ce régime
+        if (dose === null) {
+          return;
+        }
+        
+        // Si ce supplément n'est pas déjà dans la liste, l'ajouter
+        if (!recommendationMap.has(rec.id)) {
+          const scoreBase = rec.priority * 8; // Score légèrement inférieur aux symptômes
+          
+          recommendationMap.set(rec.id, {
+            id: rec.id,
+            name: supplementInfo.name,
+            description: `${supplementInfo.name} (${supplementInfo.scientificName})`,
+            priority: rec.priority,
+            matchScore: scoreBase,
+            benefits: supplementInfo.benefits,
+            recommendedDose: dose,
+            timeToEffect: supplementInfo.timeToEffect,
+            scientificBasis: supplementInfo.scientificBasis,
+            confidence: 0.65 + (rec.priority * 0.05),
+            reason: `Recommandé pour votre objectif: ${goal}`
+          });
+        } 
+        // Si déjà présent mais avec une raison différente, mettre à jour la raison et augmenter le score
+        else {
+          const existing = recommendationMap.get(rec.id)!;
+          existing.reason += ` et votre objectif: ${goal}`;
+          existing.matchScore += rec.priority * 3;
+          existing.confidence = Math.min(0.95, existing.confidence + 0.05);
+        }
+      });
+    });
+    
+    // Intégrer les données de comportement (si disponibles)
+    if (behavioralMetrics) {
+      // Ajuster les scores en fonction du temps passé sur certaines pages
+      if (behavioralMetrics.timeSpentOnSymptomPages > 45) {
+        // L'utilisateur s'intéresse beaucoup aux symptômes, augmenter le score des remèdes symptomatiques
+        recommendationMap.forEach(rec => {
+          if (rec.reason.includes('symptôme')) {
+            rec.matchScore *= 1.1;
+            rec.confidence = Math.min(0.95, rec.confidence + 0.03);
+          }
+        });
+      }
+      
+      if (behavioralMetrics.timeSpentOnSciencePages > 60) {
+        // L'utilisateur s'intéresse à la science, augmenter le score des suppléments avec forte base scientifique
+        recommendationMap.forEach((rec, id) => {
+          const supplement = SUPPLEMENT_CATALOG[id];
+          if (supplement && supplement.scienceScore > 7) {
+            rec.matchScore *= 1.15;
+            rec.confidence = Math.min(0.95, rec.confidence + 0.05);
+          }
+        });
+      }
+    }
+    
+    // Intégrer le profil neuro (si disponible)
+    if (neuroProfile) {
+      if (neuroProfile.preferredContentType === 'detailed') {
+        // Utilisateur qui préfère les détails - augmenter la confiance pour les recommandations bien documentées
+        recommendationMap.forEach((rec, id) => {
+          const supplement = SUPPLEMENT_CATALOG[id];
+          if (supplement && supplement.sources.length > 1) {
+            rec.confidence = Math.min(0.95, rec.confidence + 0.07);
+          }
+        });
+      }
+    }
+    
+    // Convertir la Map en array et trier par score
+    const sortedRecommendations = Array.from(recommendationMap.values())
+      .sort((a, b) => b.matchScore - a.matchScore);
+    
+    // Enregistrer cette session d'apprentissage
+    try {
+      recordLearningData({
+        quizResponses,
+        generatedRecommendations: sortedRecommendations.slice(0, 5), // Top 5 recommandations
+        userProfile: {
+          dietaryRestrictions: dietaryRestrictions,
+          activeSymptoms: activeSymptoms.map(s => s.id),
+          activeGoals: activeGoals
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
+    }
+    
+    // Retourner les 3 meilleures recommandations
+    return sortedRecommendations.slice(0, 3);
+    
+  } catch (error) {
+    console.error("Erreur lors du calcul des recommandations:", error);
+    return [];
   }
-  
-  // Trier les symptômes par priorité (du plus prioritaire au moins prioritaire)
-  activeSymptoms.sort((a, b) => b.priority - a.priority);
-  
-  // 2. Analyser les objectifs
-  const activeGoals: string[] = [];
-  
-  if (quizResponses.goals) {
-    Object.entries(quizResponses.goals).forEach(([goalKey, isActive]) => {
-      if (isActive === true) {
-        const goalCategory = GOAL_MAPPING[goalKey as keyof typeof GOAL_MAPPING];
-        if (goalCategory) {
-          activeGoals.push(goalCategory);
+};
+
+/**
+ * Génère une explication détaillée pour une recommandation spécifique
+ */
+export const generateRecommendationExplanation = (
+  recommendation: Recommendation,
+  quizResponses: QuizResponse
+): string => {
+  try {
+    const supplement = SUPPLEMENT_CATALOG[recommendation.id];
+    
+    if (!supplement) {
+      return "Information détaillée non disponible pour ce complément.";
+    }
+    
+    // Construire une explication scientifique personnalisée
+    let explanation = `**${supplement.name} (${supplement.scientificName})** : ${supplement.description}\n\n`;
+    
+    // Bénéfices spécifiques
+    explanation += "**Bénéfices ciblés pour votre profil :**\n";
+    explanation += supplement.benefits.map(b => `- ${b}`).join('\n');
+    
+    // Base scientifique
+    explanation += `\n\n**Base scientifique :** ${supplement.scientificBasis}`;
+    
+    // Dosage personnalisé
+    explanation += `\n\n**Dosage recommandé pour vous :** ${recommendation.recommendedDose}`;
+    
+    // Délai d'efficacité
+    explanation += `\n\n**Délai d'efficacité typique :** ${supplement.timeToEffect}`;
+    
+    // Précautions
+    if (supplement.contraindications.length > 0) {
+      explanation += "\n\n**Précautions :** ";
+      explanation += supplement.contraindications.map(c => c).join(', ');
+    }
+    
+    return explanation;
+  } catch (error) {
+    console.error("Erreur lors de la génération de l'explication:", error);
+    return "Désolé, nous ne pouvons pas générer d'explication détaillée pour cette recommandation.";
+  }
+};
+
+/**
+ * Enregistre les données pour l'apprentissage du système IA
+ */
+export const recordLearningData = (data: LearningData): void => {
+  try {
+    // Récupérer les données existantes
+    const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+    
+    // Ajouter les nouvelles données
+    existingData.push(data);
+    
+    // Limiter la taille des données stockées (garder les 1000 plus récentes)
+    const trimmedData = existingData.slice(-1000);
+    
+    // Sauvegarder les données
+    secureStorageService.setItem('aiLearningData', trimmedData);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
+  }
+};
+
+/**
+ * Calcule le score de similarité entre deux profils utilisateurs
+ */
+export const calculateProfileSimilarity = (
+  profile1: any,
+  profile2: any
+): number => {
+  try {
+    let similarityScore = 0;
+    let totalFactors = 0;
+    
+    // Comparer les symptômes actifs
+    if (profile1.activeSymptoms && profile2.activeSymptoms) {
+      const commonSymptoms = profile1.activeSymptoms.filter((s: string) => 
+        profile2.activeSymptoms.includes(s)
+      ).length;
+      
+      const totalSymptoms = new Set([
+        ...profile1.activeSymptoms,
+        ...profile2.activeSymptoms
+      ]).size;
+      
+      if (totalSymptoms > 0) {
+        similarityScore += (commonSymptoms / totalSymptoms) * 50; // Poids plus élevé pour les symptômes
+        totalFactors += 1;
+      }
+    }
+    
+    // Comparer les objectifs
+    if (profile1.activeGoals && profile2.activeGoals) {
+      const commonGoals = profile1.activeGoals.filter((g: string) => 
+        profile2.activeGoals.includes(g)
+      ).length;
+      
+      const totalGoals = new Set([
+        ...profile1.activeGoals,
+        ...profile2.activeGoals
+      ]).size;
+      
+      if (totalGoals > 0) {
+        similarityScore += (commonGoals / totalGoals) * 30;
+        totalFactors += 1;
+      }
+    }
+    
+    // Comparer les restrictions alimentaires
+    if (profile1.dietaryRestrictions && profile2.dietaryRestrictions) {
+      let matchingRestrictions = 0;
+      let totalRestrictions = 0;
+      
+      for (const key in profile1.dietaryRestrictions) {
+        if (profile2.dietaryRestrictions[key] === profile1.dietaryRestrictions[key]) {
+          matchingRestrictions++;
+        }
+        totalRestrictions++;
+      }
+      
+      if (totalRestrictions > 0) {
+        similarityScore += (matchingRestrictions / totalRestrictions) * 20;
+        totalFactors += 1;
+      }
+    }
+    
+    // Normaliser le score
+    return totalFactors > 0 ? similarityScore / totalFactors : 0;
+    
+  } catch (error) {
+    console.error("Erreur lors du calcul de la similarité:", error);
+    return 0;
+  }
+};
+
+/**
+ * Enrichit les recommandations en utilisant l'IA externe via API (ChatGPT)
+ */
+export const enrichRecommendationsWithExternalAI = async (
+  recommendations: Recommendation[],
+  quizResponses: QuizResponse
+): Promise<Recommendation[]> => {
+  try {
+    // Vérifier si la clé API est configurée
+    const apiKey = secureStorageService.getItem('openai_api_key');
+    
+    if (!apiKey) {
+      console.log("Clé API OpenAI non configurée, impossible d'enrichir les recommandations");
+      return recommendations;
+    }
+    
+    // Préparer les données à envoyer à l'API
+    const requestData = {
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `Vous êtes un expert en nutrition et suppléments nutritionnels. 
+          Vous allez analyser les recommandations générées par notre système et les enrichir 
+          avec des conseils plus personnalisés, des explications scientifiques, et des ajustements 
+          de dosage si nécessaire. Restez factuel et basez vos recommandations sur la science.`
+        },
+        {
+          role: "user",
+          content: `Voici les recommandations générées par notre système et les réponses au quiz de l'utilisateur.
+          Veuillez enrichir ces recommandations avec des détails supplémentaires sur l'efficacité, d'éventuelles 
+          synergies entre les compléments, et affiner les dosages en fonction du profil spécifique.
+          
+          RÉPONSES AU QUIZ:
+          ${JSON.stringify(quizResponses, null, 2)}
+          
+          RECOMMANDATIONS GÉNÉRÉES:
+          ${JSON.stringify(recommendations, null, 2)}
+          
+          Répondez au format JSON avec les recommandations enrichies.`
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1500
+    };
+    
+    // Appeler l'API OpenAI
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestData)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Erreur API: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Extraire et parser la réponse
+    try {
+      const content = data.choices[0].message.content;
+      const enrichedRecommendations = JSON.parse(content);
+      
+      // Fusionner avec les recommandations originales
+      return enrichedRecommendations.map((enriched: any, index: number) => ({
+        ...recommendations[index],
+        ...enriched,
+        aiEnriched: true
+      }));
+      
+    } catch (parseError) {
+      console.error("Erreur lors du parsing de la réponse AI:", parseError);
+      return recommendations;
+    }
+    
+  } catch (error) {
+    console.error("Erreur lors de l'enrichissement des recommandations par IA:", error);
+    return recommendations;
+  }
+};
+
+/**
+ * Met à jour le modèle d'apprentissage en fonction des retours utilisateurs
+ */
+export const updateAiModel = (): void => {
+  try {
+    // Récupérer toutes les données d'apprentissage
+    const learningData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+    
+    // Récupérer les retours utilisateurs
+    const userFeedback: UserFeedback[] = secureStorageService.getItem('userFeedback') || [];
+    
+    if (learningData.length === 0 || userFeedback.length === 0) {
+      console.log("Pas assez de données pour mettre à jour le modèle");
+      return;
+    }
+    
+    // Traiter les données pour améliorer les recommandations
+    processLearningDataAndFeedback(learningData, userFeedback);
+    
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du modèle IA:", error);
+  }
+};
+
+/**
+ * Traite les données d'apprentissage et les retours utilisateurs pour améliorer le modèle
+ */
+const processLearningDataAndFeedback = (
+  learningData: LearningData[],
+  userFeedback: UserFeedback[]
+): void => {
+  try {
+    // Construire un index pour associer les recommandations à leur feedback
+    const feedbackIndex = new Map<string, number[]>();
+    
+    userFeedback.forEach(feedback => {
+      if (!feedbackIndex.has(feedback.recommendationId)) {
+        feedbackIndex.set(feedback.recommendationId, []);
+      }
+      
+      feedbackIndex.get(feedback.recommendationId)?.push(feedback.rating);
+    });
+    
+    // Ajuster les priorités des recommandations en fonction des retours
+    const supplementAdjustments = new Map<string, { 
+      totalPositive: number;
+      totalNegative: number;
+      count: number;
+    }>();
+    
+    // Parcourir les données d'apprentissage
+    learningData.forEach(data => {
+      data.generatedRecommendations.forEach(rec => {
+        const feedback = feedbackIndex.get(rec.id);
+        
+        if (feedback && feedback.length > 0) {
+          // Calculer le score moyen
+          const avgRating = feedback.reduce((sum, rating) => sum + rating, 0) / feedback.length;
+          
+          if (!supplementAdjustments.has(rec.id)) {
+            supplementAdjustments.set(rec.id, {
+              totalPositive: 0,
+              totalNegative: 0,
+              count: 0
+            });
+          }
+          
+          const adjustment = supplementAdjustments.get(rec.id)!;
+          
+          if (avgRating >= 3.5) {
+            adjustment.totalPositive++;
+          } else {
+            adjustment.totalNegative++;
+          }
+          
+          adjustment.count++;
+        }
+      });
+    });
+    
+    // Appliquer les ajustements au modèle
+    supplementAdjustments.forEach((adjustmentData, supplementId) => {
+      if (adjustmentData.count >= 5) { // Au moins 5 retours pour être significatif
+        const positiveRatio = adjustmentData.totalPositive / adjustmentData.count;
+        
+        // Ajuster les symptômes associés
+        for (const symptomKey in SYMPTOM_RECOMMENDATIONS) {
+          const recommendations = SYMPTOM_RECOMMENDATIONS[symptomKey];
+          const recIndex = recommendations.findIndex(rec => rec.id === supplementId);
+          
+          if (recIndex >= 0) {
+            const currentPriority = recommendations[recIndex].priority;
+            
+            // Augmenter ou diminuer la priorité selon les retours
+            if (positiveRatio > 0.7) { // Plus de 70% de retours positifs
+              recommendations[recIndex].priority = Math.min(10, currentPriority + 1);
+            } else if (positiveRatio < 0.3) { // Moins de 30% de retours positifs
+              recommendations[recIndex].priority = Math.max(1, currentPriority - 1);
+            }
+          }
+        }
+        
+        // Ajuster également les objectifs associés
+        for (const goalKey in GOAL_RECOMMENDATIONS) {
+          const recommendations = GOAL_RECOMMENDATIONS[goalKey];
+          const recIndex = recommendations.findIndex(rec => rec.id === supplementId);
+          
+          if (recIndex >= 0) {
+            const currentPriority = recommendations[recIndex].priority;
+            
+            // Augmenter ou diminuer la priorité selon les retours
+            if (positiveRatio > 0.7) {
+              recommendations[recIndex].priority = Math.min(10, currentPriority + 1);
+            } else if (positiveRatio < 0.3) {
+              recommendations[recIndex].priority = Math.max(1, currentPriority - 1);
+            }
+          }
         }
       }
     });
-  }
-  
-  // 3. Déterminer si l'utilisateur est végétarien
-  const isVegetarian = quizResponses.dietaryPreferences?.includes('vegetarian') || false;
-  
-  // 4. Construire les recommandations basées sur les symptômes prioritaires
-  const recommendationMap = new Map<string, Recommendation>();
-  
-  // D'abord, ajouter les recommandations basées sur les symptômes
-  activeSymptoms.forEach(symptom => {
-    const symptomRecs = SYMPTOM_RECOMMENDATIONS[symptom.category as keyof typeof SYMPTOM_RECOMMENDATIONS] || [];
     
-    symptomRecs.forEach(rec => {
-      // Vérifier si le complément est compatible avec les préférences alimentaires
-      const supplementInfo = SUPPLEMENT_CATALOG[rec.id as keyof typeof SUPPLEMENT_CATALOG];
-      
-      // Ignorer les suppléments non végétariens pour les utilisateurs végétariens
-      if (isVegetarian && !supplementInfo.vegetarian) {
-        return;
-      }
-      
-      // Déterminer la dose appropriée
-      const dose = isVegetarian ? rec.doseVegetarian : rec.doseStandard;
-      
-      // Si la dose est null, cela signifie que ce supplément n'est pas adapté à ce régime
-      if (dose === null) {
-        return;
-      }
-      
-      // Si ce supplément n'est pas déjà dans la liste ou si sa priorité est plus élevée
-      if (!recommendationMap.has(rec.id) || 
-          (recommendationMap.get(rec.id)!.priority < rec.priority + symptom.priority)) {
-        
-        const scoreBase = rec.priority * 10 + symptom.priority * 5;
-        
-        recommendationMap.set(rec.id, {
-          id: rec.id,
-          name: supplementInfo.name,
-          description: `${supplementInfo.name} (${supplementInfo.scientificName})`,
-          priority: rec.priority + symptom.priority,
-          matchScore: scoreBase,
-          benefits: supplementInfo.benefits,
-          recommendedDose: dose,
-          timeToEffect: supplementInfo.timeToEffect,
-          scientificBasis: supplementInfo.scientificBasis,
-          confidence: 0.7 + (rec.priority * 0.05),
-          reason: `Recommandé principalement pour ${symptom.category}`
-        });
-      }
-    });
-  });
-  
-  // Ensuite, ajouter les recommandations basées sur les objectifs
-  activeGoals.forEach(goal => {
-    const goalRecs = GOAL_RECOMMENDATIONS[goal as keyof typeof GOAL_RECOMMENDATIONS] || [];
+    // Sauvegarder les données modifiées
+    // Note: Dans une implémentation réelle, nous sauvegarderions ces changements dans une base de données
+    // Pour cette démonstration, nous utilisons le stockage sécurisé local
+    secureStorageService.setItem('symptomRecommendationsUpdated', SYMPTOM_RECOMMENDATIONS);
+    secureStorageService.setItem('goalRecommendationsUpdated', GOAL_RECOMMENDATIONS);
     
-    goalRecs.forEach(rec => {
-      // Vérifier si le complément est compatible avec les préférences alimentaires
-      const supplementInfo = SUPPLEMENT_CATALOG[rec.id as keyof typeof SUPPLEMENT_CATALOG];
-      
-      // Ignorer les suppléments non végétariens pour les utilisateurs végétariens
-      if (isVegetarian && !supplementInfo.vegetarian) {
-        return;
-      }
-      
-      // Déterminer la dose appropriée
-      const dose = isVegetarian ? rec.doseVegetarian : rec.doseStandard;
-      
-      // Si la dose est null, cela signifie que ce supplément n'est pas adapté à ce régime
-      if (dose === null) {
-        return;
-      }
-      
-      // Si ce supplément n'est pas déjà dans la liste, l'ajouter
-      if (!recommendationMap.has(rec.id)) {
-        const scoreBase = rec.priority * 8; // Score légèrement inférieur aux symptômes
-        
-        recommendationMap.set(rec.id, {
-          id: rec.id,
-          name: supplementInfo.name,
-          description: `${supplementInfo.name} (${supplementInfo.scientificName})`,
-          priority: rec.priority,
-          matchScore: scoreBase,
-          benefits: supplementInfo.benefits,
-          recommendedDose: dose,
-          timeToEffect: supplementInfo.timeToEffect,
-          scientificBasis: supplementInfo.scientificBasis,
-          confidence: 0.65 + (rec.priority * 0.05),
-          reason: `Recommandé pour votre objectif: ${goal}`
-        });
-      } 
-      // Si déjà présent mais avec une raison différente, mettre à jour la raison et augmenter le score
-      else {
-        const existing = recommendationMap.get(rec.id)!;
-        existing.reason += ` et votre objectif: ${goal}`;
-        existing.matchScore = (existing.matchScore || 0) + 5;
-        existing.confidence = Math.min(0.95, (existing.confidence || 0) + 0.05);
-      }
-    });
-  });
-  
-  // Convertir la Map en tableau
-  recommendations = Array.from(recommendationMap.values());
-  
-  // 5. Appliquer des ajustements basés sur l'apprentissage de l'IA
-  if (aiModel && aiModel.featureImportance) {
-    // Ajustement selon l'âge si disponible
-    if (quizResponses.personal && quizResponses.personal.age) {
-      const age = parseInt(quizResponses.personal.age);
-      if (age > 50) {
-        // Pour les personnes plus âgées, prioriser les produits pour la cognition
-        recommendations = recommendations.map(rec => {
-          if (rec.benefits && rec.benefits.some(b => 
-            b.toLowerCase().includes('mémoire') || 
-            b.toLowerCase().includes('cognitif')
-          )) {
-            return { 
-              ...rec, 
-              matchScore: (rec.matchScore || 0) + (15 * (aiModel.featureImportance.age || 1)) 
-            };
-          }
-          return rec;
-        });
-      } else if (age < 30) {
-        // Pour les plus jeunes, prioriser l'énergie et la performance
-        recommendations = recommendations.map(rec => {
-          if (rec.benefits && rec.benefits.some(b => 
-            b.toLowerCase().includes('énergie') || 
-            b.toLowerCase().includes('performance')
-          )) {
-            return { 
-              ...rec, 
-              matchScore: (rec.matchScore || 0) + (15 * (aiModel.featureImportance.age || 1)) 
-            };
-          }
-          return rec;
-        });
-      }
-    }
-  }
-  
-  // 6. Trier par score de correspondance puis confiance
-  recommendations.sort((a, b) => {
-    const scoreA = a.matchScore || 0;
-    const scoreB = b.matchScore || 0;
+    console.log("Modèle IA mis à jour avec succès");
     
-    if (scoreB !== scoreA) {
-      return scoreB - scoreA;
-    }
-    
-    // En cas d'égalité de score, utiliser la confiance
-    return (b.confidence || 0) - (a.confidence || 0);
-  });
-  
-  // Limiter à un nombre raisonnable de recommandations
-  return recommendations.slice(0, 5);
-}
-
-/**
- * Génère une explication détaillée pour une recommandation
- */
-export function generateRecommendationExplanation(recommendation: Recommendation): string {
-  let explanation = '';
-  
-  // Introduction basée sur le nom du produit
-  explanation = `<strong>${recommendation.name}</strong> est recommandé pour vous aider avec ${recommendation.reason.toLowerCase()}.`;
-  
-  // Ajouter des détails sur les bénéfices
-  if (recommendation.benefits && recommendation.benefits.length > 0) {
-    explanation += ` Les recherches scientifiques montrent que ce complément peut ${recommendation.benefits.map(b => `<strong>${b.toLowerCase()}</strong>`).join(', ')}.`;
-  }
-  
-  // Ajouter des informations sur le délai d'efficacité
-  if (recommendation.timeToEffect) {
-    explanation += ` Vous pourriez observer des résultats positifs après ${recommendation.timeToEffect} d'utilisation régulière.`;
-  }
-  
-  // Ajouter des informations sur la dose recommandée
-  if (recommendation.recommendedDose) {
-    explanation += ` La dose recommandée est de ${recommendation.recommendedDose}.`;
-  }
-  
-  // Ajouter une base scientifique si disponible
-  if (recommendation.scientificBasis) {
-    explanation += ` <em>${recommendation.scientificBasis}</em>.`;
-  }
-  
-  return explanation;
-}
-
-/**
- * Enregistre les données d'apprentissage pour améliorer les recommandations futures
- */
-export function recordLearningData(
-  quizResponses: QuizResponse,
-  recommendations: Recommendation[],
-  userFeedback: UserFeedback
-): void {
-  try {
-    // 1. Récupérer les données d'apprentissage existantes
-    const storedData = secureStorage.getItem('learningData');
-    const learningDatabase: LearningData[] = storedData ? JSON.parse(storedData) : [];
-    
-    // 2. Préparer les nouvelles données d'apprentissage
-    const newData: LearningData = {
-      timestamp: Date.now(),
-      quizData: quizResponses,
-      recommendationId: recommendations[0]?.id || '',
-      userFeedback: userFeedback
-    };
-    
-    // 3. Ajouter les nouvelles données à la base
-    learningDatabase.push(newData);
-    
-    // 4. Limiter la taille de la base de données (garder les 1000 entrées les plus récentes)
-    if (learningDatabase.length > 1000) {
-      learningDatabase.sort((a, b) => b.timestamp - a.timestamp);
-      learningDatabase.splice(1000);
-    }
-    
-    // 5. Enregistrer les données mises à jour
-    secureStorage.setItem('learningData', JSON.stringify(learningDatabase));
-    
-    // 6. Déclencher une mise à jour du modèle d'apprentissage si suffisamment de données
-    if (learningDatabase.length % 50 === 0) {
-      console.log(`[AI Learning] Mise à jour du modèle avec ${learningDatabase.length} points de données`);
-      // Cette fonction serait implémentée dans aiLearning.ts
-      // updateAiModel(learningDatabase);
-    }
   } catch (error) {
-    console.error('Erreur lors de l\'enregistrement des données d\'apprentissage:', error);
+    console.error("Erreur lors du traitement des données d'apprentissage:", error);
   }
-}
+};

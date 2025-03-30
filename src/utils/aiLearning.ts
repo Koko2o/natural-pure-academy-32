@@ -1,694 +1,671 @@
+
 /**
- * Système d'apprentissage IA pour les recommandations nutritionnelles
+ * Système d'apprentissage IA pour les recommandations nutritionnelles personnalisées
  */
 
-import { secureStorageService as secureStorage } from './secureStorage';
-import { LearningData, AIModelState, QuizResponse } from './types';
+import { secureStorageService } from './secureStorage';
+import { 
+  LearningData, 
+  AIModelState, 
+  QuizResponse, 
+  Recommendation,
+  UserProfile,
+  UserFeedback
+} from './types';
+import { calculateProfileSimilarity } from './recommenderSystem';
+import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
+import { SYMPTOM_CATEGORIES, SYMPTOM_RECOMMENDATIONS, GOAL_RECOMMENDATIONS } from '../data/recommendationMappings';
 
-// Types pour le système de recommandation
-export interface Symptom {
-  id: string;
-  name: string;
-  description: string;
-  priority: number; // 1-10, 10 étant la plus haute priorité
-  keywords: string[];
+// Structure de données pour le modèle AI
+interface AIModel {
+  supplementScores: Record<string, {
+    effectivenessScore: number; 
+    confidenceScore: number;
+    feedbackCount: number;
+    lastUpdated: string;
+  }>;
+  symptomWeights: Record<string, number>;
+  goalWeights: Record<string, number>;
+  dietaryAdjustments: Record<string, number>;
+  userProfiles: UserProfile[];
+  version: number;
+  trainingIterations: number;
 }
 
-export interface NutritionSupplement {
-  id: string;
-  name: string;
-  description: string;
-  benefits: string[];
-  targetSymptoms: string[]; // IDs des symptômes ciblés
-  dosage: string;
-  ingredients: string;
-  vegan: boolean;
-  vegetarian: boolean;
-  glutenFree: boolean;
-  dairyFree: boolean;
-  effectiveness: number; // Score d'efficacité basé sur les données (1-100)
-}
-
-export interface UserProfile {
-  dietaryRestrictions: {
-    vegan: boolean;
-    vegetarian: boolean;
-    glutenFree: boolean;
-    dairyFree: boolean;
-  };
-  reportedSymptoms: string[]; // IDs des symptômes rapportés
-  healthGoals: string[];
-  previousRecommendations?: {
-    supplementId: string;
-    effectivenessRating?: number; // Note facultative donnée par l'utilisateur
-    dateRecommended: string;
-  }[];
-}
-
-
-// Base de connaissances initiale
-const initialSymptoms: Symptom[] = [
-  {
-    id: 'stress',
-    name: 'Stress chronique',
-    description: 'Sensation persistante de tension nerveuse affectant le bien-être mental et physique',
-    priority: 9,
-    keywords: ['anxiété', 'nervosité', 'tension', 'inquiétude', 'agitation']
+// Données initiales du modèle
+const initialAIModel: AIModel = {
+  supplementScores: {},
+  symptomWeights: {
+    stress: 1.0,
+    sleep: 1.0,
+    energy: 1.0,
+    mood: 1.0,
+    focus: 1.0,
+    digestion: 1.0,
+    immunity: 1.0,
+    inflammation: 1.0
   },
-  {
-    id: 'sleep',
-    name: 'Troubles du sommeil',
-    description: 'Difficultés à s\'endormir ou à maintenir un sommeil réparateur',
-    priority: 8,
-    keywords: ['insomnie', 'réveil nocturne', 'fatigue matinale', 'sommeil agité']
+  goalWeights: {
+    weight_management: 1.0,
+    cognitive_performance: 1.0,
+    stress_management: 1.0,
+    energy_boost: 1.0,
+    better_sleep: 1.0,
+    immune_support: 1.0,
+    digestive_health: 1.0
   },
-  {
-    id: 'focus',
-    name: 'Manque de concentration',
-    description: 'Difficultés à maintenir l\'attention et à rester concentré sur une tâche',
-    priority: 7,
-    keywords: ['distraction', 'oublis', 'confusion', 'erreurs fréquentes']
+  dietaryAdjustments: {
+    vegan: 1.0,
+    vegetarian: 1.0,
+    glutenFree: 1.0,
+    dairyFree: 1.0
   },
-  {
-    id: 'energy',
-    name: 'Fatigue chronique',
-    description: 'Manque persistant d\'énergie affectant les activités quotidiennes',
-    priority: 8,
-    keywords: ['épuisement', 'léthargie', 'faiblesse', 'manque de vitalité']
-  },
-  {
-    id: 'digestion',
-    name: 'Problèmes digestifs',
-    description: 'Troubles affectant la digestion et le confort intestinal',
-    priority: 6,
-    keywords: ['ballonnements', 'gaz', 'inconfort', 'transit irrégulier']
-  }
-];
-
-const initialSupplements: NutritionSupplement[] = [
-  {
-    id: 'ashwagandha',
-    name: 'Ashwagandha BIO',
-    description: 'Adaptogène puissant aidant à gérer le stress et l\'anxiété',
-    benefits: [
-      'Réduction du stress et de l\'anxiété',
-      'Amélioration de la qualité du sommeil',
-      'Augmentation des niveaux d\'énergie'
-    ],
-    targetSymptoms: ['stress', 'sleep', 'energy'],
-    dosage: '300-600mg par jour',
-    ingredients: 'Extrait d\'Ashwagandha BIO (Withania somnifera)',
-    vegan: true,
-    vegetarian: true,
-    glutenFree: true,
-    dairyFree: true,
-    effectiveness: 85
-  },
-  {
-    id: 'magnesium',
-    name: 'Magnésium Bisglycinate',
-    description: 'Forme hautement biodisponible de magnésium pour réduire le stress et améliorer le sommeil',
-    benefits: [
-      'Réduction de la tension nerveuse',
-      'Amélioration de la qualité du sommeil',
-      'Soutien à la fonction musculaire'
-    ],
-    targetSymptoms: ['stress', 'sleep'],
-    dosage: '300-400mg par jour',
-    ingredients: 'Bisglycinate de magnésium',
-    vegan: true,
-    vegetarian: true,
-    glutenFree: true,
-    dairyFree: true,
-    effectiveness: 82
-  },
-  {
-    id: 'omega3',
-    name: 'Oméga-3 DHA/EPA',
-    description: 'Acides gras essentiels pour la santé cognitive et la réduction de l\'inflammation',
-    benefits: [
-      'Amélioration des fonctions cognitives',
-      'Réduction de l\'inflammation',
-      'Soutien à la santé cardiovasculaire'
-    ],
-    targetSymptoms: ['focus', 'energy'],
-    dosage: '1000-2000mg par jour',
-    ingredients: 'Huile de poisson riche en EPA et DHA',
-    vegan: false,
-    vegetarian: false,
-    glutenFree: true,
-    dairyFree: true,
-    effectiveness: 78
-  },
-  {
-    id: 'omega3_vegan',
-    name: 'Oméga-3 DHA Algues',
-    description: 'Source végétale d\'Oméga-3 DHA pour la santé cognitive',
-    benefits: [
-      'Amélioration des fonctions cognitives',
-      'Soutien à la santé cardiovasculaire',
-      'Alternative végétale aux huiles de poisson'
-    ],
-    targetSymptoms: ['focus', 'energy'],
-    dosage: '250-500mg de DHA par jour',
-    ingredients: 'Huile d\'algues Schizochytrium sp.',
-    vegan: true,
-    vegetarian: true,
-    glutenFree: true,
-    dairyFree: true,
-    effectiveness: 75
-  },
-  {
-    id: 'probiotics',
-    name: 'Complexe Probiotique Digestif',
-    description: 'Souches multiples de probiotiques pour la santé intestinale',
-    benefits: [
-      'Amélioration du confort digestif',
-      'Renforcement de la flore intestinale',
-      'Soutien au système immunitaire'
-    ],
-    targetSymptoms: ['digestion'],
-    dosage: '10-30 milliards d\'UFC par jour',
-    ingredients: 'Lactobacillus acidophilus, Bifidobacterium lactis, Lactobacillus plantarum',
-    vegan: true,
-    vegetarian: true,
-    glutenFree: true,
-    dairyFree: true,
-    effectiveness: 80
-  }
-];
-
-// État initial du modèle d'IA
-const aiModel: AIModelState = {
-  version: '1.0.0',
-  lastUpdated: Date.now(),
-  featureImportance: {
-    age: 0.7,
-    stressLevel: 0.9,
-    sleepIssues: 0.85,
-    energyLevel: 0.8,
-    focusIssues: 0.75,
-    dietaryPreferences: 0.6
-  }
+  userProfiles: [],
+  version: 1.0,
+  trainingIterations: 0
 };
 
-// Fonctions d'apprentissage et de recommandation
-
-/**
- * Initialise la base de connaissances si elle n'existe pas déjà
- */
-export const initializeKnowledgeBase = (): void => {
-  const existingSymptoms = secureStorage.getItem('ai_symptoms');
-  const existingSupplements = secureStorage.getItem('ai_supplements');
-
-  if (!existingSymptoms) {
-    secureStorage.setItem('ai_symptoms', initialSymptoms);
-  }
-
-  if (!existingSupplements) {
-    secureStorage.setItem('ai_supplements', initialSupplements);
+// Initialiser le modèle AI s'il n'existe pas
+export const initializeAIModel = (): void => {
+  try {
+    const existingModel = secureStorageService.getItem('aiModel');
+    
+    if (!existingModel) {
+      // Pré-remplir le modèle avec les données du catalogue de suppléments
+      const modelWithSupplements = { ...initialAIModel };
+      const supplementScores: Record<string, any> = {};
+      
+      // Pour chaque supplément dans le catalogue, initialiser son score
+      Object.keys(SUPPLEMENT_CATALOG).forEach(supplementId => {
+        const supplement = SUPPLEMENT_CATALOG[supplementId];
+        
+        supplementScores[supplementId] = {
+          effectivenessScore: supplement.scienceScore * 10, // Convertir le score scientifique (1-10) en score d'efficacité (10-100)
+          confidenceScore: 0.5, // Confiance initiale moyenne
+          feedbackCount: 0,
+          lastUpdated: new Date().toISOString()
+        };
+      });
+      
+      modelWithSupplements.supplementScores = supplementScores;
+      secureStorageService.setItem('aiModel', modelWithSupplements);
+      
+      console.log("Modèle AI initialisé avec les données du catalogue de suppléments");
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation du modèle AI:", error);
   }
 };
 
 /**
- * Ajoute une nouvelle entrée à la base de connaissances
+ * Enregistre des données d'apprentissage pour améliorer le modèle AI
  */
-export const addToKnowledgeBase = (
-  type: 'symptom' | 'supplement',
-  data: Symptom | NutritionSupplement
-): void => {
-  const storageKey = type === 'symptom' ? 'ai_symptoms' : 'ai_supplements';
-  const existingData = secureStorage.getItem(storageKey) || [];
-
-  // Vérifie si l'entrée existe déjà
-  const index = existingData.findIndex((item: any) => item.id === (data as any).id);
-
-  if (index >= 0) {
-    // Mise à jour d'une entrée existante
-    existingData[index] = { ...existingData[index], ...data };
-  } else {
-    // Ajout d'une nouvelle entrée
+export const recordLearningData = (data: LearningData): void => {
+  try {
+    // Assurez-vous que le modèle AI est initialisé
+    initializeAIModel();
+    
+    // Récupérer les données d'apprentissage existantes
+    const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+    
+    // Ajouter les nouvelles données
     existingData.push(data);
+    
+    // Limiter à 1000 entrées pour éviter de surcharger le stockage
+    const trimmedData = existingData.slice(-1000);
+    
+    secureStorageService.setItem('aiLearningData', trimmedData);
+    
+    // Mettre à jour le modèle AI avec ces nouvelles données
+    // Note: Dans un système de production, cela serait fait périodiquement plutôt qu'à chaque enregistrement
+    updateAIModelWithLearningData(data);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
   }
+};
 
-  secureStorage.setItem(storageKey, existingData);
+/**
+ * Enregistre un retour utilisateur sur une recommandation
+ */
+export const recordUserFeedback = (
+  recommendationId: string,
+  rating: number,
+  comments?: string
+): void => {
+  try {
+    // Récupérer les retours existants
+    const existingFeedback: UserFeedback[] = secureStorageService.getItem('userFeedback') || [];
+    
+    // Ajouter le nouveau retour
+    existingFeedback.push({
+      recommendationId,
+      rating,
+      comments,
+      timestamp: new Date().toISOString()
+    });
+    
+    secureStorageService.setItem('userFeedback', existingFeedback);
+    
+    // Mettre à jour le modèle AI avec ce retour
+    updateAIModelWithFeedback(recommendationId, rating);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement du retour utilisateur:", error);
+  }
+};
+
+/**
+ * Met à jour le modèle AI avec de nouvelles données d'apprentissage
+ */
+const updateAIModelWithLearningData = (data: LearningData): void => {
+  try {
+    // Récupérer le modèle AI actuel
+    const aiModel: AIModel = secureStorageService.getItem('aiModel') || initialAIModel;
+    
+    // Mettre à jour les profils utilisateurs
+    if (data.userProfile) {
+      // Éviter les doublons en vérifiant la similarité avec les profils existants
+      const similarProfileIndex = aiModel.userProfiles.findIndex(profile => 
+        calculateProfileSimilarity(profile, data.userProfile) > 0.85
+      );
+      
+      if (similarProfileIndex >= 0) {
+        // Mettre à jour un profil similaire existant
+        aiModel.userProfiles[similarProfileIndex] = {
+          ...aiModel.userProfiles[similarProfileIndex],
+          ...data.userProfile,
+          lastUpdated: new Date().toISOString()
+        };
+      } else {
+        // Ajouter un nouveau profil
+        aiModel.userProfiles.push({
+          ...data.userProfile,
+          lastUpdated: new Date().toISOString()
+        });
+        
+        // Limiter à 100 profils
+        if (aiModel.userProfiles.length > 100) {
+          aiModel.userProfiles.shift(); // Supprimer le plus ancien
+        }
+      }
+    }
+    
+    // Incrémenter le compteur d'itérations
+    aiModel.trainingIterations++;
+    
+    // Sauvegarder le modèle mis à jour
+    secureStorageService.setItem('aiModel', aiModel);
+    
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du modèle AI avec les données d'apprentissage:", error);
+  }
+};
+
+/**
+ * Met à jour le modèle AI avec un retour utilisateur
+ */
+const updateAIModelWithFeedback = (
+  recommendationId: string,
+  rating: number
+): void => {
+  try {
+    // Récupérer le modèle AI actuel
+    const aiModel: AIModel = secureStorageService.getItem('aiModel') || initialAIModel;
+    
+    // Mettre à jour le score du supplément
+    if (aiModel.supplementScores[recommendationId]) {
+      const currentScore = aiModel.supplementScores[recommendationId];
+      const feedbackWeight = 0.1; // Poids du nouveau retour (10%)
+      
+      // Convertir la note (1-5) en ajustement d'efficacité
+      const ratingNormalized = (rating - 3) / 2; // -1 à +1
+      
+      // Mettre à jour le score d'efficacité
+      currentScore.effectivenessScore = Math.max(10, Math.min(100, 
+        currentScore.effectivenessScore + (ratingNormalized * 20 * feedbackWeight)
+      ));
+      
+      // Augmenter la confiance à mesure que nous recevons plus de retours
+      currentScore.confidenceScore = Math.min(0.95, 
+        currentScore.confidenceScore + (0.05 * feedbackWeight)
+      );
+      
+      // Incrémenter le compteur de retours
+      currentScore.feedbackCount++;
+      
+      // Mettre à jour la date
+      currentScore.lastUpdated = new Date().toISOString();
+      
+      // Sauvegarder la mise à jour
+      aiModel.supplementScores[recommendationId] = currentScore;
+      secureStorageService.setItem('aiModel', aiModel);
+    }
+    
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du modèle AI avec le retour utilisateur:", error);
+  }
+};
+
+/**
+ * Effectue un entraînement complet du modèle AI avec toutes les données disponibles
+ */
+export const trainAIModel = (): void => {
+  try {
+    console.log("Début de l'entraînement du modèle AI...");
+    
+    // Récupérer toutes les données
+    const learningData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+    const userFeedback: UserFeedback[] = secureStorageService.getItem('userFeedback') || [];
+    
+    if (learningData.length === 0) {
+      console.log("Pas de données d'apprentissage disponibles");
+      return;
+    }
+    
+    // Réinitialiser le modèle avec les valeurs de base
+    let aiModel: AIModel = { ...initialAIModel };
+    
+    // Pré-remplir les scores de suppléments depuis le catalogue
+    const supplementScores: Record<string, any> = {};
+    Object.keys(SUPPLEMENT_CATALOG).forEach(supplementId => {
+      const supplement = SUPPLEMENT_CATALOG[supplementId];
+      
+      supplementScores[supplementId] = {
+        effectivenessScore: supplement.scienceScore * 10,
+        confidenceScore: 0.5,
+        feedbackCount: 0,
+        lastUpdated: new Date().toISOString()
+      };
+    });
+    
+    aiModel.supplementScores = supplementScores;
+    
+    // Analyser les retours utilisateurs pour construire un index d'efficacité
+    const feedbackBySupplementId: Record<string, number[]> = {};
+    
+    userFeedback.forEach(feedback => {
+      if (!feedbackBySupplementId[feedback.recommendationId]) {
+        feedbackBySupplementId[feedback.recommendationId] = [];
+      }
+      
+      feedbackBySupplementId[feedback.recommendationId].push(feedback.rating);
+    });
+    
+    // Appliquer les retours au modèle
+    Object.entries(feedbackBySupplementId).forEach(([supplementId, ratings]) => {
+      if (ratings.length > 0 && aiModel.supplementScores[supplementId]) {
+        const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+        const ratingNormalized = (avgRating - 3) / 2; // -1 à +1
+        
+        aiModel.supplementScores[supplementId].effectivenessScore = Math.max(10, Math.min(100,
+          aiModel.supplementScores[supplementId].effectivenessScore + (ratingNormalized * 20)
+        ));
+        
+        aiModel.supplementScores[supplementId].confidenceScore = Math.min(0.95,
+          0.5 + (0.05 * Math.min(ratings.length, 10)) // Max +0.5 pour 10 ratings
+        );
+        
+        aiModel.supplementScores[supplementId].feedbackCount = ratings.length;
+      }
+    });
+    
+    // Analyser les profils utilisateurs pour ajuster les poids des symptômes et objectifs
+    const symptomCounts: Record<string, number> = {};
+    const goalCounts: Record<string, number> = {};
+    
+    learningData.forEach(data => {
+      if (data.userProfile && data.userProfile.activeSymptoms) {
+        data.userProfile.activeSymptoms.forEach(symptomId => {
+          symptomCounts[symptomId] = (symptomCounts[symptomId] || 0) + 1;
+        });
+      }
+      
+      if (data.userProfile && data.userProfile.activeGoals) {
+        data.userProfile.activeGoals.forEach(goalId => {
+          goalCounts[goalId] = (goalCounts[goalId] || 0) + 1;
+        });
+      }
+    });
+    
+    // Ajuster les poids des symptômes en fonction de leur fréquence
+    const totalSymptomCount = Object.values(symptomCounts).reduce((sum, count) => sum + count, 0) || 1;
+    Object.entries(symptomCounts).forEach(([symptomId, count]) => {
+      // Calculer l'importance relative (fréquence normalisée)
+      const relativeImportance = count / totalSymptomCount;
+      
+      // Ajuster le poids (entre 0.8 et 1.2 en fonction de la fréquence)
+      aiModel.symptomWeights[symptomId] = Math.max(0.8, Math.min(1.2, 
+        1.0 + (relativeImportance - 0.125) * 2 // 0.125 est la fréquence moyenne pour 8 symptômes
+      ));
+    });
+    
+    // Ajuster les poids des objectifs en fonction de leur fréquence
+    const totalGoalCount = Object.values(goalCounts).reduce((sum, count) => sum + count, 0) || 1;
+    Object.entries(goalCounts).forEach(([goalId, count]) => {
+      const relativeImportance = count / totalGoalCount;
+      
+      aiModel.goalWeights[goalId] = Math.max(0.8, Math.min(1.2,
+        1.0 + (relativeImportance - 0.143) * 2 // 0.143 est la fréquence moyenne pour 7 objectifs
+      ));
+    });
+    
+    // Collecter les profils utilisateurs
+    const userProfiles: UserProfile[] = [];
+    learningData.forEach(data => {
+      if (data.userProfile) {
+        // Vérifier si un profil similaire existe déjà
+        const similarProfileExists = userProfiles.some(profile => 
+          calculateProfileSimilarity(profile, data.userProfile) > 0.85
+        );
+        
+        if (!similarProfileExists && userProfiles.length < 100) {
+          userProfiles.push({
+            ...data.userProfile,
+            lastUpdated: data.timestamp
+          });
+        }
+      }
+    });
+    
+    aiModel.userProfiles = userProfiles;
+    aiModel.trainingIterations = learningData.length;
+    aiModel.version = Math.floor(Date.now() / 1000); // Version timestamp
+    
+    // Sauvegarder le modèle entraîné
+    secureStorageService.setItem('aiModel', aiModel);
+    
+    console.log("Entraînement du modèle AI terminé:", {
+      supplements: Object.keys(aiModel.supplementScores).length,
+      profiles: aiModel.userProfiles.length,
+      iterations: aiModel.trainingIterations,
+      version: aiModel.version
+    });
+    
+  } catch (error) {
+    console.error("Erreur lors de l'entraînement du modèle AI:", error);
+  }
 };
 
 /**
  * Génère des recommandations personnalisées en fonction du profil utilisateur
+ * en utilisant le modèle AI entraîné
  */
-export const generatePersonalizedRecommendations = (
-  userProfile: UserProfile
-): NutritionSupplement[] => {
-  // Récupère les données
-  const symptoms: Symptom[] = secureStorage.getItem('ai_symptoms') || initialSymptoms;
-  const supplements: NutritionSupplement[] = secureStorage.getItem('ai_supplements') || initialSupplements;
-
-  // Filtre les suppléments en fonction des restrictions alimentaires et de l'importance des caractéristiques (AI)
-  let filteredSupplements = supplements.filter(supplement => {
-    if (userProfile.dietaryRestrictions.vegan && !supplement.vegan) return false;
-    if (userProfile.dietaryRestrictions.vegetarian && !supplement.vegetarian) return false;
-    if (userProfile.dietaryRestrictions.glutenFree && !supplement.glutenFree) return false;
-    if (userProfile.dietaryRestrictions.dairyFree && !supplement.dairyFree) return false;
-    return true;
-  }).sort((a, b) => b.effectiveness - a.effectiveness);
-
-
-  // Trie les symptômes par priorité et importance des caractéristiques (AI)  
-  const prioritizedSymptoms = userProfile.reportedSymptoms
-    .map(symptomId => symptoms.find(s => s.id === symptomId))
-    .filter(symptom => symptom !== undefined)
-    .sort((a, b) => (b?.priority || 0) - (a?.priority || 0));
-
-  // Associe chaque symptôme aux meilleurs suppléments
-  const recommendationMap = new Map<string, NutritionSupplement[]>();
-
-  prioritizedSymptoms.forEach(symptom => {
-    if (symptom) {
-      // Trouve les suppléments qui ciblent ce symptôme
-      const matchingSupplements = filteredSupplements
-        .filter(s => s.targetSymptoms.includes(symptom.id))
-        .sort((a, b) => b.effectiveness - a.effectiveness);
-
-      if (matchingSupplements.length > 0) {
-        recommendationMap.set(symptom.id, matchingSupplements);
-      }
-    }
-  });
-
-  // Construit la liste finale de recommandations par priorité
-  const finalRecommendations: NutritionSupplement[] = [];
-  const addedSupplementIds = new Set<string>();
-
-  // D'abord, ajoute le meilleur supplément pour chaque symptôme par ordre de priorité
-  prioritizedSymptoms.forEach(symptom => {
-    if (symptom) {
-      const supplements = recommendationMap.get(symptom.id) || [];
-
-      // Cherche un supplément pour ce symptôme qui n'a pas encore été ajouté
-      const bestSupplement = supplements.find(s => !addedSupplementIds.has(s.id));
-
-      if (bestSupplement) {
-        finalRecommendations.push(bestSupplement);
-        addedSupplementIds.add(bestSupplement.id);
-      }
-    }
-  });
-
-  // Ensuite, ajoute des suppléments complémentaires si nécessaire
-  if (finalRecommendations.length < 3 && filteredSupplements.length > finalRecommendations.length) {
-    const remainingSupplements = filteredSupplements
-      .filter(s => !addedSupplementIds.has(s.id))
-      .sort((a, b) => b.effectiveness - a.effectiveness);
-
-    // Ajoute jusqu'à 3 suppléments au total
-    for (let i = 0; i < remainingSupplements.length && finalRecommendations.length < 3; i++) {
-      finalRecommendations.push(remainingSupplements[i]);
-    }
-  }
-
-  return finalRecommendations;
-};
-
-/**
- * Ajuste les scores d'efficacité en fonction des retours utilisateurs
- */
-export const updateEffectivenessScores = (
-  supplementId: string,
-  effectivenessRating: number, // 1-5
-  targetSymptoms: string[]
-): void => {
-  const supplements: NutritionSupplement[] = secureStorage.getItem('ai_supplements') || initialSupplements;
-
-  // Trouve le supplément à mettre à jour
-  const index = supplements.findIndex(s => s.id === supplementId);
-
-  if (index >= 0) {
-    // Convertit la note 1-5 en ajustement d'efficacité (-10 à +10)
-    const adjustmentValue = (effectivenessRating - 3) * 5;
-
-    // Calcule la nouvelle efficacité en appliquant un poids de 10% au nouveau feedback
-    const currentEffectiveness = supplements[index].effectiveness;
-    const newEffectiveness = Math.max(0, Math.min(100, currentEffectiveness + (adjustmentValue * 0.1)));
-
-    // Met à jour le supplément
-    supplements[index] = {
-      ...supplements[index],
-      effectiveness: newEffectiveness
+export const generateAIPersonalizedRecommendations = (
+  quizResponses: QuizResponse
+): Recommendation[] => {
+  try {
+    // S'assurer que le modèle AI est initialisé
+    initializeAIModel();
+    
+    // Récupérer le modèle AI
+    const aiModel: AIModel = secureStorageService.getItem('aiModel') || initialAIModel;
+    
+    // Extraire les informations pertinentes du quiz
+    const {
+      stressLevel = 0,
+      sleepQuality = 0,
+      energyLevel = 0,
+      concentration = 0,
+      digestion = 0,
+      personalGoals = [],
+      dietaryRestrictions = {}
+    } = quizResponses;
+    
+    // Créer un profil utilisateur pour l'analyse
+    const userProfile = {
+      activeSymptoms: [],
+      activeGoals: personalGoals,
+      dietaryRestrictions
     };
-
-    secureStorage.setItem('ai_supplements', supplements);
-  }
-};
-
-/**
- * Convertit les réponses du quiz en profil utilisateur
- */
-export const quizResponsesToUserProfile = (responses: any): UserProfile => {
-  const profile: UserProfile = {
-    dietaryRestrictions: {
-      vegan: false,
-      vegetarian: false,
-      glutenFree: false,
-      dairyFree: false
-    },
-    reportedSymptoms: [],
-    healthGoals: []
-  };
-
-  // Extraire les restrictions alimentaires
-  if (responses.diet) {
-    profile.dietaryRestrictions.vegan = responses.diet.type === 'vegan';
-    profile.dietaryRestrictions.vegetarian = responses.diet.type === 'vegetarian' || profile.dietaryRestrictions.vegan;
-
-    if (responses.diet.restrictions) {
-      profile.dietaryRestrictions.glutenFree = responses.diet.restrictions.includes('gluten-free');
-      profile.dietaryRestrictions.dairyFree = responses.diet.restrictions.includes('dairy-free');
-    }
-  }
-
-  // Extraire les symptômes rapportés
-  if (responses.wellbeing) {
-    if (responses.wellbeing.stressLevel === 'high') {
-      profile.reportedSymptoms.push('stress');
-    }
-
-    if (responses.wellbeing.sleepQuality === 'poor') {
-      profile.reportedSymptoms.push('sleep');
-    }
-
-    if (responses.wellbeing.energyLevel === 'low') {
-      profile.reportedSymptoms.push('energy');
-    }
-
-    if (responses.wellbeing.digestiveHealth === 'poor') {
-      profile.reportedSymptoms.push('digestion');
-    }
-
-    if (responses.wellbeing.focusIssues) {
-      profile.reportedSymptoms.push('focus');
-    }
-  }
-
-  // Extraire les objectifs de santé
-  if (responses.goals) {
-    profile.healthGoals = responses.goals;
-  }
-
-  return profile;
-};
-
-/**
- * Calcule l'importance des caractéristiques à partir des données d'apprentissage
- */
-function calculateFeatureImportance(learningData: LearningData[]): Record<string, number> {
-  // En production, utiliser des algorithmes d'apprentissage automatique réels
-  // Pour simplifier, nous simulons l'importance des caractéristiques
-
-  const features: Record<string, { positiveImpact: number, totalOccurrences: number }> = {};
-
-  // Initialiser les caractéristiques
-  const allFeatures = [
-    'age', 'gender', 'stressLevel', 'sleepIssues', 'energyLevel',
-    'focusIssues', 'digestiveIssues'
-  ];
-
-  allFeatures.forEach(feature => {
-    features[feature] = { positiveImpact: 0, totalOccurrences: 0 };
-  });
-
-  // Analyser les données d'apprentissage
-  learningData.forEach(data => {
-    // Considérer seulement les feedbacks positifs
-    const isPositiveFeedback = data.userFeedback.helpful &&
-      data.userFeedback.relevance >= 7;
-
-    // Analyser les caractéristiques personnelles
-    if (data.quizData.personal) {
-      if (data.quizData.personal.age) {
-        features['age'].totalOccurrences++;
-        if (isPositiveFeedback) features['age'].positiveImpact++;
+    
+    // Déterminer les symptômes actifs
+    if (stressLevel >= 5) userProfile.activeSymptoms.push('stress');
+    if (sleepQuality <= 5) userProfile.activeSymptoms.push('sleep');
+    if (energyLevel <= 5) userProfile.activeSymptoms.push('energy');
+    if (concentration <= 5) userProfile.activeSymptoms.push('focus');
+    if (digestion <= 5) userProfile.activeSymptoms.push('digestion');
+    
+    // Calculer les scores des suppléments pour ce profil
+    const supplementScores: Record<string, number> = {};
+    
+    // 1. Scores basés sur les symptômes
+    userProfile.activeSymptoms.forEach(symptomId => {
+      const symptomWeight = aiModel.symptomWeights[symptomId] || 1.0;
+      
+      // Récupérer les recommandations pour ce symptôme
+      const recommendations = SYMPTOM_RECOMMENDATIONS[symptomId] || [];
+      
+      recommendations.forEach(rec => {
+        const baseScore = rec.priority * 10;
+        const modelScore = aiModel.supplementScores[rec.id]?.effectivenessScore || 50;
+        const weightedScore = baseScore * symptomWeight * (modelScore / 50);
+        
+        supplementScores[rec.id] = (supplementScores[rec.id] || 0) + weightedScore;
+      });
+    });
+    
+    // 2. Scores basés sur les objectifs
+    userProfile.activeGoals.forEach(goalId => {
+      const goalWeight = aiModel.goalWeights[goalId] || 1.0;
+      
+      // Récupérer les recommandations pour cet objectif
+      const recommendations = GOAL_RECOMMENDATIONS[goalId] || [];
+      
+      recommendations.forEach(rec => {
+        const baseScore = rec.priority * 8; // Légèrement inférieur aux symptômes
+        const modelScore = aiModel.supplementScores[rec.id]?.effectivenessScore || 50;
+        const weightedScore = baseScore * goalWeight * (modelScore / 50);
+        
+        supplementScores[rec.id] = (supplementScores[rec.id] || 0) + weightedScore;
+      });
+    });
+    
+    // 3. Filtrer selon les restrictions alimentaires
+    const isVegetarian = dietaryRestrictions.vegetarian || false;
+    const isVegan = dietaryRestrictions.vegan || false;
+    const isGlutenFree = dietaryRestrictions.glutenFree || false;
+    const isDairyFree = dietaryRestrictions.dairyFree || false;
+    
+    // Construire la liste des suppléments à exclure
+    const excludedSupplements = new Set<string>();
+    
+    Object.entries(SUPPLEMENT_CATALOG).forEach(([id, supplement]) => {
+      if ((isVegan && !supplement.vegan) ||
+          (isVegetarian && !supplement.vegetarian) ||
+          (isGlutenFree && !supplement.glutenFree) ||
+          (isDairyFree && !supplement.dairyFree)) {
+        excludedSupplements.add(id);
       }
-
-      if (data.quizData.personal.gender) {
-        features['gender'].totalOccurrences++;
-        if (isPositiveFeedback) features['gender'].positiveImpact++;
-      }
-    }
-
-    // Analyser les préoccupations de santé
-    if (data.quizData.healthConcerns) {
-      Object.entries(data.quizData.healthConcerns).forEach(([concern, value]) => {
-        if (value && features[concern]) {
-          features[concern].totalOccurrences++;
-          if (isPositiveFeedback) features[concern].positiveImpact++;
+    });
+    
+    // 4. Appliquer les exclusions et créer les recommandations finales
+    const finalRecommendations: Recommendation[] = [];
+    
+    Object.entries(supplementScores)
+      .filter(([id]) => !excludedSupplements.has(id))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3) // Top 3 recommendations
+      .forEach(([id, score]) => {
+        const supplement = SUPPLEMENT_CATALOG[id];
+        const modelData = aiModel.supplementScores[id] || {
+          effectivenessScore: 50,
+          confidenceScore: 0.5
+        };
+        
+        // Déterminer la dose appropriée
+        const dose = isVegetarian ? 
+          findDoseForSupplement(id, 'vegetarian') : 
+          findDoseForSupplement(id, 'standard');
+        
+        if (supplement && dose) {
+          // Construire les raisons de la recommandation
+          const reasons = [];
+          
+          userProfile.activeSymptoms.forEach(symptomId => {
+            const categoryData = SYMPTOM_CATEGORIES.find(c => c.id === symptomId);
+            if (SYMPTOM_RECOMMENDATIONS[symptomId]?.some(r => r.id === id)) {
+              reasons.push(categoryData?.name || symptomId);
+            }
+          });
+          
+          userProfile.activeGoals.forEach(goalId => {
+            if (GOAL_RECOMMENDATIONS[goalId]?.some(r => r.id === id)) {
+              reasons.push(`objectif: ${goalId.replace(/_/g, ' ')}`);
+            }
+          });
+          
+          const reasonText = reasons.length > 0 
+            ? `Recommandé pour ${reasons.join(' et ')}` 
+            : 'Recommandation basée sur votre profil global';
+          
+          finalRecommendations.push({
+            id,
+            name: supplement.name,
+            description: `${supplement.name} (${supplement.scientificName})`,
+            priority: Math.round(score / 20), // Convertir le score en priorité (1-10)
+            matchScore: score,
+            benefits: supplement.benefits,
+            recommendedDose: dose,
+            timeToEffect: supplement.timeToEffect,
+            scientificBasis: supplement.scientificBasis,
+            confidence: modelData.confidenceScore,
+            reason: reasonText
+          });
         }
       });
-    }
-  });
-
-  // Calculer l'importance relative
-  const importance: Record<string, number> = {};
-
-  Object.entries(features).forEach(([feature, stats]) => {
-    if (stats.totalOccurrences > 0) {
-      // Calculer l'impact relatif (ratio de feedbacks positifs)
-      importance[feature] = stats.positiveImpact / stats.totalOccurrences;
-    } else {
-      // Valeur par défaut si aucune donnée
-      importance[feature] = 0.5;
-    }
-  });
-
-  return importance;
-}
-
-/**
- * Mise à jour du modèle d'IA basée sur les données d'apprentissage
- */
-export function updateAiModel(learningData: LearningData[]): AIModelState {
-  if (learningData.length < 10) {
-    console.log("[AI Learning] Pas assez de données pour mettre à jour le modèle");
-    return aiModel;
-  }
-
-  console.log(`[AI Learning] Mise à jour du modèle avec ${learningData.length} points de données`);
-
-  // Calculer l'importance des caractéristiques
-  const featureImportance = calculateFeatureImportance(learningData);
-
-  // Mettre à jour le modèle
-  const updatedModel: AIModelState = {
-    ...aiModel,
-    version: incrementVersion(aiModel.version),
-    lastUpdated: Date.now(),
-    featureImportance: {
-      ...aiModel.featureImportance,
-      ...featureImportance
-    }
-  };
-
-  // Sauvegarder le modèle mis à jour
-  try {
-    secureStorage.setItem('aiModel', JSON.stringify(updatedModel));
+    
+    // Enregistrer ces données pour l'apprentissage
+    recordLearningData({
+      quizResponses,
+      generatedRecommendations: finalRecommendations,
+      userProfile: {
+        dietaryRestrictions,
+        activeSymptoms: userProfile.activeSymptoms,
+        activeGoals: personalGoals
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+    return finalRecommendations;
+    
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde du modèle:', error);
+    console.error("Erreur lors de la génération des recommandations personnalisées:", error);
+    return [];
   }
-
-  console.log("[AI Learning] Modèle mis à jour:", updatedModel.version);
-
-  // Mettre à jour la référence globale
-  Object.assign(aiModel, updatedModel);
-
-  return updatedModel;
-}
+};
 
 /**
- * Incrémenter la version du modèle (format semver)
+ * Fonction utilitaire pour trouver la dose appropriée d'un supplément
  */
-function incrementVersion(version: string): string {
-  const parts = version.split('.').map(Number);
-  parts[2] += 1; // Incrémenter la version de patch
-
-  // Gérer le débordement
-  if (parts[2] >= 100) {
-    parts[2] = 0;
-    parts[1] += 1;
+const findDoseForSupplement = (
+  supplementId: string,
+  doseType: 'standard' | 'vegetarian'
+): string | null => {
+  // Rechercher dans les recommandations de symptômes
+  for (const symptomId in SYMPTOM_RECOMMENDATIONS) {
+    const recommendations = SYMPTOM_RECOMMENDATIONS[symptomId];
+    const rec = recommendations.find(r => r.id === supplementId);
+    
+    if (rec) {
+      return doseType === 'vegetarian' && rec.doseVegetarian 
+        ? rec.doseVegetarian 
+        : rec.doseStandard;
+    }
   }
-
-  if (parts[1] >= 100) {
-    parts[1] = 0;
-    parts[0] += 1;
+  
+  // Rechercher dans les recommandations d'objectifs
+  for (const goalId in GOAL_RECOMMENDATIONS) {
+    const recommendations = GOAL_RECOMMENDATIONS[goalId];
+    const rec = recommendations.find(r => r.id === supplementId);
+    
+    if (rec) {
+      return doseType === 'vegetarian' && rec.doseVegetarian 
+        ? rec.doseVegetarian 
+        : rec.doseStandard;
+    }
   }
-
-  return parts.join('.');
-}
+  
+  // Par défaut, utiliser les informations du catalogue
+  const supplement = SUPPLEMENT_CATALOG[supplementId];
+  if (supplement) {
+    return doseType === 'vegetarian' && supplement.dosageVegetarian
+      ? supplement.dosageVegetarian
+      : supplement.dosageStandard;
+  }
+  
+  return null;
+};
 
 /**
- * Initialise le modèle d'IA à partir du stockage ou crée un nouveau modèle
+ * Trouve des profils utilisateurs similaires pour affiner les recommandations
  */
-export function initializeAiModel(): void {
+export const findSimilarUserProfiles = (
+  currentProfile: any,
+  limit: number = 5
+): UserProfile[] => {
   try {
-    const storedModel = secureStorage.getItem('aiModel');
-
-    if (storedModel) {
-      const parsedModel: AIModelState = JSON.parse(storedModel);
-
-      // Mise à jour du modèle global
-      Object.assign(aiModel, parsedModel);
-
-      console.log(`[AI Learning] Modèle chargé: version ${aiModel.version}`);
-    } else {
-      // Sauvegarder le modèle initial
-      secureStorage.setItem('aiModel', JSON.stringify(aiModel));
-      console.log('[AI Learning] Nouveau modèle initialisé');
+    // Récupérer le modèle AI
+    const aiModel: AIModel = secureStorageService.getItem('aiModel') || initialAIModel;
+    
+    if (aiModel.userProfiles.length === 0) {
+      return [];
     }
+    
+    // Calculer la similarité pour chaque profil
+    const profilesWithSimilarity = aiModel.userProfiles.map(profile => ({
+      profile,
+      similarity: calculateProfileSimilarity(currentProfile, profile)
+    }));
+    
+    // Trier par similarité et retourner les plus similaires
+    return profilesWithSimilarity
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, limit)
+      .map(entry => entry.profile);
+    
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation du modèle:', error);
+    console.error("Erreur lors de la recherche de profils similaires:", error);
+    return [];
   }
-}
+};
 
 /**
- * Calcule la similitude entre deux profils utilisateurs
+ * Réinitialise le modèle AI aux valeurs par défaut
+ * (utile pour le développement ou si le modèle devient problématique)
  */
-export function calculateProfileSimilarity(profile1: QuizResponse, profile2: QuizResponse): number {
-  let similarityScore = 0;
-  let totalFeatures = 0;
-
-  // Comparer les données personnelles
-  if (profile1.personal && profile2.personal) {
-    // Âge
-    if (profile1.personal.age && profile2.personal.age) {
-      const age1 = parseInt(profile1.personal.age);
-      const age2 = parseInt(profile2.personal.age);
-
-      if (!isNaN(age1) && !isNaN(age2)) {
-        // Calculer la similarité d'âge (1 - différence d'âge normalisée)
-        const ageDiff = Math.abs(age1 - age2);
-        const ageSimil = Math.max(0, 1 - (ageDiff / 50)); // Normaliser par 50 ans
-
-        similarityScore += ageSimil;
-        totalFeatures++;
-      }
-    }
-
-    // Genre
-    if (profile1.personal.gender && profile2.personal.gender) {
-      if (profile1.personal.gender === profile2.personal.gender) {
-        similarityScore += 1;
-      }
-      totalFeatures++;
-    }
+export const resetAIModel = (): void => {
+  try {
+    // Réinitialiser le modèle avec les valeurs initiales
+    secureStorageService.setItem('aiModel', initialAIModel);
+    console.log("Modèle AI réinitialisé aux valeurs par défaut");
+  } catch (error) {
+    console.error("Erreur lors de la réinitialisation du modèle AI:", error);
   }
-
-  // Comparer les préoccupations de santé
-  if (profile1.healthConcerns && profile2.healthConcerns) {
-    const concerns = [
-      'stressLevel', 'sleepIssues', 'energyLevel',
-      'focusIssues', 'digestiveIssues'
-    ];
-
-    concerns.forEach(concern => {
-      const value1 = profile1.healthConcerns?.[concern];
-      const value2 = profile2.healthConcerns?.[concern];
-
-      if (value1 && value2) {
-        const level1 = parseInt(value1);
-        const level2 = parseInt(value2);
-
-        if (!isNaN(level1) && !isNaN(level2)) {
-          // Calculer la similarité des niveaux (1 - différence normalisée)
-          const levelDiff = Math.abs(level1 - level2);
-          const levelSimil = Math.max(0, 1 - (levelDiff / 5)); // Normaliser par l'échelle (1-5)
-
-          similarityScore += levelSimil;
-          totalFeatures++;
-        }
-      }
-    });
-  }
-
-  // Comparer les objectifs
-  if (profile1.goals && profile2.goals) {
-    const goals = [
-      'weightLoss', 'increaseEnergy', 'improveFocus',
-      'improveDigestion', 'reduceStress'
-    ];
-
-    goals.forEach(goal => {
-      const goal1 = profile1.goals?.[goal];
-      const goal2 = profile2.goals?.[goal];
-
-      if (goal1 !== undefined && goal2 !== undefined) {
-        if (goal1 === goal2) {
-          similarityScore += 1;
-        }
-        totalFeatures++;
-      }
-    });
-  }
-
-  // Comparer les préférences alimentaires
-  if (profile1.dietaryPreferences && profile2.dietaryPreferences) {
-    let commonPrefs = 0;
-
-    profile1.dietaryPreferences.forEach(pref => {
-      if (profile2.dietaryPreferences?.includes(pref)) {
-        commonPrefs++;
-      }
-    });
-
-    const maxPrefs = Math.max(profile1.dietaryPreferences.length, profile2.dietaryPreferences.length);
-
-    if (maxPrefs > 0) {
-      similarityScore += commonPrefs / maxPrefs;
-      totalFeatures++;
-    }
-  }
-
-  // Calculer le score de similarité final (moyenne normalisée)
-  return totalFeatures > 0 ? similarityScore / totalFeatures : 0;
-}
+};
 
 /**
- * Effectue une requête à une API externe (comme ChatGPT) pour enrichir les recommandations
- * Note: Cette fonction serait implémentée avec l'intégration d'une API réelle
+ * Obtient l'état actuel du modèle AI
  */
-export async function enrichRecommendationsWithExternalAI(
-  quizResponses: QuizResponse,
-  recommendations: string[]
-): Promise<Record<string, string>> {
-  // Simulation d'une requête API
-  console.log('[AI Enrichment] Requête externe simulée pour enrichir les recommandations');
-
-  // Dans une implémentation réelle, nous appellerions une API comme OpenAI
-  // Simulation de délai et de réponse
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Simuler des explications enrichies
-  const enrichedExplanations: Record<string, string> = {};
-
-  recommendations.forEach(recId => {
-    enrichedExplanations[recId] =
-      `Les dernières recherches scientifiques montrent que ce complément est particulièrement efficace pour votre profil. ` +
-      `Il agit sur les voies métaboliques impliquées dans vos symptômes principaux et peut aider à résoudre les problèmes que vous avez identifiés.`;
-  });
-
-  return enrichedExplanations;
-}
-
-// Initialise la base de connaissances au chargement du module
-initializeKnowledgeBase();
-initializeAiModel();
-
-export default {
-  initializeKnowledgeBase,
-  addToKnowledgeBase,
-  generatePersonalizedRecommendations,
-  updateEffectivenessScores,
-  quizResponsesToUserProfile,
-  updateAiModel,
-  calculateProfileSimilarity,
-  enrichRecommendationsWithExternalAI,
-  initializeAiModel
+export const getAIModelState = (): AIModelState => {
+  try {
+    const aiModel: AIModel = secureStorageService.getItem('aiModel') || initialAIModel;
+    
+    return {
+      version: aiModel.version,
+      trainingIterations: aiModel.trainingIterations,
+      profileCount: aiModel.userProfiles.length,
+      supplementCount: Object.keys(aiModel.supplementScores).length,
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'état du modèle AI:", error);
+    return {
+      version: 0,
+      trainingIterations: 0,
+      profileCount: 0,
+      supplementCount: 0,
+      lastUpdated: new Date().toISOString()
+    };
+  }
 };
