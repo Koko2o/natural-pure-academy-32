@@ -872,12 +872,10 @@ function analyzeRecommendationPerformance() {
 function identifyPatternCorrelations() {
   return {
     symptomCorrelations: {},
-    ageCorrelations: {}
+    ageCorrelations: {},
+    genderCorrelations: {}
   };
 }
-  genderCorrelations: {},
-  symptomCorrelations: {}
-});
 
 const analyzeRecommendationPerformance = () => ({
   'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
