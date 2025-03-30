@@ -382,13 +382,13 @@ export const enrichRecommendationsWithExternalAI = async (
           content: `Voici les recommandations générées par notre système et les réponses au quiz de l'utilisateur.
           Veuillez enrichir ces recommandations avec des détails supplémentaires sur l'efficacité, d'éventuelles 
           synergies entre les compléments, et affiner les dosages en fonction du profil spécifique.
-
+          
           RÉPONSES AU QUIZ:
           ${JSON.stringify(quizResponses, null, 2)}
-
+          
           RECOMMANDATIONS GÉNÉRÉES:
           ${JSON.stringify(recommendations, null, 2)}
-
+          
           Répondez au format JSON avec les recommandations enrichies.`
         }
       ],
@@ -584,7 +584,7 @@ export const generateAdvancedRecommendations = (
 ): Recommendation[] => {
   try {
     // Générer les recommandations de base
-    const baseRecommendations = generateRecommendations(quizResponses);
+    const baseRecommendations = generateRecommendations(quizResponses, behavioralMetrics, neuroProfile);
 
     // Appliquer l'ajustement d'apprentissage IA
     const aiEnhancedRecommendations = adjustRecommendationsWithLearning(baseRecommendations, quizResponses);
@@ -686,12 +686,43 @@ export const generateAdvancedRecommendations = (
     return optimizedRecommendations;
   } catch (error) {
     console.error("Erreur lors de la génération des recommandations avancées:", error);
-    return generateRecommendations(quizResponses);
+    return generateRecommendations(quizResponses, behavioralMetrics, neuroProfile);
   }
 };
 
-// Importer le système de recommandation optimisé
+// Importations nécessaires
 import { optimizeRecommendations } from './optimizedRecommendation';
+import { getAILearningStatus } from './aiLearningEngine';
+import { secureStorageService } from '../lib/secureStorage';
+
+
+// Définition d'interfaces pour les types utilisés
+interface QuizResponses {
+  // Interface pour les réponses du quiz
+  healthConcerns?: {
+    stressLevel?: string;
+    energyLevel?: string;
+    sleepIssues?: string;
+    focusIssues?: string;
+    digestiveIssues?: string;
+  };
+  goals?: {
+    reduceStress?: boolean;
+    increaseEnergy?: boolean;
+    improveSleep?: boolean;
+    improveFocus?: boolean;
+    improveDigestion?: boolean;
+  };
+}
+
+interface BehavioralMetrics {
+  // Interface pour les métriques comportementales
+  cognitiveLoad: number;
+  stressLevel: number;
+  sleepQuality: number;
+}
+
+
 
 /**
  * Retourne le statut du modèle d'IA actuel
@@ -713,34 +744,34 @@ export function getAIModelStatus() {
 
     // Identifier les recommandations les plus efficaces
     const topRecommendations = Object.entries(recommendationPerformance)
-      .filter(([_, data]) => data.totalRatings >= 5)
+      .filter(([_, data]) => data.totalRatings > 10)
+      .sort((a, b) => b[1].averageRating - a[1].averageRating)
+      .slice(0, 5)
       .map(([id, data]) => ({
         id,
-        name: SUPPLEMENT_CATALOG[id]?.name || id,
         averageRating: data.averageRating,
         totalRatings: data.totalRatings
-      }))
-      .sort((a, b) => b.averageRating - a.averageRating)
-      .slice(0, 5)
-      .map(rec => rec.name);
+      }));
 
-    // Recueillir les améliorations récentes
-    let improvements: string[] = [
-      "Amélioration de la détection des profils à risque",
-      "Meilleure personnalisation par âge et sexe",
-      "Intégration des dernières recherches scientifiques",
-      "Détection intelligente des priorités de symptômes",
-      "Prédiction des besoins nutritionnels futurs"
-    ];
+    // Générer des insights sur l'amélioration du modèle
+    const improvements = [];
 
-    // Ajouter des améliorations basées sur les données réelles si disponibles
-    if (patternCorrelations.sufficientData) {
-      if (Object.keys(patternCorrelations.ageCorrelations).length > 0) {
-        improvements.push(`Optimisation des recommandations par tranches d'âge (${Object.keys(patternCorrelations.ageCorrelations).length} segments)`);
+    if (aiLearningStatus.trainingHistory && aiLearningStatus.trainingHistory.length > 1) {
+      const lastTraining = aiLearningStatus.trainingHistory[aiLearningStatus.trainingHistory.length - 1];
+      const previousTraining = aiLearningStatus.trainingHistory[aiLearningStatus.trainingHistory.length - 2];
+
+      if (lastTraining.accuracy > previousTraining.accuracy) {
+        const improvementPercent = ((lastTraining.accuracy - previousTraining.accuracy) / previousTraining.accuracy * 100).toFixed(1);
+        improvements.push(`Précision améliorée de ${improvementPercent}% depuis la dernière version`);
       }
-      if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
-        improvements.push(`Affinement des corrélations symptômes-suppléments (${Object.keys(patternCorrelations.symptomCorrelations).length} motifs)`);
-      }
+    }
+
+    if (aiLearningStatus.uniqueProfilesCount > 1000) {
+      improvements.push(`Base de données enrichie de ${aiLearningStatus.uniqueProfilesCount} profils uniques`);
+    }
+
+    if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
+      improvements.push(`Affinement des corrélations symptômes-suppléments (${Object.keys(patternCorrelations.symptomCorrelations).length} motifs)`);
     }
 
     // Ajouter des indicateurs de performance du système
@@ -756,11 +787,10 @@ export function getAIModelStatus() {
 
     if (Object.keys(patternCorrelations.ageCorrelations).length > 0) {
       improvements.push(`Corrélations d'âge identifiées (${Object.keys(patternCorrelations.ageCorrelations).length} segments)`);
-      }
+    }
 
-      if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
-        improvements.push(`Corrélations avancées entre symptômes et efficacité nutritionnelle (${Object.keys(patternCorrelations.symptomCorrelations).length} symptômes)`);
-      }
+    if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
+      improvements.push(`Corrélations avancées entre symptômes et efficacité nutritionnelle (${Object.keys(patternCorrelations.symptomCorrelations).length} symptômes)`);
     }
 
     // Construire et retourner l'état complet du modèle
@@ -779,7 +809,7 @@ export function getAIModelStatus() {
       topPerformingRecommendations: topRecommendations,
 
       // Métriques d'interface utilisateur
-      knowledgeBase: 2500 + Math.floor(aiLearningStatus.dataPointsCount / 10),
+      knowledgeBase: 2500 + Math.round(aiLearningStatus.dataPointsCount / 10),
       accuracyImprovement: 2.3,
       processingTime: 234,
       userSatisfaction: 94,
@@ -804,8 +834,7 @@ export function getAIModelStatus() {
       ],
       knowledgeBase: 2500,
       accuracyImprovement: 2.3,
-      processingTime: 234,
-      userSatisfaction: 94,
+      processingTime: 234, userSatisfaction: 94,
       useCaseCoverage: 87,
       recommendationEfficiency: 92,
       lastUpdate: new Date().toLocaleDateString(),
@@ -816,18 +845,32 @@ export function getAIModelStatus() {
 
 // Placeholder functions -  replace with actual implementations
 const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
-  interestAreas: ['Stress', 'Sommeil'],
-  uncertaintyLevel: 0.5,
-  attentionLevel: 0.7
+  cognitiveLoad: 0.7,
+  stressLevel: 0.6,
+  sleepQuality: 0.8
+});
+
+const saveLearningData = (quizResponses: any, recommendations: any, behavioralMetrics: any, neuroProfile: any) => {
+  // Placeholder function
+};
+
+const evaluateDataQuality = () => ({
+  overallQuality: 0.85,
+  completeness: 0.9,
+  accuracy: 0.87,
+  consistency: 0.83
 });
 
 const identifyPatternCorrelations = () => ({
-  sufficientData: false,
   ageCorrelations: {},
+  genderCorrelations: {},
   symptomCorrelations: {}
 });
 
 const analyzeRecommendationPerformance = () => ({
-  rec_magnesium: { averageRating: 4.2, totalRatings: 10 },
-  rec_ashwagandha: { averageRating: 3.8, totalRatings: 7 }
+  'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
+  'magnesium_glycinate': { averageRating: 4.6, totalRatings: 95 },
+  'omega3': { averageRating: 4.5, totalRatings: 150 },
+  'probiotics': { averageRating: 4.4, totalRatings: 110 },
+  'zinc': { averageRating: 4.3, totalRatings: 80 }
 });

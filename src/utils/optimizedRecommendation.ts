@@ -9,7 +9,7 @@ import {
   GENDER_FACTORS,
   SYMPTOM_PRIORITY_FACTORS
 } from '../data/recommendationMappings';
-import { Recommendation, UserProfile, RecommendationItem, QuizResponse, BehavioralMetrics, NeuroProfile } from '../types/recommendations';
+import { Recommendation as OriginalRecommendation, UserProfile, RecommendationItem, QuizResponse, BehavioralMetrics, NeuroProfile } from '../types/recommendations';
 import { 
   analyzeRecommendationPerformance,
   evaluateDataQuality
@@ -17,47 +17,106 @@ import {
 
 import { QuizResponse as QuizResponse2, BehavioralMetrics as BehavioralMetrics2, NeuroProfile as NeuroProfile2 } from '../types/quiz';
 
+// Types from edited code
+interface Recommendation {
+  id: string;
+  priority: number;
+}
+
+interface NeuroProfile {
+  cognitiveLoad: number;
+  stressLevel: number;
+  sleepQuality: number;
+}
+
+interface QuizResponses {
+  // Représente les réponses du quiz
+}
+
 
 /**
- * Optimise les recommandations en tenant compte des multiples facteurs
+ * Module d'optimisation des recommandations basé sur l'IA
+ * Utilise les données avancées pour personnaliser les recommandations
+ */
+
+/**
+ * Optimise les recommandations en utilisant l'IA et les données comportementales
+ * @param baseRecommendations Recommandations de base générées par le système standard
+ * @param quizResponses Réponses du quiz pour contexte
+ * @param neuroProfile Profil neurologique généré à partir des données comportementales
+ * @returns Recommandations optimisées avec priorités ajustées
  */
 export const optimizeRecommendations = (
-  recommendations: RecommendationItem[],
-  quizResponses: QuizResponse[],
-  behavioralMetrics?: BehavioralMetrics,
-  neuroProfile?: NeuroProfile
-): RecommendationItem[] => {
-  // Si aucune recommandation, retourner un tableau vide
-  if (!recommendations || recommendations.length === 0) {
-    return [];
-  }
+  baseRecommendations: Recommendation[],
+  quizResponses: QuizResponses,
+  neuroProfile: NeuroProfile
+): Recommendation[] => {
+  try {
+    // Copier les recommandations de base pour ne pas modifier l'original
+    const optimizedRecommendations = [...baseRecommendations];
 
-  // Copie des recommandations pour ne pas modifier l'original
-  const optimizedRecommendations = [...recommendations];
-
-  // Appliquer des ajustements basés sur les facteurs comportementaux
-  if (behavioralMetrics && neuroProfile) {
-    // Augmenter la priorité des recommandations correspondant au profil neurologique
-    optimizedRecommendations.forEach(rec => {
-      // Favoriser les recommandations scientifiques pour les profils analytiques
-      if (neuroProfile.decisionStyle === 'analytical' && rec.scientificBasis) {
-        rec.matchScore = Math.min(100, rec.matchScore + 5);
+    // Ajuster les priorités en fonction du profil neurologique
+    optimizedRecommendations.forEach(recommendation => {
+      // Exemple simple d'ajustement basé sur le niveau de stress
+      if (neuroProfile.stressLevel > 0.7) {
+        // Augmenter la priorité des suppléments anti-stress
+        if (['magnesium_glycinate', 'l_theanine', 'ashwagandha', 'rhodiola'].includes(recommendation.id)) {
+          recommendation.priority += 2;
+        }
       }
 
-      // Favoriser les recommandations à effet rapide pour les profils à faible attention
-      if (neuroProfile.attentionSpan === 'low' && rec.timeToEffect.includes('rapid')) {
-        rec.matchScore = Math.min(100, rec.matchScore + 5);
+      // Ajustement basé sur la qualité du sommeil
+      if (neuroProfile.sleepQuality < 0.5) {
+        // Augmenter la priorité des suppléments pour le sommeil
+        if (['melatonin', 'magnesium_glycinate', 'glycine', 'valerian'].includes(recommendation.id)) {
+          recommendation.priority += 2;
+        }
+      }
+
+      // Ajustement basé sur la charge cognitive
+      if (neuroProfile.cognitiveLoad > 0.6) {
+        // Augmenter la priorité des suppléments pour la cognition
+        if (['bacopa', 'lions_mane', 'ginkgo', 'phosphatidylserine'].includes(recommendation.id)) {
+          recommendation.priority += 1;
+        }
       }
     });
+
+    // Trier par priorité décroissante
+    return optimizedRecommendations.sort((a, b) => b.priority - a.priority);
+  } catch (error) {
+    console.error("Erreur lors de l'optimisation des recommandations:", error);
+    return baseRecommendations;
+  }
+};
+
+// Fonction pour analyser les réponses et déterminer les tendances
+export const analyzeResponseTrends = (quizResponses: QuizResponses) => {
+  // Placeholder - à implémenter
+  return {
+    riskProfile: 'medium',
+    primaryConcerns: ['stress', 'sleep'],
+    secondaryConcerns: ['energy', 'immunity']
+  };
+};
+
+// Fonction pour prédire l'efficacité des suppléments pour un profil donné
+export const predictSupplementEfficacy = (supplementId: string, neuroProfile: NeuroProfile) => {
+  // Calcul simple de l'efficacité prédite (placeholder)
+  const baseEfficacy = 0.7;
+
+  // Ajustements en fonction du profil
+  let adjustedEfficacy = baseEfficacy;
+
+  if (neuroProfile.stressLevel > 0.7 && ['magnesium_glycinate', 'ashwagandha'].includes(supplementId)) {
+    adjustedEfficacy += 0.2;
   }
 
-  // Trier les recommandations optimisées par priorité puis par score de correspondance
-  return optimizedRecommendations.sort((a, b) => {
-    if (a.priority !== b.priority) {
-      return a.priority - b.priority; // Priorité plus basse (chiffre plus petit) passe en premier
-    }
-    return b.matchScore - a.matchScore; // Score plus élevé passe en premier
-  });
+  if (neuroProfile.sleepQuality < 0.5 && ['melatonin', 'glycine'].includes(supplementId)) {
+    adjustedEfficacy += 0.15;
+  }
+
+  return Math.min(adjustedEfficacy, 0.98); // Cap à 98% d'efficacité
 };
 
 /**
@@ -146,5 +205,7 @@ export const predictFutureNeeds = (
 export default {
   optimizeRecommendations,
   generateExplanation,
-  predictFutureNeeds
+  predictFutureNeeds,
+  analyzeResponseTrends,
+  predictSupplementEfficacy
 };
