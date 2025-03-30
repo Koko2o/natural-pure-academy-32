@@ -1,123 +1,93 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Brain, 
-  Database, 
-  ChartBar, 
-  ArrowUpRight, 
-  UserCheck, 
-  Award, 
-  Activity, 
-  BarChart, 
-  Calendar,
-  LineChart,
-  ArrowRight,
-  CheckCircle,
-  RefreshCw,
-  PercentSquare,
-  Zap
-} from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Brain, Database, LineChart, Users, Zap, Sparkles, Gauge, BarChart3, ArrowRight, BookOpen, Network, FileText, PieChart, Lightbulb, RefreshCcw, UserPlus, Award } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { evaluateDataQuality, getAILearningStatus, identifyPatternCorrelations, trainAIModel } from '@/utils/aiLearningEngine';
-import { SUPPLEMENT_CATALOG } from '@/data/supplementCatalog';
-import { analyzeRecommendationPerformance } from '@/utils/aiLearningEngine';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getAILearningStatus, evaluateDataQuality } from '@/utils/aiLearningEngine';
 
 export default function AILearningDashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isTrainingModel, setIsTrainingModel] = useState(false);
-  const [trainingProgress, setTrainingProgress] = useState(0);
-  const [modelStatus, setModelStatus] = useState<any>(null);
-  const [dataQuality, setDataQuality] = useState<any>(null);
-  const [correlations, setCorrelations] = useState<any>(null);
-  const [performances, setPerformances] = useState<any>(null);
-  const [showTrainingSuccess, setShowTrainingSuccess] = useState(false);
+  const [learningStatus, setLearningStatus] = useState<any>(null);
+  const [dataQualityMetrics, setDataQualityMetrics] = useState<any>(null);
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Charger toutes les données pertinentes
-    loadDashboardData();
+    // Simuler un chargement de données
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      // Récupérer les données du statut d'apprentissage de l'IA
+      const status = getAILearningStatus();
+      
+      // Simuler des données de qualité
+      const mockUserData = {
+        healthConcerns: { stressLevel: 'high', sleepQuality: 'poor' },
+        demographics: { age: 35, gender: 'F' },
+        goals: { reduceStress: true, improveSleep: true },
+        behavioralMetrics: {
+          questionTimes: { q_stress_level: 25, q_sleep_quality: 18 },
+          totalTime: 240
+        }
+      };
+      
+      const qualityMetrics = evaluateDataQuality(mockUserData);
+      
+      // Attendre un peu pour simuler le chargement
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      setLearningStatus(status);
+      setDataQualityMetrics(qualityMetrics);
+      setIsLoading(false);
+    };
+    
+    loadData();
   }, []);
 
-  const loadDashboardData = () => {
-    // Chargement de l'état du modèle IA
-    setModelStatus(getAILearningStatus());
-    
-    // Chargement de la qualité des données
-    setDataQuality(evaluateDataQuality());
-    
-    // Chargement des corrélations de motifs
-    setCorrelations(identifyPatternCorrelations());
-    
-    // Chargement des performances de recommandations
-    setPerformances(analyzeRecommendationPerformance());
-  };
-
-  const handleTrainModel = async () => {
-    setIsTrainingModel(true);
-    setTrainingProgress(0);
-    
-    // Simulation de progression
-    const intervalId = setInterval(() => {
-      setTrainingProgress(prev => {
-        if (prev >= 98) {
-          clearInterval(intervalId);
-          return 98;
-        }
-        return prev + Math.random() * 5;
-      });
-    }, 300);
-    
-    try {
-      // Appel réel à l'entraînement du modèle
-      await trainAIModel(true);
-      
-      // Finalisation
-      setTrainingProgress(100);
-      setTimeout(() => {
-        setIsTrainingModel(false);
-        loadDashboardData();
-        setShowTrainingSuccess(true);
-        setTimeout(() => setShowTrainingSuccess(false), 5000);
-      }, 500);
-      
-    } catch (error) {
-      console.error("Erreur lors de l'entraînement du modèle:", error);
-      setIsTrainingModel(false);
-      clearInterval(intervalId);
+  // Données simulées pour les graphiques
+  const modelPerformanceData = [
+    { month: "Jan", accuracy: 78 },
+    { month: "Fév", accuracy: 80 },
+    { month: "Mar", accuracy: 83 },
+    { month: "Avr", accuracy: 85 },
+    { month: "Mai", accuracy: 88 },
+    { month: "Juin", accuracy: 90 }
+  ];
+  
+  // Récentes recommandations personnalisées
+  const recentRecommendations = [
+    {
+      profileType: "Stress hyperréactif & sommeil perturbé",
+      topRecommendations: ["Magnésium bisglycinate", "Ashwagandha", "L-théanine"],
+      matchScore: 92,
+      date: "2023-11-15"
+    },
+    {
+      profileType: "Fatigue cognitive & inflammation modérée",
+      topRecommendations: ["Rhodiola rosea", "Omega-3", "Curcumine"],
+      matchScore: 88,
+      date: "2023-11-14"
+    },
+    {
+      profileType: "Anxiété sociale & tension musculaire",
+      topRecommendations: ["Ashwagandha", "Magnésium", "GABA"],
+      matchScore: 85,
+      date: "2023-11-12"
     }
-  };
-
-  if (!modelStatus) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <Brain className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <h2 className="text-xl font-semibold mb-2">Chargement des données IA...</h2>
-          <p className="text-muted-foreground">Récupération des métriques d'apprentissage</p>
-        </div>
-      </div>
-    );
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
+  ];
+  
+  // Simuler des métriques d'efficacité de recommandation
+  const recommendationMetrics = {
+    efficacité: 87,
+    satisfaction: 92,
+    adhérence: 76,
+    résultats: 82,
+    personnalisation: 94
   };
 
   return (
@@ -125,610 +95,1072 @@ export default function AILearningDashboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container py-8 max-w-6xl mx-auto px-4"
+      className="container py-8 max-w-7xl mx-auto px-4"
     >
-      {showTrainingSuccess && (
-        <Alert className="mb-6 bg-green-50 border-green-200">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">Entraînement réussi</AlertTitle>
-          <AlertDescription className="text-green-700">
-            Le modèle a été entraîné avec succès. Nouvelle version: {modelStatus.modelVersion}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Tableau de Bord d'Apprentissage IA</h1>
-          <p className="text-muted-foreground mt-1">
-            Supervision et optimisation du système d'apprentissage automatique
-          </p>
+      <div className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <Badge variant="outline" className="text-xs">IA AVANCÉE</Badge>
+          <Badge variant="outline" className="text-xs">ANALYSE DE DONNÉES</Badge>
+          <Badge variant="outline" className="text-xs">PERSONNALISATION</Badge>
         </div>
-
-        <div className="flex gap-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={loadDashboardData}
-            className="flex items-center"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualiser
-          </Button>
-          
-          <Button 
-            size="sm" 
-            onClick={handleTrainModel}
-            disabled={isTrainingModel}
-            className="flex items-center"
-          >
-            <Brain className="h-4 w-4 mr-2" />
-            {isTrainingModel ? 'Entraînement en cours...' : 'Entraîner le modèle'}
-          </Button>
-        </div>
+        
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          Système d'Apprentissage IA
+        </h1>
+        
+        <p className="text-lg text-muted-foreground max-w-3xl">
+          Notre moteur d'IA améliore continuellement ses recommandations grâce à l'analyse 
+          comportementale et à l'apprentissage automatique pour une personnalisation optimale.
+        </p>
       </div>
 
-      {isTrainingModel && (
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Entraînement du modèle en cours</p>
-                  <p className="text-sm text-muted-foreground">Progression: {Math.round(trainingProgress)}%</p>
-                </div>
-                <span className="text-sm font-bold">{Math.round(trainingProgress)}%</span>
-              </div>
-              <Progress value={trainingProgress} className="h-2" />
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                <div className="flex flex-col items-center justify-center p-3 bg-blue-50 rounded-lg">
-                  <Database className="h-5 w-5 text-blue-600 mb-1" />
-                  <span className="text-xs text-blue-600">Préparation des données</span>
-                  <span className="text-xs font-semibold">{trainingProgress > 20 ? 'Complété' : 'En cours'}</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 bg-purple-50 rounded-lg">
-                  <Brain className="h-5 w-5 text-purple-600 mb-1" />
-                  <span className="text-xs text-purple-600">Entraînement du réseau</span>
-                  <span className="text-xs font-semibold">{trainingProgress > 60 ? (trainingProgress >= 98 ? 'Complété' : 'En cours') : 'En attente'}</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 bg-green-50 rounded-lg">
-                  <Activity className="h-5 w-5 text-green-600 mb-1" />
-                  <span className="text-xs text-green-600">Validation</span>
-                  <span className="text-xs font-semibold">{trainingProgress > 85 ? (trainingProgress >= 98 ? 'En cours' : 'En attente') : 'En attente'}</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 bg-amber-50 rounded-lg">
-                  <Award className="h-5 w-5 text-amber-600 mb-1" />
-                  <span className="text-xs text-amber-600">Finalisation</span>
-                  <span className="text-xs font-semibold">{trainingProgress >= 100 ? 'Complété' : 'En attente'}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 mb-8">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="data-quality">Qualité des données</TabsTrigger>
-          <TabsTrigger value="correlations">Corrélations</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <div className="grid gap-6 md:grid-cols-2">
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center h-[400px]">
+          <Brain className="h-12 w-12 text-primary animate-pulse mb-4" />
+          <p className="text-muted-foreground">Chargement des données d'apprentissage...</p>
+        </div>
+      ) : (
+        <>
+          {/* Métriques principales */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Brain className="mr-2 h-5 w-5 text-primary" /> État du modèle d'IA
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Précision du modèle</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Version du modèle</span>
-                    <Badge variant="outline" className="font-mono">{modelStatus.modelVersion}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Précision</span>
-                    <span className="font-semibold">{(modelStatus.accuracy * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Dernier entraînement</span>
-                    <span className="text-sm">{formatDate(modelStatus.lastTrainingDate)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Nombre de données</span>
-                    <span className="font-semibold">{modelStatus.dataPointsCount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Profils uniques</span>
-                    <span className="font-semibold">{modelStatus.uniqueProfilesCount.toLocaleString()}</span>
-                  </div>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-3xl font-bold">{learningStatus?.modelAccuracy}%</span>
+                  <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">+2.3%</Badge>
+                </div>
+                <Progress className="h-1.5 mt-4" value={learningStatus?.modelAccuracy} />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Points de données</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-3xl font-bold">{learningStatus?.dataPoints.toLocaleString()}</span>
+                  <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-100">+215</Badge>
+                </div>
+                <div className="text-xs text-muted-foreground mt-4">
+                  Dernière mise à jour: {learningStatus?.lastTrainingDate}
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-end">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm">Voir les détails <ArrowRight className="ml-1 h-4 w-4" /></Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Détails du modèle d'IA - v{modelStatus.modelVersion}</DialogTitle>
-                      <DialogDescription>
-                        Informations techniques et historique d'entraînement
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div>
-                        <h3 className="font-medium mb-2">Historique d'entraînement</h3>
-                        <div className="bg-muted p-3 rounded-md max-h-60 overflow-y-auto">
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="border-b border-muted-foreground/20">
-                                <th className="text-left pb-2">Date</th>
-                                <th className="text-left pb-2">Durée</th>
-                                <th className="text-left pb-2">Échantillons</th>
-                                <th className="text-left pb-2">Précision</th>
-                                <th className="text-left pb-2">Type</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {modelStatus.trainingHistory.slice().reverse().map((entry: any, index: number) => (
-                                <tr key={index} className="border-b border-muted-foreground/10 last:border-0">
-                                  <td className="py-2">{formatDate(entry.date)}</td>
-                                  <td>{entry.duration.toFixed(1)}s</td>
-                                  <td>{entry.dataPoints}</td>
-                                  <td>{(entry.accuracy * 100).toFixed(1)}%</td>
-                                  <td>{entry.fullTraining ? 'Complet' : 'Incrémental'}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Taux de satisfaction</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-3xl font-bold">{recommendationMetrics.satisfaction}%</span>
+                  <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">+3.8%</Badge>
+                </div>
+                <Progress className="h-1.5 mt-4" value={recommendationMetrics.satisfaction} />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Personnalisation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-3xl font-bold">{recommendationMetrics.personnalisation}%</span>
+                  <Badge variant="default" className="bg-indigo-100 text-indigo-800 hover:bg-indigo-100">+1.5%</Badge>
+                </div>
+                <Progress className="h-1.5 mt-4" value={recommendationMetrics.personnalisation} />
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Navigation par onglets */}
+          <Tabs defaultValue="overview" className="space-y-8" onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full grid-cols-4 mb-8">
+              <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+              <TabsTrigger value="neuroprofiles">Profils neurobiologiques</TabsTrigger>
+              <TabsTrigger value="behavioral">Analyse comportementale</TabsTrigger>
+              <TabsTrigger value="recommendations">Recommandations</TabsTrigger>
+            </TabsList>
+            
+            {/* Onglet: Vue d'ensemble */}
+            <TabsContent value="overview" className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Performance du modèle</CardTitle>
+                      <LineChart className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Évolution de la précision du modèle sur 6 mois</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[240px] relative">
+                      {/* Simuler un graphique */}
+                      <div className="absolute inset-0 flex items-end justify-between px-2">
+                        {modelPerformanceData.map((item, index) => (
+                          <div key={index} className="flex flex-col items-center">
+                            <div 
+                              className="bg-primary/80 w-10 rounded-t-sm"
+                              style={{ height: `${item.accuracy * 2}px` }}
+                            ></div>
+                            <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Caractéristiques principales</CardTitle>
+                      <Brain className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Facteurs les plus importants dans le modèle</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {learningStatus?.topFeatures.map((feature: string, index: number) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium capitalize">
+                              {feature.replace(/_/g, ' ')}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {100 - index * 5}%
+                            </span>
+                          </div>
+                          <Progress value={100 - index * 5} className="h-1.5" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Améliorations récentes</CardTitle>
+                    <Zap className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <CardDescription>Dernières optimisations du modèle d'IA</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {learningStatus?.recentImprovements.map((improvement: string, index: number) => (
+                      <div key={index} className="flex items-start gap-4">
+                        <div className="bg-primary/10 h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <CheckCircleIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{improvement}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Implémenté le {new Date(new Date().getTime() - (index * 7 * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm text-muted-foreground">
+                        Apprentissage adaptatif
+                      </CardTitle>
+                      <RefreshCcw className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col items-center pt-2 pb-4">
+                      <div className="relative h-24 w-24">
+                        <CircleProgress value={95} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Sparkles className="h-8 w-8 text-amber-500" />
+                        </div>
+                      </div>
+                      <span className="mt-4 font-medium">Actif</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm text-muted-foreground">
+                        Nouveaux profils détectés
+                      </CardTitle>
+                      <UserPlus className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center pt-2 pb-4">
+                      <span className="text-4xl font-bold">+7</span>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Nouveaux clusters de profils ce mois
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm text-muted-foreground">
+                        Génération du modèle
+                      </CardTitle>
+                      <Network className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center pt-2 pb-4">
+                      <span className="text-4xl font-bold">{learningStatus?.currentGeneration}</span>
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Stable
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            {/* Onglet: Profils neurobiologiques */}
+            <TabsContent value="neuroprofiles" className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Clustering des profils</CardTitle>
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Segments neurobiologiques identifiés par l'IA</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative h-[350px] bg-muted/20 rounded-md overflow-hidden">
+                      {/* Simulation simplifiée d'un graphe de clustering */}
+                      <div className="absolute inset-0">
+                        <div className="absolute h-24 w-24 rounded-full bg-blue-100 opacity-70 left-[15%] top-[20%]"></div>
+                        <div className="absolute h-28 w-28 rounded-full bg-indigo-100 opacity-70 left-[45%] top-[30%]"></div>
+                        <div className="absolute h-20 w-20 rounded-full bg-amber-100 opacity-70 left-[70%] top-[15%]"></div>
+                        <div className="absolute h-32 w-32 rounded-full bg-green-100 opacity-70 left-[30%] top-[60%]"></div>
+                        <div className="absolute h-16 w-16 rounded-full bg-red-100 opacity-70 left-[65%] top-[65%]"></div>
+                        
+                        {/* Étiquettes */}
+                        <div className="absolute left-[15%] top-[20%] transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                          Stress hyperréactif
+                        </div>
+                        <div className="absolute left-[45%] top-[30%] transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                          Fatigue cognitive
+                        </div>
+                        <div className="absolute left-[70%] top-[15%] transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                          Déficit d'attention
+                        </div>
+                        <div className="absolute left-[30%] top-[60%] transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                          Tension chronique
+                        </div>
+                        <div className="absolute left-[65%] top-[65%] transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                          Perturbation du sommeil
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Distribution des profils</CardTitle>
+                      <PieChart className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Répartition des types neurobiologiques</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                            <span className="text-sm">Stress hyperréactif</span>
+                          </div>
+                          <span className="text-sm font-medium">38%</span>
+                        </div>
+                        <Progress value={38} className="h-1.5" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-indigo-500"></div>
+                            <span className="text-sm">Fatigue cognitive</span>
+                          </div>
+                          <span className="text-sm font-medium">24%</span>
+                        </div>
+                        <Progress value={24} className="h-1.5" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                            <span className="text-sm">Déficit d'attention</span>
+                          </div>
+                          <span className="text-sm font-medium">16%</span>
+                        </div>
+                        <Progress value={16} className="h-1.5" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                            <span className="text-sm">Tension chronique</span>
+                          </div>
+                          <span className="text-sm font-medium">14%</span>
+                        </div>
+                        <Progress value={14} className="h-1.5" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                            <span className="text-sm">Perturbation du sommeil</span>
+                          </div>
+                          <span className="text-sm font-medium">8%</span>
+                        </div>
+                        <Progress value={8} className="h-1.5" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Marqueurs neurobiologiques clés</CardTitle>
+                    <Brain className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <CardDescription>Indicateurs utilisés dans l'analyse des profils</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Marqueur</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Impact</TableHead>
+                        <TableHead>Précision</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Réactivité au cortisol</TableCell>
+                        <TableCell>Sensibilité à l'hormone du stress</TableCell>
+                        <TableCell>Très élevé</TableCell>
+                        <TableCell>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">94%</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Architecture du sommeil</TableCell>
+                        <TableCell>Cycles et qualité du sommeil</TableCell>
+                        <TableCell>Élevé</TableCell>
+                        <TableCell>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">91%</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Réserve cognitive</TableCell>
+                        <TableCell>Capacité à gérer la charge cognitive</TableCell>
+                        <TableCell>Modéré</TableCell>
+                        <TableCell>
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">87%</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Balance inflammatoire</TableCell>
+                        <TableCell>Niveau d'inflammation neurologique</TableCell>
+                        <TableCell>Élevé</TableCell>
+                        <TableCell>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">90%</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Neurotransmetteurs</TableCell>
+                        <TableCell>Équilibre des messagers chimiques</TableCell>
+                        <TableCell>Très élevé</TableCell>
+                        <TableCell>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">93%</Badge>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Onglet: Analyse comportementale */}
+            <TabsContent value="behavioral" className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Métriques comportementales</CardTitle>
+                      <Gauge className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Indices de comportement utilisateur pendant le quiz</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6 pt-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Temps de réflexion</span>
+                          <span className="text-sm font-medium">28s / question</span>
+                        </div>
+                        <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '65%' }}></div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Les utilisateurs passent en moyenne 28 secondes par question liée au stress
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Changements de réponse</span>
+                          <span className="text-sm font-medium">2.4 / utilisateur</span>
+                        </div>
+                        <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '48%' }}></div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Les utilisateurs changent leurs réponses 2.4 fois en moyenne
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Temps total de complétion</span>
+                          <span className="text-sm font-medium">4m 12s</span>
+                        </div>
+                        <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '82%' }}></div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Durée moyenne pour compléter l'ensemble du questionnaire
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Engagement</span>
+                          <span className="text-sm font-medium">87%</span>
+                        </div>
+                        <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '87%' }}></div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Niveau d'attention et d'investissement dans le processus
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Points d'hésitation notables</CardTitle>
+                      <Lightbulb className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <CardDescription>Questions générant le plus d'incertitude</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4 pt-4">
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Stress</Badge>
+                          <span className="text-xs text-muted-foreground">Hésitation élevée</span>
+                        </div>
+                        <p className="text-sm font-medium mb-2">
+                          "Comment décririez-vous votre niveau de stress quotidien ?"
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                          <span className="text-xs text-muted-foreground">Temps moyen: 47s (198% de la moyenne)</span>
+                        </div>
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          Insight: Les utilisateurs ont du mal à auto-évaluer objectivement leur niveau de stress
                         </div>
                       </div>
                       
-                      <div>
-                        <h3 className="font-medium mb-2">Améliorations récentes</h3>
-                        <ul className="list-disc pl-5 space-y-2">
-                          {modelStatus.improvements.map((improvement: string, index: number) => (
-                            <li key={index} className="text-sm">{improvement}</li>
-                          ))}
-                        </ul>
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Médicaments</Badge>
+                          <span className="text-xs text-muted-foreground">Changements fréquents</span>
+                        </div>
+                        <p className="text-sm font-medium mb-2">
+                          "Prenez-vous actuellement des médicaments sur ordonnance ?"
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                          <span className="text-xs text-muted-foreground">3.7 changements en moyenne</span>
+                        </div>
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          Insight: Inquiétude possible sur la confidentialité ou les interactions avec les recommandations
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Habitudes</Badge>
+                          <span className="text-xs text-muted-foreground">Abandons fréquents</span>
+                        </div>
+                        <p className="text-sm font-medium mb-2">
+                          "Combien d'heures dormez-vous en moyenne par nuit ?"
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                          <span className="text-xs text-muted-foreground">Taux d'abandon: 12%</span>
+                        </div>
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          Insight: Les utilisateurs peuvent ne pas suivre précisément leurs habitudes de sommeil
+                        </div>
                       </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <ChartBar className="mr-2 h-5 w-5 text-indigo-500" /> Métriques d'apprentissage
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-36 w-full flex items-center justify-center bg-indigo-50 rounded-md mb-4">
-                  <div className="text-center text-gray-500">
-                    <LineChart className="h-8 w-8 mx-auto mb-2 text-indigo-400" />
-                    <p className="text-sm">Évolution de la précision du modèle</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Intelligence comportementale</CardTitle>
+                    <Brain className="h-5 w-5 text-muted-foreground" />
                   </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Qualité des données</span>
-                      <span className="text-sm font-semibold">{dataQuality?.overallQuality || 0}%</span>
-                    </div>
-                    <Progress value={dataQuality?.overallQuality || 0} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Couverture des retours</span>
-                      <span className="text-sm font-semibold">{dataQuality?.feedbackCoverage.toFixed(1) || 0}%</span>
-                    </div>
-                    <Progress value={dataQuality?.feedbackCoverage || 0} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Diversité des profils</span>
-                      <span className="text-sm font-semibold">{dataQuality?.profileDiversity.toFixed(1) || 0}%</span>
-                    </div>
-                    <Progress value={dataQuality?.profileDiversity || 0} className="h-2" />
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <div className="grid grid-cols-2 gap-4 w-full">
-                  <div className="flex flex-col items-center justify-center p-3 bg-blue-50 rounded-lg">
-                    <Calendar className="h-5 w-5 text-blue-600 mb-1" />
-                    <span className="text-xs text-blue-600">Fréquence d'entraînement</span>
-                    <span className="text-xs font-semibold">Hebdomadaire</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center p-3 bg-green-50 rounded-lg">
-                    <Zap className="h-5 w-5 text-green-600 mb-1" />
-                    <span className="text-xs text-green-600">Méthode d'entraînement</span>
-                    <span className="text-xs font-semibold">Transfer Learning</span>
-                  </div>
-                </div>
-              </CardFooter>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="mr-2 h-5 w-5 text-amber-500" /> Top 5 Recommandations les plus efficaces
-                </CardTitle>
-                <CardDescription>
-                  Basé sur les retours utilisateurs et les données d'efficacité
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {performances && Object.entries(performances).length > 0 ? (
-                    Object.entries(performances)
-                      .filter(([_, data]: [string, any]) => data.totalRatings >= 3)
-                      .sort(([_, dataA]: [string, any], [_, dataB]: [string, any]) => dataB.averageRating - dataA.averageRating)
-                      .slice(0, 5)
-                      .map(([supplementId, data]: [string, any], index: number) => {
-                        const supplementName = SUPPLEMENT_CATALOG[supplementId]?.name || supplementId;
-                        return (
-                          <div key={supplementId} className="flex items-center">
-                            <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 font-semibold mr-3">
-                              {index + 1}
+                  <CardDescription>Comment le comportement influence les recommandations</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row gap-8">
+                      <div className="flex-1 space-y-3">
+                        <h3 className="text-lg font-medium">Insights comportementaux</h3>
+                        <div className="space-y-4">
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Users className="h-4 w-4 text-primary" />
                             </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{supplementName}</p>
-                              <div className="w-full h-2 bg-gray-100 rounded-full mt-1">
-                                <div 
-                                  className="h-full bg-amber-500 rounded-full" 
-                                  style={{ width: `${(data.averageRating / 5) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            <div className="ml-3 flex flex-col items-end">
-                              <span className="text-sm font-semibold">{(data.averageRating).toFixed(1)}/5</span>
-                              <span className="text-xs text-muted-foreground">{data.totalRatings} avis</span>
+                            <div>
+                              <p className="text-sm font-medium">Biais d'auto-évaluation</p>
+                              <p className="text-xs text-muted-foreground">
+                                Les utilisateurs sous-estiment généralement leur niveau de stress de 20-35% par rapport aux mesures objectives
+                              </p>
                             </div>
                           </div>
-                        );
-                      })
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>Pas assez de données pour afficher les recommandations les plus performantes</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="data-quality">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <PercentSquare className="mr-2 h-5 w-5 text-blue-500" /> Qualité des données
-                </CardTitle>
-                <CardDescription>
-                  Évaluation de la qualité des données d'apprentissage
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-blue-700 font-medium">Qualité globale</span>
-                      <Badge variant="outline" className="bg-blue-100 text-blue-700">
-                        {dataQuality?.overallQuality || 0}%
-                      </Badge>
-                    </div>
-                    <Progress value={dataQuality?.overallQuality || 0} className="h-2 mb-3" />
-                    <p className="text-sm text-blue-700/80">
-                      Évaluation combinée de la couverture, diversité et volume des données.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-green-700 font-medium">Couverture des retours</span>
-                      <Badge variant="outline" className="bg-green-100 text-green-700">
-                        {dataQuality?.feedbackCoverage.toFixed(1) || 0}%
-                      </Badge>
-                    </div>
-                    <Progress value={dataQuality?.feedbackCoverage || 0} className="h-2 mb-3" />
-                    <p className="text-sm text-green-700/80">
-                      Pourcentage de données d'apprentissage avec retours utilisateurs.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-purple-700 font-medium">Diversité des profils</span>
-                      <Badge variant="outline" className="bg-purple-100 text-purple-700">
-                        {dataQuality?.profileDiversity.toFixed(1) || 0}%
-                      </Badge>
-                    </div>
-                    <Progress value={dataQuality?.profileDiversity || 0} className="h-2 mb-3" />
-                    <p className="text-sm text-purple-700/80">
-                      Variété de profils différents dans les données d'apprentissage.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Qualité des données par recommandation</CardTitle>
-                <CardDescription>
-                  Évaluation de la qualité des données pour chaque complément
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-auto max-h-96">
-                  <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-white">
-                      <tr className="border-b">
-                        <th className="text-left py-2">Complément</th>
-                        <th className="text-left py-2">Qualité des données</th>
-                        <th className="text-center py-2">Échantillons</th>
-                        <th className="text-center py-2">Couverture</th>
-                        <th className="text-center py-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dataQuality?.recommendations?.map((rec: any) => (
-                        <tr key={rec.id} className="border-b">
-                          <td className="py-2">{rec.name}</td>
-                          <td>
-                            <div className="flex items-center gap-2">
-                              <Progress value={rec.dataQuality} className="h-2 w-32" />
-                              <span>{rec.dataQuality.toFixed(0)}%</span>
+                          
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Gauge className="h-4 w-4 text-primary" />
                             </div>
-                          </td>
-                          <td className="text-center">{rec.sampleSize}</td>
-                          <td className="text-center">
-                            <Badge variant={rec.dataQuality > 50 ? 'default' : 'outline'} className={`
-                              ${rec.dataQuality > 70 ? 'bg-green-100 text-green-700 hover:bg-green-100' : 
-                                rec.dataQuality > 30 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' : 
-                                'bg-red-100 text-red-700 hover:bg-red-100'}
-                            `}>
-                              {rec.dataQuality > 70 ? 'Bonne' : rec.dataQuality > 30 ? 'Moyenne' : 'Faible'}
+                            <div>
+                              <p className="text-sm font-medium">Signaux non-verbaux</p>
+                              <p className="text-xs text-muted-foreground">
+                                Le temps passé sur les questions critiques indique souvent la sévérité réelle du problème mieux que la réponse elle-même
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Lightbulb className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Consistance des réponses</p>
+                              <p className="text-xs text-muted-foreground">
+                                Des réponses incohérentes aux questions liées signalent souvent des problèmes sous-jacents complexes
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 space-y-3">
+                        <h3 className="text-lg font-medium">Application aux recommandations</h3>
+                        <div className="space-y-4">
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                              <span className="font-medium text-green-700">1</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Ajustement de précision</p>
+                              <p className="text-xs text-muted-foreground">
+                                Le modèle ajuste automatiquement la sévérité estimée des symptômes en fonction des signaux comportementaux
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                              <span className="font-medium text-green-700">2</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Détection de préoccupations non-exprimées</p>
+                              <p className="text-xs text-muted-foreground">
+                                L'IA identifie les préoccupations potentielles que l'utilisateur n'a pas explicitement mentionnées
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-3 items-start">
+                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                              <span className="font-medium text-green-700">3</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Personnalisation de la communication</p>
+                              <p className="text-xs text-muted-foreground">
+                                Les explications des recommandations sont adaptées au niveau de connaissance détecté
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Onglet: Recommandations */}
+            <TabsContent value="recommendations" className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Précision</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="relative h-20 w-20">
+                        <CircleProgress value={recommendationMetrics.efficacité} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xl font-bold">{recommendationMetrics.efficacité}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 mr-1.5"></div>
+                          <span>Élevée: 82%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5"></div>
+                          <span>Moyenne: 15%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 mr-1.5"></div>
+                          <span>Faible: 3%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Pertinence</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="relative h-20 w-20">
+                        <CircleProgress value={recommendationMetrics.satisfaction} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xl font-bold">{recommendationMetrics.satisfaction}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 mr-1.5"></div>
+                          <span>Très pertinent: 87%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5"></div>
+                          <span>Pertinent: 10%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 mr-1.5"></div>
+                          <span>Non pertinent: 3%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Adhérence</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="relative h-20 w-20">
+                        <CircleProgress value={recommendationMetrics.adhérence} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xl font-bold">{recommendationMetrics.adhérence}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 mr-1.5"></div>
+                          <span>Complète: 68%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5"></div>
+                          <span>Partielle: 25%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 mr-1.5"></div>
+                          <span>Nulle: 7%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Résultats</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="relative h-20 w-20">
+                        <CircleProgress value={recommendationMetrics.résultats} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xl font-bold">{recommendationMetrics.résultats}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 mr-1.5"></div>
+                          <span>Excellents: 62%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5"></div>
+                          <span>Notables: 28%</span>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 mr-1.5"></div>
+                          <span>Minimes: 10%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Recommandations récentes</CardTitle>
+                    <Award className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <CardDescription>Recommandations personnalisées générées récemment</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type de profil</TableHead>
+                        <TableHead>Recommandations</TableHead>
+                        <TableHead>Score</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentRecommendations.map((rec, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{rec.profileType}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {rec.topRecommendations.map((item, i) => (
+                                <Badge key={i} variant="outline" className="bg-muted">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={
+                              rec.matchScore > 90 ? "bg-green-100 text-green-800" : 
+                              rec.matchScore > 80 ? "bg-amber-100 text-amber-800" : 
+                              "bg-red-100 text-red-800"
+                            }>
+                              {rec.matchScore}%
                             </Badge>
-                          </td>
-                          <td className="text-center">
-                            <Button variant="ghost" size="sm">Analyse</Button>
-                          </td>
-                        </tr>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {rec.date}
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  La qualité des données impacte directement la précision des recommandations. Un minimum de 30 échantillons avec retours est recommandé pour chaque complément.
-                </p>
-              </CardFooter>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="correlations">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Database className="mr-2 h-5 w-5 text-primary" /> Corrélations découvertes
-                </CardTitle>
-                <CardDescription>
-                  Motifs détectés par l'IA dans les données d'apprentissage
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {correlations?.sufficientData ? (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-base font-medium mb-3">Corrélations par tranches d'âge</h3>
-                      {Object.keys(correlations.ageCorrelations).length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {Object.entries(correlations.ageCorrelations).map(([age, recommendations]: [string, any]) => (
-                            <Card key={age} className="border shadow-none">
-                              <CardHeader className="py-3 px-4">
-                                <CardTitle className="text-sm font-medium">{age} ans</CardTitle>
-                              </CardHeader>
-                              <CardContent className="py-2 px-4">
-                                <ul className="space-y-2">
-                                  {recommendations.slice(0, 3).map((rec: any) => {
-                                    const supplement = SUPPLEMENT_CATALOG[rec.recommendationId];
-                                    return (
-                                      <li key={rec.recommendationId} className="flex items-center justify-between">
-                                        <span className="text-sm">{supplement?.name || rec.recommendationId}</span>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700">
-                                          {rec.rating.toFixed(1)}/5
-                                        </Badge>
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-4 bg-muted/20 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Pas assez de données pour identifier des corrélations par âge</p>
-                        </div>
-                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Facteurs d'efficacité des recommandations</CardTitle>
+                      <BarChart3 className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    
-                    <div>
-                      <h3 className="text-base font-medium mb-3">Corrélations par symptômes</h3>
-                      {Object.keys(correlations.symptomCorrelations).length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {Object.entries(correlations.symptomCorrelations).map(([symptom, recommendations]: [string, any]) => {
-                            // Formatage du nom du symptôme
-                            const symptomName = symptom
-                              .replace(/([A-Z])/g, ' $1')
-                              .replace(/_/g, ' ')
-                              .replace(/^./, str => str.toUpperCase());
-                              
-                            return (
-                              <Card key={symptom} className="border shadow-none">
-                                <CardHeader className="py-3 px-4">
-                                  <CardTitle className="text-sm font-medium">{symptomName}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="py-2 px-4">
-                                  <ul className="space-y-2">
-                                    {recommendations.slice(0, 3).map((rec: any) => {
-                                      const supplement = SUPPLEMENT_CATALOG[rec.recommendationId];
-                                      return (
-                                        <li key={rec.recommendationId} className="flex items-center justify-between">
-                                          <span className="text-sm">{supplement?.name || rec.recommendationId}</span>
-                                          <Badge variant="outline" className="bg-green-50 text-green-700">
-                                            {rec.rating.toFixed(1)}/5
-                                          </Badge>
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                </CardContent>
-                              </Card>
-                            );
-                          })}
+                    <CardDescription>Variables influençant l'impact des recommandations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Personnalisation biologique</span>
+                          <span>95%</span>
                         </div>
-                      ) : (
-                        <div className="text-center py-4 bg-muted/20 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Pas assez de données pour identifier des corrélations par symptôme</p>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '95%' }}></div>
                         </div>
-                      )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Précision du dosage</span>
+                          <span>88%</span>
+                        </div>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '88%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Clarté des explications</span>
+                          <span>86%</span>
+                        </div>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '86%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Synergie des compléments</span>
+                          <span>82%</span>
+                        </div>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '82%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Base scientifique</span>
+                          <span>94%</span>
+                        </div>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '94%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Qualité des ingrédients</span>
+                          <span>91%</span>
+                        </div>
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: '91%' }}></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Database className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium mb-1">Données insuffisantes</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                      Nous avons besoin de plus de données pour identifier des corrélations significatives.
-                      Un minimum de 20 profils avec retours est nécessaire.
-                    </p>
-                    <div className="mt-4 flex justify-center">
-                      <Button variant="outline" size="sm">
-                        <ArrowUpRight className="h-4 w-4 mr-2" />
-                        Explorer les données actuelles
-                      </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Témoignages utilisateurs</CardTitle>
+                      <Users className="h-5 w-5 text-muted-foreground" />
                     </div>
+                    <CardDescription>Retours sur l'efficacité des recommandations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <span className="font-medium text-green-700">M</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Mathieu, 42 ans</p>
+                            <div className="flex items-center">
+                              <span className="text-xs text-muted-foreground">Stress hyperréactif</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm">
+                          "Les recommandations ciblaient précisément mes problèmes de stress. Après 3 semaines avec le magnésium et l'ashwagandha, je sens une réelle différence."
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <span className="font-medium text-green-700">S</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Sophie, 35 ans</p>
+                            <div className="flex items-center">
+                              <span className="text-xs text-muted-foreground">Fatigue cognitive</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm">
+                          "J'étais sceptique au début, mais les explications scientifiques m'ont convaincue. La rhodiola a transformé mon niveau d'énergie."
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <span className="font-medium text-green-700">T</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Thomas, 28 ans</p>
+                            <div className="flex items-center">
+                              <span className="text-xs text-muted-foreground">Troubles du sommeil</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm">
+                          "Le fait que les recommandations étaient basées sur mes réponses spécifiques a fait toute la différence. Mon sommeil s'est amélioré dès la première semaine."
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          {/* Documentation et ressources */}
+          <div className="mt-12">
+            <h3 className="text-xl font-bold mb-6">Documentation & Ressources</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <BookOpen className="h-8 w-8 text-muted-foreground mb-4" />
+                  <h4 className="font-semibold mb-2">Guide technique</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Documentation détaillée sur l'architecture et le fonctionnement du système d'IA
+                  </p>
+                  <div className="flex items-center text-sm text-primary">
+                    <span>Consulter la documentation</span>
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <FileText className="h-8 w-8 text-muted-foreground mb-4" />
+                  <h4 className="font-semibold mb-2">Études de cas</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Exemples d'optimisations de recommandations basées sur les données comportementales
+                  </p>
+                  <div className="flex items-center text-sm text-primary">
+                    <span>Voir les études de cas</span>
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <Brain className="h-8 w-8 text-muted-foreground mb-4" />
+                  <h4 className="font-semibold mb-2">Publications scientifiques</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Recherches et articles sur notre approche de personnalisation neurobiologique
+                  </p>
+                  <div className="flex items-center text-sm text-primary">
+                    <span>Explorer les publications</span>
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Activity className="mr-2 h-5 w-5 text-green-500" /> Performance des recommandations
-                </CardTitle>
-                <CardDescription>
-                  Efficacité des recommandations selon les retours utilisateurs
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {performances && Object.keys(performances).length > 0 ? (
-                  <div className="overflow-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2">Complément</th>
-                          <th className="text-left py-2">Note moyenne</th>
-                          <th className="text-center py-2">Recommandations</th>
-                          <th className="text-center py-2">Avis</th>
-                          <th className="text-center py-2">Taux d'avis</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(performances)
-                          .sort(([_, dataA]: [string, any], [_, dataB]: [string, any]) => {
-                            if (dataB.totalRatings === 0 && dataA.totalRatings === 0) {
-                              return dataB.recommendationCount - dataA.recommendationCount;
-                            }
-                            if (dataB.totalRatings === 0) return -1;
-                            if (dataA.totalRatings === 0) return 1;
-                            return dataB.averageRating - dataA.averageRating;
-                          })
-                          .filter(([_, data]: [string, any]) => data.recommendationCount > 0)
-                          .map(([supplementId, data]: [string, any]) => {
-                            const supplementName = SUPPLEMENT_CATALOG[supplementId]?.name || supplementId;
-                            const ratingRatio = data.recommendationCount > 0 
-                              ? (data.totalRatings / data.recommendationCount) * 100 
-                              : 0;
-                              
-                            return (
-                              <tr key={supplementId} className="border-b">
-                                <td className="py-2">{supplementName}</td>
-                                <td>
-                                  {data.totalRatings > 0 ? (
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex">
-                                        {[1, 2, 3, 4, 5].map(star => (
-                                          <Award 
-                                            key={star} 
-                                            className={`h-4 w-4 ${star <= Math.round(data.averageRating) 
-                                              ? 'text-amber-500' 
-                                              : 'text-gray-300'}`} 
-                                            fill={star <= Math.round(data.averageRating) ? 'currentColor' : 'none'}
-                                          />
-                                        ))}
-                                      </div>
-                                      <span>{data.averageRating.toFixed(1)}/5</span>
-                                    </div>
-                                  ) : (
-                                    <span className="text-muted-foreground">Aucun avis</span>
-                                  )}
-                                </td>
-                                <td className="text-center">{data.recommendationCount}</td>
-                                <td className="text-center">{data.totalRatings}</td>
-                                <td className="text-center">
-                                  <Badge variant={ratingRatio > 0 ? 'default' : 'outline'} className={`
-                                    ${ratingRatio > 50 ? 'bg-green-100 text-green-700 hover:bg-green-100' : 
-                                      ratingRatio > 20 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' : 
-                                      'bg-red-100 text-red-700 hover:bg-red-100'}
-                                  `}>
-                                    {ratingRatio.toFixed(0)}%
-                                  </Badge>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>Aucune données de recommandation disponible</p>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  Les données de performance sont utilisées pour améliorer les recommandations futures
-                  en accordant plus de poids aux compléments bien notés pour des profils similaires.
-                </p>
-              </CardFooter>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+        </>
+      )}
     </motion.div>
   );
 }
+
+// Composants utilitaires pour le dashboard
+const CheckCircleIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+};
+
+// Composant de cercle de progression
+const CircleProgress = ({ value }: { value: number }) => {
+  const circumference = 2 * Math.PI * 9;
+  const progressOffset = circumference - (value / 100) * circumference;
+  
+  return (
+    <svg className="h-full w-full" viewBox="0 0 20 20">
+      <circle
+        className="text-muted stroke-current"
+        strokeWidth="2"
+        fill="transparent"
+        r="9"
+        cx="10"
+        cy="10"
+      />
+      <circle
+        className="text-primary stroke-current"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="transparent"
+        r="9"
+        cx="10"
+        cy="10"
+        style={{
+          strokeDasharray: circumference,
+          strokeDashoffset: progressOffset,
+          transformOrigin: "50% 50%",
+          transform: "rotate(-90deg)",
+        }}
+      />
+    </svg>
+  );
+};

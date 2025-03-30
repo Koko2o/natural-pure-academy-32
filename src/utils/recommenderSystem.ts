@@ -780,7 +780,16 @@ export function getAIModelStatus() {
 
 // Placeholder functions -  replace with actual implementations
 const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
-  interestAreas: ['Stress', 'Sommeil'],
+  interestAreas: ['Stress', 'Sommeil', 'Énergie', 'Cognition'],
+  attentionPatterns: {
+    highInterestTopics: ['stress_reduction', 'sleep_improvement'],
+    lowInterestTopics: ['general_health']
+  },
+  engagementScore: 87,
+  confidenceInResponse: 92,
+  decisionSpeed: 'moderate',
+  hesitationPoints: ['anxiety_question', 'medication_question']
+});meil'],
   uncertaintyLevel: 0.5,
   attentionLevel: 0.7
 });
