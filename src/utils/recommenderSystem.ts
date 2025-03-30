@@ -742,18 +742,18 @@ export function getAIModelStatus() {
         improvements.push(`Affinement des corrélations symptômes-suppléments (${Object.keys(patternCorrelations.symptomCorrelations).length} motifs)`);
       }
     }
-    
+
     // Ajouter des indicateurs de performance du système
     const avgUserSatisfaction = Object.values(recommendationPerformance)
       .filter(data => data.totalRatings > 0)
       .reduce((sum, data) => sum + data.averageRating, 0) / 
       Object.values(recommendationPerformance).filter(data => data.totalRatings > 0).length;
-    
+
     if (!isNaN(avgUserSatisfaction)) {
       const satisfactionPercentage = Math.round((avgUserSatisfaction / 5) * 100);
       improvements.push(`Taux de satisfaction utilisateur global de ${satisfactionPercentage}%`);
     }
-    
+
     if (Object.keys(patternCorrelations.ageCorrelations).length > 0) {
       improvements.push(`Corrélations d'âge identifiées (${Object.keys(patternCorrelations.ageCorrelations).length} segments)`);
       }
