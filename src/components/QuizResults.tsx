@@ -331,7 +331,4 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses, userName }) => {
   );
 };
 
-export default QuizResults;e.getItem(key);
-    return value ? JSON.parse(value) : null;
-  }
-};
+export default QuizResults;
