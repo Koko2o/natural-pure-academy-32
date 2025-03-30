@@ -5,37 +5,17 @@
 
 const secureStorage = {
   setItem: (key: string, value: any) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error('Error saving to secure storage:', error);
-    }
+    localStorage.setItem(key, JSON.stringify(value));
   },
-
-  getItem: (key: string, defaultValue: any = null) => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch (error) {
-      console.error('Error retrieving from secure storage:', error);
-      return defaultValue;
-    }
+  getItem: (key: string) => {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
   },
-
   removeItem: (key: string) => {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error('Error removing from secure storage:', error);
-    }
+    localStorage.removeItem(key);
   },
-
   clear: () => {
-    try {
-      localStorage.clear();
-    } catch (error) {
-      console.error('Error clearing secure storage:', error);
-    }
+    localStorage.clear();
   }
 };
 

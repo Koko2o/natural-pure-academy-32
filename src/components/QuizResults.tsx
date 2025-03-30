@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, Download, Share2, Heart, Award, Star, Users } from 'lucide-react';
+import { ChevronRight, Download, Share2, Heart, Award, Star, User } from 'lucide-react';
 import { QuizResponse } from '@/components/quiz/types';
 //import { getRecommendations } from '@/utils/recommenderSystem';  //Removed because it's not defined
 import secureStorage from '@/utils/secureStorage';
@@ -331,11 +331,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses, userName }) => {
   );
 };
 
-export default QuizResults;
-
-// Using imported secureStorage from utils
-  getItem: (key: string) => {
-    const value = localStorage.getItem(key);
+export default QuizResults;e.getItem(key);
     return value ? JSON.parse(value) : null;
   }
 };
