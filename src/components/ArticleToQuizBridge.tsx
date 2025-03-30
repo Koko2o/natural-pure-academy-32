@@ -176,3 +176,173 @@ const ArticleToQuizBridge: React.FC<ArticleToQuizBridgeProps> = ({
 };
 
 export default ArticleToQuizBridge;
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CheckCircle, Target, MessageCircle, Users } from 'lucide-react';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { ScientificHighlightedText } from './ui/ScientificHighlightedText';
+import { useArticleEngagement } from '@/hooks/useArticleEngagement';
+
+interface ArticleToQuizBridgeProps {
+  articleId: string;
+  articleTitle: string;
+  problemCategory: string;
+  onQuizStart?: () => void;
+}
+
+const ArticleToQuizBridge: React.FC<ArticleToQuizBridgeProps> = ({
+  articleId,
+  articleTitle,
+  problemCategory,
+  onQuizStart
+}) => {
+  const [showFullBridge, setShowFullBridge] = useState(false);
+  const [activePoint, setActivePoint] = useState(0);
+  const { engagementLevel, readingProgression } = useArticleEngagement();
+
+  // Points de conversion adaptés au contexte de l'article
+  const conversionPoints = [
+    "Découvrez les nutriments qui vous manquent réellement",
+    "Obtenez une analyse basée sur les dernières recherches scientifiques",
+    "Rejoignez les 963 personnes qui ont déjà identifié leurs besoins nutritionnels"
+  ];
+
+  // Afficher le bridge complet après un certain niveau d'engagement
+  useEffect(() => {
+    if (readingProgression > 70) {
+      setShowFullBridge(true);
+    }
+  }, [readingProgression]);
+
+  // Rotation automatique des points de conversion
+  useEffect(() => {
+    if (showFullBridge) {
+      const interval = setInterval(() => {
+        setActivePoint(prev => (prev + 1) % conversionPoints.length);
+      }, 4000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [showFullBridge, conversionPoints.length]);
+
+  // Personnalisation du texte en fonction de la catégorie du problème
+  const getPersonalizedHeading = () => {
+    switch (problemCategory.toLowerCase()) {
+      case 'stress':
+        return "Évaluez votre niveau de stress et découvrez des solutions naturelles";
+      case 'sommeil':
+        return "Analysez vos troubles du sommeil et trouvez des remèdes adaptés";
+      case 'digestion':
+        return "Identifiez les causes de vos problèmes digestifs avec notre quiz scientifique";
+      default:
+        return "Obtenez une analyse personnalisée de vos besoins nutritionnels";
+    }
+  };
+
+  const handleQuizClick = () => {
+    if (onQuizStart) onQuizStart();
+  };
+
+  return (
+    <AnimatePresence>
+      {/* Version minimale toujours visible */}
+      <motion.div 
+        className="sticky bottom-0 left-0 right-0 z-10 p-4 pointer-events-none"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.6 }}
+      >
+        {!showFullBridge ? (
+          <motion.div
+            className="pointer-events-auto"
+            exit={{ opacity: 0, y: 100 }}
+          >
+            <Button 
+              onClick={() => setShowFullBridge(true)}
+              className="w-full md:w-auto md:ml-auto md:flex bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 px-6 rounded-xl shadow-lg group"
+              size="lg"
+            >
+              <span className="text-base">Testez vos besoins nutritionnels</span>
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="pointer-events-auto"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          >
+            <Card className="w-full bg-white dark:bg-gray-900 shadow-xl border-0 p-6 rounded-xl overflow-hidden">
+              <div className="relative">
+                {/* Effet de laboratoire */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-100 rounded-full opacity-20 blur-2xl"></div>
+                <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-green-100 rounded-full opacity-20 blur-xl"></div>
+              
+                <div className="relative z-10">
+                  <h3 className="text-xl font-bold mb-4">{getPersonalizedHeading()}</h3>
+                  
+                  <div className="mb-6">
+                    <div className="h-12 relative">
+                      {conversionPoints.map((point, index) => (
+                        <motion.div
+                          key={index}
+                          className="absolute inset-0 flex items-center"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ 
+                            opacity: activePoint === index ? 1 : 0,
+                            y: activePoint === index ? 0 : 10
+                          }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              <ScientificHighlightedText text={point} />
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 items-center">
+                    <Button 
+                      onClick={handleQuizClick}
+                      asChild
+                      className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 group"
+                      size="lg"
+                    >
+                      <Link to="/quiz">
+                        <span className="text-base">Démarrer mon test gratuit</span>
+                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setShowFullBridge(false)}
+                      className="text-xs text-muted-foreground"
+                    >
+                      Réduire
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">963 personnes ont réalisé le test cette semaine</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+export default ArticleToQuizBridge;

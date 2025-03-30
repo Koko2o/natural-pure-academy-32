@@ -1,145 +1,139 @@
 
-import { useState, useEffect } from 'react';
-import { AdvancedRecommenderSystem } from '@/utils/recommenderSystem';
-import { BehavioralMetrics, Recommendation, QuizResponse, NeuroProfile } from '@/utils/types';
+import { useState, useEffect, useCallback } from 'react';
+import { QuizResponse, BehavioralMetrics, Recommendation, NeuroProfile } from '@/utils/types';
+import { generateRecommendations, generateRecommendationExplanation } from '@/utils/recommenderSystem';
 
-/**
- * Hook pour générer des recommandations avancées basées sur l'IA
- * Analyse le comportement de l'utilisateur et ses réponses au quiz
- */
-export const useAdvancedRecommendations = (
-  quizResponses: QuizResponse,
-  behavioralMetrics: BehavioralMetrics
-) => {
+interface UseAdvancedRecommendationsProps {
+  quizResponses: QuizResponse;
+  behavioralMetrics: BehavioralMetrics;
+  neuroProfile: NeuroProfile;
+}
+
+interface UseAdvancedRecommendationsResult {
+  recommendations: Recommendation[];
+  explanation: string;
+  isLoading: boolean;
+  isPrioritized: boolean;
+  recalculateRecommendations: () => void;
+  prioritizeByMetric: (metric: 'scientific' | 'popular' | 'quickEffect') => void;
+}
+
+export function useAdvancedRecommendations({
+  quizResponses,
+  behavioralMetrics,
+  neuroProfile
+}: UseAdvancedRecommendationsProps): UseAdvancedRecommendationsResult {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
-  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
-  const [neuroProfile, setNeuroProfile] = useState<NeuroProfile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [explanation, setExplanation] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isPrioritized, setIsPrioritized] = useState<boolean>(false);
+  const [priorityMetric, setPriorityMetric] = useState<'scientific' | 'popular' | 'quickEffect' | null>(null);
 
-  useEffect(() => {
-    // Créer une instance du système de recommandation
-    const recommenderSystem = new AdvancedRecommenderSystem();
-    
-    // Simuler un temps de traitement pour améliorer l'expérience utilisateur
-    // Les utilisateurs ont tendance à faire davantage confiance aux systèmes
-    // qui semblent effectuer une analyse approfondie
-    const processInterval = setInterval(() => {
-      setAnalysisProgress(prev => {
-        // Progression plus lente au milieu pour créer une impression de traitement complexe
-        let increment = 0;
-        if (prev < 30) increment = Math.floor(Math.random() * 5) + 3; // Plus rapide au début
-        else if (prev < 70) increment = Math.floor(Math.random() * 3) + 1; // Plus lent au milieu
-        else increment = Math.floor(Math.random() * 4) + 2; // Moyenne à la fin
-        
-        const newProgress = prev + increment;
-        return newProgress >= 100 ? 100 : newProgress;
-      });
-    }, 180);
-    
-    // Utiliser un délai pour rendre l'analyse plus crédible
-    const processingTimeout = setTimeout(() => {
+  // Fonction pour calculer les recommandations
+  const calculateRecommendations = useCallback(() => {
+    setIsLoading(true);
+
+    // Simuler un délai pour l'effet d'analyse
+    setTimeout(() => {
       try {
-        // Générer le profil neurologique
-        const profile = recommenderSystem.analyzeUserBehavior(behavioralMetrics);
-        setNeuroProfile(profile);
-        
-        // Générer les recommandations personnalisées
-        const personalizedRecommendations = recommenderSystem.getRecommendations(
+        // Générer les recommandations de base
+        let generatedRecommendations = generateRecommendations(
+          quizResponses,
           behavioralMetrics,
+          neuroProfile
+        );
+
+        // Appliquer la priorisation si nécessaire
+        if (priorityMetric) {
+          generatedRecommendations = sortRecommendations(generatedRecommendations, priorityMetric);
+        }
+
+        // Générer l'explication
+        const generatedExplanation = generateRecommendationExplanation(
+          generatedRecommendations,
           quizResponses
         );
+
+        setRecommendations(generatedRecommendations);
+        setExplanation(generatedExplanation);
+        setIsPrioritized(!!priorityMetric);
+      } catch (error) {
+        console.error('Erreur lors du calcul des recommandations:', error);
         
-        // Mettre à jour l'état avec les recommandations
-        setRecommendations(personalizedRecommendations);
-        
-        // Arrêter l'intervalle de progression et indiquer que le traitement est terminé
-        clearInterval(processInterval);
-        setAnalysisProgress(100);
-        setIsProcessing(false);
-      } catch (err) {
-        console.error("Erreur lors de la génération des recommandations:", err);
-        setError("Une erreur est survenue lors de l'analyse. Veuillez réessayer.");
-        
-        // Recommandations par défaut en cas d'échec
+        // Recommandations par défaut en cas d'erreur
         setRecommendations([
           {
-            title: "Complexe Multivitamines Scientifique",
-            description: "Formulation complète basée sur les dernières découvertes en micronutrition",
-            confidence: 0.82,
+            title: 'Complexe Nutritionnel Standard',
+            description: 'Formule équilibrée pour les besoins quotidiens',
+            confidence: 0.65,
             benefits: [
-              "Support nutritionnel complet",
-              "Optimisation des fonctions cellulaires",
-              "Vitalité quotidienne"
+              'Soutien nutritionnel général',
+              'Équilibre des vitamines et minéraux essentiels'
             ],
-            timeToEffect: "2-4 semaines",
-            popularity: 87,
-            url: "/labo/multivitamines"
-          },
-          {
-            title: "Support Anti-Stress Naturel",
-            description: "Complexe adaptogène naturel pour équilibrer les hormones du stress",
-            confidence: 0.78,
-            benefits: [
-              "Réduction des niveaux de cortisol",
-              "Amélioration de la résilience au stress",
-              "Meilleure qualité de sommeil"
-            ],
-            timeToEffect: "1-3 semaines",
-            popularity: 92,
-            url: "/labo/anti-stress"
+            timeToEffect: '3-4 semaines',
+            popularity: 60
           }
         ]);
         
-        // Terminer le traitement
-        clearInterval(processInterval);
-        setAnalysisProgress(100);
-        setIsProcessing(false);
+        setExplanation("Nous avons préparé une recommandation générale basée sur les informations disponibles. Pour des conseils plus précis, n'hésitez pas à consulter un professionnel de santé.");
+      } finally {
+        setIsLoading(false);
       }
-    }, 3200); // Délai de 3.2 secondes pour l'analyse
-    
-    // Nettoyage lors du démontage du composant
-    return () => {
-      clearInterval(processInterval);
-      clearTimeout(processingTimeout);
-    };
-  }, [quizResponses, behavioralMetrics]);
+    }, 1500); // Délai artificiel pour donner l'impression d'analyse approfondie
+  }, [quizResponses, behavioralMetrics, neuroProfile, priorityMetric]);
 
-  // Extraire des informations à partir du profil pour la visualisation
-  const extractInsights = () => {
-    if (!neuroProfile) return {};
-    
-    return {
-      // Classification du niveau de stress
-      stressCategory: 
-        neuroProfile.stressIndex < 30 ? "Faible" :
-        neuroProfile.stressIndex < 60 ? "Modéré" : "Élevé",
+  // Trier les recommandations selon un critère spécifique
+  const sortRecommendations = (recs: Recommendation[], metric: 'scientific' | 'popular' | 'quickEffect'): Recommendation[] => {
+    switch (metric) {
+      case 'scientific':
+        return [...recs].sort((a, b) => b.confidence - a.confidence);
       
-      // Qualité de la prise de décision
-      decisionQuality:
-        neuroProfile.decisionConfidence > 80 ? "Excellente" :
-        neuroProfile.decisionConfidence > 60 ? "Bonne" : "Variable",
+      case 'popular':
+        return [...recs].sort((a, b) => b.popularity - a.popularity);
       
-      // Niveau d'attention
-      attentionLevel:
-        neuroProfile.attentionScore > 80 ? "Focalisée" :
-        neuroProfile.attentionScore > 60 ? "Adéquate" : "Distraite",
+      case 'quickEffect':
+        // Convertir les plages de temps en nombres approximatifs de semaines pour le tri
+        const getWeeks = (timeToEffect: string): number => {
+          const match = timeToEffect.match(/(\d+)-(\d+)\s+(semaines?|jours?|mois)/i);
+          if (!match) return 4; // Valeur par défaut
+          
+          const [_, min, max, unit] = match;
+          const avgTime = (parseInt(min) + parseInt(max)) / 2;
+          
+          if (unit.startsWith('jour')) return avgTime / 7;
+          if (unit.startsWith('mois')) return avgTime * 4;
+          return avgTime; // semaines
+        };
+        
+        return [...recs].sort((a, b) => getWeeks(a.timeToEffect) - getWeeks(b.timeToEffect));
       
-      // Cohérence des réponses
-      consistencyLevel:
-        neuroProfile.consistencyIndex > 80 ? "Très cohérent" :
-        neuroProfile.consistencyIndex > 60 ? "Cohérent" : "Variable"
-    };
+      default:
+        return recs;
+    }
   };
+
+  // Fonction pour recalculer les recommandations
+  const recalculateRecommendations = useCallback(() => {
+    calculateRecommendations();
+  }, [calculateRecommendations]);
+
+  // Fonction pour prioriser par métrique
+  const prioritizeByMetric = useCallback((metric: 'scientific' | 'popular' | 'quickEffect') => {
+    setPriorityMetric(metric);
+    // Le recalcul sera déclenché par l'effet ci-dessous
+  }, []);
+
+  // Calculer les recommandations initiales au montage ou lors des changements de dépendances
+  useEffect(() => {
+    calculateRecommendations();
+  }, [calculateRecommendations]);
 
   return {
     recommendations,
-    isProcessing,
-    analysisProgress,
-    neuroProfile,
-    insights: neuroProfile ? extractInsights() : null,
-    error
+    explanation,
+    isLoading,
+    isPrioritized,
+    recalculateRecommendations,
+    prioritizeByMetric
   };
-};
-
-export default useAdvancedRecommendations;
+}

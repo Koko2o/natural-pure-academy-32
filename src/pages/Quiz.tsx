@@ -1,461 +1,492 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import { toast } from "sonner";
-import { Beaker, ChevronRight, Award, Microscope, Users, Brain } from "lucide-react";
+import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Sparkles, CheckCircle, Star, BarChart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { QuizResponse } from "@/components/quiz/types";
+import { QuizResponse } from "@/utils/types";
 import LabEffects from "@/components/quiz/LabEffects";
 import { secureStorage } from "@/utils/complianceFilter";
 import GDPRCompliance from "@/components/GDPRCompliance";
 import UrgencyCountdown from "@/components/quiz/UrgencyCountdown";
 import DynamicSocialProof from "@/components/quiz/DynamicSocialProof";
 import { collectPersonalizationFactors, getPersonalizedMessage } from "@/utils/dynamicPersonalization";
+import SocialProofIndicator from "@/components/quiz/SocialProofIndicator";
+import { motion, AnimatePresence } from "framer-motion";
+import { useBehavioralMetrics } from "@/hooks/useBehavioralMetrics";
+import QuizResults from "@/components/QuizResults";
+import { ScientificHighlightedText } from "@/components/ui/ScientificHighlightedText";
+import { useAdvancedRecommendations } from "@/hooks/useAdvancedRecommendations";
 
-// Placeholder for behavioral metrics hook (replace with actual implementation)
-const useBehavioralMetrics = () => ({
-  metrics: {
-    responseTime: [],
-    questionOrder: [],
-    // Add other behavioral metrics as needed
-  },
-  resetMetrics: () => {
-    //Implementation to reset metrics
-  }
-});
-
-type BehavioralMetrics = ReturnType<typeof useBehavioralMetrics>['metrics'];
-
+/**
+ * Génère un nombre stable de participants basé sur la date actuelle
+ * (augmente progressivement pour créer un effet de popularité croissante)
+ */
+function getStableParticipantNumber(): number {
+  const now = new Date();
+  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+  const baseNumber = 900; // Nombre de base
+  const dailyIncrease = 3; // Augmentation journalière
+  
+  return baseNumber + (dayOfYear * dailyIncrease);
+}
 
 const Quiz = () => {
-  const [step, setStep] = useState<'intro' | 'quiz' | 'results'>('intro');
-  const [quizResponses, setQuizResponses] = useState<QuizResponse>({
-    name: '',
-    email: '',
-    objectives: [],
-    dietaryHabits: '',
-    meatConsumption: '',
-    fishConsumption: '',
-    fruitVegConsumption: '',
-    exerciseFrequency: '',
-    sleepQuality: '',
-    stressLevel: '',
-    symptoms: []
-  });
-  const [showMolecules, setShowMolecules] = useState(false);
-  const [userLocation, setUserLocation] = useState<string>('');
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [responses, setResponses] = useState<QuizResponse>({});
+  const [userLocation, setUserLocation] = useState<string>("");
   const [personalizationFactors, setPersonalizationFactors] = useState<any>(null);
-  const [welcomeMessage, setWelcomeMessage] = useState<string>('');
-  const { metrics: behavioralData, resetMetrics } = useBehavioralMetrics(); // Integrate behavioral metrics
+  const [showIntroAnimation, setShowIntroAnimation] = useState(true);
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const introDone = useRef(false);
+  
+  // Métriques comportementales avec le hook personnalisé
+  const { 
+    metrics: behavioralData, 
+    startQuestionTracking,
+    trackAnswer,
+    trackHover,
+    trackFocus,
+    resetMetrics 
+  } = useBehavioralMetrics();
 
-  // Récupérer les facteurs de personnalisation
+  // Préparation des recommandations avancées
+  const {
+    recommendations,
+    explanation,
+    isLoading: recommendationsLoading,
+    isPrioritized,
+    recalculateRecommendations,
+    prioritizeByMetric
+  } = useAdvancedRecommendations({
+    quizResponses: responses,
+    behavioralMetrics: behavioralData,
+    neuroProfile: {
+      stressIndex: 68,
+      decisionConfidence: 73,
+      attentionScore: 81,
+      consistencyIndex: 85
+    }
+  });
+
+  // Détecter la localisation approximative (simulée pour l'exemple)
   useEffect(() => {
-    const fetchPersonalizationData = async () => {
-      const factors = await collectPersonalizationFactors();
-      setPersonalizationFactors(factors);
-
-      // Stocker la localisation pour utilisation dans les composants enfants
-      if (factors.geo) {
-        setUserLocation(factors.geo);
-      }
-
-      // Générer le message de bienvenue personnalisé
-      const message = getPersonalizedMessage(factors, 'welcome');
-      setWelcomeMessage(message);
-    };
-
-    fetchPersonalizationData();
+    const cities = ["Paris", "Lyon", "Marseille", "Bordeaux", "Lille", "Strasbourg", "Nantes", "Toulouse"];
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    setUserLocation(randomCity);
+    
+    // Collecte des facteurs de personnalisation
+    const factors = collectPersonalizationFactors();
+    setPersonalizationFactors(factors);
+    
+    // Marquer la page comme chargée après un court délai pour l'animation
+    setTimeout(() => {
+      setPageLoaded(true);
+    }, 500);
+    
+    // Terminer l'animation d'introduction après un délai
+    setTimeout(() => {
+      setShowIntroAnimation(false);
+      introDone.current = true;
+    }, 3500);
   }, []);
-
-  // Utilisation du stockage sécurisé pour le suivi de progression
-  useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        const savedProgress = await secureStorage.get<{
-          step?: 'intro' | 'quiz' | 'results';
-          responses?: QuizResponse;
-        }>('quiz_progress', {});
-
-        if (savedProgress.step) {
-          setStep(savedProgress.step);
-          if (savedProgress.responses) {
-            setQuizResponses(savedProgress.responses);
-          }
-          if (savedProgress.step !== 'intro') {
-            setShowMolecules(true);
-          }
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement de la progression:", error);
-        // Utiliser la version synchrone comme fallback
-        const fallbackProgress = secureStorage.getSync<{
-          step?: 'intro' | 'quiz' | 'results';
-          responses?: QuizResponse;
-        }>('quiz_progress', {});
-
-        if (fallbackProgress.step) {
-          setStep(fallbackProgress.step);
-          if (fallbackProgress.responses) {
-            setQuizResponses(fallbackProgress.responses);
-          }
-          if (fallbackProgress.step !== 'intro') {
-            setShowMolecules(true);
-          }
-        }
-      }
-    };
-
-    loadProgress();
-  }, []);
-
-  // Sauvegarder la progression à chaque changement d'étape
-  useEffect(() => {
-    const saveProgress = async () => {
-      try {
-        await secureStorage.set('quiz_progress', {
-          step,
-          responses: quizResponses
-        });
-
-        // Mettre à jour les facteurs de personnalisation lorsque les réponses au quiz changent
-        if (quizResponses.symptoms.length > 0 || quizResponses.objectives.length > 0) {
-          const factors = await collectPersonalizationFactors({
-            symptoms: quizResponses.symptoms,
-            objectives: quizResponses.objectives,
-            progress: step === 'intro' ? 0 : step === 'quiz' ? 0.5 : 1
-          });
-          setPersonalizationFactors(factors);
-        }
-      } catch (error) {
-        console.error("Erreur lors de la sauvegarde de la progression:", error);
-        // Utiliser la version synchrone comme fallback
-        secureStorage.setSync('quiz_progress', {
-          step,
-          responses: quizResponses
-        });
-      }
-    };
-
-    saveProgress();
-  }, [step, quizResponses]);
 
   const startQuiz = () => {
-    setStep('quiz');
-    setShowMolecules(true);
-    toast.success("Préparation de votre profil nutritionnel...");
-  };
-
-  const handleQuizComplete = (responses: QuizResponse) => {
-    setQuizResponses(responses);
-    setStep('results');
-    toast.success("Analyse complétée ! Voici vos recommandations personnalisées");
-  };
-
-  const handleUserInfoUpdate = (info: {name: string, email: string}) => {
-    setQuizResponses(prev => ({
-      ...prev,
-      name: info.name,
-      email: info.email
-    }));
-  };
-
-  const handleRestartQuiz = async () => {
-    resetMetrics(); // Reset metrics on restart
-    setStep('intro');
-    setShowMolecules(false);
-    setQuizResponses({
-      name: '',
-      email: '',
-      objectives: [],
-      dietaryHabits: '',
-      meatConsumption: '',
-      fishConsumption: '',
-      fruitVegConsumption: '',
-      exerciseFrequency: '',
-      sleepQuality: '',
-      stressLevel: '',
-      symptoms: []
+    setQuizStarted(true);
+    resetMetrics(); // Réinitialiser les métriques comportementales
+    
+    // Enregistrer le début du quiz
+    secureStorage.setItem('quizStartTime', Date.now().toString());
+    
+    // Notification de début de quiz
+    toast.success("Analyse nutritionnelle initiée", {
+      description: "Notre système analyse vos réponses en temps réel",
+      icon: <Beaker className="h-5 w-5" />
     });
-    // Effacer les données du quiz pour la conformité
-    await secureStorage.remove('quiz_progress');
   };
 
-  const getStableParticipantNumber = () => {
-    const date = new Date();
-    const dayOfMonth = date.getDate();
-    return 1234 + ((dayOfMonth * 7) % 100);
+  const handleQuizComplete = (finalResponses: QuizResponse) => {
+    setResponses(finalResponses);
+    setQuizCompleted(true);
+    
+    // Calcul du temps total passé dans le quiz
+    const startTime = parseInt(secureStorage.getItem('quizStartTime') || '0');
+    const totalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    
+    // Enregistrement des statistiques anonymisées
+    secureStorage.setItem('quizCompletionStats', JSON.stringify({
+      timeToComplete: totalTime,
+      questionsChanged: behavioralData.changedAnswers.length,
+      date: new Date().toISOString()
+    }));
+    
+    // Notification de complétion
+    toast.success("Analyse complétée avec succès", {
+      description: "Vos recommandations personnalisées sont prêtes",
+      icon: <CheckCircle className="h-5 w-5" />
+    });
+  };
+
+  const handleUserInfoUpdate = (info: any) => {
+    console.log("Mise à jour des informations utilisateur:", info);
+    // Vous pouvez mettre à jour les facteurs de personnalisation ici si nécessaire
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-slate-50 relative">
-      <LabEffects active={showMolecules} />
-
-      {/* Bannière de consentement GDPR */}
-      <GDPRCompliance 
-        services={['basic_analytics', 'heatmaps']}
-        lang="fr"
-        policyLink="/politique-confidentialite"
-      />
-
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        {step === 'intro' && (
-          <div className="text-center mb-10">
-            <div className="flex flex-wrap gap-3 justify-center mb-8" role="list" aria-label="Badges de certification et statistiques">
-              <Badge variant="indigo" className="flex items-center gap-1" role="listitem">
-                <Beaker className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Laboratoire Indépendant</span>
-              </Badge>
-              <Badge variant="pill" className="flex items-center gap-1" role="listitem">
-                <Microscope className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Étude 16 semaines</span>
-              </Badge>
-              <Badge variant="pill" className="flex items-center gap-1" role="listitem">
-                <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>243 participants</span>
-              </Badge>
-              <Badge variant="active" className="flex items-center gap-1" role="listitem">
-                <Award className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>72% de réduction des symptômes</span>
-              </Badge>
-              <Badge variant="pill" className="flex items-center gap-1" role="listitem">
-                <Brain className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Analyse Neuropsychologique</span>
-              </Badge>
+    <div className="min-h-screen bg-white">
+      <AnimatePresence>
+        {/* Animation d'introduction scientifique */}
+        {showIntroAnimation && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-white z-50"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="text-center space-y-6">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-20 h-20 mx-auto"
+              >
+                <Beaker className="w-full h-full text-blue-600" />
+              </motion.div>
+              
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <h1 className="text-2xl font-bold">Laboratoire de Nutrition</h1>
+                <p className="text-gray-600 mt-2">Analyse scientifique en cours d'initialisation...</p>
+              </motion.div>
+              
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ delay: 0.8, duration: 2 }}
+                className="h-1 bg-gradient-to-r from-blue-500 to-green-500 rounded-full max-w-md mx-auto"
+              />
             </div>
-
-            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-full mb-6" aria-hidden="true">
-              <FlaskIcon className="h-8 w-8 text-indigo-600" />
-            </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-700 to-blue-600 bg-clip-text text-transparent">
-              Votre Profil Nutritionnel Personnalisé
-            </h1>
-            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              {welcomeMessage || "Basé sur les dernières recherches scientifiques en nutrition"}
-            </p>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {step === 'intro' && (
-          <div className="relative bg-white rounded-xl shadow-lg p-8 md:p-10 max-w-3xl mx-auto overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/30 to-blue-100/30 rounded-full blur-2xl" aria-hidden="true"></div>
-            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-2xl" aria-hidden="true"></div>
+      <motion.div
+        className="relative overflow-hidden bg-gradient-to-br from-natural-100 via-natural-50 to-white rounded-xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: pageLoaded ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Effet de laboratoire en arrière-plan */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <LabEffects intensity={0.5} />
+        </div>
 
-            <h2 className="text-2xl font-semibold mb-4 text-indigo-900">Découvrez les compléments dont vous avez besoin</h2>
-            <p className="text-muted-foreground mb-8">
-              Répondez à notre questionnaire de 5 minutes et obtenez des recommandations personnalisées 
-              basées sur votre mode de vie, votre alimentation et vos objectifs de santé.
+        <div className="relative container mx-auto px-4 py-8 md:py-10">
+          <div className="max-w-2xl mx-auto text-center space-y-3">
+            <Badge variant="outline" className="bg-white/80 backdrop-blur-sm px-3 py-1 text-xs font-medium">
+              Laboratoire Indépendant
+            </Badge>
+            
+            <p className="text-xs text-natural-500 mb-4">
+              Contenu éducatif et scientifique uniquement - Aucune vente de produit
             </p>
-
-            <div className="grid gap-6 mb-10" role="list" aria-label="Avantages de notre quiz">
-              <div className="flex items-start gap-4" role="listitem">
-                <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
-                  <Microscope className="h-5 w-5 text-indigo-700" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg text-indigo-900">Basé sur la science</h3>
-                  <p className="text-muted-foreground">Nos recommandations s'appuient sur une étude menée auprès de 243 participants</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4" role="listitem">
-                <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
-                  <Brain className="h-5 w-5 text-indigo-700" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg text-indigo-900">Personnalisé pour vous</h3>
-                  <p className="text-muted-foreground">Notre algorithme analyse vos besoins spécifiques que 15% des laboratoires connaissent</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4" role="listitem">
-                <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-700" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2"/><path d="M9 14c-.2-1-.7-1.7-1.5-2"/><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/><path d="M18 5a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5Z"/></svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg text-indigo-900">Gratuit et sans engagement</h3>
-                  <p className="text-muted-foreground">Recevez des conseils sans aucun coût ni obligation d'achat</p>
-                </div>
-              </div>
+            
+            <div className="flex justify-center space-x-4 mb-6">
+              <Button variant="ghost" size="sm" className="text-xs">
+                Données scientifiques
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs">
+                Études exclusives
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs">
+                Recherches avancées
+              </Button>
             </div>
-
-            <Button 
-              size="lg" 
-              className="w-full text-lg py-6 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
-              onClick={startQuiz}
-              aria-label="Commencer mon bilan nutritionnel personnalisé"
-            >
-              <span>Commencer mon bilan</span>
-              <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+            
+            <Button variant="outline" size="sm" className="text-xs">
+              Voir nos études scientifiques
             </Button>
-
-            <p className="text-sm text-center text-muted-foreground mt-6">
-              Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
+            
+            <p className="text-xs text-gray-500 mt-2">
+              Plus de 10,000 personnes consultent déjà nos ressources scientifiques
             </p>
-
-            {/* Urgency countdown */}
-            <div className="mt-8">
-              <UrgencyCountdown 
-                initialMinutes={30}
-                message={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'urgency') : "Dernière session d'analyse disponible aujourd'hui"}
-                variant="featured"
-              />
-            </div>
-
-            {/* Social proof */}
-            <div className="mt-8">
-              <DynamicSocialProof
-                baseText={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'social') : undefined}
-                location={userLocation}
-                variant="detailed"
-              />
-            </div>
           </div>
-        )}
+        </div>
+      </motion.div>
 
-        {step === 'quiz' && (
-          <NutritionalQuiz 
-            onComplete={handleQuizComplete}
-            onUserInfoUpdate={handleUserInfoUpdate}
-          />
-        )}
+      {/* Contenu principal conditionnel (Quiz ou Formulaire d'introduction) */}
+      <div className="container mx-auto px-4 py-8">
+        {!quizStarted ? (
+          /* Page d'introduction du quiz */
+          <motion.div 
+            className="max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: introDone.current ? 1 : 0, y: introDone.current ? 0 : 20 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+                Identifiez vos besoins précis en micronutriments
+              </h1>
+              <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                <ScientificHighlightedText text="Test personnalisé basé sur notre [[research-methodology:méthodologie exclusive]] développée par notre équipe de chercheurs." />
+              </p>
+            </div>
 
-        {step === 'results' && quizResponses && (
-          <div className="px-4 py-8">
-            <QuizResults
-              recommendations={[
-                {
-                  title: 'Complexe Multivitamines Scientifique',
-                  description: 'Formulation complète basée sur les dernières découvertes en micronutrition',
-                  confidence: 0.92,
-                  benefits: [
-                    'Support nutritionnel complet',
-                    'Optimisation des fonctions cellulaires',
-                    'Vitalité quotidienne',
-                    'Amélioration du système immunitaire'
-                  ],
-                  timeToEffect: '2-4 semaines',
-                  popularity: 87,
-                  url: '/labo/multivitamines'
-                },
-                {
-                  title: 'Support Anti-Stress Naturel',
-                  description: 'Complexe adaptogène naturel pour équilibrer les hormones du stress',
-                  confidence: 0.87,
-                  benefits: [
-                    'Réduction des niveaux de cortisol',
-                    'Amélioration de la résilience au stress',
-                    'Meilleure qualité de sommeil',
-                    'Clarté mentale accrue'
-                  ],
-                  timeToEffect: '1-3 semaines',
-                  popularity: 92,
-                  url: '/labo/anti-stress'
-                },
-                {
-                  title: 'Complexe Neuro-Cognitif Avancé',
-                  description: 'Formulation scientifique pour soutenir les fonctions cognitives et la mémoire',
-                  confidence: 0.78,
-                  benefits: [
-                    'Amélioration de la concentration',
-                    'Support de la mémoire à court et long terme',
-                    'Protection neuronale',
-                    'Clarté mentale et vivacité d\'esprit'
-                  ],
-                  timeToEffect: '3-6 semaines',
-                  popularity: 76,
-                  url: '/labo/neuro-cognitif'
-                }
-              ]}
-              quizResponses={responses}
-              behavioralMetrics={behavioralData}
-              neuroProfile={{
-                stressIndex: 68,
-                decisionConfidence: 73,
-                attentionScore: 81,
-                consistencyIndex: 85
-              }}
-              onSaveProfile={() => {
-                // Sauvegarde du profil (simulation)
-                toast.success('Votre profil a été sauvegardé avec succès!');
-              }}
-              onViewArticles={() => {
-                // Navigation vers les articles recommandés
-                toast.info('Découvrez nos articles scientifiques recommandés...');
-                // Redirection vers la page d'articles serait implémentée ici
-              }}
-            />
+            {/* Principaux problèmes de santé */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              <motion.div 
+                className="bg-white rounded-xl p-6 shadow-md border border-gray-100"
+                whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                    <Sparkles className="h-6 w-6 text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Stress et Fatigue</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  <ScientificHighlightedText text="Identifiez les micronutriments qui vous manquent réellement" />
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className="bg-white rounded-xl p-6 shadow-md border border-gray-100"
+                whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <Brain className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Sommeil Perturbé</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  <ScientificHighlightedText text="Découvrez les solutions naturelles validées scientifiquement" />
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className="bg-white rounded-xl p-6 shadow-md border border-gray-100"
+                whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <BarChart className="h-6 w-6 text-green-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Problèmes Digestifs</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  <ScientificHighlightedText text="Révélez les causes profondes validées par notre laboratoire" />
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Bannière d'information */}
+            <div className="bg-blue-50 rounded-xl p-6 md:p-8 mb-10 text-center">
+              <p className="text-gray-700 font-medium mb-3">
+                Basé sur une étude exclusive menée sur 243 participants.
+              </p>
+              <h2 className="text-2xl font-semibold mb-4">
+                <ScientificHighlightedText text="Identifiez vos besoins réels en [[micronutrient-balance:micronutriments]]." />
+              </h2>
+              
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto text-lg py-6 px-8 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
+                onClick={startQuiz}
+                aria-label="Commencer mon bilan nutritionnel personnalisé"
+              >
+                <span>🧪 Démarrer Mon Test Gratuit</span>
+                <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+              </Button>
+              
+              <div className="mt-4">
+                <Button variant="ghost" className="text-sm text-gray-600">
+                  Voir les Études Scientifiques
+                </Button>
+              </div>
+            </div>
+
+            {/* Statistiques et social proof */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-2xl font-bold text-gray-900">{getStableParticipantNumber()}</p>
+                <p className="text-sm text-gray-600">profils analysés</p>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-2xl font-bold text-gray-900">72%</p>
+                <p className="text-sm text-gray-600">d'efficacité prouvée</p>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-2xl font-bold text-gray-900">3</p>
+                <p className="text-sm text-gray-600">universités partenaires</p>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-gray-900 flex items-center justify-center">
+                  <span>Analyses restantes aujourd'hui: </span>
+                  <span className="text-indigo-600 ml-1">83</span>
+                  <span className="text-gray-400">/100</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Badge de validation */}
+            <div className="flex justify-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full">
+                <Award className="h-5 w-5" />
+                <span className="font-medium">Validé Scientifiquement</span>
+              </div>
+            </div>
+
+            {/* Section de problèmes de santé courants */}
+            <div className="mb-16">
+              <h2 className="text-2xl font-bold text-center mb-8">Problèmes de Santé Courants</h2>
+              <p className="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                Nous avons identifié les solutions scientifiques à vos problèmes les plus courants grâce à notre équipe de chercheurs.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-3">Stress Chronique</h3>
+                    <p className="text-gray-600 mb-4">
+                      <ScientificHighlightedText text="La science a identifié les nutriments exacts pour réduire vos [[cortisol-levels:hormones de stress]]" />
+                    </p>
+                    <div className="flex items-center text-green-600 gap-1">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">72% d'efficacité prouvée</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-3">Solution Troubles du Sommeil</h3>
+                    <p className="text-gray-600 mb-4">
+                      <ScientificHighlightedText text="Des composés naturels peuvent améliorer votre sommeil de 71% sans [[side-effects:effets secondaires]]" />
+                    </p>
+                    <div className="flex items-center text-green-600 gap-1">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">85% des participants ont vu des résultats</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA Final */}
+            <div className="text-center">
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto text-lg py-6 px-8 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
+                onClick={startQuiz}
+                aria-label="Commencer mon bilan nutritionnel personnalisé"
+              >
+                <span>Commencer mon bilan</span>
+                <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+              </Button>
+
+              <p className="text-sm text-center text-muted-foreground mt-6">
+                Environ 5 minutes • 100% confidentiel • Utilisé par {getStableParticipantNumber()} membres
+              </p>
+
+              {/* Urgency countdown */}
+              <div className="mt-8">
+                <UrgencyCountdown 
+                  initialMinutes={30}
+                  message={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'urgency') : "Dernière session d'analyse disponible aujourd'hui"}
+                  variant="featured"
+                />
+              </div>
+
+              {/* Social proof */}
+              <div className="mt-8">
+                <SocialProofIndicator
+                  baseText={personalizationFactors ? getPersonalizedMessage(personalizationFactors, 'social') : undefined}
+                  location={userLocation}
+                  variant="detailed"
+                />
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* Quiz ou résultats */
+          <div className="max-w-4xl mx-auto">
+            {!quizCompleted ? (
+              /* Questionnaire nutritionnel */
+              <NutritionalQuiz 
+                onComplete={handleQuizComplete} 
+                onUserInfoUpdate={handleUserInfoUpdate}
+                behavioralTracking={{
+                  startQuestionTracking,
+                  trackAnswer,
+                  trackHover,
+                  trackFocus
+                }}
+              />
+            ) : (
+              /* Résultats du quiz */
+              <QuizResults
+                recommendations={recommendations}
+                quizResponses={responses}
+                behavioralMetrics={behavioralData}
+                neuroProfile={{
+                  stressIndex: 68,
+                  decisionConfidence: 73,
+                  attentionScore: 81,
+                  consistencyIndex: 85
+                }}
+                onSaveProfile={() => {
+                  // Sauvegarde du profil (simulation)
+                  toast.success('Votre profil a été sauvegardé avec succès!');
+                }}
+                onViewArticles={() => {
+                  // Navigation vers les articles recommandés
+                  toast.info('Découvrez nos articles scientifiques recommandés...');
+                  // Redirection vers la page d'articles serait implémentée ici
+                }}
+              />
+            )}
           </div>
         )}
       </div>
 
-      {/* Styles pour l'animation pulse-glow */}
-      <style>
-      {`
-        @keyframes pulse-glow {
-          0% { transform: scale(1); filter: brightness(1); }
-          50% { transform: scale(1.02); filter: brightness(1.1); }
-          100% { transform: scale(1); filter: brightness(1); }
-        }
+      {/* Pied de page avec informations légales */}
+      <div className="bg-gray-50 py-8 mt-12">
+        <div className="container mx-auto px-4 text-center text-xs text-gray-500">
+          <p className="mb-2">
+            Les informations fournies sont à titre éducatif et ne remplacent pas un avis médical professionnel.
+            Ce site ne commercialise aucun produit.
+          </p>
+          <div className="flex justify-center space-x-4 mt-2">
+            <Button variant="link" size="sm" className="text-xs text-gray-500">
+              Mentions légales
+            </Button>
+            <Button variant="link" size="sm" className="text-xs text-gray-500">
+              Politique de confidentialité
+            </Button>
+            <Button variant="link" size="sm" className="text-xs text-gray-500">
+              Contact
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        .quiz-cta {
-          animation: pulse-glow 2s infinite ease-in-out;
-          box-shadow: 0 4px 14px rgba(89, 86, 213, 0.3);
-          transition: all 0.3s ease;
-        }
-
-        .quiz-cta:hover {
-          box-shadow: 0 6px 20px rgba(89, 86, 213, 0.4);
-          animation: none;
-        }
-      `}
-      </style>
+      {/* Bannière RGPD */}
+      <GDPRCompliance />
     </div>
   );
 };
-
-const Clock = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="12 6 12 12 16 14"></polyline>
-  </svg>
-);
-
-const FlaskIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <path d="M10 2v7.31"></path>
-    <path d="M14 9.3V2"></path>
-    <path d="M8.5 2h7"></path>
-    <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
-    <path d="M5.52 16h12.96"></path>
-  </svg>
-);
-
-// Added QuizResults component
-const QuizResults = ({ recommendations, onSaveProfile, onViewArticles, quizResponses, behavioralMetrics, neuroProfile }: { recommendations: any[], onSaveProfile: () => void, onViewArticles: () => void, quizResponses: QuizResponse, behavioralMetrics: BehavioralMetrics, neuroProfile: any }) => {
-  return (
-    <div>
-      <h1>Vos Résultats</h1>
-      <h2>Recommandations Personnalisées:</h2>
-      <ul>
-        {recommendations.map((recommendation) => (
-          <li key={recommendation.title} className="mb-4 border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-medium">{recommendation.title}</h3>
-            <p className="text-gray-600">{recommendation.description}</p>
-            <p className="text-gray-500">Confiance: {Math.round(recommendation.confidence * 100)}%</p>
-            <ul className="list-disc list-inside text-gray-700">
-              {recommendation.benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}
-            </ul>
-            <p className="text-gray-600">Temps d'effet estimé: {recommendation.timeToEffect}</p>
-            <p className="text-gray-500">Popularité: {recommendation.popularity}%</p>
-            <a href={recommendation.url} className="text-blue-500 hover:underline">Voir le produit</a>
-          </li>
-        ))}
-      </ul>
-      <Button onClick={onSaveProfile}>Enregistrer mon profil</Button>
-      <Button onClick={onViewArticles}>Voir les articles</Button>
-    </div>
-  );
-};
-
 
 export default Quiz;
