@@ -1,147 +1,95 @@
 /**
- * Types pour le système de quiz et de recommandation
+ * Types pour le système de recommandation et d'IA
  */
 
 export interface QuizResponse {
-  [key: string]: any;
   personal?: {
     name?: string;
+    email?: string;
     age?: string;
     gender?: string;
-    weight?: string;
-    height?: string;
-    email?: string;
   };
-  diet?: {
-    qualityRating?: string;
-    restrictions?: string[];
-    allergies?: string[];
-    supplements?: string[];
-  };
-  lifestyle?: {
-    weeklyActivity?: string;
-    sleepHours?: string;
-    workStyle?: string;
-  };
-  wellbeing?: {
+  healthConcerns?: {
     stressLevel?: string;
-    sleepQuality?: string;
+    sleepIssues?: string;
     energyLevel?: string;
-    moodStability?: string;
+    focusIssues?: string;
+    digestiveIssues?: string;
+    [key: string]: string | undefined;
   };
   goals?: {
-    healthGoals?: string[];
-    timeFrame?: string;
-    priorityLevel?: string;
+    weightLoss?: boolean;
+    increaseEnergy?: boolean;
+    improveFocus?: boolean;
+    improveDigestion?: boolean;
+    reduceStress?: boolean;
+    [key: string]: boolean | undefined;
   };
-  symptoms?: string[];
+  dietaryPreferences?: string[];
+  [key: string]: any;
 }
 
 export interface Recommendation {
-  title: string;
+  id: string;
+  name: string;
   description: string;
-  url?: string;
-  confidence: number;
-  benefits?: string[];
-  timeToEffect: string;
-  popularity?: number;
-  scientificBasis?: string;
-  dosage?: string;
-  optimalUsage?: string;
-  additionalIngredients?: string[];
+  priority: number;
   matchScore?: number;
-  imageUrl?: string;
-  price?: string;
-  brand?: string;
-  ingredients?: string;
-  ratingCount?: number;
-  rating?: number;
+  benefits?: string[];
+  recommendedDose?: string;
+  timeToEffect?: string;
+  scientificBasis?: string;
+  confidence?: number;
+  reason: string;
+  [key: string]: any;
 }
 
 export interface BehavioralMetrics {
-  avgResponseTime: number;
-  questionRevisits: number;
-  focusedQuestions: string[];
-  changedAnswers: number;
-  timeSpentOnPersonalQuestions: number;
-  timeSpentOnHealthQuestions: number;
-  consistencyScore: number;
-  engagementLevel: 'low' | 'medium' | 'high';
-  decisionPattern: 'quick' | 'thoughtful' | 'hesitant';
-  lastActivity: Date;
+  sessionDuration: number;   // Durée de la session de quiz en secondes
+  hesitationCount: number;   // Nombre de fois où l'utilisateur a hésité (changé de réponse)
+  changeCount: number;       // Nombre de modifications de réponses
+  engagementScore: number;   // Score d'engagement calculé
+  [key: string]: number;
 }
 
 export interface NeuroProfile {
-  decisionSpeed: number;        // 0-100, plus élevé = décisions plus rapides
-  consistencyScore: number;     // 0-100, cohérence des réponses
-  detailOrientation: number;    // 0-100, attention aux détails
-  riskAversion: number;         // 0-100, aversion au risque
-  emotionalReactivity?: number; // 0-100, réactivité émotionnelle
-  analyticalTendency?: number;  // 0-100, tendance analytique
-  cognitiveStyle?: 'visual' | 'verbal' | 'kinesthetic' | 'mixed';
+  decisionStyle: 'intuitive' | 'analytical' | 'mixed';
+  riskTolerance: 'conservative' | 'moderate' | 'adventurous';
+  informationProcessing: 'visual' | 'textual' | 'interactive';
+  motivationFactor: 'health' | 'appearance' | 'performance' | 'longevity';
+  [key: string]: string;
 }
 
-export interface NutrientNeed {
-  name: string;              // Nom du nutriment
-  level: number;             // 0-100, intensité du besoin
-  reason: string[];          // Raisons justifiant le besoin
-  deficiencyRisk: number;    // 0-100, risque de carence
-  optimalDosage?: string;    // Dosage optimal recommandé
-  foodSources?: string[];    // Sources alimentaires
-  supplementForms?: string[]; // Formes de suppléments recommandées
-}
-
-export interface UserProfile {
-  id: string;
-  quizResponses: QuizResponse;
-  recommendations: Recommendation[];
-  healthFactors: {
-    stressLevel: number;
-    sleepQuality: number;
-    dietQuality: number;
-    activityLevel: number;
-    healthGoals: string[];
-  };
-  nutrientNeeds: NutrientNeed[];
-  feedbackHistory: Array<{
-    timestamp: string;
-    recommendationId: string;
-    helpful: boolean;
-    purchaseIntent: number;
-    comments?: string;
-  }>;
-  learningProgress: {
-    precision: number;
-    recommendationImprovement: number;
-    lastUpdate: string;
-  };
+export interface UserFeedback {
+  helpful: boolean;
+  relevance: number;         // 1-10
+  purchaseIntent: number;    // 1-10
+  comments?: string;
+  [key: string]: any;
 }
 
 export interface LearningData {
-  timestamp: string;
+  timestamp: number;
   quizData: QuizResponse;
   recommendationId: string;
-  userFeedback: {
-    helpful: boolean;
-    purchaseIntent: number;
-    additionalComments?: string;
-  };
-  sessionInfo: {
-    browser: string;
-    viewport: {
-      width: number;
-      height: number;
-    };
-  };
+  userFeedback: UserFeedback;
+  [key: string]: any;
 }
 
-export interface AIRecommendationModel {
+export interface AIModelState {
   version: string;
-  accuracy: number;
-  lastTraining: string;
+  lastUpdated: number;
   featureImportance: {
-    [key: string]: number;  // Importance de chaque facteur
+    age?: number;
+    gender?: number;
+    stressLevel?: number;
+    sleepIssues?: number;
+    energyLevel?: number;
+    focusIssues?: number;
+    dietaryPreferences?: number;
+    [key: string]: number | undefined;
   };
-  feedbackCount: number;
-  improvementRate: number;
+  clusterCenters?: any[];
+  weights?: any;
+  [key: string]: any;
 }
