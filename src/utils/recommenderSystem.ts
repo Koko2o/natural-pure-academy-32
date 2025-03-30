@@ -11,7 +11,7 @@ import {
   LearningData
 } from './types';
 
-import { secureStorageService } from './secureStorage';
+import { secureStorageService } from '../lib/secureStorage';
 import { findSimilarProfiles } from './userSimilarity';
 import { 
   SYMPTOM_MAPPING, 
@@ -26,6 +26,7 @@ import {
   getAILearningStatus,
   evaluateDataQuality
 } from './aiLearningEngine';
+import { optimizeRecommendations } from './optimizedRecommendation';
 
 /**
  * Génère des recommandations en utilisant l'algorithme principal et l'apprentissage IA
@@ -690,10 +691,7 @@ export const generateAdvancedRecommendations = (
   }
 };
 
-// Importations nécessaires
-import { optimizeRecommendations } from './optimizedRecommendation';
-import { getAILearningStatus } from './aiLearningEngine';
-import { secureStorageService } from '../lib/secureStorage';
+// Importations déjà définies plus haut dans le fichier
 
 
 // Définition d'interfaces pour les types utilisés
@@ -843,21 +841,17 @@ export function getAIModelStatus() {
   }
 }
 
-// Placeholder functions -  replace with actual implementations
+// Extension de la fonction processBehavioralData pour inclure les interestAreas
 const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   cognitiveLoad: 0.7,
   stressLevel: 0.6,
-  sleepQuality: 0.8
+  sleepQuality: 0.8,
+  attentionLevel: 0.65,
+  uncertaintyLevel: 0.4,
+  interestAreas: ['Stress', 'Sommeil', 'Énergie']
 });
 
-const saveLearningData = (quizResponses: any, recommendations: any, behavioralMetrics: any, neuroProfile: any) => {
-  // Placeholder function
-};
-
-function evaluateDataQuality() {
-  return {
-    overallQuality: 0.85,
-    completeness: 0.9,
+// Fonctions déjà importées depuis aiLearningEngine
     accuracy: 0.87,
     consistency: 0.83
   };

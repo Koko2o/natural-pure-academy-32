@@ -16,7 +16,12 @@ import {
 } from './recommenderSystem';
 
 // Fonction d'optimisation des recommandations
-export function optimizeRecommendations(recommendations: Recommendation[], userProfile: UserProfile): Recommendation[] {
+export function optimizeRecommendations(
+  recommendations: Recommendation[], 
+  quizResponses: any,
+  behavioralMetrics?: any,
+  neuroProfile?: any
+): Recommendation[] {
   // Implémentation d'optimisation de base
   return recommendations.sort((a, b) => b.priority - a.priority);
 }
