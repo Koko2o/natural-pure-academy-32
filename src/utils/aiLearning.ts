@@ -249,142 +249,153 @@ const updateAIModelWithFeedback = (
 
 /**
  * Effectue un entraînement complet du modèle AI avec toutes les données disponibles
+ * Cette fonction retourne une promesse qui se résout après l'entraînement
  */
-export const trainAIModel = (): void => {
-  try {
-    console.log("Début de l'entraînement du modèle AI...");
-    
-    // Récupérer toutes les données
-    const learningData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
-    const userFeedback: UserFeedback[] = secureStorageService.getItem('userFeedback') || [];
-    
-    if (learningData.length === 0) {
-      console.log("Pas de données d'apprentissage disponibles");
-      return;
-    }
-    
-    // Réinitialiser le modèle avec les valeurs de base
-    let aiModel: AIModel = { ...initialAIModel };
-    
-    // Pré-remplir les scores de suppléments depuis le catalogue
-    const supplementScores: Record<string, any> = {};
-    Object.keys(SUPPLEMENT_CATALOG).forEach(supplementId => {
-      const supplement = SUPPLEMENT_CATALOG[supplementId];
+export const trainAIModel = async (): Promise<void> => {
+  return new Promise((resolve) => {
+    try {
+      console.log("Début de l'entraînement du modèle AI...");
       
-      supplementScores[supplementId] = {
-        effectivenessScore: supplement.scienceScore * 10,
-        confidenceScore: 0.5,
-        feedbackCount: 0,
-        lastUpdated: new Date().toISOString()
-      };
-    });
-    
-    aiModel.supplementScores = supplementScores;
-    
-    // Analyser les retours utilisateurs pour construire un index d'efficacité
-    const feedbackBySupplementId: Record<string, number[]> = {};
-    
-    userFeedback.forEach(feedback => {
-      if (!feedbackBySupplementId[feedback.recommendationId]) {
-        feedbackBySupplementId[feedback.recommendationId] = [];
+      // Récupérer toutes les données
+      const learningData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+      const userFeedback: UserFeedback[] = secureStorageService.getItem('userFeedback') || [];
+      
+      if (learningData.length === 0) {
+        console.log("Pas de données d'apprentissage disponibles");
+        resolve();
+        return;
       }
       
-      feedbackBySupplementId[feedback.recommendationId].push(feedback.rating);
-    });
-    
-    // Appliquer les retours au modèle
-    Object.entries(feedbackBySupplementId).forEach(([supplementId, ratings]) => {
-      if (ratings.length > 0 && aiModel.supplementScores[supplementId]) {
-        const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-        const ratingNormalized = (avgRating - 3) / 2; // -1 à +1
-        
-        aiModel.supplementScores[supplementId].effectivenessScore = Math.max(10, Math.min(100,
-          aiModel.supplementScores[supplementId].effectivenessScore + (ratingNormalized * 20)
-        ));
-        
-        aiModel.supplementScores[supplementId].confidenceScore = Math.min(0.95,
-          0.5 + (0.05 * Math.min(ratings.length, 10)) // Max +0.5 pour 10 ratings
-        );
-        
-        aiModel.supplementScores[supplementId].feedbackCount = ratings.length;
-      }
-    });
-    
-    // Analyser les profils utilisateurs pour ajuster les poids des symptômes et objectifs
-    const symptomCounts: Record<string, number> = {};
-    const goalCounts: Record<string, number> = {};
-    
-    learningData.forEach(data => {
-      if (data.userProfile && data.userProfile.activeSymptoms) {
-        data.userProfile.activeSymptoms.forEach(symptomId => {
-          symptomCounts[symptomId] = (symptomCounts[symptomId] || 0) + 1;
-        });
-      }
+      // Réinitialiser le modèle avec les valeurs de base
+      let aiModel: AIModel = { ...initialAIModel };
       
-      if (data.userProfile && data.userProfile.activeGoals) {
-        data.userProfile.activeGoals.forEach(goalId => {
-          goalCounts[goalId] = (goalCounts[goalId] || 0) + 1;
-        });
-      }
-    });
-    
-    // Ajuster les poids des symptômes en fonction de leur fréquence
-    const totalSymptomCount = Object.values(symptomCounts).reduce((sum, count) => sum + count, 0) || 1;
-    Object.entries(symptomCounts).forEach(([symptomId, count]) => {
-      // Calculer l'importance relative (fréquence normalisée)
-      const relativeImportance = count / totalSymptomCount;
-      
-      // Ajuster le poids (entre 0.8 et 1.2 en fonction de la fréquence)
-      aiModel.symptomWeights[symptomId] = Math.max(0.8, Math.min(1.2, 
-        1.0 + (relativeImportance - 0.125) * 2 // 0.125 est la fréquence moyenne pour 8 symptômes
-      ));
-    });
-    
-    // Ajuster les poids des objectifs en fonction de leur fréquence
-    const totalGoalCount = Object.values(goalCounts).reduce((sum, count) => sum + count, 0) || 1;
-    Object.entries(goalCounts).forEach(([goalId, count]) => {
-      const relativeImportance = count / totalGoalCount;
-      
-      aiModel.goalWeights[goalId] = Math.max(0.8, Math.min(1.2,
-        1.0 + (relativeImportance - 0.143) * 2 // 0.143 est la fréquence moyenne pour 7 objectifs
-      ));
-    });
-    
-    // Collecter les profils utilisateurs
-    const userProfiles: UserProfile[] = [];
-    learningData.forEach(data => {
-      if (data.userProfile) {
-        // Vérifier si un profil similaire existe déjà
-        const similarProfileExists = userProfiles.some(profile => 
-          calculateProfileSimilarity(profile, data.userProfile) > 0.85
-        );
+      // Pré-remplir les scores de suppléments depuis le catalogue
+      const supplementScores: Record<string, any> = {};
+      Object.keys(SUPPLEMENT_CATALOG).forEach(supplementId => {
+        const supplement = SUPPLEMENT_CATALOG[supplementId];
         
-        if (!similarProfileExists && userProfiles.length < 100) {
-          userProfiles.push({
-            ...data.userProfile,
-            lastUpdated: data.timestamp
+        supplementScores[supplementId] = {
+          effectivenessScore: supplement.scienceScore * 10,
+          confidenceScore: 0.5,
+          feedbackCount: 0,
+          lastUpdated: new Date().toISOString()
+        };
+      });
+      
+      aiModel.supplementScores = supplementScores;
+      
+      // Analyser les retours utilisateurs pour construire un index d'efficacité
+      const feedbackBySupplementId: Record<string, number[]> = {};
+      
+      userFeedback.forEach(feedback => {
+        if (!feedbackBySupplementId[feedback.recommendationId]) {
+          feedbackBySupplementId[feedback.recommendationId] = [];
+        }
+        
+        feedbackBySupplementId[feedback.recommendationId].push(feedback.rating);
+      });
+      
+      // Appliquer les retours au modèle
+      Object.entries(feedbackBySupplementId).forEach(([supplementId, ratings]) => {
+        if (ratings.length > 0 && aiModel.supplementScores[supplementId]) {
+          const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+          const ratingNormalized = (avgRating - 3) / 2; // -1 à +1
+          
+          aiModel.supplementScores[supplementId].effectivenessScore = Math.max(10, Math.min(100,
+            aiModel.supplementScores[supplementId].effectivenessScore + (ratingNormalized * 20)
+          ));
+          
+          aiModel.supplementScores[supplementId].confidenceScore = Math.min(0.95,
+            0.5 + (0.05 * Math.min(ratings.length, 10)) // Max +0.5 pour 10 ratings
+          );
+          
+          aiModel.supplementScores[supplementId].feedbackCount = ratings.length;
+        }
+      });
+      
+      // Analyser les profils utilisateurs pour ajuster les poids des symptômes et objectifs
+      const symptomCounts: Record<string, number> = {};
+      const goalCounts: Record<string, number> = {};
+      
+      learningData.forEach(data => {
+        if (data.userProfile && data.userProfile.activeSymptoms) {
+          data.userProfile.activeSymptoms.forEach(symptomId => {
+            symptomCounts[symptomId] = (symptomCounts[symptomId] || 0) + 1;
           });
         }
-      }
-    });
-    
-    aiModel.userProfiles = userProfiles;
-    aiModel.trainingIterations = learningData.length;
-    aiModel.version = Math.floor(Date.now() / 1000); // Version timestamp
-    
-    // Sauvegarder le modèle entraîné
-    secureStorageService.setItem('aiModel', aiModel);
-    
-    console.log("Entraînement du modèle AI terminé:", {
-      supplements: Object.keys(aiModel.supplementScores).length,
-      profiles: aiModel.userProfiles.length,
-      iterations: aiModel.trainingIterations,
-      version: aiModel.version
-    });
-    
-  } catch (error) {
-    console.error("Erreur lors de l'entraînement du modèle AI:", error);
-  }
+        
+        if (data.userProfile && data.userProfile.activeGoals) {
+          data.userProfile.activeGoals.forEach(goalId => {
+            goalCounts[goalId] = (goalCounts[goalId] || 0) + 1;
+          });
+        }
+      });
+      
+      // Ajuster les poids des symptômes en fonction de leur fréquence
+      const totalSymptomCount = Object.values(symptomCounts).reduce((sum, count) => sum + count, 0) || 1;
+      Object.entries(symptomCounts).forEach(([symptomId, count]) => {
+        // Calculer l'importance relative (fréquence normalisée)
+        const relativeImportance = count / totalSymptomCount;
+        
+        // Ajuster le poids (entre 0.8 et 1.2 en fonction de la fréquence)
+        aiModel.symptomWeights[symptomId] = Math.max(0.8, Math.min(1.2, 
+          1.0 + (relativeImportance - 0.125) * 2 // 0.125 est la fréquence moyenne pour 8 symptômes
+        ));
+      });
+      
+      // Ajuster les poids des objectifs en fonction de leur fréquence
+      const totalGoalCount = Object.values(goalCounts).reduce((sum, count) => sum + count, 0) || 1;
+      Object.entries(goalCounts).forEach(([goalId, count]) => {
+        const relativeImportance = count / totalGoalCount;
+        
+        aiModel.goalWeights[goalId] = Math.max(0.8, Math.min(1.2,
+          1.0 + (relativeImportance - 0.143) * 2 // 0.143 est la fréquence moyenne pour 7 objectifs
+        ));
+      });
+      
+      // Collecter les profils utilisateurs
+      const userProfiles: UserProfile[] = [];
+      learningData.forEach(data => {
+        if (data.userProfile) {
+          // Vérifier si un profil similaire existe déjà
+          const similarProfileExists = userProfiles.some(profile => 
+            calculateProfileSimilarity(profile, data.userProfile) > 0.85
+          );
+          
+          if (!similarProfileExists && userProfiles.length < 100) {
+            userProfiles.push({
+              ...data.userProfile,
+              lastUpdated: data.timestamp
+            });
+          }
+        }
+      });
+      
+      aiModel.userProfiles = userProfiles;
+      aiModel.trainingIterations = learningData.length;
+      aiModel.version = Math.floor(Date.now() / 1000); // Version timestamp
+      
+      // Sauvegarder le modèle entraîné
+      secureStorageService.setItem('aiModel', aiModel);
+      
+      console.log("Entraînement du modèle AI terminé:", {
+        supplements: Object.keys(aiModel.supplementScores).length,
+        profiles: aiModel.userProfiles.length,
+        iterations: aiModel.trainingIterations,
+        version: aiModel.version
+      });
+      
+      // Simuler un processus d'entraînement qui prend du temps
+      setTimeout(() => {
+        console.log('Entraînement du modèle terminé');
+        resolve();
+      }, 6000); // Simule 6 secondes d'entraînement
+      
+    } catch (error) {
+      console.error("Erreur lors de l'entraînement du modèle AI:", error);
+      resolve();
+    }
+  });
 };
 
 /**
@@ -737,14 +748,4 @@ export const getAIModelState = (): AIModelState => {
     };
   }
 };
-// Fonction simulant l'entraînement d'un modèle d'IA
-// Cette fonction retourne une promesse qui se résout après un délai simulant un entraînement
-export const trainAIModel = async (): Promise<void> => {
-  return new Promise((resolve) => {
-    // Simulation d'un processus d'entraînement qui prend du temps
-    setTimeout(() => {
-      console.log('Entraînement du modèle terminé');
-      resolve();
-    }, 6000); // Simule 6 secondes d'entraînement
-  });
-};
+// La fonction trainAIModel est maintenant définie ci-dessus avec la fonctionnalité complète
