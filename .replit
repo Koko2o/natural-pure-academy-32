@@ -25,4 +25,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx kill-port 8080 && npm run dev"
+args = "npx kill-port 3000 && npm run dev -- --port 3000 --host 0.0.0.0"
