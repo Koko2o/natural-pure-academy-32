@@ -17,7 +17,7 @@ import { secureStorageService } from '@/utils/secureStorage';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
-import { trainAIModel } from '../utils/aiLearning';
+import { trainAIModel } from '@/utils/aiLearning';
 
 // Enregistrer les composants Chart.js
 ChartJS.register(

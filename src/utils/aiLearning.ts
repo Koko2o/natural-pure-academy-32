@@ -737,3 +737,14 @@ export const getAIModelState = (): AIModelState => {
     };
   }
 };
+// Fonction simulant l'entraînement d'un modèle d'IA
+// Cette fonction retourne une promesse qui se résout après un délai simulant un entraînement
+export const trainAIModel = async (): Promise<void> => {
+  return new Promise((resolve) => {
+    // Simulation d'un processus d'entraînement qui prend du temps
+    setTimeout(() => {
+      console.log('Entraînement du modèle terminé');
+      resolve();
+    }, 6000); // Simule 6 secondes d'entraînement
+  });
+};
