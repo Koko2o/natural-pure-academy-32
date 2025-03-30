@@ -10,7 +10,7 @@ import {
 import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from '@/utils/types';
 import { motion } from "framer-motion";
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
-import { Brain, TrendingUp, Award, CheckCircle, ThumbsUp, AlertCircle } from 'react-iconly'; // Import icons
+import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle } from 'lucide-react'; // Import icons
 
 
 // Placeholder for the AI model status function - needs to be implemented elsewhere
