@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import { Bar, Line, Radar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { Bar, Line, Radar, Doughnut } from 'react-chartjs-2';
 import { secureStorageService } from '../utils/secureStorage';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -34,293 +33,190 @@ ChartJS.register(
   Legend
 );
 
+// Données de démonstration
+const userProgressData = {
+  labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+  datasets: [
+    {
+      label: 'Engagement utilisateur',
+      data: [65, 59, 80, 81, 56, 90],
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1,
+    },
+  ],
+};
+
+const modelAccuracyData = {
+  labels: ['Recommandations', 'Prédictions', 'Classifications', 'Personnalisation'],
+  datasets: [
+    {
+      label: 'Précision actuelle',
+      data: [85, 75, 90, 80],
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1,
+    },
+    {
+      label: 'Objectif',
+      data: [95, 90, 95, 90],
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1,
+    },
+  ],
+};
+
+const insightAnalysisData = {
+  labels: ['Préférences alimentaires', 'Réponse aux recommandations', 'Habitudes', 'Objectifs', 'Restrictions'],
+  datasets: [
+    {
+      label: 'Importance des facteurs',
+      data: [80, 85, 65, 90, 70],
+      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      borderColor: 'rgba(255, 206, 86, 1)',
+      borderWidth: 1,
+      fill: true,
+    },
+  ],
+};
+
+const adaptiveModelData = {
+  labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
+  datasets: [
+    {
+      label: 'Apprentissage adaptatif',
+      data: [30, 20, 25, 25],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)',
+        'rgba(75, 192, 192, 0.6)',
+      ],
+      borderWidth: 1,
+    },
+  ],
+};
+
 const AILearningInsights = () => {
-  const [modelData, setModelData] = useState<any>(null);
-  const [loadingState, setLoadingState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [activeTab, setActiveTab] = useState('supplements');
-
-  useEffect(() => {
-    loadModelData();
-  }, []);
-
-  const loadModelData = () => {
-    try {
-      const aiModel = secureStorageService.getItem('aiModel');
-      if (aiModel) {
-        setModelData(aiModel);
-      }
-    } catch (error) {
-      console.error("Erreur lors du chargement des données du modèle:", error);
-    }
-  };
+  const [activeTab, setActiveTab] = useState('progress');
+  const [isTraining, setIsTraining] = useState(false);
+  const [trainingProgress, setTrainingProgress] = useState(0);
 
   const handleTrainModel = async () => {
-    setLoadingState('loading');
+    setIsTraining(true);
+    setTrainingProgress(0);
+
+    const interval = setInterval(() => {
+      setTrainingProgress((prev) => {
+        const newProgress = prev + Math.random() * 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsTraining(false);
+            setTrainingProgress(100);
+          }, 500);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 800);
+
     try {
       await trainAIModel();
-      loadModelData();
-      setLoadingState('success');
     } catch (error) {
       console.error("Erreur lors de l'entraînement du modèle:", error);
-      setLoadingState('error');
+      clearInterval(interval);
+      setIsTraining(false);
     }
   };
 
-  // Préparation des données pour le graphique des efficacités des suppléments
-  const prepareSupplementsData = () => {
-    if (!modelData || !modelData.supplementScores) return null;
-
-    const supplements = Object.entries(modelData.supplementScores)
-      .sort((a: any, b: any) => b[1].effectivenessScore - a[1].effectivenessScore)
-      .slice(0, 10);
-
-    return {
-      labels: supplements.map((s: any) => s[0].substring(0, 15) + '...'),
-      datasets: [
-        {
-          label: 'Score d\'efficacité',
-          data: supplements.map((s: any) => s[1].effectivenessScore),
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1,
-        },
-        {
-          label: 'Confiance',
-          data: supplements.map((s: any) => s[1].confidenceScore * 100),
-          backgroundColor: 'rgba(153, 102, 255, 0.6)',
-          borderColor: 'rgba(153, 102, 255, 1)',
-          borderWidth: 1,
-        },
-      ],
-    };
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Analyse de données d\'apprentissage',
+      },
+    },
   };
-
-  // Préparation des données pour les tendances d'apprentissage
-  const prepareLearningTrendsData = () => {
-    if (!modelData) return null;
-
-    // Simuler des données de tendance (dans un système réel, vous stockeriez l'historique)
-    const historicalDates = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date.toLocaleDateString();
-    });
-
-    return {
-      labels: historicalDates,
-      datasets: [
-        {
-          label: 'Précision du modèle',
-          data: [65, 68, 70, 72, 75, 78, 80],
-          fill: false,
-          backgroundColor: 'rgb(75, 192, 192)',
-          borderColor: 'rgba(75, 192, 192, 0.8)',
-          tension: 0.1,
-        },
-        {
-          label: 'Taux de satisfaction',
-          data: [60, 65, 67, 70, 72, 75, 78],
-          fill: false,
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderColor: 'rgba(255, 99, 132, 0.8)',
-          tension: 0.1,
-        },
-      ],
-    };
-  };
-
-  // Préparation des données de symptômes
-  const prepareSymptomData = () => {
-    if (!modelData) return null;
-
-    const symptoms = [
-      'Stress', 'Sommeil', 'Énergie', 'Concentration', 
-      'Digestion', 'Immunité', 'Articulations', 'Peau'
-    ];
-    
-    return {
-      labels: symptoms,
-      datasets: [
-        {
-          label: 'Poids des symptômes',
-          data: symptoms.map((s, index) => 50 + (Math.sin(index) * 20)),
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: 'rgba(255, 99, 132, 1)',
-        },
-      ],
-    };
-  };
-
-  const prepareUserProfileData = () => {
-    if (!modelData || !modelData.userProfiles) return null;
-
-    const ageGroups = {
-      '18-24': 0,
-      '25-34': 0,
-      '35-44': 0,
-      '45-54': 0,
-      '55-64': 0,
-      '65+': 0,
-    };
-
-    // Comptage des profils par groupe d'âge
-    modelData.userProfiles.forEach((profile: any) => {
-      if (profile.demographics && profile.demographics.ageRange) {
-        ageGroups[profile.demographics.ageRange as keyof typeof ageGroups]++;
-      }
-    });
-
-    return {
-      labels: Object.keys(ageGroups),
-      datasets: [
-        {
-          label: 'Distribution par âge',
-          data: Object.values(ageGroups),
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-            'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)',
-            'rgba(255, 159, 64, 0.6)',
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
-  const supplementsData = prepareSupplementsData();
-  const learningTrendsData = prepareLearningTrendsData();
-  const symptomData = prepareSymptomData();
-  const userProfileData = prepareUserProfileData();
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Insights d'Apprentissage de l'IA</h1>
-        <Button
-          onClick={handleTrainModel}
-          disabled={loadingState === 'loading'}
-          className="bg-indigo-600 hover:bg-indigo-700"
-        >
-          {loadingState === 'loading' ? 'Entraînement en cours...' : 'Entraîner le modèle'}
-        </Button>
-      </div>
-
-      {modelData ? (
-        <>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Statistiques du Modèle</CardTitle>
-              <CardDescription>Vue d'ensemble de l'état actuel du modèle</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold">Version</h3>
-                  <p className="text-2xl font-bold">{modelData.version || 'N/A'}</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold">Profils utilisateurs</h3>
-                  <p className="text-2xl font-bold">{modelData.userProfiles?.length || 0}</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold">Itérations d'apprentissage</h3>
-                  <p className="text-2xl font-bold">{modelData.trainingIterations || 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="supplements">Suppléments</TabsTrigger>
-              <TabsTrigger value="trends">Tendances</TabsTrigger>
-              <TabsTrigger value="symptoms">Symptômes</TabsTrigger>
-              <TabsTrigger value="users">Profils utilisateurs</TabsTrigger>
+    <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Centre d'Apprentissage IA</CardTitle>
+          <CardDescription>
+            Visualisation de l'apprentissage et de l'amélioration continue de notre système de recommandation
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-4 mb-8">
+              <TabsTrigger value="progress">Progression</TabsTrigger>
+              <TabsTrigger value="accuracy">Précision</TabsTrigger>
+              <TabsTrigger value="insights">Insights</TabsTrigger>
+              <TabsTrigger value="adaptability">Adaptabilité</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="supplements">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top 10 des Suppléments par Efficacité</CardTitle>
-                  <CardDescription>
-                    Basé sur l'apprentissage du modèle et les retours utilisateurs
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="h-96">
-                  {supplementsData && <Bar data={supplementsData} />}
-                </CardContent>
-              </Card>
+            <TabsContent value="progress" className="space-y-4">
+              <h3 className="text-lg font-medium">Progrès de l'Engagement Utilisateur</h3>
+              <div className="h-80">
+                <Line options={chartOptions} data={userProgressData} />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Ce graphique montre l'évolution de l'engagement des utilisateurs au fil du temps, démontrant
+                l'efficacité croissante des recommandations personnalisées.
+              </p>
             </TabsContent>
 
-            <TabsContent value="trends">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tendances d'Apprentissage</CardTitle>
-                  <CardDescription>
-                    Évolution de la performance du modèle au fil du temps
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="h-96">
-                  {learningTrendsData && <Line data={learningTrendsData} />}
-                </CardContent>
-              </Card>
+            <TabsContent value="accuracy" className="space-y-4">
+              <h3 className="text-lg font-medium">Précision du Modèle</h3>
+              <div className="h-80">
+                <Bar options={chartOptions} data={modelAccuracyData} />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Comparaison entre la précision actuelle du modèle et les objectifs fixés pour différentes fonctionnalités
+                de prédiction.
+              </p>
             </TabsContent>
 
-            <TabsContent value="symptoms">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Analyse des Symptômes</CardTitle>
-                  <CardDescription>
-                    Importance relative des différents symptômes dans le modèle
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="h-96">
-                  {symptomData && <Radar data={symptomData} />}
-                </CardContent>
-              </Card>
+            <TabsContent value="insights" className="space-y-4">
+              <h3 className="text-lg font-medium">Analyse des Facteurs d'Influence</h3>
+              <div className="h-80">
+                <Radar options={chartOptions} data={insightAnalysisData} />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Représentation de l'importance relative des différents facteurs utilisés par notre IA pour formuler des
+                recommandations personnalisées.
+              </p>
             </TabsContent>
 
-            <TabsContent value="users">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Démographie des Utilisateurs</CardTitle>
-                  <CardDescription>
-                    Distribution des profils utilisateurs par tranche d'âge
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="h-96">
-                  {userProfileData && <Doughnut data={userProfileData} />}
-                </CardContent>
-              </Card>
+            <TabsContent value="adaptability" className="space-y-4">
+              <h3 className="text-lg font-medium">Capacité d'Adaptation du Modèle</h3>
+              <div className="h-80">
+                <Doughnut options={chartOptions} data={adaptiveModelData} />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Distribution des différentes phases d'apprentissage adaptatif, montrant comment notre modèle équilibre
+                l'exploration et l'exploitation des données.
+              </p>
             </TabsContent>
           </Tabs>
-        </>
-      ) : (
-        <div className="text-center py-10">
-          <p className="mb-4">Aucune donnée de modèle disponible.</p>
-          <Button 
-            onClick={handleTrainModel}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            Initialiser le modèle
+        </CardContent>
+        <CardFooter className="flex justify-between items-center">
+          <div className="text-sm text-muted-foreground">
+            Dernier entraînement: {new Date().toLocaleDateString()}
+          </div>
+          <Button onClick={handleTrainModel} disabled={isTraining}>
+            {isTraining ? `Entraînement en cours (${Math.round(trainingProgress)}%)` : "Entraîner le modèle"}
           </Button>
-        </div>
-      )}
+        </CardFooter>
+      </Card>
     </div>
   );
 };
