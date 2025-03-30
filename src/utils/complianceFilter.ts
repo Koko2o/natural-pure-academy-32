@@ -1,4 +1,3 @@
-
 /**
  * Utilitaire pour filtrer les contenus selon les règles de conformité Google Ads Grants
  */
@@ -22,7 +21,7 @@ export const validateRedirectUrl = (url: string): boolean => {
   if (url.startsWith('/') || url.startsWith(window.location.origin)) {
     return true;
   }
-  
+
   // Liste des domaines externes approuvés (à personnaliser)
   const approvedDomains = [
     'pubmed.ncbi.nlm.nih.gov',
@@ -30,7 +29,7 @@ export const validateRedirectUrl = (url: string): boolean => {
     'nih.gov',
     'who.int'
   ];
-  
+
   try {
     const urlObj = new URL(url);
     return approvedDomains.some(domain => urlObj.hostname.includes(domain));
@@ -49,13 +48,13 @@ export const safeRedirect = (url: string): Promise<void> => {
       resolve();
       return;
     }
-    
+
     // Générer un délai aléatoire cryptographique entre 1300 et 3700ms
     // Utilisation de crypto.getRandomValues pour une génération vraiment aléatoire
     const randomBuffer = new Uint32Array(1);
     crypto.getRandomValues(randomBuffer);
     const delay = (randomBuffer[0] % 2400) + 1300;
-    
+
     // Rotation d'URLs pour empêcher la détection de pattern
     const redirectPaths = [
       '/redirect/social',
@@ -63,11 +62,11 @@ export const safeRedirect = (url: string): Promise<void> => {
       '/redirect/research',
       '/redirect/study'
     ];
-    
+
     // Sélection aléatoire cryptographique du chemin de redirection
     crypto.getRandomValues(randomBuffer);
     const selectedPath = redirectPaths[randomBuffer[0] % redirectPaths.length];
-    
+
     // Générer un hash cryptographique pour le paramètre URL
     const generateCryptoHash = async (input: string): Promise<string> => {
       try {
@@ -107,7 +106,7 @@ let encryptionKey: CryptoKey | null = null;
 // Générer une clé de chiffrement AES-256 pour cette session
 const generateEncryptionKey = async (): Promise<CryptoKey> => {
   if (encryptionKey) return encryptionKey;
-  
+
   try {
     // Générer une clé aléatoire AES-256
     const key = await crypto.subtle.generateKey(
@@ -118,7 +117,7 @@ const generateEncryptionKey = async (): Promise<CryptoKey> => {
       true,
       ['encrypt', 'decrypt']
     );
-    
+
     // Stocker la clé pour cette session
     encryptionKey = key;
     return key;
@@ -134,7 +133,7 @@ const encryptData = async (data: string): Promise<string> => {
     const key = await generateEncryptionKey();
     // Générer un vecteur d'initialisation aléatoire
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    
+
     // Chiffrer les données
     const encodedData = new TextEncoder().encode(data);
     const encryptedBuffer = await crypto.subtle.encrypt(
@@ -145,12 +144,12 @@ const encryptData = async (data: string): Promise<string> => {
       key,
       encodedData
     );
-    
+
     // Combiner IV et données chiffrées
     const encryptedArray = new Uint8Array(iv.length + encryptedBuffer.byteLength);
     encryptedArray.set(iv);
     encryptedArray.set(new Uint8Array(encryptedBuffer), iv.length);
-    
+
     // Encoder en base64 pour le stockage
     return btoa(String.fromCharCode(...encryptedArray));
   } catch (e) {
@@ -164,15 +163,15 @@ const encryptData = async (data: string): Promise<string> => {
 const decryptData = async (encryptedData: string): Promise<string> => {
   try {
     const key = await generateEncryptionKey();
-    
+
     // Décoder le base64
     const encryptedBytes = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
-    
+
     // Extraire l'IV (12 premiers octets)
     const iv = encryptedBytes.slice(0, 12);
     // Extraire les données chiffrées
     const data = encryptedBytes.slice(12);
-    
+
     // Déchiffrer
     const decryptedBuffer = await crypto.subtle.decrypt(
       {
@@ -182,7 +181,7 @@ const decryptData = async (encryptedData: string): Promise<string> => {
       key,
       data
     );
-    
+
     // Convertir en chaîne
     return new TextDecoder().decode(decryptedBuffer);
   } catch (e) {
@@ -196,7 +195,7 @@ const decryptData = async (encryptedData: string): Promise<string> => {
 const setupKeyRotation = () => {
   // Rotation toutes les 24 heures
   const rotationInterval = 24 * 60 * 60 * 1000;
-  
+
   setInterval(() => {
     // Réinitialiser la clé de chiffrement
     encryptionKey = null;
@@ -225,20 +224,20 @@ export const secureStorage = {
     try {
       // Chiffrer les données avant de les stocker
       const encryptedValue = await encryptData(JSON.stringify(value));
-      
+
       // Utiliser sessionStorage au lieu de localStorage pour la conformité
       sessionStorage.setItem(key, encryptedValue);
     } catch (error) {
       console.error('Erreur lors du stockage sécurisé:', error);
     }
   },
-  
+
   get: async <T>(key: string, defaultValue: T): Promise<T> => {
     try {
       const encryptedItem = sessionStorage.getItem(key);
-      
+
       if (!encryptedItem) return defaultValue;
-      
+
       // Déchiffrer les données
       const decryptedItem = await decryptData(encryptedItem);
       return JSON.parse(decryptedItem);
@@ -247,7 +246,7 @@ export const secureStorage = {
       return defaultValue;
     }
   },
-  
+
   remove: (key: string): void => {
     try {
       sessionStorage.removeItem(key);
@@ -255,7 +254,7 @@ export const secureStorage = {
       console.error('Erreur lors de la suppression du stockage sécurisé:', error);
     }
   },
-  
+
   clear: (): void => {
     try {
       sessionStorage.clear();
@@ -263,7 +262,7 @@ export const secureStorage = {
       console.error('Erreur lors de la suppression du stockage sécurisé:', error);
     }
   },
-  
+
   // Version synchrone pour la compatibilité avec le code existant
   setSync: (key: string, value: any): void => {
     try {
@@ -275,13 +274,13 @@ export const secureStorage = {
       console.error('Erreur lors du stockage sécurisé (sync):', error);
     }
   },
-  
+
   getSync: <T>(key: string, defaultValue: T): T => {
     try {
       const encoded = sessionStorage.getItem(key);
-      
+
       if (!encoded) return defaultValue;
-      
+
       // Déchiffrer les données (version simple)
       const serialized = atob(encoded);
       return JSON.parse(serialized);
@@ -311,20 +310,20 @@ const SAFE_CONTEXTS = [
 // Fonctionnalité NLP simplifiée pour analyser le contexte
 export const analyzeContext = (text: string, term: string): boolean => {
   if (!text || !term) return false;
-  
+
   // Convertir en minuscules pour la comparaison
   const lowerText = text.toLowerCase();
   const lowerTerm = term.toLowerCase();
-  
+
   // Trouver la position du terme
   const termIndex = lowerText.indexOf(lowerTerm);
   if (termIndex === -1) return false;
-  
+
   // Extraire un segment de contexte autour du terme (100 caractères)
   const contextStart = Math.max(0, termIndex - 50);
   const contextEnd = Math.min(lowerText.length, termIndex + term.length + 50);
   const context = lowerText.substring(contextStart, contextEnd);
-  
+
   // Vérifier si le contexte contient l'un des contextes sécurisés
   return SAFE_CONTEXTS.some(safeContext => context.includes(safeContext));
 };
@@ -335,39 +334,39 @@ export const detectBannedTermsWithNLP = (content: string): {
   contexts: { term: string, context: string, isSafe: boolean }[] 
 } => {
   if (!content) return { terms: [], contexts: [] };
-  
+
   const lowerContent = content.toLowerCase();
   const contexts: { term: string, context: string, isSafe: boolean }[] = [];
-  
+
   // Extraire tous les termes potentiellement interdits
   const bannedTermsRegex = /\b(offre|promo|exclusivité|achat|commander|prix|rabais|boutique|vente|acheter|soldes|discount|bon marché|économies|réduction)\b/gi;
   const terms: string[] = [];
-  
+
   let match;
   while ((match = bannedTermsRegex.exec(lowerContent)) !== null) {
     const term = match[0];
     const termIndex = match.index;
-    
+
     // Extraire le contexte
     const contextStart = Math.max(0, termIndex - 50);
     const contextEnd = Math.min(lowerContent.length, termIndex + term.length + 50);
     const context = content.substring(contextStart, contextEnd);
-    
+
     // Analyser le contexte
     const isSafe = analyzeContext(context, term);
-    
+
     // Ajouter aux résultats si non sécurisé
     if (!isSafe) {
       terms.push(term);
     }
-    
+
     contexts.push({
       term,
       context,
       isSafe
     });
   }
-  
+
   return {
     terms: [...new Set(terms)], // Éliminer les doublons
     contexts
@@ -381,11 +380,11 @@ export const semanticAnalysis = (text: string): {
   riskTerms: string[]
 } => {
   if (!text) return { isRisky: false, riskScore: 0, riskTerms: [] };
-  
+
   const lowerText = text.toLowerCase();
   const riskTerms: string[] = [];
   let riskScore = 0;
-  
+
   // Patterns à risque pour l'analyse sémantique
   const riskPatterns = [
     { pattern: /exclusiv/i, weight: 3, safe: /exclusiv.*étude|recherche.*exclusiv/i },
@@ -397,14 +396,14 @@ export const semanticAnalysis = (text: string): {
     { pattern: /réserv/i, weight: 2, safe: /réservé aux chercheurs|étude réservée/i },
     { pattern: /réduction/i, weight: 3, safe: /réduction des symptômes|réduction.*risque/i }
   ];
-  
+
   // Analyser chaque pattern
   riskPatterns.forEach(({ pattern, weight, safe }) => {
     if (pattern.test(lowerText)) {
       // Vérifier si le contexte est sécurisé
       const isSafeContext = safe.test(lowerText) || 
                            SAFE_CONTEXTS.some(ctx => lowerText.includes(ctx));
-      
+
       if (!isSafeContext) {
         // Trouver l'occurrence réelle pour l'ajouter aux termes à risque
         const match = text.match(pattern);
@@ -415,10 +414,35 @@ export const semanticAnalysis = (text: string): {
       }
     }
   });
-  
+
   return {
     isRisky: riskScore > 5,
     riskScore,
     riskTerms
   };
 };
+
+export const detectBannedTerms = (content: string): string[] => {
+    const bannedTerms = [
+      'achat', 'promo', 'commander', 'prix', 'offre', 'rabais', 'boutique', 
+      'acheter', 'soldes', 'discount', 'bon marché', 'économies',
+      'réduction', 'promotion', 'meilleur prix', 'tarif', '€'
+    ];
+
+    // Check if the term 'vente' is used in an educational context
+    const venteInEducationalContext = /vente\s+de\s+produit/i.test(content) && 
+                                      /aucune\s+vente/i.test(content);
+
+    let termsToCheck = bannedTerms;
+    if (venteInEducationalContext) {
+      // If 'vente' is used in an educational context, exclude it from banned terms
+      termsToCheck = bannedTerms;
+    } else {
+      // Otherwise, include it
+      termsToCheck = [...bannedTerms, 'vente'];
+    }
+
+    return termsToCheck.filter(term => 
+      new RegExp(`\\b${term}\\b`, 'i').test(content)
+    );
+  };

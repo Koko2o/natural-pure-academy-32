@@ -1,51 +1,60 @@
-import { Button } from "@/components/ui/button";
-import {
-  CheckCircle2,
-  HelpCircle,
-  Info,
-  ShoppingCart,
-  Sparkles,
-  Award,
-  Clock,
-  Heart,
-  TrendingUp,
-  ArrowRight,
-  BarChart,
-  Zap,
-  Brain,
-  FlaskConical,
-  Gauge,
-  Lightbulb
-} from "lucide-react";
-import { useEffect, useState, useRef } from "react";
-import { toast } from "sonner";
-import { QuizResponse } from "./quiz/types";
+import { useState, useEffect, useRef } from 'react';
+import { QuizResponse } from '../utils/types';
+import { BehavioralMetrics } from '../hooks/useBehavioralMetrics';
+import { Recommendation } from '../utils/types';
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Progress } from './ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Link } from 'react-router-dom';
+import { CheckCircle2, HelpCircle, Info, ShoppingCart, Sparkles, Award, Clock, Heart, TrendingUp, ArrowRight, BarChart, Zap, Brain, FlaskConical, Gauge, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Progress } from "./ui/progress";
-import { generateNeuroProfile, getUrgencyMessage } from "./quiz/NeuroEngine";
-import { calculateRiskScore, getRiskColor } from "@/utils/contentSafety";
 import UrgencyCountdown from "./quiz/UrgencyCountdown";
 import DynamicSocialProof from "./quiz/DynamicSocialProof";
 import { getPersonalizedMessage, generatePersonalizedRecommendations } from "@/utils/dynamicPersonalization";
+import { calculateRiskScore, getRiskColor } from "@/utils/contentSafety";
 
-interface Recommendation {
-  title: string;
-  description: string;
-  url: string;
-  confidence: number;
-  benefits: string[];
-  timeToEffect: string;
-  popularity: number;
-}
 
-interface BehavioralMetrics {
-  // Add your behavioral metrics here.  Example:
-  scrollSpeed: number;
-  timeSpent: number;
-  clickPatterns: number[];
-  hoverTime: object;
-  rereadCount: number;
-}
+// SVG Icons (from edited code, some are already in original)
+const Users = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const Check = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+);
+
+const Brain = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+  </svg>
+);
+
+const ArrowRight = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M5 12h14"/>
+    <path d="m12 5 7 7-7 7"/>
+  </svg>
+);
+
+const Sparkles = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+    <path d="M5 3v4"/>
+    <path d="M19 17v4"/>
+    <path d="M3 5h4"/>
+    <path d="M17 19h4"/>
+  </svg>
+);
+
 
 interface QuizResultsProps {
   responses: QuizResponse;
@@ -88,992 +97,374 @@ const QuizResults = ({ responses, onRestart, personalizationFactors, behavioralM
     }
   }, [personalizationFactors]);
 
+  // Simuler le calcul de recommandations basé sur les réponses et les métriques comportementales
   useEffect(() => {
-    // Récupérer le temps passé (simulé pour l'exemple)
-    const timeSpent = Math.random() * 180 + 90; // entre 90 et 270 secondes
-    const scrollSpeed = Math.random() * 2 + 0.5; // vitesse de défilement simulée
+    const progressInterval = setInterval(() => {
+      setAnalysisProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 100);
 
-    // Générer le profil neurologique
-    const profile = generateNeuroProfile(responses, {
-      scrollSpeed,
-      timeSpent,
-      clickPatterns: [Math.random(), Math.random() * 1.5, Math.random()],
-      hoverTime: {},
-      rereadCount: Math.floor(Math.random() * 3)
-    });
+    // Générer des recommandations simulées après un délai
+    setTimeout(() => {
+      const simulatedRecommendations: Recommendation[] = [
+        {
+          id: "micronutrients",
+          title: "Profil de micronutriments",
+          description: "Basé sur vos habitudes alimentaires et symptômes, nous avons identifié un besoin potentiel en vitamine D et magnésium.",
+          scientificEvidence: "Une étude récente publiée dans le Journal of Nutrition a démontré que 78% des personnes présentant des symptômes similaires aux vôtres avaient une carence en ces nutriments.",
+          priority: "high",
+          compatibilityScore: 94,
+          categoryColor: "amber"
+        },
+        {
+          id: "sleep",
+          title: "Optimisation du sommeil",
+          description: "Votre profil indique un sommeil perturbé qui pourrait être amélioré par des ajustements circadiens et des nutriments spécifiques.",
+          scientificEvidence: "Des recherches de l'Université de Stanford montrent que l'équilibre des micronutriments peut améliorer la qualité du sommeil de 67% chez les individus présentant votre profil.",
+          priority: "medium",
+          compatibilityScore: 89,
+          categoryColor: "blue"
+        },
+        {
+          id: "stress",
+          title: "Gestion du stress",
+          description: "Vos réponses révèlent des niveaux de stress élevés qui peuvent être réduits par des adaptogènes naturels et des techniques comportementales.",
+          scientificEvidence: "Des études cliniques ont montré une réduction de 42% des marqueurs biologiques du stress avec cette approche.",
+          priority: "high",
+          compatibilityScore: 91,
+          categoryColor: "purple"
+        }
+      ];
 
-    setNeuroProfile(profile);
+      // Générer un profil neuro simulé
+      const simulatedNeuroProfile = {
+        attentionScore: behavioralMetrics.timeOnPage > 120 ? 85 : 65,
+        decisionSpeed: behavioralMetrics.clickSpeed < 1000 ? "rapide" : "réfléchi",
+        stressLevel: behavioralMetrics.erraticClicks > 5 ? "élevé" : "modéré",
+        consistencyScore: 78,
+        responsiveness: behavioralMetrics.responseDelay < 1500 ? "haute" : "moyenne",
+        cognitivePreference: behavioralMetrics.focusedSections.includes("scientific") ? "analytique" : "intuitif",
+        focusAreas: ["concentration", "gestion du stress"],
+        learningStyle: "visuel",
+        cognitiveStrength: "analyse"
+      };
 
-    // Générer un message d'urgence contextuel
-    const urgency = getUrgencyMessage({
-      userProfile: profile,
-      currentTraffic: Math.random() > 0.6 ? 'high' : 'low',
-      userLocation,
-    });
+      // Définir un message d'urgence basé sur les comportements observés
+      const urgent = behavioralMetrics.timeOnPage < 90 || behavioralMetrics.erraticClicks > 5;
+      const urgencyMsg = urgent 
+        ? {
+            message: "Votre analyse indique un besoin urgent d'intervention nutritionnelle. Agir maintenant pourrait réduire vos symptômes actuels.",
+            level: "high",
+            countdownMinutes: 30
+          }
+        : {
+            message: "Vos résultats sont prêts. Nous recommandons de consulter vos solutions personnalisées.",
+            level: "medium"
+          };
 
-    setUrgencyMessage(urgency);
+      setRecommendations(simulatedRecommendations);
+      setNeuroProfile(simulatedNeuroProfile);
+      setUrgencyMessage(urgencyMsg);
+      setLoading(false);
+      setShowConfetti(true);
 
-    if (urgency.countdownMinutes) {
-      setTimeRemaining(urgency.countdownMinutes * 60);
-    }
+      if (urgencyMsg.countdownMinutes) {
+        setTimeRemaining(urgencyMsg.countdownMinutes * 60);
+      }
+    }, 2000);
 
-    // Démarrer l'animation de laboratoire
-    startMoleculeAnimation();
-
-    // Nettoyage
     return () => {
+      clearInterval(progressInterval);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [responses, userLocation]);
+  }, [behavioralMetrics]);
 
-  // Animation de molécules en arrière-plan
-  const startMoleculeAnimation = () => {
-    const canvas = document.getElementById('molecule-canvas') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const molecules: Array<{
-      x: number;
-      y: number;
-      radius: number;
-      color: string;
-      vx: number;
-      vy: number;
-    }> = [];
-
-    // Initialiser les molécules
-    for (let i = 0; i < 30; i++) {
-      molecules.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 3 + 1,
-        color: `rgba(${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 200 + 55)}, ${Math.random() * 0.4 + 0.1})`,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5
-      });
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Dessiner les molécules
-      molecules.forEach(molecule => {
-        ctx.beginPath();
-        ctx.arc(molecule.x, molecule.y, molecule.radius, 0, Math.PI * 2);
-        ctx.fillStyle = molecule.color;
-        ctx.fill();
-
-        // Déplacer les molécules
-        molecule.x += molecule.vx;
-        molecule.y += molecule.vy;
-
-        // Rebondir sur les bords
-        if (molecule.x < 0 || molecule.x > canvas.width) molecule.vx *= -1;
-        if (molecule.y < 0 || molecule.y > canvas.height) molecule.vy *= -1;
-      });
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-  };
-
-  // Compte à rebours
+  // Compte à rebours si nécessaire
   useEffect(() => {
-    if (timeRemaining === null) return;
+    if (timeRemaining !== null) {
+      const countdownInterval = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev === null || prev <= 0) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
 
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev === null || prev <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
+      return () => clearInterval(countdownInterval);
+    }
   }, [timeRemaining]);
 
-  // Format du compte à rebours
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  // Formater le temps restant en minutes:secondes
+  const formatTimeRemaining = () => {
+    if (timeRemaining === null) return '';
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  useEffect(() => {
-    // Simulate progressive loading with progress bar
-    const interval = setInterval(() => {
-      setAnalysisProgress(prev => {
-        const newValue = prev + Math.random() * 15;
-        return newValue >= 100 ? 100 : newValue;
-      });
-    }, 200);
-
-    // Simulate loading recommendations with realistic data based on user responses
-    setTimeout(() => {
-      // Analyze user responses to create personalized recommendations
-      const userSymptoms = responses.symptoms || [];
-      const hasFatigue = userSymptoms.includes("fatigue");
-      const hasStress = userSymptoms.includes("stress");
-      const hasSleepIssues = userSymptoms.includes("sommeil");
-      const hasDigestiveIssues = userSymptoms.includes("digestion");
-      const hasImmuneIssues = userSymptoms.includes("immunité");
-
-      let personalRecommendations: Recommendation[] = [];
-
-      // Si nous avons des facteurs de personnalisation, les utiliser pour générer des recommandations
-      if (personalizationFactors) {
-        const { primary, secondary } = generatePersonalizedRecommendations(personalizationFactors);
-
-        // Ajouter la recommandation principale
-        personalRecommendations.push({
-          title: primary,
-          description: "Formule avancée spécifiquement adaptée à votre profil et vos besoins nutritionnels.",
-          url: "https://example.com/produit",
-          confidence: 0.9 + (Math.random() * 0.09),
-          benefits: ["Adaptation à votre profil", "Efficacité scientifiquement prouvée", "Formule premium"],
-          timeToEffect: `${Math.floor(Math.random() * 3) + 1}-${Math.floor(Math.random() * 3) + 3} semaines`,
-          popularity: 85 + Math.floor(Math.random() * 14),
-        });
-
-        // Ajouter les recommandations secondaires
-        secondary.forEach(title => {
-          personalRecommendations.push({
-            title,
-            description: "Complément idéal à votre formule principale pour une action synergique optimale.",
-            url: "https://example.com/secondaire",
-            confidence: 0.75 + (Math.random() * 0.15),
-            benefits: ["Action synergique", "Complément idéal", "Qualité supérieure"],
-            timeToEffect: `${Math.floor(Math.random() * 2) + 1}-${Math.floor(Math.random() * 4) + 4} semaines`,
-            popularity: 75 + Math.floor(Math.random() * 20),
-          });
-        });
-      } else {
-        // Add recommendations based on symptoms
-        if (hasFatigue || hasStress) {
-          personalRecommendations.push({
-            title: "Complexe Magnésium Premium",
-            description: "Formule avancée de magnésium marin hautement biodisponible pour combattre le stress et la fatigue.",
-            url: "https://example.com/magnesium",
-            confidence: 0.93,
-            benefits: ["Réduction du stress", "Amélioration du sommeil", "Augmentation de l'énergie"],
-            timeToEffect: "2-3 semaines",
-            popularity: 95,
-          });
-        }
-
-        if (hasSleepIssues) {
-          personalRecommendations.push({
-            title: "Mélatonine Naturelle Plus",
-            description: "Association unique de mélatonine, valériane et passiflore pour un sommeil profond et réparateur.",
-            url: "https://example.com/melatonine",
-            confidence: 0.89,
-            benefits: ["Endormissement rapide", "Sommeil ininterrompu", "Réveil sans fatigue"],
-            timeToEffect: "3-5 jours",
-            popularity: 91,
-          });
-        }
-
-        if (hasDigestiveIssues) {
-          personalRecommendations.push({
-            title: "Probiotiques Digestifs Avancés",
-            description: "25 milliards d'UFC et 10 souches bactériennes pour restaurer l'équilibre intestinal et améliorer la digestion.",
-            url: "https://example.com/probiotiques",
-            confidence: 0.85,
-            benefits: ["Réduction des ballonnements", "Amélioration de la digestion", "Renforcement de la flore intestinale"],
-            timeToEffect: "1-2 semaines",
-            popularity: 88,
-          });
-        }
-
-        if (hasImmuneIssues || responses.fruitVegConsumption === "peu") {
-          personalRecommendations.push({
-            title: "Complexe Immunité Zinc & Vitamine C",
-            description: "Association synergique de zinc, vitamine C, échinacée et propolis pour renforcer vos défenses naturelles.",
-            url: "https://example.com/immunite",
-            confidence: 0.82,
-            benefits: ["Protection immunitaire", "Réduction du temps de convalescence", "Soutien en période hivernale"],
-            timeToEffect: "1-4 semaines",
-            popularity: 79,
-          });
-        }
-
-        // Add a general recommendation if none of the specific ones apply
-        if (personalRecommendations.length === 0) {
-          personalRecommendations.push({
-            title: "Complexe Multivitamines Premium",
-            description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
-            url: "https://example.com/multivitamines",
-            confidence: 0.78,
-            benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
-            timeToEffect: "2-4 semaines",
-            popularity: 85,
-          });
-
-          personalRecommendations.push({
-            title: "Oméga-3 Haute Concentration",
-            description: "Huile de poisson purifiée avec haute teneur en EPA et DHA pour la santé cardiovasculaire et cérébrale.",
-            url: "https://example.com/omega3",
-            confidence: 0.76,
-            benefits: ["Soutien cardiovasculaire", "Fonction cognitive", "Réduction de l'inflammation"],
-            timeToEffect: "4-8 semaines",
-            popularity: 82,
-          });
-        }
-
-        // Always add a general multivitamin as a secondary recommendation if not already added
-        if (!personalRecommendations.some(rec => rec.title.includes("Multivitamines"))) {
-          personalRecommendations.push({
-            title: "Complexe Multivitamines Premium",
-            description: "Formule complète pour soutenir votre énergie et votre bien-être général quotidien.",
-            url: "https://example.com/multivitamines",
-            confidence: 0.75,
-            benefits: ["Soutien nutritionnel complet", "Énergie quotidienne", "Bien-être général"],
-            timeToEffect: "2-4 semaines",
-            popularity: 85,
-          });
-        }
-      }
-
-      setRecommendations(personalRecommendations);
-      setLoading(false);
-      clearInterval(interval);
-      setAnalysisProgress(100);
-      setShowConfetti(true);
-
-      // Hide confetti after animation
-      setTimeout(() => {
-        setShowConfetti(false);
-      }, 3000);
-
-      toast.success("Analyse terminée !", {
-        description: "Nous avons identifié les compléments idéaux pour votre profil",
-      });
-    }, 3500);
-
-    return () => clearInterval(interval);
-  }, [responses, personalizationFactors]);
-
-  if (loading) {
-    return (
-      <div className="text-center p-8 bg-white rounded-xl shadow-md">
-        <div className="mb-6">
-          <Sparkles className="h-10 w-10 inline-block animate-spin mb-4 text-amber-500" />
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Analyse en cours...
-          </h2>
-          <p className="text-gray-500 mt-2">
-            Nous analysons vos réponses et préparons vos recommandations personnalisées
-          </p>
-        </div>
-
-        <div className="space-y-6 max-w-md mx-auto">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Analyse de votre profil</span>
-              <span className="text-amber-600 font-medium">{Math.round(analysisProgress)}%</span>
-            </div>
-            <Progress value={analysisProgress} className="h-2 bg-amber-100" />
-          </div>
-
-          <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-amber-800">
-            <div className="flex">
-              <Info className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
-              <p>
-                <span className="font-medium">Saviez-vous que</span> : 68% des personnes avec un profil similaire au vôtre ont constaté une amélioration significative dans les 3 premières semaines d'utilisation ?
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 text-center text-xs">
-            <div className="bg-indigo-50 p-3 rounded-lg">
-              <Heart className="h-6 w-6 text-indigo-500 mx-auto mb-1" />
-              <p className="font-medium text-indigo-900">Analyse Santé</p>
-            </div>
-            <div className="bg-green-50 p-3 rounded-lg">
-              <Award className="h-6 w-6 text-green-500 mx-auto mb-1" />
-              <p className="font-medium text-green-900">Validation Scientifique</p>
-            </div>
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-blue-500 mx-auto mb-1" />
-              <p className="font-medium text-blue-900">Optimisation Résultats</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!recommendations || recommendations.length === 0) {
-    return (
-      <div className="text-center p-8">
-        <HelpCircle className="h-10 w-10 inline-block mb-4 text-gray-400" />
-        <p className="text-lg font-semibold">
-          Aucune recommandation trouvée pour le moment.
-        </p>
-        <p className="text-sm text-gray-500 mt-2">
-          Veuillez réessayer plus tard ou contacter notre support.
-        </p>
-        <Button onClick={onRestart} className="mt-4">
-          Refaire le Quiz
-        </Button>
-      </div>
-    );
-  }
-
-  // Find the recommendation with the highest confidence
-  const primaryRecommendation = recommendations.reduce((prev, current) =>
-    prev.confidence > current.confidence ? prev : current
-  );
-
-  // Calculer un score de risque dynamique
-  const riskScore = calculateRiskScore(
-    neuroProfile ? 180 + Math.random() * 120 : 120, // temps passé (secondes)
-    responses.objectives ? responses.objectives.length : 0, // questions répondues
-    responses.symptoms ? responses.symptoms.length : 0 // réponses critiques
-  );
-
-  // Obtenir la couleur du score de risque
-  const riskColor = getRiskColor(riskScore);
-
   return (
-    <div className="container mx-auto px-4 py-6 relative">
-      <canvas 
-        id="molecule-canvas" 
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
-        width="800"
-        height="600"
-      />
-
+    <div className="w-full max-w-4xl mx-auto px-4 py-8 bg-white rounded-xl shadow-lg relative">
       {showConfetti && (
-        <div className="confetti-container absolute inset-0 pointer-events-none">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="confetti"
-              style={{
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 10 + 5}px`,
-                backgroundColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                animation: `confetti-fall ${Math.random() * 3 + 2}s linear forwards, confetti-shake ${Math.random() * 2 + 1}s ease-in-out infinite alternate`
-              }}
-            />
-          ))}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Confetti animation would be here */}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-md p-8 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/20 to-blue-100/20 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-green-100/20 to-teal-100/20 rounded-full blur-2xl"></div>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold text-indigo-900 mb-2">
+          Vos résultats personnalisés, {responses.name}
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Notre système d'intelligence analytique a analysé vos réponses et votre comportement pour générer des recommandations spécifiques à votre profil.
+        </p>
+      </div>
 
-        <div className="flex items-center justify-between mb-6 relative">
-          <div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Vos Recommandations Personnalisées
-              </h2>
-            </div>
-            <p className="text-gray-500 mt-1">
-              Basé sur vos réponses au questionnaire et notre analyse scientifique
-            </p>
+      {loading ? (
+        <div className="my-12 text-center">
+          <div className="mb-6 relative">
+            <Progress value={analysisProgress} className="h-2 w-full bg-gray-100" />
+            <div className="mt-2 text-sm text-gray-600">Analyse en cours : {analysisProgress}%</div>
           </div>
-          <div className="hidden md:block">
-            <Badge />
+          <div className="space-y-3 max-w-md mx-auto">
+            <div className="flex items-center p-4 bg-indigo-50 rounded-lg">
+              <Brain className="text-indigo-600 mr-3 h-5 w-5" />
+              <span className="text-sm text-indigo-700">Analyse neurologique en cours...</span>
+            </div>
+            <div className="flex items-center p-4 bg-amber-50 rounded-lg">
+              <Users className="text-amber-600 mr-3 h-5 w-5" />
+              <span className="text-sm text-amber-700">Comparaison avec profils similaires...</span>
+            </div>
+            <div className="flex items-center p-4 bg-green-50 rounded-lg">
+              <Check className="text-green-600 mr-3 h-5 w-5" />
+              <span className="text-sm text-green-700">Validation scientifique des recommandations...</span>
+            </div>
           </div>
         </div>
-
-        {/* Message d'urgence contextuel avec nouveau composant */}
-        <div className="mb-6">
-          <UrgencyCountdown 
-            initialMinutes={45}
-            message={personalizationFactors ? 
-              getPersonalizedMessage(personalizationFactors, 'urgency') : 
-              urgencyMessage.message
-            }
-            variant="featured"
-          />
-        </div>
-
-        {/* Affichage du profil social avec le nouveau composant */}
-        <div className="mb-6">
-          <DynamicSocialProof
-            baseText={personalizationFactors ? 
-              getPersonalizedMessage(personalizationFactors, 'social') : 
-              "des utilisateurs ont complété leur analyse"
-            }
-            location={userLocation}
-            variant="detailed"
-          />
-        </div>
-
-        <div className="flex border-b border-gray-200 mb-6">
-          <button
-            className={cn(
-              "py-2 px-4 font-medium text-sm focus:outline-none relative",
-              activeTab === "recommendations" 
-                ? "text-indigo-600 border-b-2 border-indigo-600" 
-                : "text-gray-500 hover:text-gray-700"
-            )}
-            onClick={() => setActiveTab("recommendations")}
-          >
-            Recommandations
-            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-            </span>
-          </button>
-          <button
-            className={cn(
-              "py-2 px-4 font-medium text-sm focus:outline-none",
-              activeTab === "report" 
-                ? "text-indigo-600 border-b-2 border-indigo-600" 
-                : "text-gray-500 hover:text-gray-700"
-            )}
-            onClick={() => setActiveTab("report")}
-          >
-            Rapport Complet
-          </button>
-          <button
-            className={cn(
-              "py-2 px-4 font-medium text-sm focus:outline-none",
-              activeTab === "neuroProfile" 
-                ? "text-indigo-600 border-b-2 border-indigo-600" 
-                : "text-gray-500 hover:text-gray-700"
-            )}
-            onClick={() => setActiveTab("neuroProfile")}
-          >
-            Profil Neuropsychologique
-            {neuroProfile && <span className="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs">Nouveau</span>}
-          </button>
-        </div>
-
-        {activeTab === "recommendations" && (
-          <>
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-indigo-700">
-                  Recommandation Principale
-                </h3>
-                <div className="flex items-center gap-2 text-sm bg-amber-50 text-amber-800 px-2 py-1 rounded-full">
-                  <BarChart className="h-4 w-4" />
-                  <span>Efficacité prouvée {(primaryRecommendation.confidence * 100).toFixed(0)}%</span>
+      ) : (
+        <>
+          {/* Bandeau d'urgence */}
+          {urgencyMessage.message && (
+            <div className={`mb-6 p-4 rounded-lg ${
+              urgencyMessage.level === 'high' 
+                ? 'bg-red-50 border border-red-200 text-red-800' 
+                : 'bg-indigo-50 border border-indigo-200 text-indigo-800'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Sparkles className={`mr-2 h-5 w-5 ${
+                    urgencyMessage.level === 'high' ? 'text-red-600' : 'text-indigo-600'
+                  }`} />
+                  <span className="font-medium">{urgencyMessage.message}</span>
                 </div>
-              </div>
-
-              <div className="p-6 rounded-xl border-2 border-indigo-100 bg-gradient-to-r from-indigo-50 to-indigo-50/30 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-indigo-100 text-indigo-800 px-3 py-1 text-sm font-medium rounded-bl-lg">
-                  <Zap className="h-4 w-4 inline mr-1" />
-                  Top Solution
-                </div>
-
-                <div className="md:flex gap-6 items-center">
-                  <div className="md:w-3/5">
-                    <h4 className="font-semibold text-xl text-indigo-900 mb-2">
-                      {primaryRecommendation.title}
-                    </h4>
-                    <p className="text-gray-700 mb-4">{primaryRecommendation.description}</p>
-
-                    <div className="mb-4">
-                      <h5 className="font-medium text-indigo-800 mb-2 text-sm">Bénéfices principaux :</h5>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {primaryRecommendation.benefits.map((benefit, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="flex flex-wrap gap-4 text-sm mb-4">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-indigo-600 mr-1" />
-                        <span>Effets en {primaryRecommendation.timeToEffect}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <TrendingUp className="h-4 w-4 text-indigo-600 mr-1" />
-                        <span>{primaryRecommendation.popularity}% de satisfaction</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="md:w-2/5 mt-6 md:mt-0">
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                      <div className="mb-4">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-sm font-medium">Confiance scientifique</span>
-                          <span className="text-sm font-bold text-indigo-700">{(primaryRecommendation.confidence * 100).toFixed(0)}%</span>
-                        </div>
-                        <Progress 
-                          value={primaryRecommendation.confidence * 100} 
-                          className="h-2 bg-indigo-100" 
-                        />
-                      </div>
-
-                      <Button
-                        size="lg"
-                        variant="natural"
-                        className="w-full pulse-animation flex items-center justify-center gap-2"
-                        onClick={() => {
-                          toast.success(`Découverte de ${primaryRecommendation.title}`, {
-                            description: "Redirection vers la solution complète..."
-                          });
-                          window.location.href = primaryRecommendation.url;
-                        }}
-                      >
-                        <ShoppingCart className="h-5 w-5" />
-                        Découvrir votre solution
-                      </Button>
-
-                      <p className="text-xs text-center text-gray-500 mt-3">
-                        Satisfait ou remboursé pendant 30 jours
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-blue-700 mb-4">
-                Autres Recommandations Pour Vous
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recommendations
-                  .filter((rec) => rec !== primaryRecommendation)
-                  .map((rec, index) => (
-                    <div
-                      key={index}
-                      className="p-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-white hover:shadow-md transition-all duration-300"
-                    >
-                      <h4 className="font-semibold text-lg text-blue-900 mb-1">
-                        {rec.title}
-                      </h4>
-                      <p className="text-gray-700 text-sm mb-3">{rec.description}</p>
-
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center text-sm text-blue-600">
-                          <Info className="h-4 w-4 mr-1" />
-                          Confiance: {(rec.confidence * 100).toFixed(0)}%
-                        </div>
-                        <div className="text-sm text-blue-800">
-                          <Clock className="h-4 w-4 inline mr-1" />
-                          {rec.timeToEffect}
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="outline"
-                        className="w-full mt-3 group border-blue-200 text-blue-700 hover:bg-blue-50"
-                        onClick={() => (window.location.href = rec.url)}
-                      >
-                        En savoir plus
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ... reste du code inchangé */}
-
-        {activeTab === "report" && (
-          <div className="space-y-6">
-            <div className="bg-slate-50 p-5 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 text-slate-800">Résumé de Votre Profil</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Objectifs principaux :</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {(responses.objectives || []).map((objective, idx) => (
-                      <span key={idx} className="bg-slate-200 text-slate-800 px-3 py-1 rounded-full text-sm">
-                        {objective}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium">Habitudes alimentaires :</p>
-                    <p className="text-slate-600">{responses.dietaryHabits || "Non spécifié"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Consommation de protéines :</p>
-                    <p className="text-slate-600">
-                      Viande: {responses.meatConsumption || "Non spécifié"}<br />
-                      Poisson: {responses.fishConsumption || "Non spécifié"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Fruits et légumes :</p>
-                    <p className="text-slate-600">{responses.fruitVegConsumption || "Non spécifié"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Activité physique :</p>
-                    <p className="text-slate-600">{responses.exerciseFrequency || "Non spécifié"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Qualité du sommeil :</p>
-                    <p className="text-slate-600">{responses.sleepQuality || "Non spécifié"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Niveau de stress :</p>
-                    <p className="text-slate-600">{responses.stressLevel || "Non spécifié"}</p>
-                  </div>
-                </div>
-
-                {responses.symptoms && responses.symptoms.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-slate-700 mb-2">Symptômes signalés :</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {responses.symptoms.map((symptom, idx) => (
-                        <span key={idx} className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
-                          {symptom}
-                        </span>
-                      ))}
-                    </div>
+                {timeRemaining !== null && (
+                  <div className="text-sm font-semibold bg-white px-3 py-1 rounded-full">
+                    {formatTimeRemaining()}
                   </div>
                 )}
               </div>
             </div>
+          )}
 
-            <div className="bg-indigo-50 p-5 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 text-indigo-900">Analyse Scientifique</h3>
-              <p className="text-indigo-700 mb-4">
-                Sur la base de votre profil, nous avons identifié plusieurs besoins nutritionnels spécifiques que
-                nos solutions recommandées peuvent adresser efficacement.
-              </p>              <div className="space-y-3">
-                <div className="bg-white p-3 rounded border border-indigo-100">
-                  <h4 className="font-medium text-indigo-800">Étude de référence :</h4>
-                  <p className="text-sm text-slate-600">
-                    Notre analyse s'appuie sur une étude menée auprès de 243 participants présentant
-                    un profil similaire, avec un suivi de 16 semaines.
-                  </p>
-                </div>
-                <div className="bg-white p-3 rounded border border-indigo-100">
-                  <h4 className="font-medium text-indigo-800">Efficacité prouvée :</h4>
-                  <p className="text-sm text-slate-600">
-                    72% des participants ont constaté une amélioration significative de leurs symptômes
-                    dans les 4 premières semaines de supplémentation.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Affichage du score de risque */}
-            <div className="p-5 bg-white border border-indigo-100 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 flex items-center">
-                <Gauge className="h-5 w-5 mr-2 text-indigo-600" />
-                <span>Votre Indice de Risque Nutritionnel</span>
-              </h3>
-
-              <div className="mb-3">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium">Score Global</span>
-                  <span className="text-sm font-bold" style={{ color: riskColor }}>{riskScore}/100</span>
-                </div>
-                <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${riskScore}%`, backgroundColor: riskColor }}
-                  ></div>
-                </div>
-              </div>
-
-              <p className="text-sm text-gray-600 mb-4">
-                {riskScore < 30 ? 
-                  "Votre profil présente un risque nutritionnel élevé. Une supplémentation adaptée est fortement recommandée." :
-                  riskScore < 70 ?
-                  "Votre profil présente quelques lacunes nutritionnelles qui pourraient bénéficier d'une supplémentation ciblée." :
-                  "Votre profil nutritionnel est généralement bon. Une supplémentation ciblée peut optimiser certains aspects spécifiques."
-                }
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
-                <div className="p-3 bg-red-50 rounded-lg">
-                  <h4 className="text-sm font-medium text-red-800">Risque Élevé</h4>
-                  <p className="text-xs text-red-600">0-30</p>
-                </div>
-                <div className="p-3 bg-amber-50 rounded-lg">
-                  <h4 className="text-sm font-medium text-amber-800">Risque Modéré</h4>
-                  <p className="text-xs text-amber-600">31-70</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <h4 className="text-sm font-medium text-green-800">Risque Faible</h4>
-                  <p className="text-xs text-green-600">71-100</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <Button
-                size="lg"
-                variant="natural"
-                className="pulse-animation"
-                onClick={() => setActiveTab("recommendations")}
-              >
-                Voir mes recommandations personnalisées
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
+          {/* Localisation et personnalisation */}
+          <div className="mb-6 text-center text-sm text-gray-500">
+            <p>Analyse personnalisée pour votre profil à {userLocation}</p>
           </div>
-        )}
 
-        {activeTab === "neuroProfile" && neuroProfile && (
-          <div className="space-y-6">
-            <div className="bg-violet-50 p-5 rounded-lg border border-violet-100">
-              <div className="flex items-start mb-4">
-                <div className="bg-violet-100 p-2 rounded-full mr-3">
-                  <Brain className="h-6 w-6 text-violet-700" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-violet-900">Votre Profil Neuropsychologique</h3>
-                  <p className="text-sm text-violet-700">
-                    Notre algorithme a analysé vos réponses et comportements pour générer ce profil unique
-                  </p>
-                </div>
+          {/* Système d'onglets */}
+          <Tabs defaultValue="recommendations" value={activeTab} onValueChange={(val) => setActiveTab(val as any)}>
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="recommendations">Recommandations</TabsTrigger>
+              <TabsTrigger value="report">Rapport détaillé</TabsTrigger>
+              <TabsTrigger value="neuroProfile">Profil neuro</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="recommendations" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                {recommendations.map((rec) => (
+                  <Card key={rec.id} className={`border-l-4 border-${rec.categoryColor}-500 hover:shadow-md transition-shadow`}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-lg font-semibold">{rec.title}</CardTitle>
+                        <span className={`text-xs px-2 py-1 rounded-full bg-${rec.categoryColor}-100 text-${rec.categoryColor}-800`}>
+                          {rec.compatibilityScore}% compatible
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-gray-700 mb-3">{rec.description}</p>
+                      <details className="text-xs text-gray-600">
+                        <summary className="cursor-pointer text-indigo-600 hover:text-indigo-800">
+                          Evidence scientifique
+                        </summary>
+                        <p className="mt-2 p-2 bg-gray-50 rounded">{rec.scientificEvidence}</p>
+                      </details>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                <h3 className="font-semibold text-amber-900 mb-2">Analyse basée sur plus de 900 profils similaires</h3>
+                <p className="text-sm text-amber-800">
+                  Notre base de données de recherche contient des analyses de centaines de personnes présentant un profil similaire au vôtre. Les recommandations ci-dessus sont basées sur les solutions qui ont fonctionné pour ces profils.
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="report">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Rapport nutritionnel détaillé</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div>
-                    <h4 className="text-sm font-medium text-violet-800 mb-1">Niveau de Stress Cognitif</h4>
-                    <div className="flex items-center">
-                      <div className="w-full mr-3">
-                        <div className="h-4 w-full bg-violet-100 rounded-full overflow-hidden">
+                    <h3 className="font-medium text-gray-900 mb-1">Objectifs identifiés</h3>
+                    <ul className="list-disc pl-5 text-sm text-gray-700">
+                      {responses.objectives?.map((obj, idx) => (
+                        <li key={idx}>{obj}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Habitudes alimentaires</h3>
+                      <p className="text-sm text-gray-700">{responses.dietaryHabits}</p>
+
+                      <div className="mt-3">
+                        <h4 className="text-sm font-medium text-gray-900">Consommation de protéines</h4>
+                        <div className="mt-1 h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-violet-300 to-violet-500 rounded-full"
-                            style={{ width: `${neuroProfile.stressLevel}%` }}
-                          ></div>
+                            className="h-full bg-blue-500" 
+                            style={{ width: 
+                              responses.meatConsumption === 'daily' ? '90%' : 
+                              responses.meatConsumption === 'weekly' ? '60%' :
+                              responses.meatConsumption === 'rarely' ? '30%' : '10%'
+                            }}
+                          />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {responses.meatConsumption === 'daily' ? 'Consommation quotidienne' : 
+                          responses.meatConsumption === 'weekly' ? 'Consommation hebdomadaire' :
+                          responses.meatConsumption === 'rarely' ? 'Consommation rare' : 'Aucune consommation'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Mode de vie</h3>
+                      <div className="space-y-2">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Exercice physique</h4>
+                          <p className="text-sm text-gray-700">{responses.exerciseFrequency}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Qualité du sommeil</h4>
+                          <p className="text-sm text-gray-700">{responses.sleepQuality}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Niveau de stress</h4>
+                          <p className="text-sm text-gray-700">{responses.stressLevel}</p>
                         </div>
                       </div>
-                      <span className="text-sm font-semibold text-violet-700">{neuroProfile.stressLevel}%</span>
                     </div>
-                    <p className="text-xs text-violet-600 mt-1">
-                      {neuroProfile.stressLevel > 70 ? 
-                        "Niveau élevé - Une gestion active du stress est recommandée" :
-                        neuroProfile.stressLevel > 40 ? 
-                        "Niveau modéré - À surveiller, certaines techniques de gestion seraient bénéfiques" :
-                        "Niveau faible - Vous gérez bien le stress quotidien"
-                      }
-                    </p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-violet-800 mb-1">Score d'Attention et Concentration</h4>
-                    <div className="flex items-center">
-                      <div className="w-full mr-3">
-                        <div className="h-4 w-full bg-violet-100 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-violet-300 to-violet-500 rounded-full"
-                            style={{ width: `${neuroProfile.attentionScore}%` }}
-                          ></div>
+                    <h3 className="font-medium text-gray-900 mb-1">Symptômes identifiés</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {responses.symptoms?.map((symptom, idx) => (
+                        <div key={idx} className="p-2 bg-gray-50 rounded text-sm text-gray-700">
+                          {symptom}
                         </div>
-                      </div>
-                      <span className="text-sm font-semibold text-violet-700">{neuroProfile.attentionScore}%</span>
-                    </div>
-                    <p className="text-xs text-violet-600 mt-1">
-                      {neuroProfile.attentionScore > 75 ? 
-                        "Excellente capacité de concentration et d'attention aux détails" :
-                        neuroProfile.attentionScore > 45 ? 
-                        "Capacité d'attention moyenne - Des suppléments ciblés pourraient l'améliorer" :
-                        "Attention diffuse - Une optimisation cognitive serait bénéfique"
-                      }
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-violet-100 rounded-lg">
-                    <h4 className="text-sm font-medium text-violet-800 mb-1">Force Cognitive Principale</h4>
-                    <div className="flex items-center">
-                      <Lightbulb className="h-5 w-5 text-violet-600 mr-2" />
-                      <span className="text-violet-900">{neuroProfile.cognitiveStrength}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-violet-800 mb-2">Domaines d'Intérêt Prioritaires</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {neuroProfile.focusAreas.map((area: string, idx: number) => (
-                        <span key={idx} className="px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-xs">
-                          {area}
-                        </span>
                       ))}
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                  <div className="p-3 bg-violet-100 rounded-lg">
-                    <h4 className="text-sm font-medium text-violet-800 mb-1">Style d'Apprentissage Dominant</h4>
-                    <div className="flex items-center">
-                      <BookOpen className="h-5 w-5 text-violet-600 mr-2" />
-                      <span className="text-violet-900">{neuroProfile.learningStyle}</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-lg border border-violet-200">
-                    <h4 className="text-sm font-medium text-violet-800 mb-2">Recommandations Neuropsychologiques</h4>
-                    <ul className="space-y-2 text-sm">
-                      {neuroProfile.stressLevel > 60 && (
-                        <li className="flex items-start">
-                          <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                            <Check className="h-3 w-3 text-green-600" />
+            <TabsContent value="neuroProfile">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Brain className="mr-2 h-5 w-5 text-indigo-600" />
+                    Analyse neuro-comportementale
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {neuroProfile && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="p-3 bg-indigo-50 rounded-lg">
+                          <h3 className="text-sm font-medium text-indigo-900">Score d'attention</h3>
+                          <div className="mt-2 flex items-center">
+                            <div className="h-2 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="h-full bg-indigo-600" style={{ width: `${neuroProfile.attentionScore}%` }} />
+                            </div>
+                            <span className="ml-2 text-sm font-semibold">{neuroProfile.attentionScore}</span>
                           </div>
-                          <span>Techniques de respiration et méditation guidée</span>
-                        </li>
-                      )}
-                      {neuroProfile.attentionScore < 70 && (
-                        <li className="flex items-start">
-                          <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                            <Check className="h-3 w-3 text-green-600" />
-                          </div>
-                          <span>Suppléments à base de Bacopa et Ginkgo biloba</span>
-                        </li>
-                      )}
-                      <li className="flex items-start">
-                        <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                          <Check className="h-3 w-3 text-green-600" />
                         </div>
-                        <span>Protocole nutritionnel adapté à votre profil cognitif</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+                        <div className="p-3 bg-amber-50 rounded-lg">
+                          <h3 className="text-sm font-medium text-amber-900">Niveau de stress détecté</h3>
+                          <p className="mt-1 text-lg font-semibold capitalize">{neuroProfile.stressLevel}</p>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-lg">
+                          <h3 className="text-sm font-medium text-blue-900">Style de décision</h3>
+                          <p className="mt-1 text-lg font-semibold capitalize">{neuroProfile.decisionSpeed}</p>
+                        </div>
+                      </div>
 
-              <div className="mt-4 p-3 bg-violet-100/50 rounded-lg">
-                <p className="text-xs text-violet-700 italic">
-                  Ce profil est généré à partir de l'analyse de vos réponses et de vos interactions avec le questionnaire. 
-                  Il peut évoluer avec le temps et n'a pas vocation à remplacer un avis médical professionnel.
-                </p>
-              </div>
-            </div>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <h3 className="text-sm font-medium text-gray-900 mb-2">Interprétation de votre profil</h3>
+                        <p className="text-sm text-gray-700">
+                          Votre analyse comportementale révèle un style d'apprentissage {neuroProfile.cognitivePreference}.
+                          Vous avez tendance à prendre des décisions de manière {neuroProfile.decisionSpeed} avec un niveau 
+                          de réactivité {neuroProfile.responsiveness}. Ces caractéristiques influencent la façon dont vous 
+                          assimilez l'information nutritionnelle et comment vous pourriez mettre en œuvre des changements.
+                        </p>
+                      </div>
 
-            <div className="text-center">
-              <Button
-                size="lg"
-                variant="natural"
-                className="pulse-animation"
-                onClick={() => setActiveTab("recommendations")}
-              >
-                Voir mes recommandations personnalisées
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
+                      <div className="p-4 border border-indigo-100 rounded-lg">
+                        <h3 className="text-sm font-medium text-indigo-900 mb-2">Recommandation adaptative</h3>
+                        <p className="text-sm text-indigo-700">
+                          {neuroProfile.cognitivePreference === 'analytique' 
+                            ? "Basé sur votre profil analytique, nous vous recommandons d'examiner en détail les études scientifiques derrière chaque recommandation. Votre approche méthodique vous aidera à mettre en place des habitudes durables."
+                            : "Votre profil intuitif suggère que vous bénéficierez davantage d'une approche pratique et expérientielle. Essayez de mettre en œuvre une recommandation à la fois et observez comment vous vous sentez."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <Button variant="outline" onClick={onRestart}>
+              Recommencer le quiz
+            </Button>
+
+            <Button className="gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700" asChild>
+              <Link to="/profile">
+                <span>Accéder à mon profil complet</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-        )}
-
-        <div className="mt-8 border-t border-gray-100 pt-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <Button 
-            onClick={onRestart} 
-            variant="outline"
-            className="order-2 sm:order-1"
-          >
-            Refaire le Quiz
-          </Button>
-
-          <div className="text-xs text-gray-500 order-1 sm:order-2 text-center sm:text-right">
-            Analyse générée le {new Date().toLocaleDateString()} à {new Date().toLocaleTimeString()} • 
-            Données confidentielles et sécurisées
-          </div>
-        </div>
-      </div>
-
-      <style>
-{`
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-100vh);
-  }
-  100% {
-    transform: translateY(100vh);
-  }
-}
-
-@keyframes confetti-shake {
-  0% {
-    transform: skew(0deg);
-  }
-  100% {
-    transform: skew(5deg);
-  }
-}
-
-@keyframes molecule-drift {
-  0% { transform: translateY(-5%) rotate(3deg); }
-  100% { transform: translateY(15%) rotate(-2deg); }
-}
-
-.molecule-background {
-  background: url('/molecule-grid.svg');
-  animation: molecule-drift 45s infinite alternate;
-  opacity: 0.1;
-}
-
-.pulse-animation {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-  }
-}
-`}
-      </style>
+        </>
+      )}
     </div>
   );
 };
-
-// Badge component to show scientific validation
-const Badge = () => (
-  <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-lg px-3 py-2 shadow-sm">
-    <Award className="h-6 w-6 text-amber-600" />
-    <div>
-      <p className="text-xs font-medium text-amber-900">Validé scientifiquement</p>
-      <p className="text-[10px] text-amber-700">Laboratoire indépendant</p>
-    </div>
-  </div>
-);
-
-const BookOpen = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-  </svg>
-);
-
-const Users = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
-
-const Check = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-);
 
 export default QuizResults;
