@@ -59,42 +59,55 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
   while ((match = scientificTermRegex.exec(text)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
-      parts.push(text.substring(lastIndex, match.index));
+      parts.push({ type: 'text', text: text.substring(lastIndex, match.index) });
     }
 
     // Add the scientific term with tooltip
     const [, termId, displayText] = match;
-    parts.push(
-      <Tooltip key={`term-${termId}-${match.index}`}>
-        <TooltipTrigger asChild>
-          <span className="relative px-0.5 font-medium text-natural-900 bg-gradient-to-br from-indigo-50 to-teal-50 rounded">
-            {displayText}
-            <div className="absolute -bottom-0.5 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-400 to-teal-400"></div>
-          </span>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs">
-          <div className="space-y-2">
-            <h4 className="font-semibold">{displayText}</h4>
-            <p className="text-sm text-muted-foreground">
-              Information scientifique sur {termId}.
-            </p>
-            <div className="text-xs text-right text-muted-foreground">
-              Source: Journal of Nutrition, 2023
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    );
+    parts.push({ type: 'term', id: termId, text: displayText });
 
     lastIndex = match.index + match[0].length;
   }
 
   // Add remaining text
   if (lastIndex < text.length) {
-    parts.push(text.substring(lastIndex));
+    parts.push({ type: 'text', text: text.substring(lastIndex) });
   }
 
-  return <span className={className}>{parts}</span>;
+  const termData = scientificTerms.reduce((acc, term) => ({ ...acc, [term.id]: term }), {});
+
+  return (
+    <React.Fragment>
+      {parts.map((part, index) => {
+        if (part.type === 'text') {
+          return <span key={index}>{part.text}</span>;
+        } else {
+          return (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <span 
+                  className="font-medium text-primary underline decoration-dotted underline-offset-4 cursor-help"
+                >
+                  {part.text}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <div className="space-y-2">
+                  <h4 className="font-semibold">{termData[part.id]?.title || part.id}</h4>
+                  <p className="text-sm">{termData[part.id]?.definition || "Définition non disponible"}</p>
+                  {termData[part.id]?.source && (
+                    <p className="text-xs text-muted-foreground italic">
+                      Source: {termData[part.id].source}
+                    </p>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
+      })}
+    </React.Fragment>
+  );
 };
 
 export default ScientificHighlightedText;
