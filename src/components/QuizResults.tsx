@@ -5,40 +5,46 @@ import { useNavigate } from 'react-router-dom';
 import { secureStorageService as secureStorage } from '@/utils/secureStorage';
 import { 
   generateRecommendations, 
-  generateRecommendationExplanation 
+  generateRecommendationExplanation,
+  getAIModelStatus,
+  generateAdvancedRecommendations
 } from '@/utils/recommenderSystem';
 import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from '@/utils/types';
 import { motion } from "framer-motion";
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
-import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle } from 'lucide-react'; // Import icons
+import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
-// Placeholder for the AI model status function - needs to be implemented elsewhere
-const getAIModelStatus = () => ({
-  accuracy: 0.85, // Example accuracy
-  modelVersion: "1.2.3",
-  dataPointsAnalyzed: 10000
-});
-
-
-const QuizResults: React.FC = () => {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+const QuizResults: React.FC<{recommendations:Recommendation[], behavioralMetrics:BehavioralMetrics | null}> = ({recommendations:baseRecommendations, behavioralMetrics}) => {
+  const [recommendations, setRecommendations] = useState<Recommendation[]>(baseRecommendations);
   const [loading, setLoading] = useState<boolean>(true);
   const [aiModelInfo, setAiModelInfo] = useState(getAIModelStatus());
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAIInsight, setShowAIInsight] = useState(false);
   const navigate = useNavigate();
+
+  const neuroProfile: NeuroProfile = {
+    decisionStyle: behavioralMetrics?.changedAnswers?.length > 5 ? 'analytical' : 'intuitive',
+    riskTolerance: behavioralMetrics?.averageTimePerQuestion > 15 ? 'low' : 'moderate',
+    informationProcessing: 'visual',
+    attentionSpan: behavioralMetrics?.averageTimePerQuestion < 8 ? 'short' : 'normal'
+  };
+
 
   useEffect(() => {
     // Récupérer les réponses du quiz depuis le stockage sécurisé
     const quizResponses = secureStorage.getItem('quiz_responses');
-    const behavioralMetrics = secureStorage.getItem('behavioral_metrics');
-    const neuroProfile = secureStorage.getItem('neuro_profile');
+    
 
     if (quizResponses) {
       try {
         // Générer les recommandations avec l'IA avancée
-        const generatedRecommendations = generateRecommendations(
+        const generatedRecommendations = generateAdvancedRecommendations(
           quizResponses,
           behavioralMetrics,
           neuroProfile
@@ -98,6 +104,26 @@ const QuizResults: React.FC = () => {
     }
   };
 
+  // Exploiter les données comportementales pour les insights
+  const behavioralInsights = {
+    engagementScore: Math.min(100, Math.round((behavioralMetrics?.averageTimePerQuestion || 10) * 5)),
+    decisiveness: behavioralMetrics?.changedAnswers?.length < 3 ? "high" : "moderate",
+    concernPriorities: identifyConcernPriorities(quizResponses, behavioralMetrics),
+    timeSpent: formatTimeSpent(behavioralMetrics?.totalQuizDuration || 270)
+  };
+
+  const identifyConcernPriorities = (quizResponses: QuizResponse | null, behavioralMetrics: BehavioralMetrics | null): string[] => {
+    // Placeholder -  Replace with actual logic to identify concern priorities
+    return ["sleep", "energy", "mood"];
+  };
+
+  const formatTimeSpent = (milliseconds: number): string => {
+    const seconds = Math.floor((milliseconds / 1000) % 60);
+    const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+    return `${minutes}m ${seconds}s`;
+  };
+
+
   return (
     <div className="container py-8 max-w-4xl mx-auto px-4">
       <motion.div 
@@ -146,7 +172,7 @@ const QuizResults: React.FC = () => {
                     <span>Version: <span className="font-semibold">{aiModelInfo.modelVersion}</span></span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-blue-600" />
+                    <CheckCircle2 className="h-4 w-4 mr-2 text-blue-600" />
                     <span>Profils analysés: <span className="font-semibold">{aiModelInfo.dataPointsAnalyzed.toLocaleString()}</span></span>
                   </div>
                 </div>
@@ -254,7 +280,7 @@ const QuizResults: React.FC = () => {
               <CardContent>
                 {feedbackSubmitted ? (
                   <div className="text-center py-2">
-                    <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                    <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
                     <p className="text-green-700">Merci pour votre feedback ! Il nous aidera à améliorer nos recommandations.</p>
                   </div>
                 ) : (
