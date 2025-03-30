@@ -382,13 +382,13 @@ export const enrichRecommendationsWithExternalAI = async (
           content: `Voici les recommandations générées par notre système et les réponses au quiz de l'utilisateur.
           Veuillez enrichir ces recommandations avec des détails supplémentaires sur l'efficacité, d'éventuelles 
           synergies entre les compléments, et affiner les dosages en fonction du profil spécifique.
-          
+
           RÉPONSES AU QUIZ:
           ${JSON.stringify(quizResponses, null, 2)}
-          
+
           RECOMMANDATIONS GÉNÉRÉES:
           ${JSON.stringify(recommendations, null, 2)}
-          
+
           Répondez au format JSON avec les recommandations enrichies.`
         }
       ],
@@ -864,9 +864,13 @@ function evaluateDataQuality() {
 }
 
 // Fonction pour analyser les performances des recommandations
-function analyzeRecommendationPerformance() {
-  return {};
-}
+const analyzeRecommendationPerformance = () => ({
+  'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
+  'magnesium_glycinate': { averageRating: 4.6, totalRatings: 95 },
+  'omega3': { averageRating: 4.5, totalRatings: 150 },
+  'probiotics': { averageRating: 4.4, totalRatings: 110 },
+  'zinc': { averageRating: 4.3, totalRatings: 80 }
+});
 
 // Fonction pour identifier les corrélations de motifs
 function identifyPatternCorrelations() {
@@ -876,11 +880,3 @@ function identifyPatternCorrelations() {
     genderCorrelations: {}
   };
 }
-
-const analyzeRecommendationPerformance = () => ({
-  'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
-  'magnesium_glycinate': { averageRating: 4.6, totalRatings: 95 },
-  'omega3': { averageRating: 4.5, totalRatings: 150 },
-  'probiotics': { averageRating: 4.4, totalRatings: 110 },
-  'zinc': { averageRating: 4.3, totalRatings: 80 }
-});
