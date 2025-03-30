@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Clock, Award, ArrowRight, Brain, Heart, Activity } from 'lucide-react';
+import { CheckCircle, Clock, Award, ArrowRight, Brain, Heart, Activity, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,32 +38,47 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [precision, setPrecision] = useState(85);
   const navigate = useNavigate();
-  
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackData, setFeedbackData] = useState({
+    helpful: true,
+    purchaseIntent: 7,
+    comments: ''
+  });
+
+  const handleFeedbackSubmit = (recommendationId: string) => {
+    // Collecter les données d'apprentissage
+    if (responses) {
+      collectUserData(responses, recommendationId, feedbackData);
+      setShowFeedback(false);
+      alert("Merci pour votre feedback! Il nous aide à améliorer nos recommandations.");
+    }
+  };
+
   // Mesurer le temps total passé sur le quiz
   useEffect(() => {
     const calculateRecommendations = () => {
       setIsLoading(true);
-      
+
       let quizStartTime = secureStorage.getItem('quizStartTime');
       const quizEndTime = new Date().getTime();
-      
+
       if (!quizStartTime) {
         quizStartTime = quizEndTime - 180000; // Fallback: 3 minutes si pas de temps de départ
       }
-      
+
       const sessionDuration = (quizEndTime - quizStartTime) / 1000; // en secondes
-      
+
       // Créer un ensemble de métriques comportementales basiques
       const behavioralMetrics: BehavioralMetrics = {
         ...defaultBehavioralMetrics,
         sessionDuration,
       };
-      
+
       // Adapter le profil neuro aux réponses
       const neuroProfile: NeuroProfile = {
         ...defaultNeuroProfile
       };
-      
+
       // Adapter les points sensibles basés sur les symptômes rapportés
       if (responses.wellbeing) {
         if (responses.wellbeing.stressLevel === 'high') {
@@ -77,10 +91,10 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
           neuroProfile.painPoints.push('energy');
         }
       }
-      
+
       // Simulation d'un délai d'analyse pour plus de crédibilité
       const analysisTime = Math.floor(Math.random() * 1000) + 1500;
-      
+
       setTimeout(() => {
         try {
           // Générer les recommandations
@@ -89,9 +103,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
             behavioralMetrics, 
             neuroProfile
           );
-          
+
           setRecommendations(generatedRecommendations);
-          
+
           // Générer l'explication
           if (generatedRecommendations.length > 0) {
             const generatedExplanation = generateRecommendationExplanation(
@@ -100,17 +114,17 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
             );
             setExplanation(generatedExplanation);
           }
-          
+
           // Stocker les résultats pour usage futur
           secureStorage.setItem('quizResults', {
             responses,
             recommendations: generatedRecommendations,
             timestamp: new Date().toISOString()
           });
-          
+
           // Simuler la précision du modèle
           setPrecision(Math.floor(Math.random() * 10) + 80); // Entre 80% et 90%
-          
+
           setIsLoading(false);
         } catch (error) {
           console.error("Erreur lors du calcul des recommandations:", error);
@@ -164,48 +178,127 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              {recommendations.map((rec, index) => (
-                <Card key={index} className="overflow-hidden transition-shadow hover:shadow-md">
-                  <div className="bg-primary h-2"></div>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-semibold">{rec.title}</h3>
-                      <div className="bg-primary/10 text-primary font-medium rounded-full px-3 py-1 text-sm">
-                        {Math.round(rec.confidence * 100)}% match
-                      </div>
-                    </div>
-                    
-                    <p className="text-muted-foreground mt-2">{rec.description}</p>
-                    
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span className="text-sm">{rec.timeToEffect}</span>
-                      </div>
-                      {rec.scientificBasis && (
-                        <div className="flex items-center">
-                          <Award className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span className="text-sm">Validé scientifiquement</span>
+              {recommendations.map((recommendation, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="overflow-hidden transition-shadow hover:shadow-md"
+                >
+                  <Card>
+                    <div className="bg-primary h-2"></div>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-xl font-semibold">{recommendation.title}</h3>
+                        <div className="bg-primary/10 text-primary font-medium rounded-full px-3 py-1 text-sm">
+                          {Math.round(recommendation.confidence * 100)}% match
                         </div>
+                      </div>
+
+                      <p className="text-muted-foreground mt-2">{recommendation.description}</p>
+
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span className="text-sm">{recommendation.timeToEffect}</span>
+                        </div>
+                        {recommendation.scientificBasis && (
+                          <div className="flex items-center">
+                            <Award className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span className="text-sm">Validé scientifiquement</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {recommendation.benefits && (
+                        <ul className="mt-4 space-y-1">
+                          {recommendation.benefits.map((benefit, i) => (
+                            <li key={i} className="flex items-start">
+                              <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-1" />
+                              <span className="text-sm">{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </div>
-                    
-                    {rec.benefits && (
-                      <ul className="mt-4 space-y-1">
-                        {rec.benefits.map((benefit, i) => (
-                          <li key={i} className="flex items-start">
-                            <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-1" />
-                            <span className="text-sm">{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    
-                    <Button variant="outline" className="w-full mt-4">
-                      En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
+
+                      <Button className="w-full mt-4 bg-primary hover:bg-primary/90" 
+                        onClick={() => {
+                          // Si on clique sur le bouton, on montre le formulaire de feedback
+                          setShowFeedback(true);
+                        }}>
+                        Découvrir ce complément
+                      </Button>
+
+                      {showFeedback && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="mt-4 p-4 border rounded-lg bg-background"
+                        >
+                          <h4 className="font-medium mb-2">Aidez-nous à améliorer nos recommandations</h4>
+
+                          <div className="mb-3">
+                            <p className="text-sm mb-2">Cette recommandation vous semble-t-elle pertinente?</p>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant={feedbackData.helpful ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setFeedbackData({...feedbackData, helpful: true})}
+                              >
+                                <ThumbsUp className="h-4 w-4 mr-1" /> Oui
+                              </Button>
+                              <Button 
+                                variant={!feedbackData.helpful ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setFeedbackData({...feedbackData, helpful: false})}
+                              >
+                                <ThumbsDown className="h-4 w-4 mr-1" /> Non
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="mb-3">
+                            <p className="text-sm mb-2">Intérêt d'achat (1-10): {feedbackData.purchaseIntent}</p>
+                            <input 
+                              type="range" 
+                              min="1" 
+                              max="10" 
+                              value={feedbackData.purchaseIntent} 
+                              onChange={(e) => setFeedbackData({...feedbackData, purchaseIntent: parseInt(e.target.value)})}
+                              className="w-full"
+                            />
+                          </div>
+
+                          <div className="mb-3">
+                            <p className="text-sm mb-2">Commentaires (optionnel):</p>
+                            <textarea 
+                              className="w-full p-2 border rounded text-sm h-20"
+                              value={feedbackData.comments}
+                              onChange={(e) => setFeedbackData({...feedbackData, comments: e.target.value})}
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => setShowFeedback(false)}
+                            >
+                              Annuler
+                            </Button>
+                            <Button 
+                              size="sm"
+                              onClick={() => handleFeedbackSubmit(recommendation.id || 'unknown')}
+                            >
+                              Envoyer et continuer
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </TabsContent>
@@ -218,7 +311,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                     <Brain className="h-6 w-6 mr-3 text-primary" />
                     <h3 className="text-xl font-semibold">Analyse cognitive</h3>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between mb-1">
@@ -227,7 +320,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </div>
                       <Progress value={65} className="h-2" />
                     </div>
-                    
+
                     <div>
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium">Mémoire</span>
@@ -235,7 +328,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </div>
                       <Progress value={72} className="h-2" />
                     </div>
-                    
+
                     <div>
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium">Clarté mentale</span>
@@ -246,14 +339,14 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     <Activity className="h-6 w-6 mr-3 text-primary" />
                     <h3 className="text-xl font-semibold">Analyse physiologique</h3>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between mb-1">
@@ -262,7 +355,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </div>
                       <Progress value={45} className="h-2" />
                     </div>
-                    
+
                     <div>
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium">Qualité du sommeil</span>
@@ -270,7 +363,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </div>
                       <Progress value={38} className="h-2" />
                     </div>
-                    
+
                     <div>
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium">Gestion du stress</span>
@@ -288,7 +381,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4">Votre plan d'action personnalisé</h3>
-                
+
                 <div className="space-y-6">
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold">1</div>
@@ -299,7 +392,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold">2</div>
                     <div className="ml-4">
@@ -309,7 +402,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold">3</div>
                     <div className="ml-4">
@@ -320,7 +413,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <Button className="w-full mt-6">
                   Télécharger mon plan complet
                 </Button>

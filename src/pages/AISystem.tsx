@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Brain, Database, LineChart, Users, Zap, Sparkles, Gauge, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { getAIModelStatus } from '@/utils/recommenderSystem';
 
 export default function AISystem() {
@@ -302,6 +303,16 @@ export default function AISystem() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <div className="mt-12 text-center">
+        <p className="mb-4 text-muted-foreground">
+          Consultez l'évolution de notre système d'apprentissage et découvrez comment les données améliorent nos recommandations
+        </p>
+        <Button onClick={() => window.location.href = '/ai-learning'} className="bg-primary/10 text-primary hover:bg-primary/20">
+          <Brain className="mr-2 h-4 w-4" />
+          Voir le tableau de bord d'apprentissage
+        </Button>
+      </div>
     </motion.div>
   );
 }
