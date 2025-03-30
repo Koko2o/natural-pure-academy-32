@@ -1,37 +1,40 @@
 
-// src/utils/secureStorage.ts
+/**
+ * Utility pour gérer le stockage sécurisé des données sensibles
+ */
+
 const secureStorage = {
-  setItem: (key: string, value: any) => {
+  setItem: (key: string, value: any): void => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error('Error saving to secure storage:', error);
+      console.error('Error storing data:', error);
     }
   },
-
-  getItem: (key: string, defaultValue: any = null) => {
+  
+  getItem: (key: string): any => {
     try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : null;
     } catch (error) {
-      console.error('Error retrieving from secure storage:', error);
-      return defaultValue;
+      console.error('Error retrieving data:', error);
+      return null;
     }
   },
-
-  removeItem: (key: string) => {
+  
+  removeItem: (key: string): void => {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing from secure storage:', error);
+      console.error('Error removing data:', error);
     }
   },
-
-  clear: () => {
+  
+  clear: (): void => {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('Error clearing secure storage:', error);
+      console.error('Error clearing storage:', error);
     }
   }
 };

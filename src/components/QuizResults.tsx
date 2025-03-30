@@ -1,15 +1,26 @@
 // src/components/QuizResults.tsx
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Users } from 'lucide-react'; // Added import for Users component
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, Download, Share2, Heart, Award, Star, User } from 'lucide-react';
+import { ChevronRight, Download, Share2, Heart, Award, Star } from 'lucide-react';
 import { QuizResponse } from '@/components/quiz/types';
 //import { getRecommendations } from '@/utils/recommenderSystem';  //Removed because it's not defined
-import secureStorage from '@/utils/secureStorage';
+
+// Mock secureStorage for testing purposes.  Replace with actual implementation.
+const secureStorage = {
+  setItem: (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  },
+  getItem: (key) => {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  },
+};
 
 
 interface Recommendation {
