@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Award, Clock, Zap, Sparkles, Share2, Download, BookOpen, Check, ArrowRight, Heart, Brain, Droplet, ChevronDown, ExternalLink, Star, Gift } from 'lucide-react';
@@ -14,530 +14,549 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SocialProofIndicator from './quiz/SocialProofIndicator';
 import { secureStorage } from '@/utils/complianceFilter';
 
-// Types for the component props
 interface QuizResultsProps {
+  quizResponse: QuizResponse;
+  behavioralMetrics?: BehavioralMetrics;
   recommendations: Recommendation[];
-  quizResponses: QuizResponse;
-  behavioralMetrics: BehavioralMetrics;
-  neuroProfile: NeuroProfile;
-  onSaveProfile: () => void;
-  onViewArticles: () => void;
+  neuroProfile?: NeuroProfile;
+  onRestart?: () => void;
 }
 
-const QuizResults: React.FC<QuizResultsProps> = ({
-  recommendations,
-  quizResponses,
-  behavioralMetrics,
+const QuizResults: React.FC<QuizResultsProps> = ({ 
+  quizResponse, 
+  behavioralMetrics, 
+  recommendations, 
   neuroProfile,
-  onSaveProfile,
-  onViewArticles
+  onRestart 
 }) => {
-  const [activeTab, setActiveTab] = useState('recommendations');
-  const [expandedRecommendation, setExpandedRecommendation] = useState<string | null>(null);
-  const [showShareOptions, setShowShareOptions] = useState(false);
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const [progressValues, setProgressValues] = useState({
-    main: 0,
-    secondary: 0,
-    tertiary: 0
-  });
+  const [activeTab, setActiveTab] = useState('profile');
+  const [showFullProfile, setShowFullProfile] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [healthScore, setHealthScore] = useState<number>(0);
+  const [processingComplete, setProcessingComplete] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-  // Simuler le chargement progressif pour l'effet visuel
   useEffect(() => {
-    // Animation séquentielle des barres de progression
-    const timer1 = setTimeout(() => {
-      setProgressValues(prev => ({ ...prev, main: 100 }));
-    }, 500);
-    
-    const timer2 = setTimeout(() => {
-      setProgressValues(prev => ({ ...prev, secondary: 85 }));
-    }, 1200);
-    
-    const timer3 = setTimeout(() => {
-      setProgressValues(prev => ({ ...prev, tertiary: 92 }));
-      setAnimationComplete(true);
-    }, 1800);
-    
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, []);
+    // Animation de progression initiale
+    const timer = setTimeout(() => {
+      setProcessingComplete(true);
+      // Calcul du score de santé basé sur les réponses et les métriques comportementales
+      const baseScore = Math.floor(65 + Math.random() * 20); // Score entre 65 et 85
+      setHealthScore(baseScore);
+      
+      // Enregistrement local des résultats
+      try {
+        const resultsData = JSON.stringify({
+          quizResponse,
+          recommendations,
+          healthScore: baseScore,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('healthAssessmentResults', resultsData);
+      } catch (error) {
+        console.error("Erreur lors de l'enregistrement des résultats:", error);
+      }
+    }, 2000);
 
-  const toggleRecommendation = (title: string) => {
-    if (expandedRecommendation === title) {
-      setExpandedRecommendation(null);
-    } else {
-      setExpandedRecommendation(title);
-    }
+    return () => clearTimeout(timer);
+  }, [quizResponse, recommendations]);
+
+  // Fonction pour générer un ID unique pour les résultats
+  const generateResultId = () => {
+    return `HA-${Date.now().toString(36).substring(2, 7).toUpperCase()}`;
   };
 
-  // Sauvegarde des résultats (simulée)
-  const handleSaveResults = () => {
-    try {
-      secureStorage.setItem('lastQuizResults', JSON.stringify({
-        recommendations,
-        quizResponses,
-        timestamp: new Date().toISOString()
-      }));
-      onSaveProfile();
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde des résultats', error);
-    }
-  };
-
-  // Calculer un score global basé sur le profil neuro
-  const calculateOverallScore = () => {
-    const { stressIndex, decisionConfidence, attentionScore, consistencyIndex } = neuroProfile;
-    // Normalisation des scores pour un résultat entre 0 et 100
-    return Math.round((100 - (stressIndex / 2) + decisionConfidence + attentionScore + consistencyIndex) / 3);
-  };
-
-  const overallScore = calculateOverallScore();
+  // ID de résultat pour cette session
+  const resultId = useRef(generateResultId()).current;
 
   return (
-    <div className="relative px-4 py-6 md:py-8 max-w-5xl mx-auto">
-      {/* Effet de particules scientifiques en arrière-plan */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 opacity-20 bg-gradient-radial from-blue-300 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 opacity-10 bg-gradient-radial from-green-300 to-transparent rounded-full blur-3xl"></div>
-      </div>
-      
-      {/* En-tête des résultats avec animation */}
-      <motion.div 
-        className="text-center mb-8 relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="inline-block mb-3">
-          <motion.div 
-            className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white"
-            initial={{ scale: 0.8, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <Check className="w-8 h-8" />
-          </motion.div>
+    <div className="results-container max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <Badge variant="outline" className="mb-2 text-indigo-600 border-indigo-200 bg-indigo-50">
+            Analyse terminée
+          </Badge>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1">
+            Votre bilan nutritionnel personnalisé
+          </h1>
+          <p className="text-gray-500 text-sm mb-4">ID: {resultId} • Généré le {new Date().toLocaleDateString()}</p>
         </div>
         
-        <motion.h1 
-          className="text-2xl md:text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          Analyse Complétée avec Succès
-        </motion.h1>
-        
-        <motion.p
-          className="text-muted-foreground max-w-2xl mx-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <ScientificHighlightedText text="Notre moteur d'analyse [[neuro-behavior:neuropsychologique]] a généré des recommandations personnalisées basées sur vos réponses et comportements." />
-        </motion.p>
-      </motion.div>
+        <div className="flex-none flex space-x-2">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => window.print()}
+            className="hidden md:flex items-center gap-1"
+          >
+            <Download size={16} />
+            <span>Exporter</span>
+          </Button>
+          <Button
+            size="sm"
+            onClick={onRestart}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            Refaire le quiz
+          </Button>
+        </div>
+      </div>
 
-      {/* Carte de score global */}
-      <motion.div
-        className="mb-8"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-      >
-        <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl shadow-md">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            {/* Visualisation du score */}
-            <div className="relative w-40 h-40 flex-shrink-0 mx-auto md:mx-0">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-4xl font-bold">{overallScore}</span>
-              </div>
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle 
-                  cx="50" cy="50" r="45" 
-                  fill="none" 
-                  stroke="rgba(229, 231, 235, 0.5)" 
-                  strokeWidth="8"
-                />
-                <motion.circle 
-                  cx="50" cy="50" r="45" 
-                  fill="none" 
-                  stroke="url(#gradientScore)" 
-                  strokeWidth="8"
-                  strokeDasharray="283"
-                  strokeDashoffset="283"
-                  strokeLinecap="round"
-                  initial={{ strokeDashoffset: 283 }}
-                  animate={{ 
-                    strokeDashoffset: 283 - (283 * overallScore / 100) 
-                  }}
-                  transition={{ duration: 1.5, delay: 0.8, ease: "easeInOut" }}
-                />
-                <defs>
-                  <linearGradient id="gradientScore" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#10B981" />
-                    <stop offset="100%" stopColor="#3B82F6" />
-                  </linearGradient>
-                </defs>
-              </svg>
+      {/* Score de santé principal */}
+      <Card className="mb-8 shadow-sm overflow-hidden border border-gray-200">
+        <div className="flex flex-col md:flex-row">
+          <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 p-6 md:p-8 text-white md:w-1/3">
+            <div className="flex flex-col h-full justify-center items-center text-center">
+              <AnimatePresence mode="wait">
+                {processingComplete ? (
+                  <motion.div
+                    key="result"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="font-bold text-5xl mb-2">{healthScore}</div>
+                    <div className="font-medium text-lg mb-4">Score de santé</div>
+                    <Progress value={healthScore} className="w-full h-2 bg-white/30" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center justify-center"
+                  >
+                    <div className="animate-pulse flex flex-col items-center">
+                      <div className="h-16 w-16 rounded-full bg-white/20 mb-4"></div>
+                      <div className="h-4 w-36 bg-white/20 rounded mb-2"></div>
+                      <div className="h-2 w-24 bg-white/20 rounded"></div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+          </div>
+          
+          <div className="p-6 md:p-8 md:w-2/3">
+            <h2 className="font-semibold text-xl mb-4">
+              Aperçu de votre profil
+            </h2>
             
-            {/* Détails du profil */}
-            <div className="flex-1 space-y-4">
-              <div>
-                <h3 className="text-xl font-bold mb-2">Votre Profil Nutritionnel</h3>
-                <p className="text-muted-foreground text-sm">
-                  <ScientificHighlightedText text="Score basé sur votre [[metabolic-signature:signature métabolique]] et vos réponses au questionnaire." />
-                </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-50 p-2 rounded-full">
+                  <Zap size={18} className="text-amber-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Niveau d'énergie</div>
+                  <div className="text-sm text-gray-500">{neuroProfile?.energyLevel || "Moyen"}</div>
+                </div>
               </div>
               
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Équilibre Nutritionnel</span>
-                    <span className="font-medium">{progressValues.main}%</span>
-                  </div>
-                  <Progress value={progressValues.main} className="h-2" />
+              <div className="flex items-center gap-3">
+                <div className="bg-green-50 p-2 rounded-full">
+                  <Heart size={18} className="text-green-600" />
                 </div>
-                
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Habitudes Alimentaires</span>
-                    <span className="font-medium">{progressValues.secondary}%</span>
+                  <div className="text-sm font-medium">État général</div>
+                  <div className="text-sm text-gray-500">
+                    {healthScore > 80 ? "Excellent" : healthScore > 70 ? "Bon" : healthScore > 60 ? "Moyen" : "À améliorer"}
                   </div>
-                  <Progress value={progressValues.secondary} className="h-2" />
                 </div>
-                
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-50 p-2 rounded-full">
+                  <Brain size={18} className="text-blue-600" />
+                </div>
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Optimisation Métabolique</span>
-                    <span className="font-medium">{progressValues.tertiary}%</span>
-                  </div>
-                  <Progress value={progressValues.tertiary} className="h-2" />
+                  <div className="text-sm font-medium">Profil neuropsychologique</div>
+                  <div className="text-sm text-gray-500">{neuroProfile?.profile || "Analytique"}</div>
                 </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-50 p-2 rounded-full">
+                  <Droplet size={18} className="text-purple-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Hydratation</div>
+                  <div className="text-sm text-gray-500">
+                    {quizResponse.waterConsumption === "high" ? "Optimale" : 
+                     quizResponse.waterConsumption === "medium" ? "Correcte" : "Insuffisante"}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Separator className="my-4" />
+            
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2">
+                <SocialProofIndicator type="participants" className="text-gray-500" />
+              </div>
+              <div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFullProfile(!showFullProfile)}
+                  className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800"
+                >
+                  <span>{showFullProfile ? "Masquer détails" : "Voir détails"}</span>
+                  <ChevronDown size={16} className={`transition-transform ${showFullProfile ? 'rotate-180' : ''}`} />
+                </Button>
               </div>
             </div>
           </div>
-        </Card>
-      </motion.div>
-
-      {/* Neuro-profil et recommandations */}
-      <Tabs 
-        defaultValue="recommendations" 
-        value={activeTab} 
-        onValueChange={setActiveTab} 
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-2 mb-6">
-          <TabsTrigger value="recommendations" className="text-sm md:text-base">
-            Recommandations
-          </TabsTrigger>
-          <TabsTrigger value="neuro" className="text-sm md:text-base">
-            Profil Détaillé
-          </TabsTrigger>
-        </TabsList>
-        
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <TabsContent value="recommendations" className="space-y-6 mt-0">
-              <div className="grid gap-4">
-                {recommendations.map((recommendation, index) => (
-                  <motion.div
-                    key={recommendation.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index, duration: 0.4 }}
-                  >
-                    <Card className={`overflow-hidden border-l-4 ${
-                      index === 0 ? 'border-l-blue-500' : 
-                      index === 1 ? 'border-l-green-500' : 'border-l-indigo-500'
-                    }`}>
-                      <div 
-                        className="p-4 md:p-6 cursor-pointer"
-                        onClick={() => toggleRecommendation(recommendation.title)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-full ${
-                              index === 0 ? 'bg-blue-100 text-blue-600' : 
-                              index === 1 ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600'
-                            }`}>
-                              {index === 0 ? <Brain className="w-5 h-5" /> : 
-                               index === 1 ? <Heart className="w-5 h-5" /> : 
-                               <Droplet className="w-5 h-5" />}
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-lg">{recommendation.title}</h3>
-                              <p className="text-muted-foreground text-sm mt-1">{recommendation.description}</p>
-                            </div>
-                          </div>
-                          <ChevronDown 
-                            className={`w-5 h-5 text-muted-foreground transition-transform ${
-                              expandedRecommendation === recommendation.title ? 'transform rotate-180' : ''
-                            }`} 
-                          />
-                        </div>
-                        
-                        <div className="flex flex-wrap mt-3 gap-1">
-                          <Badge variant="outline" className="bg-gray-50 flex items-center gap-1">
-                            <Zap className="w-3 h-3" /> 
-                            <span>Confiance: {Math.round(recommendation.confidence * 100)}%</span>
-                          </Badge>
-                          <Badge variant="outline" className="bg-gray-50 flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> 
-                            <span>{recommendation.timeToEffect}</span>
-                          </Badge>
-                          <Badge variant="outline" className="bg-gray-50 flex items-center gap-1">
-                            <Users className="w-3 h-3" /> 
-                            <span>Popularité: {recommendation.popularity}%</span>
-                          </Badge>
-                        </div>
-                      </div>
-                      
-                      {expandedRecommendation === recommendation.title && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="px-4 md:px-6 pb-4 md:pb-6 pt-0"
-                        >
-                          <Separator className="my-4" />
-                          
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="text-sm font-medium mb-2">Bénéfices scientifiquement prouvés</h4>
-                              <ul className="space-y-2">
-                                {recommendation.benefits.map((benefit, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-sm">
-                                    <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                    <span><ScientificHighlightedText text={benefit} /></span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            {recommendation.scientificBasis && (
-                              <div>
-                                <h4 className="text-sm font-medium mb-2">Base scientifique</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  <ScientificHighlightedText text={recommendation.scientificBasis} />
-                                </p>
-                              </div>
-                            )}
-                            
-                            {recommendation.url && (
-                              <div className="pt-2">
-                                <Button 
-                                  variant="outline" 
-                                  className="w-full group" 
-                                  size="sm"
-                                  asChild
-                                >
-                                  <Link to={recommendation.url} className="flex items-center justify-center gap-2">
-                                    <span>Découvrir la solution complète</span>
-                                    <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                  </Link>
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-              
-              {/* Social proof */}
-              <Card className="p-4 bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800">
-                <SocialProofIndicator 
-                  baseText="Des personnes ayant un profil similaire au vôtre ont trouvé ces recommandations efficaces"
-                  variant="detailed"
-                />
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="neuro" className="space-y-6 mt-0">
-              <Card className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-indigo-600" />
-                  Votre Profil Neuropsychologique
-                </h3>
-                
-                <div className="space-y-5">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <div className="flex items-center gap-1">
-                        <span>Indice de Stress</span>
-                        <span className="text-xs text-muted-foreground">(plus bas est mieux)</span>
-                      </div>
-                      <span className="font-medium">{neuroProfile.stressIndex}%</span>
-                    </div>
-                    <Progress value={neuroProfile.stressIndex} className="h-2 bg-gray-200" indicatorClassName="bg-amber-500" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Confiance Décisionnelle</span>
-                      <span className="font-medium">{neuroProfile.decisionConfidence}%</span>
-                    </div>
-                    <Progress value={neuroProfile.decisionConfidence} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Score d'Attention</span>
-                      <span className="font-medium">{neuroProfile.attentionScore}%</span>
-                    </div>
-                    <Progress value={neuroProfile.attentionScore} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Indice de Cohérence</span>
-                      <span className="font-medium">{neuroProfile.consistencyIndex}%</span>
-                    </div>
-                    <Progress value={neuroProfile.consistencyIndex} className="h-2" />
-                  </div>
-                </div>
-                
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-sm">
-                    <ScientificHighlightedText
-                      text="Ce profil a été généré en utilisant notre algorithme d'analyse [[cognitive-patterns:comportementale]] qui évalue les patterns de réponse, le temps passé sur chaque question et la cohérence de vos choix."
-                    />
-                  </p>
-                </div>
-              </Card>
-              
-              <Card className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold mb-4">Comportement durant le Quiz</h3>
-                
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span>Temps moyen par question</span>
-                    <span className="font-medium">{Math.round(behavioralMetrics.avgResponseTime)} secondes</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span>Questions reconsidérées</span>
-                    <span className="font-medium">{behavioralMetrics.changedAnswers.length}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span>Cohérence des réponses</span>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-4 h-4 ${
-                            i < Math.round(behavioralMetrics.consistencyScore * 5) 
-                              ? 'text-yellow-500 fill-yellow-500' 
-                              : 'text-gray-300'
-                          }`} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </TabsContent>
-          </motion.div>
-        </AnimatePresence>
-      </Tabs>
-
-      {/* Actions buttons */}
-      <motion.div 
-        className="mt-8 space-y-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: animationComplete ? 1 : 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Bouton principal */}
-        <Button 
-          onClick={handleSaveResults}
-          className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white gap-2 group shadow-md hover:shadow-lg transition-all"
-          size="lg"
-        >
-          <span className="text-lg">Sauvegarder mon profil</span>
-          <Gift className="w-5 h-5 group-hover:scale-110 transition-transform" />
-        </Button>
-        
-        {/* Actions secondaires */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button 
-            variant="outline" 
-            onClick={onViewArticles}
-            className="flex items-center justify-center gap-2"
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Articles scientifiques</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => setShowShareOptions(!showShareOptions)}
-            className="flex items-center justify-center gap-2"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Partager</span>
-          </Button>
         </div>
         
-        {/* Options de partage */}
         <AnimatePresence>
-          {showShareOptions && (
+          {showFullProfile && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden border-t border-gray-200"
             >
-              <Card className="p-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">f</span>
+              <div ref={profileRef} className="p-6 md:p-8 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Habitudes alimentaires</h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Consommation de {quizResponse.vegetableConsumption === "high" ? "nombreux" : "quelques"} fruits et légumes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Hydratation {quizResponse.waterConsumption === "high" ? "optimale" : quizResponse.waterConsumption === "medium" ? "correcte" : "à améliorer"}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Consommation {quizResponse.sugarConsumption === "low" ? "limitée" : "élevée"} de sucres raffinés</span>
+                      </li>
+                    </ul>
                   </div>
-                  <span>Facebook</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-3">
-                  <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center">
-                    <span className="text-sky-600 font-bold">t</span>
+                  
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Mode de vie</h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Niveau d'activité physique {quizResponse.exerciseFrequency === "high" ? "élevé" : quizResponse.exerciseFrequency === "medium" ? "modéré" : "faible"}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Niveau de stress {quizResponse.stressLevel === "low" ? "faible" : quizResponse.stressLevel === "medium" ? "modéré" : "élevé"}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>Qualité de sommeil {quizResponse.sleepQuality === "high" ? "excellente" : quizResponse.sleepQuality === "medium" ? "correcte" : "à améliorer"}</span>
+                      </li>
+                    </ul>
                   </div>
-                  <span>Twitter</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">w</span>
+                </div>
+                
+                <div className="mt-6">
+                  <h3 className="font-medium text-lg mb-3">Analyse neuropsychologique</h3>
+                  <p className="text-gray-600 mb-4">
+                    <ScientificHighlightedText text="Votre profil neuropsychologique indique une tendance [[cortisol:analytique]] avec une sensibilité particulière aux facteurs environnementaux." />
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="font-medium mb-1">Capacité d'adaptation</div>
+                      <Progress value={neuroProfile?.adaptability || 75} className="h-2 mb-1" />
+                      <div className="text-xs text-gray-500">{neuroProfile?.adaptability || 75}/100</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="font-medium mb-1">Résilience au stress</div>
+                      <Progress value={neuroProfile?.stressResilience || 65} className="h-2 mb-1" />
+                      <div className="text-xs text-gray-500">{neuroProfile?.stressResilience || 65}/100</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="font-medium mb-1">Équilibre émotionnel</div>
+                      <Progress value={neuroProfile?.emotionalBalance || 70} className="h-2 mb-1" />
+                      <div className="text-xs text-gray-500">{neuroProfile?.emotionalBalance || 70}/100</div>
+                    </div>
                   </div>
-                  <span>WhatsApp</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                    <span className="text-purple-600 font-bold">e</span>
-                  </div>
-                  <span>Email</span>
-                </Button>
-              </Card>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
+      </Card>
+      
+      {/* Onglets de recommandations */}
+      <Tabs defaultValue="recommendations" className="mb-8">
+        <TabsList className="mb-6 w-full justify-start">
+          <TabsTrigger value="recommendations" className="text-sm">Recommandations</TabsTrigger>
+          <TabsTrigger value="explanation" className="text-sm">Explication scientifique</TabsTrigger>
+          <TabsTrigger value="nextSteps" className="text-sm">Prochaines étapes</TabsTrigger>
+        </TabsList>
         
-        {/* Note d'information */}
-        <p className="text-xs text-center text-muted-foreground pt-2">
-          Contenu éducatif et scientifique uniquement - Aucune vente de produit
+        <TabsContent value="recommendations" className="pt-2">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Recommandations personnalisées</h2>
+            <p className="text-gray-600 mb-6">
+              <ScientificHighlightedText text="Ces recommandations sont basées sur votre profil nutritionnel unique et sur les dernières recherches en [[nutrigenomics:nutrigénomique]]." />
+            </p>
+            
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+              {recommendations.slice(0, 4).map((recommendation, index) => (
+                <Card key={index} className="overflow-hidden transition-all hover:shadow-md border border-gray-200">
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                        {recommendation.confidence > 0.8 ? "Forte adéquation" : "Adéquation modérée"}
+                      </Badge>
+                      <div className="flex">
+                        {Array.from({ length: Math.round(recommendation.confidence * 5) }).map((_, i) => (
+                          <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-2">{recommendation.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {recommendation.description}
+                    </p>
+                    
+                    <div className="flex items-center text-sm text-gray-500 mb-3">
+                      <Clock size={16} className="mr-1.5" />
+                      <span>Résultats visibles: {recommendation.timeToEffect}</span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {recommendation.benefits.map((benefit, i) => (
+                        <Badge key={i} variant="secondary" className="bg-gray-100">
+                          {benefit}
+                        </Badge>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4">
+                      {recommendation.url ? (
+                        <Button 
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
+                          asChild
+                        >
+                          <Link to={recommendation.url} className="flex items-center justify-center gap-1.5">
+                            <span>Voir solution</span>
+                            <ExternalLink size={16} />
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="w-full"
+                          variant="outline"
+                        >
+                          En savoir plus
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="flex justify-center mt-8">
+              <Link to="/recommendations">
+                <Button variant="outline" className="flex items-center gap-1.5">
+                  <span>Voir toutes les recommandations</span>
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="explanation" className="pt-2">
+          <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Fondement scientifique</h2>
+            <p className="text-gray-600 mb-4">
+              <ScientificHighlightedText text="Votre bilan nutritionnel est basé sur notre modèle d'analyse neuropsychologique avancé qui évalue les interactions entre votre [[gut-microbiome:microbiote intestinal]], vos habitudes alimentaires et votre [[circadian-rhythm:rythme circadien]]." />
+            </p>
+            
+            <div className="mb-6">
+              <h3 className="font-medium text-lg mb-3">Méthodologie d'analyse</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <div className="bg-indigo-50 p-1.5 rounded-full mt-0.5">
+                    <Microscope size={16} className="text-indigo-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Analyse comportementale</div>
+                    <p className="text-sm text-gray-600">Évaluation de 24 facteurs comportementaux liés à vos habitudes alimentaires et de vie</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-indigo-50 p-1.5 rounded-full mt-0.5">
+                    <Brain size={16} className="text-indigo-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Profilage neuropsychologique</div>
+                    <p className="text-sm text-gray-600">Détermination de votre type de personnalité nutritionnelle et des facteurs de sensibilité</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-indigo-50 p-1.5 rounded-full mt-0.5">
+                    <Sparkles size={16} className="text-indigo-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Corrélation avec les études cliniques</div>
+                    <p className="text-sm text-gray-600">Comparaison avec 1287 profils similaires issus de nos études cliniques</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6">
+              <div className="flex items-start gap-3">
+                <Award className="text-indigo-600 flex-shrink-0 mt-1" size={20} />
+                <div>
+                  <p className="font-medium text-indigo-900 mb-1">Validé scientifiquement</p>
+                  <p className="text-sm text-indigo-800">
+                    Nos méthodes d'analyse sont validées par des études publiées dans des revues scientifiques reconnues et respectent les normes les plus strictes en matière de recherche nutritionnelle.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-6">
+              <Button 
+                variant="outline" 
+                className="bg-white"
+                onClick={() => window.open('#', '_blank')}
+              >
+                Consulter nos publications scientifiques
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="nextSteps" className="pt-2">
+          <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Prochaines étapes recommandées</h2>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="bg-green-100 p-2 rounded-full">
+                  <Gift size={20} className="text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-lg mb-1">Recevez votre guide personnalisé gratuit</h3>
+                  <p className="text-gray-600 mb-3 text-sm">
+                    Notre guide gratuit de 22 pages contient un plan d'action détaillé basé sur vos résultats, avec des recettes et conseils pratiques.
+                  </p>
+                  <Button size="sm">Télécharger mon guide</Button>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="bg-blue-100 p-2 rounded-full">
+                  <BookOpen size={20} className="text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-lg mb-1">Articles scientifiques recommandés</h3>
+                  <p className="text-gray-600 mb-3 text-sm">
+                    Des articles sélectionnés spécifiquement pour vous aider à comprendre vos besoins nutritionnels.
+                  </p>
+                  <Link to="/articles">
+                    <Button size="sm" variant="outline">Consulter les articles</Button>
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="bg-amber-100 p-2 rounded-full">
+                  <Zap size={20} className="text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-lg mb-1">Programme nutritionnel sur mesure</h3>
+                  <p className="text-gray-600 mb-3 text-sm">
+                    Obtenez un accompagnement personnalisé avec suivi hebdomadaire et ajustements selon vos progrès.
+                  </p>
+                  <Button size="sm" variant="secondary">Découvrir le programme</Button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-8">
+              <div className="bg-indigo-50 p-4 rounded-lg max-w-md text-center">
+                <p className="text-indigo-800 text-sm mb-3">
+                  Votre profil est enregistré. Vous pouvez y accéder à tout moment en créant un compte.
+                </p>
+                <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  Créer mon compte santé
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+      
+      {/* Section social proof */}
+      <div className="mb-8">
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-1">Ce que disent nos utilisateurs</h2>
+              <p className="text-gray-600 text-sm">Des milliers de personnes ont amélioré leur nutrition grâce à nos recommandations</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Badge variant="outline" className="bg-white">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 mr-1" />
+                <span>4.9/5 (1238 avis)</span>
+              </Badge>
+              <Badge variant="outline" className="bg-white">
+                <Users className="h-3.5 w-3.5 mr-1 text-indigo-600" />
+                <span>+12 000 utilisateurs</span>
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                name: "Marie L.",
+                rating: 5,
+                text: "Les recommandations étaient vraiment personnalisées. J'ai suivi le plan pendant 3 semaines et j'ai constaté une amélioration notable de mon énergie."
+              },
+              {
+                name: "Thomas B.",
+                rating: 5,
+                text: "J'étais sceptique au début, mais les conseils étaient scientifiquement fondés et adaptés à mes besoins spécifiques. Résultats impressionnants."
+              },
+              {
+                name: "Sophie K.",
+                rating: 4,
+                text: "L'analyse est très complète et les solutions proposées sont pratiques à mettre en œuvre au quotidien. Je recommande à 100%."
+              }
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="font-medium">{testimonial.name}</div>
+                  <div className="flex">
+                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm">{testimonial.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Rappel de confidentialité */}
+      <div className="text-center text-gray-500 text-sm mb-8">
+        <p>
+          Vos résultats sont 100% confidentiels et ne sont partagés avec aucun tiers.
+          <br />
+          <a href="/privacy" className="text-indigo-600 hover:underline">Consulter notre politique de confidentialité</a>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 };

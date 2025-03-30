@@ -1,4 +1,3 @@
-
 import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from './types';
 
 // Base de connaissances des nutriments et leurs effets
@@ -376,10 +375,10 @@ function identifyUserProblems(quizResponses: QuizResponse): string[] {
     problems.push('concentration');
   }
 
-  // Ajout des problèmes explicitement mentionnés
+  // Détection des problèmes explicitement mentionnés
   if (quizResponses.health?.healthConcerns) {
     const concernsLower = quizResponses.health.healthConcerns.toLowerCase();
-    
+
     if (concernsLower.includes('immun')) problems.push('immunité');
     if (concernsLower.includes('peau') || concernsLower.includes('cutané')) problems.push('peau');
     if (concernsLower.includes('cardio') || concernsLower.includes('cœur')) problems.push('cardiovasculaire');
@@ -400,48 +399,48 @@ function calculateMatchScore(
   neuralProfile: NeuralProfile
 ): number {
   let score = 0;
-  
+
   // Correspondance avec les problèmes de l'utilisateur (facteur le plus important)
   const problemMatch = solution.forProblems.filter(problem => 
     userProblems.some(p => problem.includes(p) || p.includes(problem))
   ).length;
-  
+
   score += (problemMatch / Math.max(1, solution.forProblems.length)) * 50; // Jusqu'à 50 points
-  
+
   // Bonus pour la solidité scientifique (pour les profils détaillés)
   score += solution.researchScore * 15 * (neuralProfile.detailOrientation / 100); // Jusqu'à 15 points
-  
+
   // Bonus pour la popularité (pour les profils à faible besoin d'information)
   score += (solution.popularity / 100) * 10 * ((100 - neuralProfile.informationNeed) / 100); // Jusqu'à 10 points
-  
+
   // Adaptation selon le groupe d'âge
   if (factors.ageGroup === 'senior' && 
       (solution.forProblems.includes('mémoire') || solution.forProblems.includes('articulations'))) {
     score += 5;
   }
-  
+
   if (factors.ageGroup === 'young' && 
       (solution.forProblems.includes('énergie') || solution.forProblems.includes('stress'))) {
     score += 5;
   }
-  
+
   // Adaptation selon le niveau de stress
   if (factors.stressLevel > 70 && solution.forProblems.includes('stress')) {
     score += 10;
   }
-  
+
   // Adaptation selon la qualité du sommeil
   if (factors.sleepQuality < 40 && solution.forProblems.includes('sommeil')) {
     score += 10;
   }
-  
+
   // Considération des objectifs de santé spécifiques
   const goalMatch = factors.healthGoals.filter(goal => 
     solution.benefits.some(benefit => benefit.toLowerCase().includes(goal.toLowerCase()))
   ).length;
-  
+
   score += (goalMatch / Math.max(1, factors.healthGoals.length)) * 10; // Jusqu'à 10 points
-  
+
   return Math.min(100, score);
 }
 
@@ -455,13 +454,13 @@ export function generateRecommendations(
 ): Recommendation[] {
   // Extraction des facteurs de personnalisation
   const personalizationFactors = extractPersonalizationFactors(quizResponses);
-  
+
   // Extraction du profil neural basé sur le comportement
   const neuralProfile = extractNeuralProfile(behavioralMetrics);
-  
+
   // Identification des problèmes principaux de l'utilisateur
   const userProblems = identifyUserProblems(quizResponses);
-  
+
   // Calcul des scores de correspondance pour chaque solution
   const scoredSolutions = combinedSolutions.map(solution => {
     const matchScore = calculateMatchScore(
@@ -470,16 +469,16 @@ export function generateRecommendations(
       personalizationFactors,
       neuralProfile
     );
-    
+
     return {
       ...solution,
       matchScore
     };
   });
-  
+
   // Tri des solutions par score de correspondance
   const sortedSolutions = scoredSolutions.sort((a, b) => b.matchScore - a.matchScore);
-  
+
   // Conversion en format Recommendation
   return sortedSolutions.slice(0, 3).map(solution => ({
     title: solution.title,
@@ -503,29 +502,331 @@ export function generateRecommendationExplanation(
   if (recommendations.length === 0) {
     return "Nous n'avons pas pu générer de recommandations spécifiques. Veuillez consulter un professionnel de santé.";
   }
-  
+
   const topRecommendation = recommendations[0];
   const factors = extractPersonalizationFactors(quizResponses);
-  
+
   let explanation = `D'après votre profil nutritionnel, notre algorithme a identifié que ${topRecommendation.title} pourrait être particulièrement bénéfique pour vous. `;
-  
+
   // Personnalisation selon l'âge
   if (factors.ageGroup === 'senior') {
     explanation += `À votre âge, il est important de privilégier des nutriments qui soutiennent la santé cognitive et articulaire. `;
   } else if (factors.ageGroup === 'young') {
     explanation += `Pour votre tranche d'âge, nous recommandons des solutions qui optimisent votre énergie et votre concentration. `;
   }
-  
+
   // Personnalisation selon le niveau de stress
   if (factors.stressLevel > 70) {
     explanation += `Votre niveau de stress élevé suggère un besoin en nutriments qui soutiennent le système nerveux et la production de neurotransmetteurs équilibrants. `;
   }
-  
+
   // Mention des preuves scientifiques
   explanation += `Cette recommandation est basée sur des recherches scientifiques solides, avec un indice de confiance de ${Math.round(topRecommendation.confidence * 100)}%. `;
-  
+
   // Informations sur le temps d'effet
   explanation += `La plupart des utilisateurs constatent des résultats positifs après ${topRecommendation.timeToEffect} d'utilisation régulière.`;
-  
+
   return explanation;
 }
+
+
+/**
+ * Moteur de recommandation amélioré avec stabilité et cohérence
+ * 
+ * Génère des recommandations personnalisées basées sur les réponses au quiz
+ * et les métriques comportementales de l'utilisateur
+ */
+export const generateRecommendationsImproved = (
+  quizResponse: QuizResponse,
+  behavioralMetrics?: BehavioralMetrics
+): Recommendation[] => {
+  // Base de recommandations (simulée - dans un système réel, cela viendrait d'une API ou d'une base de données)
+  const recommendationDB: Recommendation[] = [
+    {
+      title: "Complexe Magnésium-B6 BioAssimilable",
+      description: "Complément nutritionnel spécialement formulé pour réduire le stress et améliorer le sommeil.",
+      url: "/products/magnesium-b6",
+      confidence: 0.95,
+      benefits: ["Réduction du stress", "Amélioration du sommeil", "Réduction des crampes"],
+      timeToEffect: "2-3 semaines",
+      popularity: 92,
+      scientificBasis: "Études cliniques sur l'impact du magnésium sur le système nerveux"
+    },
+    {
+      title: "Oméga-3 Algue Marine Concentré",
+      description: "Source végétale d'oméga-3 DHA/EPA hautement concentrée pour soutenir les fonctions cognitives.",
+      url: "/products/omega3-algae",
+      confidence: 0.88,
+      benefits: ["Amélioration cognitive", "Anti-inflammatoire", "Santé cardiovasculaire"],
+      timeToEffect: "4-6 semaines",
+      popularity: 86,
+      scientificBasis: "Recherches sur l'impact des acides gras sur l'inflammation cérébrale"
+    },
+    {
+      title: "Complexe Enzymatique Digestif",
+      description: "Formule complète d'enzymes pour optimiser la digestion et l'assimilation des nutriments.",
+      url: "/products/digestive-enzymes",
+      confidence: 0.78,
+      benefits: ["Amélioration digestive", "Réduction des ballonnements", "Assimilation optimisée"],
+      timeToEffect: "1-2 semaines",
+      popularity: 79
+    },
+    {
+      title: "Vitamine D3+K2 Liposomale",
+      description: "Combinaison synergique pour une absorption optimale et une meilleure santé osseuse.",
+      url: "/products/d3-k2-liposomal",
+      confidence: 0.85,
+      benefits: ["Santé osseuse", "Immunité renforcée", "Énergie améliorée"],
+      timeToEffect: "2-4 semaines",
+      popularity: 88
+    },
+    {
+      title: "Complexe Adaptogène Anti-Stress",
+      description: "Mélange de plantes adaptogènes pour réguler la réponse au stress et optimiser les niveaux d'énergie.",
+      url: "/products/adaptogenic-complex",
+      confidence: 0.92,
+      benefits: ["Gestion du stress", "Équilibre hormonal", "Énergie stable"],
+      timeToEffect: "2-3 semaines",
+      popularity: 90
+    },
+    {
+      title: "Collagène Marin Peptides Bioactifs",
+      description: "Peptides de collagène hautement absorbables pour la santé de la peau, des articulations et des tissus.",
+      url: "/products/marine-collagen",
+      confidence: 0.80,
+      benefits: ["Régénération cutanée", "Souplesse articulaire", "Santé digestive"],
+      timeToEffect: "4-8 semaines",
+      popularity: 85
+    },
+    {
+      title: "Complexe Sommeil Naturel",
+      description: "Formule apaisante à base de mélatonine naturelle, magnésium et plantes relaxantes.",
+      url: "/products/natural-sleep",
+      confidence: 0.89,
+      benefits: ["Amélioration du sommeil", "Réduction du temps d'endormissement", "Sommeil réparateur"],
+      timeToEffect: "3-5 jours",
+      popularity: 95
+    }
+  ];
+
+  // Génération d'un identifiant unique par session pour assurer la cohérence des recommandations
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem('recommendation_session_id');
+    if (!sessionId) {
+      sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+      localStorage.setItem('recommendation_session_id', sessionId);
+    }
+    return sessionId;
+  };
+
+  // Utiliser l'ID de session pour garantir des résultats cohérents entre les appels
+  const sessionId = getSessionId();
+
+  // Fonction de hashage simple pour la cohérence
+  const getStableIndex = (input: string, max: number): number => {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      hash = ((hash << 5) - hash) + input.charCodeAt(i);
+      hash |= 0; // Convertir en entier 32 bits
+    }
+    // Math.abs pour s'assurer d'avoir un nombre positif, puis modulo pour avoir un index valide
+    return Math.abs(hash) % max;
+  };
+
+  // Système de score pour sélectionner les recommandations les plus pertinentes
+  const scoredRecommendations = recommendationDB.map(recommendation => {
+    let score = 0;
+
+    // Analyse des réponses au quiz
+    if (quizResponse.stressLevel === 'high' && recommendation.benefits.includes('Réduction du stress')) {
+      score += 20;
+    }
+
+    if (quizResponse.sleepQuality === 'low' && recommendation.benefits.includes('Amélioration du sommeil')) {
+      score += 25;
+    }
+
+    if (quizResponse.energyLevel === 'low' && recommendation.benefits.some(b => b.includes('nergie'))) {
+      score += 20;
+    }
+
+    if (quizResponse.digestiveIssues === 'high' && recommendation.benefits.some(b => b.includes('digestiv'))) {
+      score += 25;
+    }
+
+    if (quizResponse.exerciseFrequency === 'high' && recommendation.benefits.includes('Souplesse articulaire')) {
+      score += 15;
+    }
+
+    if (quizResponse.inflammationSigns === 'high' && recommendation.benefits.includes('Anti-inflammatoire')) {
+      score += 20;
+    }
+
+    // Analyse des métriques comportementales (si disponibles)
+    if (behavioralMetrics) {
+      // Ajuster la confiance en fonction du temps passé sur le quiz
+      if (behavioralMetrics.timeSpent > 180) { // Plus de 3 minutes
+        score += 10; // Réponses plus réfléchies, meilleure confiance
+      }
+
+      // Fréquence de changement d'avis (hésitation)
+      if (behavioralMetrics.changeCount > 5) {
+        score -= 5; // Moins de confiance dans les réponses
+      }
+
+      // Niveau d'engagement
+      if (behavioralMetrics.engagementScore > 70) {
+        score += 10; // Utilisateur très engagé
+      }
+    }
+
+    // Introduire une légère variation stable basée sur l'ID de session
+    const stableVariation = getStableIndex(`${sessionId}-${recommendation.title}`, 10) - 5; // -5 à +4
+    score += stableVariation;
+
+    // Ajuster le score de confiance en fonction du score calculé (normalisé entre 0 et 1)
+    // Utiliser une formule avec un plafond pour éviter des variations trop importantes
+    const scoreInfluence = Math.min(score / 100, 0.15); // Max 15% d'influence
+    const adjustedConfidence = Math.min(Math.max(recommendation.confidence + scoreInfluence, 0.7), 0.98);
+
+    return {
+      ...recommendation,
+      confidence: adjustedConfidence
+    };
+  });
+
+  // Tri des recommandations par score de confiance ajusté
+  const sortedRecommendations = scoredRecommendations.sort((a, b) => b.confidence - a.confidence);
+
+  // Enregistrer les recommandations pour cohérence entre les rendus
+  try {
+    localStorage.setItem('current_recommendations', JSON.stringify(sortedRecommendations.slice(0, 4)));
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement des recommandations:", error);
+  }
+
+  // Retourne les 4 meilleures recommandations
+  return sortedRecommendations.slice(0, 4);
+};
+
+/**
+ * Génère un profil neuropsychologique basé sur les réponses et comportements
+ * avec une stabilité améliorée pour éviter les changements aléatoires entre les rendus
+ */
+export const generateNeuroProfileImproved = (
+  quizResponse: QuizResponse,
+  behavioralMetrics?: BehavioralMetrics
+): NeuroProfile => {
+  // Vérifier si un profil est déjà sauvegardé pour cette session
+  const savedProfile = localStorage.getItem('current_neuro_profile');
+  if (savedProfile) {
+    try {
+      return JSON.parse(savedProfile);
+    } catch (error) {
+      console.error("Erreur lors de la lecture du profil sauvegardé:", error);
+      // Continuer avec la génération d'un nouveau profil
+    }
+  }
+
+  // Score de base pour les différentes dimensions
+  let adaptabilityScore = 50;
+  let stressResilienceScore = 50;
+  let emotionalBalanceScore = 50;
+  let energyLevel = 'medium';
+  let profile = 'balanced';
+
+  // Ajuster les scores en fonction des réponses au quiz
+  if (quizResponse.stressLevel === 'high') {
+    stressResilienceScore -= 15;
+    emotionalBalanceScore -= 10;
+  } else if (quizResponse.stressLevel === 'low') {
+    stressResilienceScore += 15;
+    emotionalBalanceScore += 10;
+  }
+
+  if (quizResponse.sleepQuality === 'high') {
+    emotionalBalanceScore += 10;
+    energyLevel = 'high';
+  } else if (quizResponse.sleepQuality === 'low') {
+    emotionalBalanceScore -= 15;
+    energyLevel = 'low';
+  }
+
+  if (quizResponse.exerciseFrequency === 'high') {
+    adaptabilityScore += 15;
+    stressResilienceScore += 10;
+  } else if (quizResponse.exerciseFrequency === 'low') {
+    adaptabilityScore -= 10;
+  }
+
+  if (quizResponse.dietChange === 'flexible') {
+    adaptabilityScore += 20;
+  } else if (quizResponse.dietChange === 'resistant') {
+    adaptabilityScore -= 15;
+  }
+
+  // Déterminer le profil en fonction des scores
+  if (adaptabilityScore > 70 && stressResilienceScore > 60) {
+    profile = 'resilient';
+  } else if (emotionalBalanceScore < 40 && stressResilienceScore < 45) {
+    profile = 'sensitive';
+  } else if (adaptabilityScore < 40 && stressResilienceScore > 60) {
+    profile = 'stable';
+  } else if (adaptabilityScore > 65 && emotionalBalanceScore < 45) {
+    profile = 'adaptive';
+  } else if (stressResilienceScore < 40 && adaptabilityScore < 45) {
+    profile = 'reactive';
+  } else {
+    profile = 'balanced';
+  }
+
+  // Incorporer les métriques comportementales si disponibles
+  if (behavioralMetrics) {
+    // Vitesse de lecture affecte le profil
+    if (behavioralMetrics.readingSpeed === 'fast') {
+      profile = profile === 'balanced' ? 'analytique' : profile;
+      adaptabilityScore += 5;
+    } else if (behavioralMetrics.readingSpeed === 'slow') {
+      profile = profile === 'balanced' ? 'methodical' : profile;
+      emotionalBalanceScore += 5;
+    }
+
+    // Engagement élevé suggère une plus grande précision
+    if (behavioralMetrics.engagementScore > 80) {
+      adaptabilityScore += 10;
+      stressResilienceScore += 5;
+    }
+
+    // Beaucoup d'hésitations peuvent indiquer de l'indécision
+    if (behavioralMetrics.hesitationPatterns.length > 3) {
+      emotionalBalanceScore -= 10;
+    }
+  }
+
+  // Assurer que les scores restent dans la plage 0-100
+  adaptabilityScore = Math.min(Math.max(adaptabilityScore, 0), 100);
+  stressResilienceScore = Math.min(Math.max(stressResilienceScore, 0), 100);
+  emotionalBalanceScore = Math.min(Math.max(emotionalBalanceScore, 0), 100);
+
+  // Arrondir les scores pour plus de stabilité visuelle
+  adaptabilityScore = Math.round(adaptabilityScore / 5) * 5;
+  stressResilienceScore = Math.round(stressResilienceScore / 5) * 5;
+  emotionalBalanceScore = Math.round(emotionalBalanceScore / 5) * 5;
+
+  const neuroProfile = {
+    adaptability: adaptabilityScore,
+    stressResilience: stressResilienceScore,
+    emotionalBalance: emotionalBalanceScore,
+    energyLevel,
+    profile
+  };
+
+  // Sauvegarder le profil pour cohérence entre les rendus
+  try {
+    localStorage.setItem('current_neuro_profile', JSON.stringify(neuroProfile));
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement du profil:", error);
+  }
+
+  return neuroProfile;
+};

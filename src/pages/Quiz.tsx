@@ -1,16 +1,15 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import { toast } from "sonner";
-import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Sparkles, CheckCircle, Star, BarChart } from "lucide-react";
+import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Sparkles, CheckCircle, Star, BarChart, Activity, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/utils/types";
 import LabEffects from "@/components/quiz/LabEffects";
 import { secureStorage } from "@/utils/complianceFilter";
 import GDPRCompliance from "@/components/GDPRCompliance";
 import UrgencyCountdown from "@/components/quiz/UrgencyCountdown";
-import DynamicSocialProof from "@/components/quiz/DynamicSocialProof";
 import { collectPersonalizationFactors, getPersonalizedMessage } from "@/utils/dynamicPersonalization";
 import SocialProofIndicator from "@/components/quiz/SocialProofIndicator";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,7 +20,8 @@ import { useAdvancedRecommendations } from "@/hooks/useAdvancedRecommendations";
 
 /**
  * Génère un nombre stable de participants basé sur la date actuelle
- * (augmente progressivement pour créer un effet de popularité croissante)
+ * (augmente progressivement pour créer un effet de popularité croissante
+ * mais reste cohérent pour la session utilisateur))
  */
 function getStableParticipantNumber(): number {
   const now = new Date();
@@ -381,6 +381,39 @@ const Quiz = () => {
                       <span className="font-medium">85% des participants ont vu des résultats</span>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Indicateurs de confiance fixes */}
+            <div className="mt-8 mb-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
+                <div className="bg-blue-50 p-2 rounded-full flex-shrink-0">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Analyses restantes aujourd'hui</div>
+                  <div className="text-lg font-semibold">98/100</div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
+                <div className="bg-amber-50 p-2 rounded-full flex-shrink-0">
+                  <Clock className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Dernière participation</div>
+                  <div className="text-lg font-semibold">Il y a 4 min</div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
+                <div className="bg-green-50 p-2 rounded-full flex-shrink-0">
+                  <Users className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Places disponibles</div>
+                  <div className="text-lg font-semibold">6 places restantes</div>
                 </div>
               </div>
             </div>
