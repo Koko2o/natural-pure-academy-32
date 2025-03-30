@@ -149,7 +149,8 @@ const App = () => {
             <Route path="/redirect/social" element={<SocialRedirect />} />
             <Route path="/ai-system" element={<AISystem />} />
             <Route path="/ai-learning" element={<AILearningDashboard />} />
-        <Route path="/ai-config" element={<AIConfigurationDashboard />} />
+            <Route path="/ai-config" element={<AIConfigurationDashboard />} />
+            <Route path="/ai-dashboard" element={<AILearningDashboard />} /> {/* Added AI Dashboard route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
