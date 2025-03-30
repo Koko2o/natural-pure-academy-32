@@ -528,10 +528,14 @@ const processLearningDataAndFeedback = (
           if (recIndex >= 0) {
             const currentPriority = recommendations[recIndex].priority;
 
-            // Augmenter ou diminuer la priorité selon les retours
-            if (positiveRatio > 0.7) { // Plus de 70% de retours positifs
+            // Courbe d'ajustement plus fine basée sur les retours
+            if (positiveRatio > 0.8) { // Plus de 80% de retours positifs
+              recommendations[recIndex].priority = Math.min(10, currentPriority + 2);
+            } else if (positiveRatio > 0.6) { // Entre 60% et 80% de retours positifs
               recommendations[recIndex].priority = Math.min(10, currentPriority + 1);
             } else if (positiveRatio < 0.3) { // Moins de 30% de retours positifs
+              recommendations[recIndex].priority = Math.max(1, currentPriority - 2);
+            } else if (positiveRatio < 0.5) { // Entre 30% et 50% de retours positifs
               recommendations[recIndex].priority = Math.max(1, currentPriority - 1);
             }
           }
@@ -724,13 +728,31 @@ export function getAIModelStatus() {
     let improvements: string[] = [
       "Amélioration de la détection des profils à risque",
       "Meilleure personnalisation par âge et sexe",
-      "Intégration des dernières recherches scientifiques"
+      "Intégration des dernières recherches scientifiques",
+      "Détection intelligente des priorités de symptômes",
+      "Prédiction des besoins nutritionnels futurs"
     ];
 
     // Ajouter des améliorations basées sur les données réelles si disponibles
     if (patternCorrelations.sufficientData) {
       if (Object.keys(patternCorrelations.ageCorrelations).length > 0) {
         improvements.push(`Optimisation des recommandations par tranches d'âge (${Object.keys(patternCorrelations.ageCorrelations).length} segments)`);
+      }
+      if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
+        improvements.push(`Affinement des corrélations symptômes-suppléments (${Object.keys(patternCorrelations.symptomCorrelations).length} motifs)`);
+      }
+    }
+    
+    // Ajouter des indicateurs de performance du système
+    const avgUserSatisfaction = Object.values(recommendationPerformance)
+      .filter(data => data.totalRatings > 0)
+      .reduce((sum, data) => sum + data.averageRating, 0) / 
+      Object.values(recommendationPerformance).filter(data => data.totalRatings > 0).length;
+    
+    if (!isNaN(avgUserSatisfaction)) {
+      const satisfactionPercentage = Math.round((avgUserSatisfaction / 5) * 100);
+      improvements.push(`Taux de satisfaction utilisateur global de ${satisfactionPercentage}%`);
+    }ject.keys(patternCorrelations.ageCorrelations).length} segments)`);
       }
 
       if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
