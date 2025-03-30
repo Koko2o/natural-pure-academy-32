@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
@@ -28,7 +27,7 @@ function getStableParticipantNumber(): number {
   const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
   const baseNumber = 900; // Nombre de base
   const dailyIncrease = 3; // Augmentation journalière
-  
+
   return baseNumber + (dayOfYear * dailyIncrease);
 }
 
@@ -41,7 +40,7 @@ const Quiz = () => {
   const [showIntroAnimation, setShowIntroAnimation] = useState(true);
   const [pageLoaded, setPageLoaded] = useState(false);
   const introDone = useRef(false);
-  
+
   // Métriques comportementales avec le hook personnalisé
   const { 
     metrics: behavioralData, 
@@ -76,16 +75,16 @@ const Quiz = () => {
     const cities = ["Paris", "Lyon", "Marseille", "Bordeaux", "Lille", "Strasbourg", "Nantes", "Toulouse"];
     const randomCity = cities[Math.floor(Math.random() * cities.length)];
     setUserLocation(randomCity);
-    
+
     // Collecte des facteurs de personnalisation
     const factors = collectPersonalizationFactors();
     setPersonalizationFactors(factors);
-    
+
     // Marquer la page comme chargée après un court délai pour l'animation
     setTimeout(() => {
       setPageLoaded(true);
     }, 500);
-    
+
     // Terminer l'animation d'introduction après un délai
     setTimeout(() => {
       setShowIntroAnimation(false);
@@ -96,10 +95,10 @@ const Quiz = () => {
   const startQuiz = () => {
     setQuizStarted(true);
     resetMetrics(); // Réinitialiser les métriques comportementales
-    
+
     // Enregistrer le début du quiz
     secureStorage.setItem('quizStartTime', Date.now().toString());
-    
+
     // Notification de début de quiz
     toast.success("Analyse nutritionnelle initiée", {
       description: "Notre système analyse vos réponses en temps réel",
@@ -110,18 +109,18 @@ const Quiz = () => {
   const handleQuizComplete = (finalResponses: QuizResponse) => {
     setResponses(finalResponses);
     setQuizCompleted(true);
-    
+
     // Calcul du temps total passé dans le quiz
     const startTime = parseInt(secureStorage.getItem('quizStartTime') || '0');
     const totalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
-    
+
     // Enregistrement des statistiques anonymisées
     secureStorage.setItem('quizCompletionStats', JSON.stringify({
       timeToComplete: totalTime,
       questionsChanged: behavioralData.changedAnswers.length,
       date: new Date().toISOString()
     }));
-    
+
     // Notification de complétion
     toast.success("Analyse complétée avec succès", {
       description: "Vos recommandations personnalisées sont prêtes",
@@ -133,6 +132,14 @@ const Quiz = () => {
     console.log("Mise à jour des informations utilisateur:", info);
     // Vous pouvez mettre à jour les facteurs de personnalisation ici si nécessaire
   };
+
+  // Valeur fixe pour le compteur d'analyses restantes
+  const [analysesRestantes, setAnalysesRestantes] = useState<number>(98);
+
+  // Aucun effet de changement pour assurer la stabilité
+  useEffect(() => {
+    // Aucune mise à jour automatique pour éviter les fluctuations
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -154,7 +161,7 @@ const Quiz = () => {
               >
                 <Beaker className="w-full h-full text-blue-600" />
               </motion.div>
-              
+
               <motion.div 
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -163,7 +170,7 @@ const Quiz = () => {
                 <h1 className="text-2xl font-bold">Laboratoire de Nutrition</h1>
                 <p className="text-gray-600 mt-2">Analyse scientifique en cours d'initialisation...</p>
               </motion.div>
-              
+
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
@@ -191,11 +198,11 @@ const Quiz = () => {
             <Badge variant="outline" className="bg-white/80 backdrop-blur-sm px-3 py-1 text-xs font-medium">
               Laboratoire Indépendant
             </Badge>
-            
+
             <p className="text-xs text-natural-500 mb-4">
               Contenu éducatif et scientifique uniquement - Aucune vente de produit
             </p>
-            
+
             <div className="flex justify-center space-x-4 mb-6">
               <Button variant="ghost" size="sm" className="text-xs">
                 Données scientifiques
@@ -207,11 +214,11 @@ const Quiz = () => {
                 Recherches avancées
               </Button>
             </div>
-            
+
             <Button variant="outline" size="sm" className="text-xs">
               Voir nos études scientifiques
             </Button>
-            
+
             <p className="text-xs text-gray-500 mt-2">
               Plus de 10,000 personnes consultent déjà nos ressources scientifiques
             </p>
@@ -297,7 +304,7 @@ const Quiz = () => {
               <h2 className="text-2xl font-semibold mb-4">
                 <ScientificHighlightedText text="Identifiez vos besoins réels en [[micronutrient-balance:micronutriments]]." />
               </h2>
-              
+
               <Button 
                 size="lg" 
                 className="w-full md:w-auto text-lg py-6 px-8 group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg quiz-cta" 
@@ -307,7 +314,7 @@ const Quiz = () => {
                 <span>🧪 Démarrer Mon Test Gratuit</span>
                 <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
               </Button>
-              
+
               <div className="mt-4">
                 <Button variant="ghost" className="text-sm text-gray-600">
                   Voir les Études Scientifiques
@@ -321,21 +328,21 @@ const Quiz = () => {
                 <p className="text-2xl font-bold text-gray-900">{getStableParticipantNumber()}</p>
                 <p className="text-sm text-gray-600">profils analysés</p>
               </div>
-              
+
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <p className="text-2xl font-bold text-gray-900">72%</p>
                 <p className="text-sm text-gray-600">d'efficacité prouvée</p>
               </div>
-              
+
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <p className="text-2xl font-bold text-gray-900">3</p>
                 <p className="text-sm text-gray-600">universités partenaires</p>
               </div>
-              
+
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <div className="text-2xl font-bold text-gray-900 flex items-center justify-center">
                   <span>Analyses restantes aujourd'hui: </span>
-                  <span className="text-indigo-600 ml-1">83</span>
+                  <span className="text-indigo-600 ml-1">{analysesRestantes}</span>
                   <span className="text-gray-400">/100</span>
                 </div>
               </div>
@@ -396,7 +403,7 @@ const Quiz = () => {
                   <div className="text-lg font-semibold">98/100</div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
                 <div className="bg-amber-50 p-2 rounded-full flex-shrink-0">
                   <Clock className="h-5 w-5 text-amber-600" />
@@ -406,7 +413,7 @@ const Quiz = () => {
                   <div className="text-lg font-semibold">Il y a 4 min</div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
                 <div className="bg-green-50 p-2 rounded-full flex-shrink-0">
                   <Users className="h-5 w-5 text-green-600" />

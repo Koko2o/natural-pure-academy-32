@@ -613,7 +613,8 @@ export const generateRecommendationsImproved = (
   const getSessionId = () => {
     let sessionId = localStorage.getItem('recommendation_session_id');
     if (!sessionId) {
-      sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+      // Utiliser une valeur plus stable pour réduire les fluctuations
+      sessionId = (new Date().getDate() + new Date().getMonth()).toString() + "-stable-id";
       localStorage.setItem('recommendation_session_id', sessionId);
     }
     return sessionId;
