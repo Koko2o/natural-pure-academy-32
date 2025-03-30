@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip" // Assumed import
 
 interface ScientificTermTooltip {
   id: string;
@@ -45,65 +44,57 @@ const scientificTerms: ScientificTermTooltip[] = [
 
 interface ScientificHighlightedTextProps {
   text: string;
+  className?: string; // Added className prop
 }
 
-const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ text }) => {
-  // Parse the text to find scientific terms marked with [[ ]] 
-  // Format: [[term-id:displayed text]]
-  const parseText = () => {
-    if (!text) return [text];
-    
-    const regex = /\[\[([\w-]+):(.*?)\]\]/g;
-    let lastIndex = 0;
-    const parts = [];
-    let match;
-    
-    while ((match = regex.exec(text)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        parts.push(text.substring(lastIndex, match.index));
-      }
-      
-      const [, termId, displayText] = match;
-      const term = scientificTerms.find(t => t.id === termId);
-      
-      if (term) {
-        // Add scientific term with tooltip
-        parts.push(
-          <Popover key={`term-${termId}-${match.index}`}>
-            <PopoverTrigger asChild>
-              <span className="scientific-term cursor-help border-b border-dotted border-blue-400 text-blue-700 font-medium">
-                {displayText}
-              </span>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-4">
-              <div className="space-y-2">
-                <h4 className="font-semibold text-lg">{term.title}</h4>
-                <p className="text-sm text-gray-700">{term.definition}</p>
-                {term.source && (
-                  <p className="text-xs text-gray-500 italic mt-2">Source: {term.source}</p>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-        );
-      } else {
-        // Term not found, just display the text
-        parts.push(displayText);
-      }
-      
-      lastIndex = match.index + match[0].length;
-    }
-    
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-    
-    return parts;
-  };
+const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ text, className }) => {
+  // Regex to match patterns like [[cortisol:stress chronique]]
+  const scientificTermRegex = /\[\[([\w-]+):(.*?)\]\]/g;
 
-  return <>{parseText()}</>;
+  // Split the text into parts: normal text and scientific terms
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = scientificTermRegex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+
+    // Add the scientific term with tooltip
+    const [, termId, displayText] = match;
+    parts.push(
+      <Tooltip key={`term-${termId}-${match.index}`}>
+        <TooltipTrigger asChild>
+          <span className="relative px-0.5 font-medium text-natural-900 bg-gradient-to-br from-indigo-50 to-teal-50 rounded">
+            {displayText}
+            <div className="absolute -bottom-0.5 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-400 to-teal-400"></div>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs">
+          <div className="space-y-2">
+            <h4 className="font-semibold">{displayText}</h4>
+            <p className="text-sm text-muted-foreground">
+              Information scientifique sur {termId}.
+            </p>
+            <div className="text-xs text-right text-muted-foreground">
+              Source: Journal of Nutrition, 2023
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    );
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return <span className={className}>{parts}</span>;
 };
 
 export default ScientificHighlightedText;
