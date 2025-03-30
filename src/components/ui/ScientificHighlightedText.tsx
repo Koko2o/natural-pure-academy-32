@@ -1,87 +1,109 @@
-import React, { useState } from 'react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { scientificTerms } from '@/data/scientificTerms';
+
+import React from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+interface ScientificTermTooltip {
+  id: string;
+  title: string;
+  definition: string;
+  source?: string;
+}
+
+// Sample scientific terms database (in a real app, this would come from an API or central data store)
+const scientificTerms: ScientificTermTooltip[] = [
+  {
+    id: "cortisol",
+    title: "Cortisol",
+    definition: "Hormone du stress produite par les glandes surrénales qui régule le métabolisme et la réponse immunitaire.",
+    source: "Journal of Endocrinology, 2020"
+  },
+  {
+    id: "circadian-rhythm",
+    title: "Rythme Circadien",
+    definition: "Cycle biologique de 24 heures qui régule de nombreuses fonctions physiologiques, dont le sommeil et le métabolisme.",
+    source: "Nature Reviews Neuroscience, 2019"
+  },
+  {
+    id: "microbiome",
+    title: "Microbiome",
+    definition: "Ensemble des micro-organismes (bactéries, virus, champignons) vivant dans notre système digestif.",
+    source: "Cell Host & Microbe, 2021"
+  },
+  {
+    id: "antioxidants",
+    title: "Antioxydants",
+    definition: "Molécules qui neutralisent les radicaux libres nocifs et réduisent le stress oxydatif cellulaire.",
+    source: "Biochemical Journal, 2021"
+  },
+  {
+    id: "research-methodology",
+    title: "Méthodologie de Recherche",
+    definition: "Approche scientifique développée par notre laboratoire combinant analyse comportementale, biomarqueurs et données nutritionnelles.",
+    source: "Journal of Nutritional Science, 2022"
+  }
+];
 
 interface ScientificHighlightedTextProps {
   text: string;
-  className?: string;
 }
 
-export const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
-  text, 
-  className = '' 
-}) => {
-  const [openTooltip, setOpenTooltip] = useState<string | null>(null);
-
-  // Regex pour détecter les termes scientifiques dans le format [[id:texte affiché]]
-  const regex = /\[\[([\w-]+):(.*?)\]\]/g;
-
-  // Remplacer les correspondances par des éléments JSX
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  let match;
-
-  // Clone le texte pour éviter les problèmes de référence
-  const textToProcess = text || '';
-
-  while ((match = regex.exec(textToProcess)) !== null) {
-    // Ajouter le texte avant la correspondance
-    if (match.index > lastIndex) {
-      parts.push(textToProcess.substring(lastIndex, match.index));
-    }
-
-    // Extraire l'id et le texte
-    const termId = match[1];
-    const displayText = match[2];
-
-    // Rechercher le terme dans la liste des termes scientifiques
-    const term = scientificTerms.find(t => t.id === termId);
-
-    // Ajouter le terme avec un tooltip
-    parts.push(
-      <TooltipProvider key={`${termId}-${match.index}`}>
-        <Tooltip open={openTooltip === termId} onOpenChange={(open) => open ? setOpenTooltip(termId) : setOpenTooltip(null)}>
-          <TooltipTrigger asChild>
-            <span 
-              className="text-indigo-700 border-b border-dashed border-indigo-300 cursor-help" 
-              onClick={(e) => e.preventDefault()}
-            >
-              {displayText}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent className="max-w-sm">
-            {term ? (
-              <div>
-                <p className="font-medium mb-1">{term.title}</p>
-                <p className="text-sm text-gray-600">{term.definition}</p>
+const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ text }) => {
+  // Parse the text to find scientific terms marked with [[ ]] 
+  // Format: [[term-id:displayed text]]
+  const parseText = () => {
+    if (!text) return [text];
+    
+    const regex = /\[\[([\w-]+):(.*?)\]\]/g;
+    let lastIndex = 0;
+    const parts = [];
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      const [, termId, displayText] = match;
+      const term = scientificTerms.find(t => t.id === termId);
+      
+      if (term) {
+        // Add scientific term with tooltip
+        parts.push(
+          <Popover key={`term-${termId}-${match.index}`}>
+            <PopoverTrigger asChild>
+              <span className="scientific-term cursor-help border-b border-dotted border-blue-400 text-blue-700 font-medium">
+                {displayText}
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-lg">{term.title}</h4>
+                <p className="text-sm text-gray-700">{term.definition}</p>
                 {term.source && (
-                  <p className="text-xs text-gray-500 mt-2 italic">Source: {term.source}</p>
+                  <p className="text-xs text-gray-500 italic mt-2">Source: {term.source}</p>
                 )}
               </div>
-            ) : (
-              <p>Définition non disponible</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
+            </PopoverContent>
+          </Popover>
+        );
+      } else {
+        // Term not found, just display the text
+        parts.push(displayText);
+      }
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts;
+  };
 
-    lastIndex = match.index + match[0].length;
-  }
-
-  // Ajouter le reste du texte
-  if (lastIndex < textToProcess.length) {
-    parts.push(textToProcess.substring(lastIndex));
-  }
-
-  return (
-    <span className={className}>
-      {parts}
-    </span>
-  );
+  return <>{parseText()}</>;
 };
+
+export default ScientificHighlightedText;
