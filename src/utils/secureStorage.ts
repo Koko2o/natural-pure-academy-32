@@ -68,4 +68,6 @@ const secureStorage = {
   }
 };
 
+// Exporter sous les deux noms pour assurer la compatibilité
+export { secureStorage, secureStorage as secureStorageService };
 export default secureStorage;

@@ -13,7 +13,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar, Line, Radar, Doughnut } from 'react-chartjs-2';
-import { secureStorageService } from '../utils/secureStorage';
+import { secureStorageService } from '@/utils/secureStorage';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
