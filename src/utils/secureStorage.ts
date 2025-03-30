@@ -1,4 +1,3 @@
-
 /**
  * Utility pour gérer le stockage sécurisé des données sensibles
  */
@@ -11,7 +10,7 @@ const secureStorage = {
       console.error('Error storing data:', error);
     }
   },
-  
+
   getItem: (key: string): any => {
     try {
       const value = localStorage.getItem(key);
@@ -21,7 +20,7 @@ const secureStorage = {
       return null;
     }
   },
-  
+
   removeItem: (key: string): void => {
     try {
       localStorage.removeItem(key);
@@ -29,7 +28,7 @@ const secureStorage = {
       console.error('Error removing data:', error);
     }
   },
-  
+
   clear: (): void => {
     try {
       localStorage.clear();

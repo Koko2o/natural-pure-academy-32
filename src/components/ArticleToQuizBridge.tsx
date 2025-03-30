@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Target, MessageCircle, Users, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { ScientificHighlightedText } from './ui/ScientificHighlightedText';
+import ScientificHighlightedText from './ui/ScientificHighlightedText';
 import { useArticleEngagement } from '@/hooks/useArticleEngagement';
 import { Badge } from './ui/badge';
 

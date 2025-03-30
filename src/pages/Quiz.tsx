@@ -14,7 +14,7 @@ import SocialProofIndicator from "@/components/quiz/SocialProofIndicator";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBehavioralMetrics } from "@/hooks/useBehavioralMetrics";
 import QuizResults from "@/components/QuizResults";
-import { ScientificHighlightedText } from "@/components/ui/ScientificHighlightedText";
+import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText";
 import { useAdvancedRecommendations } from "@/hooks/useAdvancedRecommendations";
 
 /**
