@@ -1723,7 +1723,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       id: "magnesium",
       priority: 8,
       doseStandard: "300-400mg par jour",
-      doseVegetarian: "300-400mg par jour```javascript
+      doseVegetarian: "300-400mg par jour"
     },
     {
       id: "garlic_extract",

@@ -849,7 +849,7 @@ export const generateRecommendations = (userProfile: UserProfile, aiModel: AIMod
   };
 
   // Utiliser le système de recommandation optimisé
-  import optimizedRecommender from './optimizedRecommendation';
+  const optimizedRecommender = require('./optimizedRecommendation').default;
   const { optimizeRecommendations, predictFutureNeeds, generateExplanation } = optimizedRecommender;
 
   // Générer les recommandations principales

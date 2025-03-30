@@ -752,7 +752,10 @@ export function getAIModelStatus() {
     if (!isNaN(avgUserSatisfaction)) {
       const satisfactionPercentage = Math.round((avgUserSatisfaction / 5) * 100);
       improvements.push(`Taux de satisfaction utilisateur global de ${satisfactionPercentage}%`);
-    }ject.keys(patternCorrelations.ageCorrelations).length} segments)`);
+    }
+    
+    if (Object.keys(patternCorrelations.ageCorrelations).length > 0) {
+      improvements.push(`Corrélations d'âge identifiées (${Object.keys(patternCorrelations.ageCorrelations).length} segments)`);
       }
 
       if (Object.keys(patternCorrelations.symptomCorrelations).length > 0) {
