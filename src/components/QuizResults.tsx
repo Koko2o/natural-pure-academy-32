@@ -115,17 +115,22 @@ const QuizResults: React.FC<QuizResultsProps> = ({ responses }) => {
             setExplanation(generatedExplanation);
           }
 
-          // Stocker les résultats pour usage futur
-          secureStorage.setItem('quizResults', {
-            responses,
-            recommendations: generatedRecommendations,
-            timestamp: new Date().toISOString()
-          });
+          try {
+            // Stocker les résultats pour usage futur
+            secureStorage.setItem('quizResults', {
+              responses,
+              recommendations: generatedRecommendations,
+              timestamp: new Date().toISOString()
+            });
 
-          // Simuler la précision du modèle
-          setPrecision(Math.floor(Math.random() * 10) + 80); // Entre 80% et 90%
+            // Simuler la précision du modèle
+            setPrecision(Math.floor(Math.random() * 10) + 80); // Entre 80% et 90%
 
-          setIsLoading(false);
+            setIsLoading(false);
+          } catch (error) {
+            console.error("Erreur lors du stockage des résultats:", error);
+            setIsLoading(false);
+          }
         } catch (error) {
           console.error("Erreur lors du calcul des recommandations:", error);
           setIsLoading(false);

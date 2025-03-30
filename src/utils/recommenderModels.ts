@@ -257,3 +257,262 @@ export function hybridRecommenderModel(
   // Si pas assez de données, utiliser uniquement le modèle basé sur des règles
   return ruleBasedResults;
 }
+/**
+ * Modèles d'IA pour les recommandations personnalisées
+ */
+
+// Types de base pour les modèles
+export interface ModelInput {
+  [key: string]: any;
+}
+
+export interface ModelOutput {
+  recommendations: any[];
+  explanation: string;
+  confidence: number;
+}
+
+export interface RecommenderModel {
+  name: string;
+  description: string;
+  version: string;
+  predict: (input: ModelInput) => ModelOutput;
+  train?: (data: any[]) => boolean;
+  evaluate?: (testData: any[]) => {accuracy: number, metrics: any};
+}
+
+// Modèle basique basé sur des règles
+export const ruleBasedModel: RecommenderModel = {
+  name: "Modèle basé sur des règles",
+  description: "Applique des règles prédéfinies pour générer des recommandations",
+  version: "1.0.0",
+  
+  predict: (input: ModelInput): ModelOutput => {
+    const { symptoms = [], dietaryRestrictions = {}, healthGoals = [] } = input;
+    
+    // Règles simplifiées pour démo
+    const recommendations = [];
+    let explanation = "";
+    
+    // Exemple de règles
+    if (symptoms.includes('stress')) {
+      recommendations.push({
+        id: 'ashwagandha',
+        name: 'Ashwagandha BIO',
+        priority: 'haute'
+      });
+    }
+    
+    if (symptoms.includes('sleep')) {
+      if (dietaryRestrictions.vegan) {
+        recommendations.push({
+          id: 'valerian_vegan',
+          name: 'Valériane BIO (formule végane)',
+          priority: 'haute'
+        });
+      } else {
+        recommendations.push({
+          id: 'magnesium_complex',
+          name: 'Complexe Magnésium-B6',
+          priority: 'haute'
+        });
+      }
+    }
+    
+    if (symptoms.includes('focus')) {
+      if (dietaryRestrictions.vegan) {
+        recommendations.push({
+          id: 'omega3_algae',
+          name: 'Oméga-3 DHA Algues',
+          priority: 'moyenne'
+        });
+      } else {
+        recommendations.push({
+          id: 'omega3_fish',
+          name: 'Oméga-3 EPA/DHA Premium',
+          priority: 'moyenne'
+        });
+      }
+    }
+    
+    // Génération d'explication basique
+    if (recommendations.length > 0) {
+      explanation = `Basé sur vos symptômes (${symptoms.join(", ")}), nous recommandons ${recommendations.length} compléments nutritionnels adaptés à vos besoins.`;
+    } else {
+      explanation = "Aucune recommandation spécifique n'a pu être générée à partir des informations fournies.";
+    }
+    
+    return {
+      recommendations,
+      explanation,
+      confidence: 0.7 // Confiance fixe
+    };
+  }
+};
+
+// Modèle hybride (règles + poids ajustables)
+export const hybridModel: RecommenderModel = {
+  name: "Modèle hybride",
+  description: "Combine règles expertes et apprentissage par renforcement",
+  version: "1.1.0",
+  
+  // État interne du modèle
+  _weights: {
+    stress: 0.8,
+    sleep: 0.75,
+    energy: 0.7,
+    focus: 0.65,
+    digestion: 0.6
+  },
+  
+  predict: (input: ModelInput): ModelOutput => {
+    const { symptoms = [], dietaryRestrictions = {}, healthGoals = [], userProfile = {} } = input;
+    
+    // Calcul de scores pour les recommandations possibles
+    const supplementScores: {[key: string]: number} = {};
+    
+    // Appliquer les poids pour chaque symptôme
+    symptoms.forEach(symptom => {
+      const weight = (this as any)._weights[symptom] || 0.5;
+      
+      // Associer des suppléments à chaque symptôme
+      switch(symptom) {
+        case 'stress':
+          supplementScores['ashwagandha'] = (supplementScores['ashwagandha'] || 0) + weight;
+          supplementScores['magnesium'] = (supplementScores['magnesium'] || 0) + weight * 0.9;
+          supplementScores['rhodiola'] = (supplementScores['rhodiola'] || 0) + weight * 0.8;
+          break;
+          
+        case 'sleep':
+          supplementScores['magnesium'] = (supplementScores['magnesium'] || 0) + weight;
+          supplementScores['valerian'] = (supplementScores['valerian'] || 0) + weight * 0.9;
+          supplementScores['melatonin'] = (supplementScores['melatonin'] || 0) + weight * 0.8;
+          break;
+          
+        case 'focus':
+          supplementScores['omega3'] = (supplementScores['omega3'] || 0) + weight;
+          supplementScores['bacopa'] = (supplementScores['bacopa'] || 0) + weight * 0.9;
+          supplementScores['ginkgo'] = (supplementScores['ginkgo'] || 0) + weight * 0.8;
+          break;
+          
+        case 'energy':
+          supplementScores['vitamin_b_complex'] = (supplementScores['vitamin_b_complex'] || 0) + weight;
+          supplementScores['iron'] = (supplementScores['iron'] || 0) + weight * 0.9;
+          supplementScores['coq10'] = (supplementScores['coq10'] || 0) + weight * 0.8;
+          break;
+          
+        case 'digestion':
+          supplementScores['probiotics'] = (supplementScores['probiotics'] || 0) + weight;
+          supplementScores['digestive_enzymes'] = (supplementScores['digestive_enzymes'] || 0) + weight * 0.9;
+          supplementScores['fiber_complex'] = (supplementScores['fiber_complex'] || 0) + weight * 0.8;
+          break;
+      }
+    });
+    
+    // Adapter aux restrictions alimentaires
+    if (dietaryRestrictions.vegan) {
+      delete supplementScores['omega3']; // Supprimer formule non-végane
+      supplementScores['omega3_vegan'] = Math.max(...Object.values(supplementScores)) * 0.9; // Alternative végane
+    }
+    
+    // Convertir les scores en recommandations triées
+    const recommendations = Object.entries(supplementScores)
+      .map(([id, score]) => ({ id, score }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3) // Top 3 recommandations
+      .map(item => {
+        // Conversion des IDs en noms lisibles
+        const nameMap: {[key: string]: string} = {
+          'ashwagandha': 'Ashwagandha BIO',
+          'magnesium': 'Bisglycinate de Magnésium',
+          'rhodiola': 'Rhodiola Rosea',
+          'valerian': 'Valériane BIO',
+          'melatonin': 'Mélatonine Naturelle',
+          'omega3': 'Oméga-3 EPA/DHA Premium',
+          'omega3_vegan': 'Oméga-3 DHA Algues',
+          'bacopa': 'Bacopa Monnieri',
+          'ginkgo': 'Ginkgo Biloba',
+          'vitamin_b_complex': 'Complexe Vitamines B',
+          'iron': 'Fer Bisglycinate',
+          'coq10': 'CoQ10 Ubiquinol',
+          'probiotics': 'Complexe Probiotique Digestif',
+          'digestive_enzymes': 'Enzymes Digestives',
+          'fiber_complex': 'Complexe de Fibres Solubles'
+        };
+        
+        // Calcul de la priorité basée sur le score
+        let priority = 'basse';
+        if (item.score > 0.7) priority = 'haute';
+        else if (item.score > 0.5) priority = 'moyenne';
+        
+        return {
+          id: item.id,
+          name: nameMap[item.id] || item.id,
+          score: item.score.toFixed(2),
+          priority
+        };
+      });
+    
+    // Génération d'explication personnalisée
+    let explanation = '';
+    
+    if (recommendations.length > 0) {
+      const topRecommendation = recommendations[0];
+      
+      if (symptoms.includes('stress') && topRecommendation.id.includes('ashwagandha')) {
+        explanation = "Nous avons constaté que votre niveau de stress est élevé. L'Ashwagandha est un adaptogène puissant qui a démontré cliniquement sa capacité à réduire le cortisol (l'hormone du stress) et à favoriser une sensation de calme.";
+      } else if (symptoms.includes('sleep') && (topRecommendation.id.includes('magnesium') || topRecommendation.id.includes('valerian'))) {
+        explanation = "Vos troubles du sommeil pourraient bénéficier du magnésium, un minéral essentiel qui favorise la relaxation musculaire et régule les neurotransmetteurs impliqués dans l'endormissement.";
+      } else if (symptoms.includes('focus') && (topRecommendation.id.includes('omega3') || topRecommendation.id.includes('bacopa'))) {
+        explanation = "Pour améliorer votre concentration, les acides gras oméga-3 sont essentiels au bon fonctionnement cérébral et à la communication entre les neurones.";
+      } else {
+        explanation = `Basé sur votre profil, nous recommandons particulièrement ${topRecommendation.name} pour cibler vos symptômes prioritaires.`;
+      }
+    } else {
+      explanation = "Nous n'avons pas suffisamment d'informations pour générer des recommandations personnalisées.";
+    }
+    
+    // Calcul de la confiance du modèle
+    // Plus le score est élevé, plus le modèle est confiant
+    const topScore = recommendations.length > 0 ? parseFloat(recommendations[0].score) : 0;
+    const confidence = Math.min(0.95, 0.6 + (topScore * 0.3)); // Max 95%
+    
+    return {
+      recommendations,
+      explanation,
+      confidence
+    };
+  },
+  
+  train: (data: any[]): boolean => {
+    // Simulation d'un apprentissage simplifié
+    // Dans un cas réel, on ajusterait les poids en fonction des feedbacks
+    
+    if (data.length < 5) return false; // Pas assez de données
+    
+    // Ajustement fictif des poids
+    (hybridModel as any)._weights.stress += 0.05;
+    (hybridModel as any)._weights.sleep += 0.03;
+    
+    return true;
+  },
+  
+  evaluate: (testData: any[]) => {
+    // Simulation d'évaluation
+    return {
+      accuracy: 0.82,
+      metrics: {
+        precision: 0.78,
+        recall: 0.75
+      }
+    };
+  }
+};
+
+// Exporter les modèles disponibles
+export const availableModels: {[key: string]: RecommenderModel} = {
+  ruleBasedModel,
+  hybridModel
+};
+
+export default availableModels;
