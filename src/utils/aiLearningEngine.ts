@@ -17,6 +17,8 @@ import {
 import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
 import { findSimilarProfiles } from './userSimilarity';
 
+import { calculateProfileSimilarity } from './userSimilarity';
+
 /**
  * Sauvegarde les données d'apprentissage pour utilisation future
  */

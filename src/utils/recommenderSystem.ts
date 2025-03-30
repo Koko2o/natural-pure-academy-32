@@ -668,15 +668,26 @@ export const generateAdvancedRecommendations = (
       return b.matchScore - a.matchScore;
     });
 
-    // Enregistrer les données pour apprentissage futur
-    saveLearningData(quizResponses, aiEnhancedRecommendations, behavioralMetrics, neuroProfile);
+    // Optimiser les recommandations avec l'algorithme avancé
+    const optimizedRecommendations = optimizeRecommendations(
+      aiEnhancedRecommendations,
+      quizResponses,
+      behavioralMetrics,
+      neuroProfile
+    );
 
-    return aiEnhancedRecommendations;
+    // Enregistrer les données pour apprentissage futur
+    saveLearningData(quizResponses, optimizedRecommendations, behavioralMetrics, neuroProfile);
+
+    return optimizedRecommendations;
   } catch (error) {
     console.error("Erreur lors de la génération des recommandations avancées:", error);
     return generateRecommendations(quizResponses);
   }
 };
+
+// Importer le système de recommandation optimisé
+import { optimizeRecommendations } from './optimizedRecommendation';
 
 /**
  * Retourne le statut du modèle d'IA actuel

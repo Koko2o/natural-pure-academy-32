@@ -372,8 +372,8 @@ export default function AILearningDashboard() {
                 <div className="space-y-4">
                   {performances && Object.entries(performances).length > 0 ? (
                     Object.entries(performances)
-                      .filter(([_, data]: [string, any]) => data.totalRatings >= 3)
-                      .sort(([_, dataA]: [string, any], [_, dataB]: [string, any]) => dataB.averageRating - dataA.averageRating)
+                      .filter(([id, data]: [string, any]) => data.totalRatings >= 3)
+                      .sort(([idA, dataA]: [string, any], [idB, dataB]: [string, any]) => dataB.averageRating - dataA.averageRating)
                       .slice(0, 5)
                       .map(([supplementId, data]: [string, any], index: number) => {
                         const supplementName = SUPPLEMENT_CATALOG[supplementId]?.name || supplementId;
@@ -658,7 +658,7 @@ export default function AILearningDashboard() {
                       </thead>
                       <tbody>
                         {Object.entries(performances)
-                          .sort(([_, dataA]: [string, any], [_, dataB]: [string, any]) => {
+                          .sort(([idA, dataA]: [string, any], [idB, dataB]: [string, any]) => {
                             if (dataB.totalRatings === 0 && dataA.totalRatings === 0) {
                               return dataB.recommendationCount - dataA.recommendationCount;
                             }
