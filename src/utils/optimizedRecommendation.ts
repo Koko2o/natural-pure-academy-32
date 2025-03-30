@@ -15,6 +15,12 @@ import {
   evaluateDataQuality
 } from './recommenderSystem';
 
+// Fonction d'optimisation des recommandations
+export function optimizeRecommendations(recommendations: Recommendation[], userProfile: UserProfile): Recommendation[] {
+  // Implémentation d'optimisation de base
+  return recommendations.sort((a, b) => b.priority - a.priority);
+}
+
 import { QuizResponse as QuizResponse2, BehavioralMetrics as BehavioralMetrics2, NeuroProfile as NeuroProfile2 } from '../types/quiz';
 
 // Types from edited code

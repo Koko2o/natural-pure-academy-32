@@ -859,6 +859,7 @@ function evaluateDataQuality() {
     overallQuality: 0.85,
     completeness: 0.9,
     accuracy: 0.87,
+    consistency: 0.83
   };
 }
 
@@ -873,11 +874,7 @@ function identifyPatternCorrelations() {
     symptomCorrelations: {},
     ageCorrelations: {}
   };
-  consistency: 0.83
-});
-
-const identifyPatternCorrelations = () => ({
-  ageCorrelations: {},
+}
   genderCorrelations: {},
   symptomCorrelations: {}
 });
