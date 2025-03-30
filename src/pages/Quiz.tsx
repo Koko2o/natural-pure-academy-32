@@ -237,7 +237,7 @@ const Quiz = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="text-center mb-12">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">
                 Identifiez vos besoins précis en micronutriments
               </h1>
               <p className="text-xl text-gray-700 max-w-3xl mx-auto">

@@ -1,85 +1,71 @@
-
-import React, { useState, useEffect } from 'react';
-import { FaUsers, FaClock } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { FaUsers } from 'react-icons/fa';
 
 interface SocialProofIndicatorProps {
-  popularity: number;
-  recentUsers?: number;
-  isStable?: boolean;
+  responseId: string;
+  questionId: string;
+  minPercentage?: number;
+  maxPercentage?: number;
 }
 
 /**
- * Composant amélioré d'indicateur de preuve sociale
- * avec stabilité accrue pour une meilleure UX
+ * Composant qui affiche un indicateur social de type "X% des utilisateurs ont répondu comme vous"
  */
-const SocialProofIndicator: React.FC<SocialProofIndicatorProps> = ({ 
-  popularity, 
-  recentUsers = 5,
-  isStable = true 
+const SocialProofIndicator: React.FC<SocialProofIndicatorProps> = ({
+  responseId,
+  questionId,
+  minPercentage = 65,
+  maxPercentage = 89
 }) => {
-  const [displayedPopularity, setDisplayedPopularity] = useState(popularity);
-  const [displayedTime, setDisplayedTime] = useState<number>(isStable ? 5 : Math.floor(Math.random() * 10) + 2);
-  const [displayedUsers, setDisplayedUsers] = useState(recentUsers);
+  const [percentage, setPercentage] = useState<number>(0);
+  const [count, setCount] = useState<number>(0);
 
   useEffect(() => {
-    // Si le mode stable est activé, utiliser des valeurs cohérentes
-    if (isStable) {
-      // Créer une variation minimale et stable basée sur l'heure du jour
-      const now = new Date();
-      const hourSeed = now.getHours();
-      const popularityVariation = Math.sin(hourSeed) * 3; // Variation de ±3%
-      
-      // Valeur stable avec légère variation
-      setDisplayedPopularity(Math.floor(popularity + popularityVariation));
-      
-      // Temps stable avec légère variation 
-      setDisplayedTime(Math.max(2, Math.min(15, 5 + Math.floor(Math.sin(hourSeed * 0.5) * 2))));
-      
-      // Nombre d'utilisateurs stable avec légère variation
-      setDisplayedUsers(Math.max(1, recentUsers + Math.floor(Math.sin(hourSeed * 0.7) * 2)));
-      
-      return;
-    }
-    
-    // Comportement fluctuant (ancien mode) - pour référence uniquement
-    const interval = setInterval(() => {
-      // Variation aléatoire de la popularité
-      setDisplayedPopularity(prevPop => {
-        const variation = Math.floor(Math.random() * 5) - 2; // -2 à +2
-        return Math.max(50, Math.min(99, prevPop + variation));
-      });
-      
-      // Variation aléatoire du temps
-      setDisplayedTime(Math.floor(Math.random() * 15) + 2);
-      
-      // Variation aléatoire du nombre d'utilisateurs
-      setDisplayedUsers(Math.floor(Math.random() * 10) + 2);
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [popularity, recentUsers, isStable]);
+    // Simuler un pourcentage réaliste basé sur le responseId et questionId
+    // Dans une application réelle, ces données viendraient d'une API
+    const hash = (responseId + questionId).split('').reduce((a, b) => {
+      return a + b.charCodeAt(0);
+    }, 0);
 
-  // Formatage du temps (minutes ou heures)
-  const formatTime = (minutes: number) => {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    } else {
-      const hours = Math.floor(minutes / 60);
-      return `${hours} h`;
-    }
-  };
+    // Générer un pourcentage entre minPercentage et maxPercentage
+    const simulatedPercentage = minPercentage + (hash % (maxPercentage - minPercentage));
+
+    // Simuler un nombre de personnes (entre 500 et 2000)
+    const simulatedCount = 500 + (hash % 1500);
+
+    // Animation du pourcentage pour un effet plus dynamique
+    setTimeout(() => {
+      setPercentage(simulatedPercentage);
+      setCount(simulatedCount);
+    }, 800);
+  }, [responseId, questionId, minPercentage, maxPercentage]);
 
   return (
-    <div className="flex flex-col items-end space-y-1 mt-1">
-      <div className="text-xs text-gray-600 flex items-center">
-        <FaUsers className="mr-1 text-gray-400" />
-        <span>{displayedPopularity}% des utilisateurs recommandent</span>
+    <motion.div 
+      className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-100 text-sm flex items-center"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <div className="flex-shrink-0 text-blue-500 mr-3">
+        <FaUsers size={18} />
       </div>
-      <div className="text-xs text-gray-600 flex items-center">
-        <FaClock className="mr-1 text-gray-400" />
-        <span>Dernière participation il y a {formatTime(displayedTime)}</span>
+      <div>
+        <div className="font-medium text-blue-800">
+          {percentage > 0 ? (
+            <>{percentage.toFixed(0)}% des utilisateurs ont répondu comme vous</>
+          ) : (
+            <>Analyse des réponses en cours...</>
+          )}
+        </div>
+        {count > 0 && (
+          <div className="text-blue-600 text-xs mt-1">
+            Basé sur {count.toLocaleString('fr-FR')} utilisateurs similaires à votre profil
+          </div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

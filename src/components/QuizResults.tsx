@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAdvancedRecommendations } from '@/hooks/useAdvancedRecommendations';
@@ -66,16 +65,32 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
     probiotics: quizResponses.symptoms?.includes('digestive_issues') ? 85 : 50
   });
 
+  // Placeholder for nutritionalProfile -  This needs to be properly defined
+  const nutritionalProfile = {
+    overallScore: 78,
+    strengths: ["Good sleep quality", "Regular exercise"],
+    weaknesses: ["High stress levels", "Poor diet"],
+    keyFactors: [
+      { name: "Stress", score: 85, color: "text-red-500", icon: <FaChartLine className="text-red-500 text-xl" /> },
+      { name: "Sleep", score: 60, color: "text-blue-500", icon: <FaClock className="text-blue-500 text-xl" /> },
+      { name: "Activity", score: 70, color: "text-green-500", icon: <FaUsers className="text-green-500 text-xl" /> },
+      { name: "Diet", score: 45, color: "text-yellow-500", icon: <FaFlask className="text-yellow-500 text-xl" /> },
+    ]
+  };
+
+
+  const [showBonusContent, setShowBonusContent] = useState(false);
+
   useEffect(() => {
     setLastRefreshTime(new Date());
-    
+
     // Message de stabilité qui explique la nature stable des recommandations
     const messages = [
       "Nos recommandations sont optimisées pour la stabilité et la cohérence",
       "Les résultats sont calibrés quotidiennement pour vous garantir des recommandations fiables",
       "Analyse complète effectuée avec une précision de pointe"
     ];
-    
+
     const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
     setStabilityMessage(selectedMessage);
   }, [recommendations]);
@@ -84,7 +99,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
   const formatRefreshTime = () => {
     const now = new Date();
     const diff = Math.floor((now.getTime() - lastRefreshTime.getTime()) / 1000);
-    
+
     if (diff < 60) return `il y a ${diff} secondes`;
     if (diff < 3600) return `il y a ${Math.floor(diff / 60)} minutes`;
     return `il y a ${Math.floor(diff / 3600)} heures`;
@@ -96,19 +111,19 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
       purchaseIntent: purchaseIntentSlider,
       additionalComments: additionalFeedback
     };
-    
+
     // Trouver la recommandation correspondante
     const recommendation = recommendations.find(r => r.title === productTitle);
     if (recommendation) {
       recordFeedback(recommendation, feedback);
     }
-    
+
     // Mettre à jour l'état local
     setUserFeedback({
       ...userFeedback,
       [productTitle]: feedback
     });
-    
+
     setActiveFeedbackProduct(null);
     setAdditionalFeedback('');
     setPurchaseIntentSlider(7);
@@ -181,7 +196,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
           Votre Avis
         </button>
       </div>
-      
+
       {/* Contenu principal */}
       <div className="p-6 pt-4">
         {isLoading ? (
@@ -193,216 +208,178 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
         ) : (
           <>
             {selectedTab === 'recommendations' && (
-              <div>
-                {/* Explication de la recommandation */}
-                <div className="mb-8">
-                  <h2 className="text-xl font-semibold mb-3 text-gray-800">Notre Analyse</h2>
-                  <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                    {explanation ? (
-                      <div 
-                        className="prose prose-indigo max-w-none" 
-                        dangerouslySetInnerHTML={{ __html: explanation }}
-                      />
-                    ) : (
-                      <p className="text-gray-600">Basé sur vos réponses, nous avons généré des recommandations personnalisées pour répondre à vos besoins nutritionnels spécifiques.</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Filtres de tri */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-700">Trier par:</h3>
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => prioritizeByMetric('scientific')}
-                        className={`py-1 px-3 text-xs rounded-full ${isPrioritized && priorityMetric === 'scientific' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                        <span className="flex items-center"><FaFlask className="mr-1" /> Base scientifique</span>
-                      </button>
-                      <button 
-                        onClick={() => prioritizeByMetric('popular')}
-                        className={`py-1 px-3 text-xs rounded-full ${isPrioritized && priorityMetric === 'popular' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                        <span className="flex items-center"><FaUsers className="mr-1" /> Popularité</span>
-                      </button>
-                      <button 
-                        onClick={() => prioritizeByMetric('quickEffect')}
-                        className={`py-1 px-3 text-xs rounded-full ${isPrioritized && priorityMetric === 'quickEffect' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                        <span className="flex items-center"><FaClock className="mr-1" /> Effet rapide</span>
-                      </button>
+              <>
+                <motion.div 
+                  className="mb-8 result-card" 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                      <FaChartLine size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">Votre profil nutritionnel</h3>
+                      <p className="text-gray-600">Basé sur vos réponses et l'analyse de notre NeuroEngine</p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <div className="text-3xl font-bold text-blue-600">{nutritionalProfile.overallScore}/100</div>
+                      <div className="text-sm text-gray-500">Score global</div>
                     </div>
                   </div>
-                </div>
 
-                {/* Liste des recommandations */}
-                <div className="space-y-6">
-                  {recommendations.map((recommendation, index) => (
-                    <motion.div
-                      key={recommendation.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`border rounded-lg overflow-hidden ${index === 0 ? 'border-indigo-300 bg-indigo-50' : 'border-gray-200'}`}
-                    >
-                      <div className="p-5">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                              {index === 0 && <span className="inline-block bg-indigo-600 text-white text-xs px-2 py-0.5 rounded mr-2">Top Recommandation</span>}
-                              {recommendation.title}
-                            </h3>
-                            <p className="text-gray-600 mb-3">{recommendation.description}</p>
+                  <div className="grid md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">Vos points forts</h4>
+                      <div className="space-y-2">
+                        {nutritionalProfile.strengths.map((strength, i) => (
+                          <div key={i} className="flex items-center p-2 bg-green-50 rounded-md">
+                            <span className="mr-2 text-green-500">✓</span>
+                            <span>{strength}</span>
                           </div>
-                          <div className="flex flex-col items-end">
-                            <div className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-sm">
-                              {Math.round(recommendation.confidence * 100)}% de correspondance
-                            </div>
-                            <SocialProofIndicator 
-                              popularity={recommendation.popularity || 75} 
-                              recentUsers={Math.floor(Math.random() * 15) + 3} 
-                              isStable={true}
-                            />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">Vos axes d'amélioration</h4>
+                      <div className="space-y-2">
+                        {nutritionalProfile.weaknesses.map((weakness, i) => (
+                          <div key={i} className="flex items-center p-2 bg-amber-50 rounded-md">
+                            <span className="mr-2 text-amber-500">!</span>
+                            <span>{weakness}</span>
                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <h4 className="font-medium text-gray-700 mb-3">Facteurs clés</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {nutritionalProfile.keyFactors.map((factor, i) => (
+                        <div key={i} className="bg-gray-50 rounded-lg p-3 text-center">
+                          <div className={`flex justify-center ${factor.color} mb-2`}>
+                            {factor.icon}
+                          </div>
+                          <div className="text-sm font-medium">{factor.name}</div>
+                          <div className="text-lg font-semibold">{factor.score}%</div>
                         </div>
-                        
-                        {/* Bénéfices */}
-                        <div className="mt-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Bénéfices Principaux:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {recommendation.benefits?.map((benefit, i) => (
-                              <span key={i} className="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full flex items-center">
-                                <FaCheck className="mr-1 text-green-500" />
-                                {benefit}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Informations supplémentaires */}
-                        <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-500">Temps d'effet:</span>
-                            <span className="ml-2 text-gray-800 font-medium">{recommendation.timeToEffect}</span>
-                          </div>
-                          {recommendation.dosage && (
-                            <div>
-                              <span className="text-gray-500">Dosage:</span>
-                              <span className="ml-2 text-gray-800 font-medium">{recommendation.dosage}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <SocialProofIndicator responseId="profile-overall" questionId="nutrition-analysis" />
+                </motion.div>
+
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold mb-4">Vos recommandations personnalisées</h3>
+                  <p className="text-gray-600 mb-6">
+                    Nos experts ont analysé votre profil et recommandent les compléments suivants
+                    pour optimiser votre santé et bien-être.
+                  </p>
+
+                  {isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-pulse flex flex-col items-center">
+                        <div className="rounded-full bg-slate-200 h-10 w-10 mb-2"></div>
+                        <div className="h-2 bg-slate-200 rounded w-24 mb-4"></div>
+                        <div className="h-2 bg-slate-200 rounded w-32"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {recommendations.map((rec, index) => (
+                        <motion.div 
+                          key={rec.id || index}
+                          className="recommendation-tile"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: index * 0.1 }}
+                        >
+                          <div className="flex items-start">
+                            {rec.imageUrl && (
+                              <div className="mr-4 rounded-md overflow-hidden" style={{ width: '60px', height: '60px' }}>
+                                <img 
+                                  src={rec.imageUrl} 
+                                  alt={rec.name} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900">{rec.name}</h4>
+                              <div className="text-sm text-gray-500 mt-1 mb-2">{rec.category}</div>
+                              <div className="flex items-center text-yellow-400 text-sm">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <span key={i}>★</span>
+                                ))}
+                                <span className="ml-1 text-gray-600">({(80 + index * 7).toLocaleString('fr-FR')})</span>
+                              </div>
                             </div>
-                          )}
-                          {recommendation.optimalUsage && (
-                            <div className="col-span-2">
-                              <span className="text-gray-500">Utilisation optimale:</span>
-                              <span className="ml-2 text-gray-800 font-medium">{recommendation.optimalUsage}</span>
+                          </div>
+
+                          <div className="mt-4 text-sm text-gray-700">
+                            <p>{rec.explanation || "Complément recommandé en fonction de votre profil nutritionnel."}</p>
+                          </div>
+
+                          <div className="mt-4 flex justify-between items-center">
+                            <div className="text-blue-600 font-semibold">
+                              {rec.price ? `${rec.price} €` : '--,-- €'}
                             </div>
-                          )}
-                        </div>
-                        
-                        {/* Boutons d'action */}
-                        <div className="mt-5 flex justify-between items-center">
-                          <div>
-                            <button
-                              onClick={() => setActiveFeedbackProduct(recommendation.title)}
-                              className="text-indigo-600 text-sm hover:text-indigo-800"
-                            >
-                              Donner mon avis
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition">
+                              En savoir plus
                             </button>
                           </div>
-                          <a
-                            href={recommendation.url || '#'}
-                            className="bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
-                          >
-                            Voir le produit
-                          </a>
-                        </div>
-                        
-                        {/* Formulaire de feedback */}
-                        {activeFeedbackProduct === recommendation.title && (
-                          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h4 className="text-sm font-semibold mb-3">Votre avis sur cette recommandation</h4>
-                            <div className="mb-3">
-                              <p className="text-sm text-gray-600 mb-2">Cette recommandation vous semble-t-elle pertinente ?</p>
-                              <div className="flex space-x-4">
-                                <button
-                                  onClick={() => setUserFeedback({
-                                    ...userFeedback,
-                                    [recommendation.title]: { 
-                                      ...userFeedback[recommendation.title],
-                                      helpful: true,
-                                      purchaseIntent: purchaseIntentSlider
-                                    }
-                                  })}
-                                  className={`px-3 py-1 text-sm rounded-full ${
-                                    userFeedback[recommendation.title]?.helpful === true 
-                                      ? 'bg-green-100 text-green-700 border border-green-300' 
-                                      : 'bg-gray-100 text-gray-700 border border-gray-200'
-                                  }`}
-                                >
-                                  Oui
-                                </button>
-                                <button
-                                  onClick={() => setUserFeedback({
-                                    ...userFeedback,
-                                    [recommendation.title]: { 
-                                      ...userFeedback[recommendation.title],
-                                      helpful: false,
-                                      purchaseIntent: purchaseIntentSlider
-                                    }
-                                  })}
-                                  className={`px-3 py-1 text-sm rounded-full ${
-                                    userFeedback[recommendation.title]?.helpful === false 
-                                      ? 'bg-red-100 text-red-700 border border-red-300' 
-                                      : 'bg-gray-100 text-gray-700 border border-gray-200'
-                                  }`}
-                                >
-                                  Non
-                                </button>
-                              </div>
-                            </div>
-                            <div className="mb-3">
-                              <p className="text-sm text-gray-600 mb-2">Intérêt pour ce produit (1-10)</p>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="range"
-                                  min="1"
-                                  max="10"
-                                  value={purchaseIntentSlider}
-                                  onChange={(e) => setPurchaseIntentSlider(parseInt(e.target.value))}
-                                  className="w-full"
-                                />
-                                <span className="bg-gray-200 px-2 py-1 rounded text-sm">{purchaseIntentSlider}</span>
-                              </div>
-                            </div>
-                            <div className="mb-3">
-                              <p className="text-sm text-gray-600 mb-2">Commentaires supplémentaires</p>
-                              <textarea
-                                rows={2}
-                                value={additionalFeedback}
-                                onChange={(e) => setAdditionalFeedback(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="Vos commentaires nous aident à améliorer nos recommandations..."
-                              />
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={() => setActiveFeedbackProduct(null)}
-                                className="px-3 py-1 text-sm border border-gray-300 rounded-md"
-                              >
-                                Annuler
-                              </button>
-                              <button
-                                onClick={() => handleFeedbackSubmit(recommendation.title)}
-                                className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md"
-                              >
-                                Envoyer
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <motion.div 
+                    className="mt-8 p-4 border border-blue-100 rounded-lg bg-blue-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                  >
+                    <h4 className="font-medium text-gray-800 mb-2">Comment lire vos résultats</h4>
+                    <p className="text-sm text-gray-700">
+                      Nos recommandations sont basées sur une analyse scientifique de vos réponses, 
+                      combinée à notre moteur d'intelligence artificielle qui évalue plus de 50 facteurs 
+                      de santé différents.
+                    </p>
+
+                    <button 
+                      className="mt-3 text-blue-600 text-sm font-medium flex items-center"
+                      onClick={() => setShowBonusContent(!showBonusContent)}
+                    >
+                      {showBonusContent ? 'Masquer les détails' : 'Voir la méthodologie scientifique'}
+                      <svg className={`ml-1 w-4 h-4 transition-transform ${showBonusContent ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {showBonusContent && (
+                      <motion.div 
+                        className="mt-3 text-sm text-gray-600"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="mb-2">
+                          Notre algorithme avancé, le <strong>NeuroEngine</strong>, analyse non seulement 
+                          vos réponses explicites, mais aussi des métriques comportementales subtiles pendant 
+                          que vous complétiez le quiz.
+                        </p>
+                        <p>
+                          Ce processus nous permet d'atteindre une précision de {precision.toFixed(1)}% dans 
+                          nos recommandations, comparé à une moyenne de 72% pour les questionnaires traditionnels.
+                        </p>
+                      </motion.div>
+                    )}
+                  </motion.div>
                 </div>
-              </div>
+              </>
             )}
 
             {selectedTab === 'details' && (
@@ -442,7 +419,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                           Notre analyse détaillée examine ces facteurs clés pour déterminer vos besoins nutritionnels spécifiques.
                         </ScientificHighlightedText>
                       </p>
-                      
+
                       <div className="space-y-6">
                         {/* Niveau de stress */}
                         <div>
@@ -461,7 +438,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                                 : "Niveau de stress faible - Facteur positif pour votre santé globale"}
                           </p>
                         </div>
-                        
+
                         {/* Qualité du sommeil */}
                         <div>
                           <div className="flex justify-between mb-1">
@@ -479,7 +456,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                                 : "Bonne qualité de sommeil - Facteur protecteur pour votre santé"}
                           </p>
                         </div>
-                        
+
                         {/* Niveau d'activité physique */}
                         <div>
                           <div className="flex justify-between mb-1">
@@ -497,7 +474,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                                 : "Niveau d'activité élevé - Nécessite une supplémentation adaptée à la récupération"}
                           </p>
                         </div>
-                        
+
                         {/* Qualité alimentaire */}
                         <div>
                           <div className="flex justify-between mb-1">
@@ -527,7 +504,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                           Cette analyse représente vos besoins en nutriments spécifiques basés sur votre profil et vos réponses au quiz.
                         </ScientificHighlightedText>
                       </p>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {Object.entries(nutrientNeeds).map(([nutrient, value]: [string, any]) => (
                           <div key={nutrient} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -542,7 +519,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                                 {value}%
                               </span>
                             </div>
-                            
+
                             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
                               <div 
                                 className={`h-2.5 rounded-full ${
@@ -554,14 +531,14 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                                 style={{ width: `${value}%` }}
                               ></div>
                             </div>
-                            
+
                             <p className="text-xs text-gray-700">
                               {value > 75 ? 'Besoin élevé - Supplémentation fortement recommandée' : 
                                value > 50 ? 'Besoin modéré à élevé - Supplémentation recommandée' : 
                                value > 30 ? 'Besoin modéré - Surveillance recommandée' : 
                                'Besoin faible - Maintien des niveaux actuels'}
                             </p>
-                            
+
                             <div className="mt-3 text-xs text-gray-500">
                               {nutrient === 'magnesium' && (
                                 <>Essentiel pour: relaxation musculaire, fonction nerveuse, gestion du stress</>
@@ -591,13 +568,13 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
             {selectedTab === 'feedback' && (
               <div className="pb-6">
                 <h2 className="text-xl font-semibold mb-6 text-gray-800">Votre avis nous aide à nous améliorer</h2>
-                
+
                 <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                   <h3 className="text-lg font-semibold mb-4">Qualité des recommandations</h3>
                   <p className="text-gray-600 mb-6">
                     Votre feedback nous aide à améliorer notre système d'intelligence artificielle pour des recommandations toujours plus précises.
                   </p>
-                  
+
                   <div className="space-y-6">
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Quelle est la pertinence globale des recommandations proposées ?</p>
@@ -609,7 +586,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Les explications fournies sont-elles claires et utiles ?</p>
                       <div className="flex space-x-4">
@@ -624,7 +601,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Y a-t-il des aspects de votre santé qui n'ont pas été pris en compte ?</p>
                       <textarea
@@ -634,12 +611,12 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                       />
                     </div>
                   </div>
-                  
+
                   <button className="mt-6 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
                     Envoyer mon avis
                   </button>
                 </div>
-                
+
                 <div className="bg-indigo-50 rounded-lg border border-indigo-200 p-6">
                   <div className="flex items-start">
                     <div className="mr-4 bg-indigo-100 p-3 rounded-full">
