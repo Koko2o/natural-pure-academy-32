@@ -15,9 +15,12 @@ import { secureStorageService } from '../lib/secureStorage';
 import { findSimilarProfiles } from './userSimilarity';
 import { 
   SYMPTOM_MAPPING, 
-  SYMPTOM_CATEGORIES, 
+  GOAL_RECOMMENDATIONS,
+  ADDITIONAL_RECOMMENDATIONS,
   SYMPTOM_RECOMMENDATIONS,
-  GOAL_RECOMMENDATIONS
+  SYMPTOM_INTENSITY,
+  LIFESTYLE_RECOMMENDATIONS,
+  GOAL_INTENSITY
 } from '../data/recommendationMappings';
 import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
 import { 

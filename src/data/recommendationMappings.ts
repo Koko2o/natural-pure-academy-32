@@ -57,7 +57,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["anxiété", "nervosité", "tension", "inquiétude", "pression", "agitation"],
     relatedQuestions: ["stress_level", "stress_frequency", "stress_symptoms"]
   },
-  
+
   panic: {
     id: "panic",
     name: "Attaques de panique",
@@ -75,7 +75,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["irritabilité", "sautes d'humeur", "variations", "instabilité", "émotions"],
     relatedQuestions: ["mood_swings", "emotional_stability"]
   },
-  
+
   depression: {
     id: "depression",
     name: "Humeur basse",
@@ -93,7 +93,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["difficulté à dormir", "réveils nocturnes", "sommeil perturbé", "éveil précoce"],
     relatedQuestions: ["sleep_quality", "sleep_duration", "sleep_onset_time"]
   },
-  
+
   sleep_quality: {
     id: "sleep_quality",
     name: "Qualité du sommeil",
@@ -111,7 +111,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["épuisement", "manque d'énergie", "léthargie", "faiblesse", "apathie"],
     relatedQuestions: ["energy_level", "fatigue_severity", "fatigue_timing"]
   },
-  
+
   morning_fatigue: {
     id: "morning_fatigue",
     name: "Fatigue matinale",
@@ -120,7 +120,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["épuisement au réveil", "inertie du sommeil", "réveil difficile"],
     relatedQuestions: ["morning_energy", "wakeup_difficulty"]
   },
-  
+
   afternoon_slump: {
     id: "afternoon_slump",
     name: "Chute d'énergie après-midi",
@@ -138,7 +138,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["ventre gonflé", "gaz", "distension", "inconfort abdominal"],
     relatedQuestions: ["bloating_frequency", "bloating_severity"]
   },
-  
+
   constipation: {
     id: "constipation",
     name: "Constipation",
@@ -147,7 +147,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["transit lent", "selles dures", "difficulté à évacuer"],
     relatedQuestions: ["bowel_movement_frequency", "stool_consistency"]
   },
-  
+
   diarrhea: {
     id: "diarrhea",
     name: "Diarrhée",
@@ -156,7 +156,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["selles liquides", "transit rapide", "urgence intestinale"],
     relatedQuestions: ["bowel_movement_frequency", "stool_consistency"]
   },
-  
+
   ibs: {
     id: "ibs",
     name: "Syndrome de l'intestin irritable",
@@ -174,7 +174,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["distraction", "attention", "concentration", "dispersion"],
     relatedQuestions: ["focus_duration", "focus_difficulty"]
   },
-  
+
   memory: {
     id: "memory",
     name: "Problèmes de mémoire",
@@ -183,7 +183,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["oublis", "mémoire à court terme", "rappel", "mémoire de travail"],
     relatedQuestions: ["memory_issues", "memory_type"]
   },
-  
+
   brain_fog: {
     id: "brain_fog",
     name: "Brouillard mental",
@@ -201,7 +201,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["infections fréquentes", "rhumes répétitifs", "récupération lente"],
     relatedQuestions: ["illness_frequency", "recovery_time"]
   },
-  
+
   allergies: {
     id: "allergies",
     name: "Réactions allergiques",
@@ -219,7 +219,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["hypoglycémie", "hyperglycémie", "fringales", "soif excessive"],
     relatedQuestions: ["sugar_cravings", "energy_after_meals"]
   },
-  
+
   weight_management: {
     id: "weight_management",
     name: "Gestion du poids",
@@ -228,7 +228,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["prise de poids", "difficulté à maigrir", "métabolisme lent"],
     relatedQuestions: ["weight_struggles", "weight_fluctuations"]
   },
-  
+
   hormonal_imbalance: {
     id: "hormonal_imbalance",
     name: "Déséquilibres hormonaux",
@@ -246,7 +246,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["arthrite", "raideur", "gonflement", "mobilité réduite"],
     relatedQuestions: ["joint_pain_location", "joint_pain_severity"]
   },
-  
+
   muscle_pain: {
     id: "muscle_pain",
     name: "Douleurs musculaires",
@@ -255,7 +255,7 @@ export const SYMPTOM_CATEGORIES: Record<string, SymptomCategory> = {
     keywords: ["courbatures", "spasmes", "tensions", "fibromyalgie"],
     relatedQuestions: ["muscle_pain_location", "muscle_pain_trigger"]
   },
-  
+
   inflammation: {
     id: "inflammation",
     name: "Inflammation chronique",
@@ -341,7 +341,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-3000mg par jour"
     }
   ],
-  
+
   panic: [
     {
       id: "l_theanine",
@@ -368,7 +368,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule par jour"
     }
   ],
-  
+
   mood: [
     {
       id: "rhodiola",
@@ -413,7 +413,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "300-400mg par jour"
     }
   ],
-  
+
   depression: [
     {
       id: "vitamin_d3",
@@ -458,7 +458,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "400-600mg d'extrait standardisé par jour"
     }
   ],
-  
+
   // === SOMMEIL ===
   insomnia: [
     {
@@ -498,7 +498,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI le matin"
     }
   ],
-  
+
   sleep_quality: [
     {
       id: "magnesium",
@@ -531,7 +531,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI le matin"
     }
   ],
-  
+
   // === ÉNERGIE ===
   fatigue: [
     {
@@ -577,7 +577,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "300-400mg par jour"
     }
   ],
-  
+
   morning_fatigue: [
     {
       id: "vitamin_b_complex",
@@ -610,7 +610,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "300-600mg d'extrait standardisé le matin"
     }
   ],
-  
+
   afternoon_slump: [
     {
       id: "rhodiola",
@@ -637,7 +637,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "100-200mg en début d'après-midi"
     }
   ],
-  
+
   // === DIGESTION ===
   bloating: [
     {
@@ -665,7 +665,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1-2g de graines après les repas"
     }
   ],
-  
+
   constipation: [
     {
       id: "fiber_complex",
@@ -686,7 +686,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "20-30 milliards UFC par jour"
     }
   ],
-  
+
   diarrhea: [
     {
       id: "probiotics",
@@ -707,7 +707,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "15-30mg par jour pendant les épisodes"
     }
   ],
-  
+
   ibs: [
     {
       id: "probiotics",
@@ -734,7 +734,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "3-5g par jour avec beaucoup d'eau"
     }
   ],
-  
+
   // === COGNITION ===
   focus: [
     {
@@ -780,7 +780,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule le matin"
     }
   ],
-  
+
   memory: [
     {
       id: "bacopa",
@@ -825,7 +825,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule le matin"
     }
   ],
-  
+
   brain_fog: [
     {
       id: "lion_mane",
@@ -852,7 +852,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule le matin"
     },
     {
-      id: "rhodiola",
+      id: "rhodiola,
       priority: 8,
       doseStandard: "300-600mg d'extrait standardisé le matin",
       doseVegetarian: "300-600mg d'extrait standardisé le matin"
@@ -876,7 +876,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   // === SYSTÈME IMMUNITAIRE ===
   immunity: [
     {
@@ -916,7 +916,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "10-30 milliards UFC par jour"
     }
   ],
-  
+
   allergies: [
     {
       id: "quercetin",
@@ -943,7 +943,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "10-30 milliards UFC par jour"
     }
   ],
-  
+
   // === HORMONES ET MÉTABOLISME ===
   blood_sugar: [
     {
@@ -977,7 +977,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "600-1200mg par jour"
     }
   ],
-  
+
   weight_management: [
     {
       id: "fiber_complex",
@@ -1022,7 +1022,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   hormonal_imbalance: [
     {
       id: "ashwagandha",
@@ -1061,7 +1061,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule par jour"
     }
   ],
-  
+
   // === DOULEUR ET INFLAMMATION ===
   joint_pain: [
     {
@@ -1107,7 +1107,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   muscle_pain: [
     {
       id: "magnesium",
@@ -1146,7 +1146,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-3000mg par jour"
     }
   ],
-  
+
   inflammation: [
     {
       id: "curcumin",
@@ -1191,7 +1191,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   // === CARDIOVASCULAIRE ===
   heart_health: [
     {
@@ -1286,7 +1286,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "300-400mg par jour"
     }
   ],
-  
+
   athletic_performance: [
     {
       id: "creatine",
@@ -1331,7 +1331,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "300-600mg d'extrait standardisé par jour"
     }
   ],
-  
+
   recovery_optimization: [
     {
       id: "magnesium",
@@ -1370,7 +1370,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "3-5g avant le coucher"
     }
   ],
-  
+
   // === SANTÉ MENTALE ===
   stress_management: [
     {
@@ -1416,7 +1416,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "2000-3000mg par jour"
     }
   ],
-  
+
   mood_support: [
     {
       id: "vitamin_d3",
@@ -1467,7 +1467,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "300-400mg (bisglycinate) par jour"
     }
   ],
-  
+
   sleep_improvement: [
     {
       id: "magnesium",
@@ -1506,7 +1506,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "2000-4000 UI le matin"
     }
   ],
-  
+
   cognitive_performance: [
     {
       id: "bacopa",
@@ -1557,7 +1557,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   // === MÉTABOLISME ET POIDS ===
   weight_management: [
     {
@@ -1591,7 +1591,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   blood_sugar_balance: [
     {
       id: "berberine",
@@ -1624,7 +1624,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "600-1200mg par jour"
     }
   ],
-  
+
   // === DIGESTION ===
   digestive_health: [
     {
@@ -1658,7 +1658,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "500-1000mg d'extrait par jour"
     }
   ],
-  
+
   // === IMMUNITÉ ===
   immune_support: [
     {
@@ -1698,7 +1698,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "10-30 milliards UFC par jour"
     }
   ],
-  
+
   // === SANTÉ CARDIO-VASCULAIRE ===
   heart_health: [
     {
@@ -1741,10 +1741,10 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       id: "vitamin_d3_vegan",
       priority: 7,
       doseStandard: "2000-4000 UI par jour",
-      doseVegetarian: "2000-4000 UI par jour"
+      doseVegetarian: "2000000 UI par jour"
     }
   ],
-  
+
   // === ANTIOXYDANT ET LONGÉVITÉ ===
   longevity: [
     {
@@ -1796,7 +1796,7 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       doseVegetarian: "2000-4000 UI par jour"
     }
   ],
-  
+
   // === ANTI-INFLAMMATOIRE ===
   reduce_inflammation: [
     {
