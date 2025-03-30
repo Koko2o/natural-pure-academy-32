@@ -1,301 +1,238 @@
 import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from './types';
 
-// Base de connaissances des nutriments et leurs effets
-interface Nutrient {
-  id: string;
-  name: string;
-  benefits: string[];
-  forProblems: string[];
-  contraindications: string[];
-  researchScore: number; // Score basé sur la solidité des recherches (0-100)
-  timeToEffect: string;
-  naturalSources: string[];
-}
+/**
+ * Système avancé de recommandation avec apprentissage automatique
+ * pour les compléments alimentaires basé sur le profil utilisateur
+ */
 
-// Liste des nutriments disponibles dans notre base de données
-const nutrientsDatabase: Nutrient[] = [
-  {
-    id: 'magnesium',
-    name: 'Magnésium',
-    benefits: [
-      'Réduction du stress',
-      'Amélioration de la qualité du sommeil',
-      'Diminution de la fatigue',
-      'Soutien de la fonction musculaire'
-    ],
-    forProblems: ['stress', 'sommeil', 'fatigue', 'crampes'],
+// Base de connaissances étendue des nutriments et leurs effets
+const nutrientKnowledgeBase = {
+  magnesium: {
+    benefits: ['réduction du stress', 'amélioration du sommeil', 'fonction musculaire'],
+    deficiencySymptoms: ['fatigue', 'crampes', 'irritabilité'],
+    synergies: ['vitamine B6', 'zinc'],
     contraindications: ['insuffisance rénale sévère'],
-    researchScore: 92,
-    timeToEffect: '2-4 semaines',
-    naturalSources: ['légumes verts', 'noix', 'graines', 'légumineuses']
+    optimalDosage: {
+      default: '300-400mg',
+      stressHigh: '400-500mg',
+      athletic: '400-600mg',
+      elderly: '300-350mg'
+    },
+    timeToEffect: '2-3 semaines',
+    forms: [
+      { name: 'bisglycinate', bioavailability: 'élevée', gentleOnStomach: true },
+      { name: 'citrate', bioavailability: 'moyenne', gentleOnStomach: true },
+      { name: 'oxide', bioavailability: 'faible', gentleOnStomach: false }
+    ]
   },
-  {
-    id: 'omega3',
-    name: 'Oméga-3',
-    benefits: [
-      'Soutien de la santé cognitive',
-      'Réduction de l\'inflammation',
-      'Amélioration de l\'humeur',
-      'Soutien cardiovasculaire'
-    ],
-    forProblems: ['inflammation', 'humeur', 'concentration', 'cardiovasculaire'],
-    contraindications: ['troubles de la coagulation'],
-    researchScore: 89,
-    timeToEffect: '4-12 semaines',
-    naturalSources: ['poissons gras', 'graines de lin', 'graines de chia', 'noix']
+  omega3: {
+    benefits: ['fonction cognitive', 'santé cardiovasculaire', 'anti-inflammatoire'],
+    deficiencySymptoms: ['sécheresse cutanée', 'troubles de la concentration', 'fatigue'],
+    synergies: ['vitamine E', 'vitamine D'],
+    contraindications: ['troubles de la coagulation', 'allergie aux fruits de mer'],
+    optimalDosage: {
+      default: '1000-2000mg',
+      cognitiveSupport: '2000-3000mg',
+      cardiovascular: '2000-4000mg',
+      antiInflammatory: '3000-4000mg'
+    },
+    timeToEffect: '8-12 semaines',
+    forms: [
+      { name: 'huile de poisson', epaRatio: 'variable', sustainable: false },
+      { name: 'algue marine', epaRatio: 'moyenne', sustainable: true },
+      { name: 'krill', epaRatio: 'élevée', sustainable: false }
+    ]
   },
-  {
-    id: 'probiotics',
-    name: 'Probiotiques',
-    benefits: [
-      'Amélioration de la santé digestive',
-      'Renforcement du système immunitaire',
-      'Réduction des ballonnements',
-      'Soutien de la santé mentale'
-    ],
-    forProblems: ['digestion', 'immunité', 'ballonnements', 'anxiété'],
-    contraindications: ['immunodéficience sévère'],
-    researchScore: 85,
-    timeToEffect: '2-8 semaines',
-    naturalSources: ['yaourt', 'kéfir', 'choucroute', 'kimchi']
-  },
-  {
-    id: 'vitamin-d',
-    name: 'Vitamine D',
-    benefits: [
-      'Renforcement du système immunitaire',
-      'Amélioration de l\'humeur',
-      'Soutien de la santé osseuse',
-      'Régulation du sommeil'
-    ],
-    forProblems: ['immunité', 'humeur', 'os', 'sommeil'],
+  vitaminD: {
+    benefits: ['immunité', 'santé osseuse', 'humeur'],
+    deficiencySymptoms: ['fatigue', 'douleurs osseuses', 'faiblesse musculaire'],
+    synergies: ['vitamine K2', 'magnésium', 'calcium'],
     contraindications: ['hypercalcémie'],
-    researchScore: 94,
-    timeToEffect: '4-12 semaines',
-    naturalSources: ['exposition au soleil', 'poissons gras', 'jaunes d\'œuf']
-  },
-  {
-    id: 'ashwagandha',
-    name: 'Ashwagandha',
-    benefits: [
-      'Réduction du stress et de l\'anxiété',
-      'Amélioration de l\'équilibre hormonal',
-      'Renforcement de l\'énergie',
-      'Soutien de la fonction cognitive'
-    ],
-    forProblems: ['stress', 'anxiété', 'fatigue', 'hormones'],
-    contraindications: ['maladie auto-immune', 'grossesse'],
-    researchScore: 83,
-    timeToEffect: '4-12 semaines',
-    naturalSources: ['racine d\'ashwagandha']
-  },
-  {
-    id: 'zinc',
-    name: 'Zinc',
-    benefits: [
-      'Renforcement du système immunitaire',
-      'Amélioration de la santé cutanée',
-      'Soutien des fonctions hormonales',
-      'Amélioration de la cicatrisation'
-    ],
-    forProblems: ['immunité', 'peau', 'hormones', 'cicatrisation'],
-    contraindications: ['excès de cuivre'],
-    researchScore: 88,
-    timeToEffect: '2-8 semaines',
-    naturalSources: ['fruits de mer', 'viande', 'légumineuses', 'graines']
-  },
-  {
-    id: 'b-complex',
-    name: 'Complexe B',
-    benefits: [
-      'Soutien du système nerveux',
-      'Amélioration de l\'énergie',
-      'Réduction du stress',
-      'Amélioration de la fonction cognitive'
-    ],
-    forProblems: ['système nerveux', 'fatigue', 'stress', 'concentration'],
-    contraindications: ['certaines interactions médicamenteuses'],
-    researchScore: 86,
-    timeToEffect: '2-6 semaines',
-    naturalSources: ['viandes', 'œufs', 'légumes verts', 'légumineuses']
-  },
-  {
-    id: 'l-theanine',
-    name: 'L-Théanine',
-    benefits: [
-      'Réduction de l\'anxiété',
-      'Amélioration de la concentration détendue',
-      'Amélioration de la qualité du sommeil',
-      'Réduction du stress'
-    ],
-    forProblems: ['anxiété', 'concentration', 'sommeil', 'stress'],
-    contraindications: ['pression artérielle basse'],
-    researchScore: 82,
-    timeToEffect: '1-4 semaines',
-    naturalSources: ['thé vert', 'thé noir']
-  }
-];
-
-// Solutions combinées basées sur des synergies prouvées
-interface CombinedSolution {
-  id: string;
-  title: string;
-  description: string;
-  nutrients: string[];  // IDs des nutriments
-  forProblems: string[];
-  researchScore: number;
-  timeToEffect: string;
-  popularity: number;
-  url: string;
-  scientificBasis: string;
-  benefits: string[];
-}
-
-const combinedSolutions: CombinedSolution[] = [
-  {
-    id: 'neuro-cognitive',
-    title: 'Complexe Neuro-Cognitif Avancé',
-    description: 'Formulation scientifique pour soutenir les fonctions cognitives et la mémoire',
-    nutrients: ['omega3', 'b-complex', 'vitamin-d', 'magnesium'],
-    forProblems: ['concentration', 'mémoire', 'fatigue mentale', 'brouillard cérébral'],
-    researchScore: 0.91,
-    timeToEffect: '3-6 semaines',
-    popularity: 76,
-    url: '/labo/neuro-cognitif',
-    scientificBasis: 'Formulation basée sur 12 études cliniques montrant l\'importance de l\'équilibre entre acides gras et micronutriments pour la santé cognitive',
-    benefits: [
-      'Amélioration de la concentration',
-      'Support de la mémoire à court et long terme',
-      'Protection neuronale',
-      'Clarté mentale et vivacité d\'esprit'
+    optimalDosage: {
+      default: '1000-2000 UI',
+      deficiency: '5000 UI',
+      maintenance: '2000 UI',
+      elderly: '2000-4000 UI'
+    },
+    timeToEffect: '4-6 semaines',
+    forms: [
+      { name: 'D3 (cholécalciférol)', bioavailability: 'élevée', animalDerived: true },
+      { name: 'D2 (ergocalciférol)', bioavailability: 'moyenne', animalDerived: false }
     ]
   },
-  {
-    id: 'stress-calm',
-    title: 'Solution Anti-Stress Naturelle',
-    description: 'Combinaison synergique pour réduire le stress et améliorer la résilience',
-    nutrients: ['ashwagandha', 'magnesium', 'l-theanine'],
-    forProblems: ['stress', 'anxiété', 'tension', 'irritabilité'],
-    researchScore: 0.88,
+  probiotics: {
+    benefits: ['santé digestive', 'immunité', 'production de vitamines'],
+    deficiencySymptoms: ['troubles digestifs', 'infections récurrentes'],
+    synergies: ['prébiotiques', 'enzymes digestives'],
+    contraindications: ['immunodéficience sévère'],
+    optimalDosage: {
+      default: '10-30 milliards UFC',
+      acuteConditions: '50-100 milliards UFC',
+      maintenance: '5-15 milliards UFC'
+    },
     timeToEffect: '2-4 semaines',
-    popularity: 89,
-    url: '/labo/anti-stress',
-    scientificBasis: 'Association d\'adaptogènes et minéraux validée par des études pour moduler la réponse au stress et favoriser la production de GABA',
-    benefits: [
-      'Réduction des hormones de stress',
-      'Amélioration de la qualité du sommeil',
-      'Augmentation de la résilience au stress quotidien',
-      'Équilibre émotionnel renforcé'
+    forms: [
+      { name: 'multi-souches', coverage: 'large', stability: 'variable' },
+      { name: 'spore-forming', coverage: 'modérée', stability: 'excellente' }
     ]
   },
-  {
-    id: 'immuno-protect',
-    title: 'Bouclier Immunitaire Complet',
-    description: 'Renforcement scientifique des défenses naturelles du corps',
-    nutrients: ['vitamin-d', 'zinc', 'probiotics'],
-    forProblems: ['immunité faible', 'infections récurrentes', 'récupération lente'],
-    researchScore: 0.93,
-    timeToEffect: '2-8 semaines',
-    popularity: 82,
-    url: '/labo/immunite',
-    scientificBasis: 'Formule basée sur les dernières recherches en immunologie nutritionnelle et microbiome intestinal',
-    benefits: [
-      'Renforcement des défenses immunitaires',
-      'Amélioration de la réponse immunitaire',
-      'Équilibre du microbiome intestinal',
-      'Protection cellulaire contre le stress oxydatif'
-    ]
-  },
-  {
-    id: 'digest-harmony',
-    title: 'Équilibre Digestif Optimal',
-    description: 'Solution complète pour une digestion confortable et efficace',
-    nutrients: ['probiotics', 'zinc', 'magnesium'],
-    forProblems: ['digestion', 'ballonnements', 'inconfort intestinal', 'transit irrégulier'],
-    researchScore: 0.85,
-    timeToEffect: '1-4 semaines',
-    popularity: 78,
-    url: '/labo/digestif',
-    scientificBasis: 'Développé à partir d\'études sur l\'axe intestin-cerveau et l\'équilibre du microbiome',
-    benefits: [
-      'Amélioration du confort digestif',
-      'Régulation du transit intestinal',
-      'Réduction des ballonnements',
-      'Soutien de la flore intestinale bénéfique'
-    ]
-  },
-  {
-    id: 'sleep-restore',
-    title: 'Restaurateur de Sommeil Naturel',
-    description: 'Solution scientifique pour un sommeil profond et réparateur',
-    nutrients: ['magnesium', 'l-theanine', 'ashwagandha'],
-    forProblems: ['sommeil', 'insomnie', 'réveils nocturnes', 'sommeil non réparateur'],
-    researchScore: 0.89,
-    timeToEffect: '1-3 semaines',
-    popularity: 92,
-    url: '/labo/sommeil',
-    scientificBasis: 'Basé sur les recherches en chronobiologie et neurosciences du sommeil',
-    benefits: [
-      'Endormissement plus rapide',
-      'Amélioration de la qualité du sommeil profond',
-      'Réduction des réveils nocturnes',
-      'Sensation de repos au réveil'
+  zinc: {
+    benefits: ['immunité', 'santé hormonale', 'cicatrisation'],
+    deficiencySymptoms: ['perte de goût', 'cheveux cassants', 'immunité réduite'],
+    synergies: ['cuivre', 'vitamine C'],
+    contraindications: ['excès de cuivre'],
+    optimalDosage: {
+      default: '15-30mg',
+      immuneSupport: '30-50mg',
+      acuteConditions: '50-75mg',
+      dailyMaintenance: '15mg'
+    },
+    timeToEffect: '2-4 semaines',
+    forms: [
+      { name: 'picolinate', bioavailability: 'élevée', gentleOnStomach: true },
+      { name: 'gluconate', bioavailability: 'moyenne', gentleOnStomach: true },
+      { name: 'oxide', bioavailability: 'faible', gentleOnStomach: false }
     ]
   }
+};
+
+// Base de données des produits (simulée - dans un système réel, cette information
+// viendrait d'une API ou d'une base de données)
+const productDatabase: Recommendation[] = [
+  {
+    title: "Complexe Magnésium-B6 BioAssimilable Premium",
+    description: "Formule avancée de magnésium bisglycinate avec B6 active pour une absorption optimale et une réduction du stress.",
+    url: "/products/magnesium-b6-premium",
+    confidence: 0.95,
+    benefits: ["Réduction du stress", "Amélioration du sommeil", "Fonction musculaire optimale", "Soutien cognitif"],
+    timeToEffect: "2-3 semaines",
+    popularity: 92,
+    scientificBasis: "Études cliniques démontrant l'impact du magnésium bisglycinate sur les niveaux de cortisol et la qualité du sommeil",
+    dosage: "400mg de magnésium élémentaire (forme bisglycinate), 25mg de B6 (P5P)",
+    optimalUsage: "Prendre le soir pour améliorer le sommeil ou divisé en 2 prises pour le stress chronique",
+    additionalIngredients: ["P5P (B6 active)", "Glycine"]
+  },
+  {
+    title: "Oméga-3 Algue Marine Concentré DHA/EPA",
+    description: "Source végétale d'oméga-3 à forte concentration en DHA/EPA pour soutien cognitif et cardiovasculaire.",
+    url: "/products/omega3-algae-dha",
+    confidence: 0.88,
+    benefits: ["Fonction cognitive", "Santé cardiovasculaire", "Anti-inflammatoire", "Support hormonal"],
+    timeToEffect: "8-12 semaines",
+    popularity: 85,
+    scientificBasis: "Études montrant l'accumulation des oméga-3 dans les membranes cellulaires et leur effet sur l'inflammation systémique",
+    dosage: "1000mg dont 500mg DHA et 250mg EPA",
+    optimalUsage: "Prendre avec un repas contenant des graisses pour absorption optimale",
+    additionalIngredients: ["Vitamine E (antioxydant)", "Extrait de romarin (préservation)"]
+  },
+  {
+    title: "Vitamine D3+K2 Liposomale",
+    description: "Formulation liposomale de D3 et K2-MK7 pour une biodisponibilité et synergie maximales.",
+    url: "/products/d3-k2-liposomal",
+    confidence: 0.91,
+    benefits: ["Immunité renforcée", "Santé osseuse", "Métabolisme du calcium", "Santé cardiovasculaire"],
+    timeToEffect: "4-6 semaines",
+    popularity: 89,
+    scientificBasis: "Recherches sur la synergie D3-K2 et l'amélioration de l'absorption via technologie liposomale",
+    dosage: "4000 UI D3, 100mcg K2-MK7",
+    optimalUsage: "Prise quotidienne le matin avec un repas contenant des graisses",
+    additionalIngredients: ["Phospholipides de tournesol", "Glycérine végétale"]
+  },
+  {
+    title: "Complexe Probiotiques Multi-Souches",
+    description: "15 souches probiotiques sélectionnées avec technologie de libération contrôlée pour atteindre l'intestin intact.",
+    url: "/products/multi-strain-probiotics",
+    confidence: 0.87,
+    benefits: ["Santé digestive", "Immunité", "Synthèse de vitamines", "Équilibre du microbiome"],
+    timeToEffect: "2-4 semaines",
+    popularity: 83,
+    scientificBasis: "Études cliniques sur l'impact des souches sélectionnées sur la diversité du microbiome",
+    dosage: "50 milliards UFC, 15 souches",
+    optimalUsage: "Prendre à jeun le matin ou avant le coucher pour une colonisation optimale",
+    additionalIngredients: ["Inuline (prébiotique)", "Fructo-oligosaccharides"]
+  },
+  {
+    title: "Zinc Picolinate Hautement Biodisponible",
+    description: "Forme hautement absorbable de zinc avec cuivre pour équilibre optimal des minéraux.",
+    url: "/products/zinc-picolinate-premium",
+    confidence: 0.89,
+    benefits: ["Immunité renforcée", "Équilibre hormonal", "Santé de la peau", "Fonction antioxydante"],
+    timeToEffect: "2-4 semaines",
+    popularity: 86,
+    scientificBasis: "Recherches comparatives sur l'absorption du zinc picolinate vs autres formes",
+    dosage: "30mg zinc, 2mg cuivre",
+    optimalUsage: "Prendre avec un repas pour minimiser irritation gastrique",
+    additionalIngredients: ["Cuivre bisglycinate", "Vitamine C"]
+  },
+  {
+    title: "Complexe Adaptogènes Premium",
+    description: "Mélange synergique d'adaptogènes pour aider le corps à s'adapter au stress et améliorer la résilience.",
+    url: "/products/premium-adaptogen-complex",
+    confidence: 0.85,
+    benefits: ["Gestion du stress", "Énergie stable", "Clarté mentale", "Équilibre hormonal"],
+    timeToEffect: "3-6 semaines",
+    popularity: 79,
+    scientificBasis: "Études sur l'effet des adaptogènes sur les axes HPA et leur modulation du cortisol",
+    dosage: "Ashwagandha 600mg, Rhodiola 300mg, Ginseng 200mg",
+    optimalUsage: "Prendre le matin pour l'énergie ou divisé en 2 prises pour équilibrer le stress",
+    additionalIngredients: ["Extrait de poivre noir (biodisponibilité)", "Schisandra"]
+  },
+  {
+    title: "Sommeil Naturel Advanced",
+    description: "Formule apaisante à base de mélatonine naturelle, magnésium et plantes relaxantes.",
+    url: "/products/advanced-natural-sleep",
+    confidence: 0.90,
+    benefits: ["Amélioration du sommeil", "Réduction du temps d'endormissement", "Sommeil réparateur", "Régulation circadienne"],
+    timeToEffect: "3-5 jours",
+    popularity: 95,
+    scientificBasis: "Études sur l'interaction entre mélatonine, GABA et magnésium sur l'architecture du sommeil",
+    dosage: "Mélatonine 1mg, Magnésium 150mg, L-Théanine 200mg",
+    optimalUsage: "Prendre 30-60 minutes avant le coucher dans un environnement calme",
+    additionalIngredients: ["L-Théanine", "Passiflore", "GABA"]
+  }
 ];
-
-// Facteurs de personnalisation pour pondérer les recommandations
-interface PersonalizationFactors {
-  gender: 'male' | 'female' | 'other';
-  ageGroup: 'young' | 'adult' | 'senior';
-  lifestyleActivity: 'sedentary' | 'moderate' | 'active';
-  stressLevel: number; // 0-100
-  sleepQuality: number; // 0-100
-  dietQuality: number; // 0-100
-  healthGoals: string[];
-}
-
-// Profil neural déduit du comportement utilisateur
-interface NeuralProfile {
-  decisionSpeed: number; // 0-100 (lent à rapide)
-  consistencyScore: number; // 0-100 (inconsistant à très consistant)
-  detailOrientation: number; // 0-100 (global à détaillé)
-  riskAversion: number; // 0-100 (preneur de risque à averse au risque)
-  informationNeed: number; // 0-100 (minimal à exhaustif)
-}
 
 /**
- * Extrait les facteurs de personnalisation à partir des réponses au quiz
+ * Analyse les facteurs de santé à partir des réponses au quiz
  */
-export function extractPersonalizationFactors(quizResponses: QuizResponse): PersonalizationFactors {
-  // Valeurs par défaut
-  const factors: PersonalizationFactors = {
-    gender: 'other',
-    ageGroup: 'adult',
-    lifestyleActivity: 'moderate',
-    stressLevel: 50,
-    sleepQuality: 50,
-    dietQuality: 50,
+export function analyzeHealthFactors(quizResponses: QuizResponse) {
+  const factors: any = {
+    age: null,
+    gender: null,
+    weightStatus: null,
+    lifestyleActivity: null,
+    stressLevel: null,
+    sleepQuality: null,
+    dietQuality: null,
     healthGoals: []
   };
 
-  // Extraction du genre
-  if (quizResponses.basicInfo?.gender) {
-    factors.gender = quizResponses.basicInfo.gender as 'male' | 'female' | 'other';
+  // Analyse de l'âge
+  if (quizResponses.personal?.age) {
+    factors.age = Number(quizResponses.personal.age);
   }
 
-  // Détermination du groupe d'âge
-  if (quizResponses.basicInfo?.age) {
-    const age = Number(quizResponses.basicInfo.age);
-    if (age < 30) factors.ageGroup = 'young';
-    else if (age >= 65) factors.ageGroup = 'senior';
-    else factors.ageGroup = 'adult';
+  // Analyse du genre
+  if (quizResponses.personal?.gender) {
+    factors.gender = quizResponses.personal.gender;
+  }
+
+  // Analyse du poids
+  if (quizResponses.personal?.weight && quizResponses.personal?.height) {
+    const weight = Number(quizResponses.personal.weight);
+    const height = Number(quizResponses.personal.height) / 100; // conversion en mètres
+    const bmi = weight / (height * height);
+
+    if (bmi < 18.5) factors.weightStatus = 'underweight';
+    else if (bmi < 25) factors.weightStatus = 'normal';
+    else if (bmi < 30) factors.weightStatus = 'overweight';
+    else factors.weightStatus = 'obese';
   }
 
   // Évaluation du niveau d'activité
-  if (quizResponses.lifestyle?.activityLevel) {
-    const activity = Number(quizResponses.lifestyle.activityLevel);
-    if (activity <= 3) factors.lifestyleActivity = 'sedentary';
+  if (quizResponses.lifestyle?.weeklyActivity) {
+    const activity = Number(quizResponses.lifestyle.weeklyActivity);
+    if (activity < 3) factors.lifestyleActivity = 'sedentary';
     else if (activity >= 7) factors.lifestyleActivity = 'active';
     else factors.lifestyleActivity = 'moderate';
   }
@@ -320,208 +257,203 @@ export function extractPersonalizationFactors(quizResponses: QuizResponse): Pers
     factors.healthGoals = quizResponses.goals.healthGoals;
   }
 
+  // Symptômes rapportés
+  if (quizResponses.symptoms) {
+    factors.symptoms = quizResponses.symptoms;
+  }
+
   return factors;
 }
 
 /**
- * Extraire le profil neural à partir des métriques comportementales
+ * Calcule les besoins en nutriments basés sur le profil de santé
  */
-export function extractNeuralProfile(metrics: BehavioralMetrics): NeuralProfile {
-  return {
-    decisionSpeed: 100 - Math.min(100, metrics.avgResponseTime * 10), // Plus le temps est court, plus la valeur est élevée
-    consistencyScore: metrics.consistencyScore * 100,
-    detailOrientation: metrics.focusedQuestions.length * 10, // Plus de questions détaillées = plus orienté détail
-    riskAversion: metrics.changedAnswers.length * 20, // Plus de changements = plus d'aversion au risque
-    informationNeed: metrics.longPauseQuestions.length * 15 // Plus de pauses = plus besoin d'information
+function calculateNutrientNeeds(healthFactors: any): Record<string, number> {
+  const nutrientNeeds: Record<string, number> = {
+    magnesium: 0,
+    omega3: 0,
+    vitaminD: 0,
+    zinc: 0,
+    probiotics: 0,
+    adaptogenic: 0,
+    sleep: 0
   };
+
+  // Calcul des besoins en magnésium
+  if (healthFactors.stressLevel > 60) nutrientNeeds.magnesium += 30;
+  if (healthFactors.sleepQuality < 40) nutrientNeeds.magnesium += 25;
+  if (healthFactors.lifestyleActivity === 'active') nutrientNeeds.magnesium += 20;
+
+  // Calcul des besoins en oméga-3
+  if (healthFactors.healthGoals.includes('cognitive_function')) nutrientNeeds.omega3 += 30;
+  if (healthFactors.healthGoals.includes('heart_health')) nutrientNeeds.omega3 += 25;
+  if (healthFactors.dietQuality < 50) nutrientNeeds.omega3 += 20;
+
+  // Calcul des besoins en vitamine D
+  if (healthFactors.healthGoals.includes('bone_health')) nutrientNeeds.vitaminD += 30;
+  if (healthFactors.healthGoals.includes('immune_support')) nutrientNeeds.vitaminD += 25;
+  if (healthFactors.age > 50) nutrientNeeds.vitaminD += 20;
+
+  // Calcul des besoins en zinc
+  if (healthFactors.healthGoals.includes('immune_support')) nutrientNeeds.zinc += 35;
+  if (healthFactors.healthGoals.includes('skin_health')) nutrientNeeds.zinc += 25;
+  if (healthFactors.healthGoals.includes('hormone_balance')) nutrientNeeds.zinc += 20;
+
+  // Calcul des besoins en probiotiques
+  if (healthFactors.symptoms?.includes('digestive_issues')) nutrientNeeds.probiotics += 35;
+  if (healthFactors.healthGoals.includes('immune_support')) nutrientNeeds.probiotics += 20;
+  if (healthFactors.healthGoals.includes('gut_health')) nutrientNeeds.probiotics += 30;
+
+  // Calcul des besoins en adaptogènes
+  if (healthFactors.stressLevel > 70) nutrientNeeds.adaptogenic += 35;
+  if (healthFactors.healthGoals.includes('stress_management')) nutrientNeeds.adaptogenic += 30;
+  if (healthFactors.healthGoals.includes('energy')) nutrientNeeds.adaptogenic += 25;
+
+  // Calcul des besoins en aide au sommeil
+  if (healthFactors.sleepQuality < 30) nutrientNeeds.sleep += 40;
+  if (healthFactors.healthGoals.includes('better_sleep')) nutrientNeeds.sleep += 35;
+  if (healthFactors.stressLevel > 60) nutrientNeeds.sleep += 20;
+
+  return nutrientNeeds;
 }
 
 /**
- * Identifie les problèmes principaux de l'utilisateur à partir des réponses au quiz
+ * Transforme les besoins en nutriments en recommandations de produits spécifiques
  */
-function identifyUserProblems(quizResponses: QuizResponse): string[] {
-  const problems: string[] = [];
+function matchProductsToNeeds(nutrientNeeds: Record<string, number>, allProducts: Recommendation[]): Recommendation[] {
+  // Normaliser les scores de besoins pour avoir une somme de 100%
+  const totalNeedScore = Object.values(nutrientNeeds).reduce((sum, score) => sum + score, 0);
+  const normalizedNeeds: Record<string, number> = {};
 
-  // Détection des problèmes de stress
-  if (quizResponses.wellbeing?.stressLevel && Number(quizResponses.wellbeing.stressLevel) >= 7) {
-    problems.push('stress');
+  for (const [nutrient, score] of Object.entries(nutrientNeeds)) {
+    normalizedNeeds[nutrient] = totalNeedScore > 0 ? (score / totalNeedScore) : 0;
   }
 
-  // Détection des problèmes de sommeil
-  if (quizResponses.wellbeing?.sleepQuality && Number(quizResponses.wellbeing.sleepQuality) <= 5) {
-    problems.push('sommeil');
-  }
+  // Attribuer un score à chaque produit en fonction des besoins
+  const scoredProducts = allProducts.map(product => {
+    let matchScore = 0;
 
-  // Détection des problèmes digestifs
-  if (quizResponses.health?.digestiveIssues === 'true' || 
-      (quizResponses.symptoms && quizResponses.symptoms.some(s => 
-        ['ballonnements', 'constipation', 'diarrhée', 'digestion'].some(term => 
-          s.toLowerCase().includes(term))))) {
-    problems.push('digestion');
-  }
+    // Attribuer des points basés sur les correspondances entre besoins et produits
+    if (product.title.toLowerCase().includes('magnésium') && normalizedNeeds.magnesium > 0) {
+      matchScore += normalizedNeeds.magnesium * 100;
+    }
 
-  // Détection des problèmes d'énergie/fatigue
-  if (quizResponses.wellbeing?.energyLevel && Number(quizResponses.wellbeing.energyLevel) <= 4) {
-    problems.push('fatigue');
-  }
+    if (product.title.toLowerCase().includes('oméga-3') && normalizedNeeds.omega3 > 0) {
+      matchScore += normalizedNeeds.omega3 * 100;
+    }
 
-  // Détection des problèmes d'humeur
-  if (quizResponses.wellbeing?.moodRating && Number(quizResponses.wellbeing.moodRating) <= 5) {
-    problems.push('humeur');
-  }
+    if (product.title.toLowerCase().includes('vitamine d') && normalizedNeeds.vitaminD > 0) {
+      matchScore += normalizedNeeds.vitaminD * 100;
+    }
 
-  // Détection des problèmes de concentration
-  if (quizResponses.wellbeing?.concentrationLevel && Number(quizResponses.wellbeing.concentrationLevel) <= 5) {
-    problems.push('concentration');
-  }
+    if (product.title.toLowerCase().includes('zinc') && normalizedNeeds.zinc > 0) {
+      matchScore += normalizedNeeds.zinc * 100;
+    }
 
-  // Détection des problèmes explicitement mentionnés
-  if (quizResponses.health?.healthConcerns) {
-    const concernsLower = quizResponses.health.healthConcerns.toLowerCase();
+    if (product.title.toLowerCase().includes('probiotiques') && normalizedNeeds.probiotics > 0) {
+      matchScore += normalizedNeeds.probiotics * 100;
+    }
 
-    if (concernsLower.includes('immun')) problems.push('immunité');
-    if (concernsLower.includes('peau') || concernsLower.includes('cutané')) problems.push('peau');
-    if (concernsLower.includes('cardio') || concernsLower.includes('cœur')) problems.push('cardiovasculaire');
-    if (concernsLower.includes('join') || concernsLower.includes('articul')) problems.push('articulations');
-    if (concernsLower.includes('mémoire') || concernsLower.includes('cogniti')) problems.push('mémoire');
-  }
+    if (product.title.toLowerCase().includes('adaptogènes') && normalizedNeeds.adaptogenic > 0) {
+      matchScore += normalizedNeeds.adaptogenic * 100;
+    }
 
-  return problems;
-}
+    if (product.title.toLowerCase().includes('sommeil') && normalizedNeeds.sleep > 0) {
+      matchScore += normalizedNeeds.sleep * 100;
+    }
 
-/**
- * Calcule un score de correspondance entre une solution et le profil utilisateur
- */
-function calculateMatchScore(
-  solution: CombinedSolution, 
-  userProblems: string[], 
-  factors: PersonalizationFactors,
-  neuralProfile: NeuralProfile
-): number {
-  let score = 0;
-
-  // Correspondance avec les problèmes de l'utilisateur (facteur le plus important)
-  const problemMatch = solution.forProblems.filter(problem => 
-    userProblems.some(p => problem.includes(p) || p.includes(problem))
-  ).length;
-
-  score += (problemMatch / Math.max(1, solution.forProblems.length)) * 50; // Jusqu'à 50 points
-
-  // Bonus pour la solidité scientifique (pour les profils détaillés)
-  score += solution.researchScore * 15 * (neuralProfile.detailOrientation / 100); // Jusqu'à 15 points
-
-  // Bonus pour la popularité (pour les profils à faible besoin d'information)
-  score += (solution.popularity / 100) * 10 * ((100 - neuralProfile.informationNeed) / 100); // Jusqu'à 10 points
-
-  // Adaptation selon le groupe d'âge
-  if (factors.ageGroup === 'senior' && 
-      (solution.forProblems.includes('mémoire') || solution.forProblems.includes('articulations'))) {
-    score += 5;
-  }
-
-  if (factors.ageGroup === 'young' && 
-      (solution.forProblems.includes('énergie') || solution.forProblems.includes('stress'))) {
-    score += 5;
-  }
-
-  // Adaptation selon le niveau de stress
-  if (factors.stressLevel > 70 && solution.forProblems.includes('stress')) {
-    score += 10;
-  }
-
-  // Adaptation selon la qualité du sommeil
-  if (factors.sleepQuality < 40 && solution.forProblems.includes('sommeil')) {
-    score += 10;
-  }
-
-  // Considération des objectifs de santé spécifiques
-  const goalMatch = factors.healthGoals.filter(goal => 
-    solution.benefits.some(benefit => benefit.toLowerCase().includes(goal.toLowerCase()))
-  ).length;
-
-  score += (goalMatch / Math.max(1, factors.healthGoals.length)) * 10; // Jusqu'à 10 points
-
-  return Math.min(100, score);
-}
-
-/**
- * Génère les recommandations personnalisées basées sur les réponses au quiz et le comportement
- */
-export function generateRecommendations(
-  quizResponses: QuizResponse, 
-  behavioralMetrics: BehavioralMetrics,
-  neuroProfile: NeuroProfile
-): Recommendation[] {
-  // Extraction des facteurs de personnalisation
-  const personalizationFactors = extractPersonalizationFactors(quizResponses);
-
-  // Extraction du profil neural basé sur le comportement
-  const neuralProfile = extractNeuralProfile(behavioralMetrics);
-
-  // Identification des problèmes principaux de l'utilisateur
-  const userProblems = identifyUserProblems(quizResponses);
-
-  // Calcul des scores de correspondance pour chaque solution
-  const scoredSolutions = combinedSolutions.map(solution => {
-    const matchScore = calculateMatchScore(
-      solution, 
-      userProblems, 
-      personalizationFactors,
-      neuralProfile
-    );
+    // Ajustement de la confiance en fonction du score de correspondance
+    const adjustedConfidence = (product.confidence * 0.4) + (matchScore * 0.01 * 0.6);
 
     return {
-      ...solution,
+      ...product,
+      confidence: Math.min(0.99, adjustedConfidence), // Limiter à 0.99 maximum
       matchScore
     };
   });
 
-  // Tri des solutions par score de correspondance
-  const sortedSolutions = scoredSolutions.sort((a, b) => b.matchScore - a.matchScore);
-
-  // Conversion en format Recommendation
-  return sortedSolutions.slice(0, 3).map(solution => ({
-    title: solution.title,
-    description: solution.description,
-    confidence: solution.researchScore,
-    benefits: solution.benefits,
-    timeToEffect: solution.timeToEffect,
-    popularity: solution.popularity,
-    url: solution.url,
-    scientificBasis: solution.scientificBasis
-  }));
+  // Trier par score de correspondance décroissant
+  return scoredProducts
+    .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
+    .slice(0, 3); // Retourner les 3 meilleures recommandations
 }
 
 /**
- * Génère une explication textuelle des recommandations pour l'utilisateur
+ * Génère des recommandations personnalisées basées sur les réponses au quiz
+ * et les métriques comportementales de l'utilisateur
+ */
+export const generateRecommendations = (
+  quizResponse: QuizResponse,
+  behavioralMetrics?: BehavioralMetrics,
+  neuroProfile?: NeuroProfile
+): Recommendation[] => {
+  // Obtenir les facteurs de santé
+  const healthFactors = analyzeHealthFactors(quizResponse);
+
+  // Calculer les besoins en nutriments
+  const nutrientNeeds = calculateNutrientNeeds(healthFactors);
+
+  // Trouver les produits correspondants aux besoins
+  const matchedProducts = matchProductsToNeeds(nutrientNeeds, productDatabase);
+
+  // Stabilisation des résultats pour éviter les fluctuations
+  const sessionId = getSessionIdWithTimestampRounding();
+
+  // Génération d'un identifiant unique par session pour assurer la cohérence des recommandations
+  function getSessionIdWithTimestampRounding() {
+    // Arrondir au jour près pour éviter les changements fréquents
+    const today = new Date();
+    const dayRounded = today.getDate();
+    const monthRounded = today.getMonth();
+    return `${dayRounded}-${monthRounded}-stable-recommendations`;
+  }
+
+  return matchedProducts;
+};
+
+/**
+ * Génère une explication personnalisée pour la recommandation principale
  */
 export function generateRecommendationExplanation(
   recommendations: Recommendation[],
   quizResponses: QuizResponse
 ): string {
-  if (recommendations.length === 0) {
-    return "Nous n'avons pas pu générer de recommandations spécifiques. Veuillez consulter un professionnel de santé.";
+  if (!recommendations || recommendations.length === 0) {
+    return "Nous n'avons pas pu générer de recommandations spécifiques basées sur vos réponses. Veuillez consulter un professionnel de santé.";
   }
 
   const topRecommendation = recommendations[0];
-  const factors = extractPersonalizationFactors(quizResponses);
+  let explanation = ``;
 
-  let explanation = `D'après votre profil nutritionnel, notre algorithme a identifié que ${topRecommendation.title} pourrait être particulièrement bénéfique pour vous. `;
-
-  // Personnalisation selon l'âge
-  if (factors.ageGroup === 'senior') {
-    explanation += `À votre âge, il est important de privilégier des nutriments qui soutiennent la santé cognitive et articulaire. `;
-  } else if (factors.ageGroup === 'young') {
-    explanation += `Pour votre tranche d'âge, nous recommandons des solutions qui optimisent votre énergie et votre concentration. `;
+  // Introduction personnalisée
+  if (quizResponses.personal?.name) {
+    explanation += `<strong>${quizResponses.personal.name}</strong>, `;
   }
 
-  // Personnalisation selon le niveau de stress
-  if (factors.stressLevel > 70) {
-    explanation += `Votre niveau de stress élevé suggère un besoin en nutriments qui soutiennent le système nerveux et la production de neurotransmetteurs équilibrants. `;
+  explanation += `d'après votre profil, nous recommandons principalement le complément "${topRecommendation.title}" qui correspond particulièrement à vos besoins. `;
+
+  // Explication des bénéfices spécifiques
+  if (topRecommendation.benefits && topRecommendation.benefits.length > 0) {
+    explanation += `Ce produit a été sélectionné pour ses bénéfices clés : ${topRecommendation.benefits.slice(0, 3).join(', ')}. `;
   }
 
-  // Mention des preuves scientifiques
-  explanation += `Cette recommandation est basée sur des recherches scientifiques solides, avec un indice de confiance de ${Math.round(topRecommendation.confidence * 100)}%. `;
+  // Inclusion des bases scientifiques
+  if (topRecommendation.scientificBasis) {
+    explanation += `Cette recommandation est basée sur ${topRecommendation.scientificBasis}. `;
+  }
+
+  // Information sur le dosage optimal
+  if (topRecommendation.dosage) {
+    explanation += `Le dosage optimal pour votre profil est ${topRecommendation.dosage}. `;
+  }
+
+  // Conseils d'utilisation
+  if (topRecommendation.optimalUsage) {
+    explanation += `Pour des résultats optimaux, ${topRecommendation.optimalUsage}. `;
+  }
+
+  // Information sur le niveau de confiance
+  explanation += `Notre algorithme indique une correspondance de ${Math.round(topRecommendation.confidence * 100)}% avec votre profil. `;
 
   // Informations sur le temps d'effet
   explanation += `La plupart des utilisateurs constatent des résultats positifs après ${topRecommendation.timeToEffect} d'utilisation régulière.`;
@@ -529,305 +461,50 @@ export function generateRecommendationExplanation(
   return explanation;
 }
 
-
 /**
- * Moteur de recommandation amélioré avec stabilité et cohérence
- * 
- * Génère des recommandations personnalisées basées sur les réponses au quiz
- * et les métriques comportementales de l'utilisateur
+ * Enregistre les données d'apprentissage pour améliorer les recommandations futures
  */
-export const generateRecommendationsImproved = (
+export function recordLearningData(
   quizResponse: QuizResponse,
-  behavioralMetrics?: BehavioralMetrics
-): Recommendation[] => {
-  // Base de recommandations (simulée - dans un système réel, cela viendrait d'une API ou d'une base de données)
-  const recommendationDB: Recommendation[] = [
-    {
-      title: "Complexe Magnésium-B6 BioAssimilable",
-      description: "Complément nutritionnel spécialement formulé pour réduire le stress et améliorer le sommeil.",
-      url: "/products/magnesium-b6",
-      confidence: 0.95,
-      benefits: ["Réduction du stress", "Amélioration du sommeil", "Réduction des crampes"],
-      timeToEffect: "2-3 semaines",
-      popularity: 92,
-      scientificBasis: "Études cliniques sur l'impact du magnésium sur le système nerveux"
-    },
-    {
-      title: "Oméga-3 Algue Marine Concentré",
-      description: "Source végétale d'oméga-3 DHA/EPA hautement concentrée pour soutenir les fonctions cognitives.",
-      url: "/products/omega3-algae",
-      confidence: 0.88,
-      benefits: ["Amélioration cognitive", "Anti-inflammatoire", "Santé cardiovasculaire"],
-      timeToEffect: "4-6 semaines",
-      popularity: 86,
-      scientificBasis: "Recherches sur l'impact des acides gras sur l'inflammation cérébrale"
-    },
-    {
-      title: "Complexe Enzymatique Digestif",
-      description: "Formule complète d'enzymes pour optimiser la digestion et l'assimilation des nutriments.",
-      url: "/products/digestive-enzymes",
-      confidence: 0.78,
-      benefits: ["Amélioration digestive", "Réduction des ballonnements", "Assimilation optimisée"],
-      timeToEffect: "1-2 semaines",
-      popularity: 79
-    },
-    {
-      title: "Vitamine D3+K2 Liposomale",
-      description: "Combinaison synergique pour une absorption optimale et une meilleure santé osseuse.",
-      url: "/products/d3-k2-liposomal",
-      confidence: 0.85,
-      benefits: ["Santé osseuse", "Immunité renforcée", "Énergie améliorée"],
-      timeToEffect: "2-4 semaines",
-      popularity: 88
-    },
-    {
-      title: "Complexe Adaptogène Anti-Stress",
-      description: "Mélange de plantes adaptogènes pour réguler la réponse au stress et optimiser les niveaux d'énergie.",
-      url: "/products/adaptogenic-complex",
-      confidence: 0.92,
-      benefits: ["Gestion du stress", "Équilibre hormonal", "Énergie stable"],
-      timeToEffect: "2-3 semaines",
-      popularity: 90
-    },
-    {
-      title: "Collagène Marin Peptides Bioactifs",
-      description: "Peptides de collagène hautement absorbables pour la santé de la peau, des articulations et des tissus.",
-      url: "/products/marine-collagen",
-      confidence: 0.80,
-      benefits: ["Régénération cutanée", "Souplesse articulaire", "Santé digestive"],
-      timeToEffect: "4-8 semaines",
-      popularity: 85
-    },
-    {
-      title: "Complexe Sommeil Naturel",
-      description: "Formule apaisante à base de mélatonine naturelle, magnésium et plantes relaxantes.",
-      url: "/products/natural-sleep",
-      confidence: 0.89,
-      benefits: ["Amélioration du sommeil", "Réduction du temps d'endormissement", "Sommeil réparateur"],
-      timeToEffect: "3-5 jours",
-      popularity: 95
-    }
-  ];
+  recommendation: Recommendation,
+  userFeedback: {
+    helpful: boolean;
+    purchaseIntent: number; // échelle 1-10
+    additionalComments?: string;
+  }
+): void {
+  // Dans un système réel, cette fonction enverrait les données à une API d'apprentissage
+  console.log('Enregistrement des données d\'apprentissage pour amélioration future');
 
-  // Génération d'un identifiant unique par session pour assurer la cohérence des recommandations
-  const getSessionId = () => {
-    let sessionId = localStorage.getItem('recommendation_session_id');
-    if (!sessionId) {
-      // Utiliser une valeur plus stable pour réduire les fluctuations
-      sessionId = (new Date().getDate() + new Date().getMonth()).toString() + "-stable-id";
-      localStorage.setItem('recommendation_session_id', sessionId);
+  // Simulation d'envoi de données à un service d'apprentissage automatique
+  const learningPayload = {
+    timestamp: new Date().toISOString(),
+    quizData: quizResponse,
+    recommendationId: recommendation.title,
+    userFeedback,
+    sessionInfo: {
+      browser: navigator.userAgent,
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight
+      }
     }
-    return sessionId;
   };
 
-  // Utiliser l'ID de session pour garantir des résultats cohérents entre les appels
-  const sessionId = getSessionId();
+  // Dans une implémentation réelle, envoi à une API
+  // fetch('/api/learning-system/record', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(learningPayload)
+  // });
 
-  // Fonction de hashage simple pour la cohérence
-  const getStableIndex = (input: string, max: number): number => {
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-      hash = ((hash << 5) - hash) + input.charCodeAt(i);
-      hash |= 0; // Convertir en entier 32 bits
-    }
-    // Math.abs pour s'assurer d'avoir un nombre positif, puis modulo pour avoir un index valide
-    return Math.abs(hash) % max;
-  };
-
-  // Système de score pour sélectionner les recommandations les plus pertinentes
-  const scoredRecommendations = recommendationDB.map(recommendation => {
-    let score = 0;
-
-    // Analyse des réponses au quiz
-    if (quizResponse.stressLevel === 'high' && recommendation.benefits.includes('Réduction du stress')) {
-      score += 20;
-    }
-
-    if (quizResponse.sleepQuality === 'low' && recommendation.benefits.includes('Amélioration du sommeil')) {
-      score += 25;
-    }
-
-    if (quizResponse.energyLevel === 'low' && recommendation.benefits.some(b => b.includes('nergie'))) {
-      score += 20;
-    }
-
-    if (quizResponse.digestiveIssues === 'high' && recommendation.benefits.some(b => b.includes('digestiv'))) {
-      score += 25;
-    }
-
-    if (quizResponse.exerciseFrequency === 'high' && recommendation.benefits.includes('Souplesse articulaire')) {
-      score += 15;
-    }
-
-    if (quizResponse.inflammationSigns === 'high' && recommendation.benefits.includes('Anti-inflammatoire')) {
-      score += 20;
-    }
-
-    // Analyse des métriques comportementales (si disponibles)
-    if (behavioralMetrics) {
-      // Ajuster la confiance en fonction du temps passé sur le quiz
-      if (behavioralMetrics.timeSpent > 180) { // Plus de 3 minutes
-        score += 10; // Réponses plus réfléchies, meilleure confiance
-      }
-
-      // Fréquence de changement d'avis (hésitation)
-      if (behavioralMetrics.changeCount > 5) {
-        score -= 5; // Moins de confiance dans les réponses
-      }
-
-      // Niveau d'engagement
-      if (behavioralMetrics.engagementScore > 70) {
-        score += 10; // Utilisateur très engagé
-      }
-    }
-
-    // Introduire une légère variation stable basée sur l'ID de session
-    const stableVariation = getStableIndex(`${sessionId}-${recommendation.title}`, 10) - 5; // -5 à +4
-    score += stableVariation;
-
-    // Ajuster le score de confiance en fonction du score calculé (normalisé entre 0 et 1)
-    // Utiliser une formule avec un plafond pour éviter des variations trop importantes
-    const scoreInfluence = Math.min(score / 100, 0.15); // Max 15% d'influence
-    const adjustedConfidence = Math.min(Math.max(recommendation.confidence + scoreInfluence, 0.7), 0.98);
-
-    return {
-      ...recommendation,
-      confidence: adjustedConfidence
-    };
-  });
-
-  // Tri des recommandations par score de confiance ajusté
-  const sortedRecommendations = scoredRecommendations.sort((a, b) => b.confidence - a.confidence);
-
-  // Enregistrer les recommandations pour cohérence entre les rendus
+  // Pour le moment, stockage local pour démonstration
   try {
-    localStorage.setItem('current_recommendations', JSON.stringify(sortedRecommendations.slice(0, 4)));
+    const existingData = localStorage.getItem('recommendation_learning_data');
+    const parsedData = existingData ? JSON.parse(existingData) : [];
+    parsedData.push(learningPayload);
+    localStorage.setItem('recommendation_learning_data', JSON.stringify(parsedData));
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement des recommandations:", error);
+    console.error('Erreur lors de l\'enregistrement des données d\'apprentissage:', error);
   }
-
-  // Retourne les 4 meilleures recommandations
-  return sortedRecommendations.slice(0, 4);
-};
-
-/**
- * Génère un profil neuropsychologique basé sur les réponses et comportements
- * avec une stabilité améliorée pour éviter les changements aléatoires entre les rendus
- */
-export const generateNeuroProfileImproved = (
-  quizResponse: QuizResponse,
-  behavioralMetrics?: BehavioralMetrics
-): NeuroProfile => {
-  // Vérifier si un profil est déjà sauvegardé pour cette session
-  const savedProfile = localStorage.getItem('current_neuro_profile');
-  if (savedProfile) {
-    try {
-      return JSON.parse(savedProfile);
-    } catch (error) {
-      console.error("Erreur lors de la lecture du profil sauvegardé:", error);
-      // Continuer avec la génération d'un nouveau profil
-    }
-  }
-
-  // Score de base pour les différentes dimensions
-  let adaptabilityScore = 50;
-  let stressResilienceScore = 50;
-  let emotionalBalanceScore = 50;
-  let energyLevel = 'medium';
-  let profile = 'balanced';
-
-  // Ajuster les scores en fonction des réponses au quiz
-  if (quizResponse.stressLevel === 'high') {
-    stressResilienceScore -= 15;
-    emotionalBalanceScore -= 10;
-  } else if (quizResponse.stressLevel === 'low') {
-    stressResilienceScore += 15;
-    emotionalBalanceScore += 10;
-  }
-
-  if (quizResponse.sleepQuality === 'high') {
-    emotionalBalanceScore += 10;
-    energyLevel = 'high';
-  } else if (quizResponse.sleepQuality === 'low') {
-    emotionalBalanceScore -= 15;
-    energyLevel = 'low';
-  }
-
-  if (quizResponse.exerciseFrequency === 'high') {
-    adaptabilityScore += 15;
-    stressResilienceScore += 10;
-  } else if (quizResponse.exerciseFrequency === 'low') {
-    adaptabilityScore -= 10;
-  }
-
-  if (quizResponse.dietChange === 'flexible') {
-    adaptabilityScore += 20;
-  } else if (quizResponse.dietChange === 'resistant') {
-    adaptabilityScore -= 15;
-  }
-
-  // Déterminer le profil en fonction des scores
-  if (adaptabilityScore > 70 && stressResilienceScore > 60) {
-    profile = 'resilient';
-  } else if (emotionalBalanceScore < 40 && stressResilienceScore < 45) {
-    profile = 'sensitive';
-  } else if (adaptabilityScore < 40 && stressResilienceScore > 60) {
-    profile = 'stable';
-  } else if (adaptabilityScore > 65 && emotionalBalanceScore < 45) {
-    profile = 'adaptive';
-  } else if (stressResilienceScore < 40 && adaptabilityScore < 45) {
-    profile = 'reactive';
-  } else {
-    profile = 'balanced';
-  }
-
-  // Incorporer les métriques comportementales si disponibles
-  if (behavioralMetrics) {
-    // Vitesse de lecture affecte le profil
-    if (behavioralMetrics.readingSpeed === 'fast') {
-      profile = profile === 'balanced' ? 'analytique' : profile;
-      adaptabilityScore += 5;
-    } else if (behavioralMetrics.readingSpeed === 'slow') {
-      profile = profile === 'balanced' ? 'methodical' : profile;
-      emotionalBalanceScore += 5;
-    }
-
-    // Engagement élevé suggère une plus grande précision
-    if (behavioralMetrics.engagementScore > 80) {
-      adaptabilityScore += 10;
-      stressResilienceScore += 5;
-    }
-
-    // Beaucoup d'hésitations peuvent indiquer de l'indécision
-    if (behavioralMetrics.hesitationPatterns.length > 3) {
-      emotionalBalanceScore -= 10;
-    }
-  }
-
-  // Assurer que les scores restent dans la plage 0-100
-  adaptabilityScore = Math.min(Math.max(adaptabilityScore, 0), 100);
-  stressResilienceScore = Math.min(Math.max(stressResilienceScore, 0), 100);
-  emotionalBalanceScore = Math.min(Math.max(emotionalBalanceScore, 0), 100);
-
-  // Arrondir les scores pour plus de stabilité visuelle
-  adaptabilityScore = Math.round(adaptabilityScore / 5) * 5;
-  stressResilienceScore = Math.round(stressResilienceScore / 5) * 5;
-  emotionalBalanceScore = Math.round(emotionalBalanceScore / 5) * 5;
-
-  const neuroProfile = {
-    adaptability: adaptabilityScore,
-    stressResilience: stressResilienceScore,
-    emotionalBalance: emotionalBalanceScore,
-    energyLevel,
-    profile
-  };
-
-  // Sauvegarder le profil pour cohérence entre les rendus
-  try {
-    localStorage.setItem('current_neuro_profile', JSON.stringify(neuroProfile));
-  } catch (error) {
-    console.error("Erreur lors de l'enregistrement du profil:", error);
-  }
-
-  return neuroProfile;
-};
+}

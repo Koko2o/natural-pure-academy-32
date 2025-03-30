@@ -1,109 +1,148 @@
 
-// Types de base pour le quiz et l'analyse comportementale
+/**
+ * Types pour le système de quiz et de recommandation
+ */
 
-// Réponses au quiz de l'utilisateur
 export interface QuizResponse {
   [key: string]: any;
-  age?: string | number;
-  gender?: string;
-  height?: string | number;
-  weight?: string | number;
-  activityLevel?: string | number;
-  dietType?: string;
-  sleepQuality?: string | number;
-  waterIntake?: string | number;
-  stressLevel?: string | number;
-  symptoms?: string[] | string;
-}
-
-// Métriques comportementales basiques suivies pendant le quiz
-export interface BehavioralMetrics {
-  responseTime: number[];       // Temps pour répondre à chaque question en secondes
-  hesitationCount: number[];    // Nombre de fois où l'utilisateur a changé de réponses par question
-  changeFrequency: number;      // Nombre total de changements de réponses
-  focusLost: number;            // Nombre de fois où l'utilisateur a changé d'onglet/app
-  scrollBehavior: {
-    speed: number;              // Vitesse moyenne de défilement
-    directionChanges: number;   // Nombre de changements de direction de défilement
-    pauseFrequency: number;     // Fréquence des pauses pendant le défilement
+  personal?: {
+    name?: string;
+    age?: string;
+    gender?: string;
+    weight?: string;
+    height?: string;
+    email?: string;
   };
+  diet?: {
+    qualityRating?: string;
+    restrictions?: string[];
+    allergies?: string[];
+    supplements?: string[];
+  };
+  lifestyle?: {
+    weeklyActivity?: string;
+    sleepHours?: string;
+    workStyle?: string;
+  };
+  wellbeing?: {
+    stressLevel?: string;
+    sleepQuality?: string;
+    energyLevel?: string;
+    moodStability?: string;
+  };
+  goals?: {
+    healthGoals?: string[];
+    timeFrame?: string;
+    priorityLevel?: string;
+  };
+  symptoms?: string[];
 }
 
-// Profil neurologique généré à partir des données comportementales
-export interface NeuroProfile {
-  stressIndex: number;          // Indicateur de niveau de stress (0-100)
-  decisionConfidence: number;   // Confiance dans les décisions (0-100)
-  attentionScore: number;       // Score d'attention (0-100)
-  consistencyIndex: number;     // Cohérence dans les réponses (0-100)
-}
-
-// Structure de recommandation
 export interface Recommendation {
   title: string;
   description: string;
   url?: string;
-  confidence: number;           // Score de confiance (0-1)
-  benefits: string[];
+  confidence: number;
+  benefits?: string[];
   timeToEffect: string;
-  popularity: number;           // Score de popularité (0-100)
-  scientificBasis?: string;     // Base scientifique (optionnel)
+  popularity?: number;
+  scientificBasis?: string;
+  dosage?: string;
+  optimalUsage?: string;
+  additionalIngredients?: string[];
+  matchScore?: number;
+  imageUrl?: string;
+  price?: string;
+  brand?: string;
+  ingredients?: string;
+  ratingCount?: number;
+  rating?: number;
 }
 
-// Article scientifique
-export interface Article {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  date: string;
-  category: string;
-  tags: string[];
-  image: string;
-  readTime: string;
-  relatedQuizTopics?: string[]; // Sujets de quiz liés à cet article
+export interface BehavioralMetrics {
+  avgResponseTime: number;
+  questionRevisits: number;
+  focusedQuestions: string[];
+  changedAnswers: number;
+  timeSpentOnPersonalQuestions: number;
+  timeSpentOnHealthQuestions: number;
+  consistencyScore: number;
+  engagementLevel: 'low' | 'medium' | 'high';
+  decisionPattern: 'quick' | 'thoughtful' | 'hesitant';
+  lastActivity: Date;
 }
 
-// Terme scientifique pour les tooltips
-export interface ScientificTerm {
-  id: string;
-  title: string;
-  definition: string;
-  source?: string;
+export interface NeuroProfile {
+  decisionSpeed: number;        // 0-100, plus élevé = décisions plus rapides
+  consistencyScore: number;     // 0-100, cohérence des réponses
+  detailOrientation: number;    // 0-100, attention aux détails
+  riskAversion: number;         // 0-100, aversion au risque
+  emotionalReactivity?: number; // 0-100, réactivité émotionnelle
+  analyticalTendency?: number;  // 0-100, tendance analytique
+  cognitiveStyle?: 'visual' | 'verbal' | 'kinesthetic' | 'mixed';
 }
 
-// Profil utilisateur
+export interface NutrientNeed {
+  name: string;              // Nom du nutriment
+  level: number;             // 0-100, intensité du besoin
+  reason: string[];          // Raisons justifiant le besoin
+  deficiencyRisk: number;    // 0-100, risque de carence
+  optimalDosage?: string;    // Dosage optimal recommandé
+  foodSources?: string[];    // Sources alimentaires
+  supplementForms?: string[]; // Formes de suppléments recommandées
+}
+
 export interface UserProfile {
   id: string;
-  quizResponses?: QuizResponse;
-  recommendations?: Recommendation[];
-  healthScore?: number;
-  readingHistory?: string[];
-  neuroProfile?: NeuroProfile;
-  lastQuizDate?: string;
+  quizResponses: QuizResponse;
+  recommendations: Recommendation[];
+  healthFactors: {
+    stressLevel: number;
+    sleepQuality: number;
+    dietQuality: number;
+    activityLevel: number;
+    healthGoals: string[];
+  };
+  nutrientNeeds: NutrientNeed[];
+  feedbackHistory: Array<{
+    timestamp: string;
+    recommendationId: string;
+    helpful: boolean;
+    purchaseIntent: number;
+    comments?: string;
+  }>;
+  learningProgress: {
+    precision: number;
+    recommendationImprovement: number;
+    lastUpdate: string;
+  };
 }
 
-// Données de conversion de contenu à quiz
-export interface ContentToQuizMetrics {
-  articleId: string;
-  viewToStartRate: number;      // Taux de démarrage du quiz après lecture
-  completionRate: number;       // Taux de complétion du quiz
-  avgTimeSpent: number;         // Temps moyen passé dans le quiz en secondes
-  conversionPoints: string[];   // Points de conversion dans l'article
-}
-
-// Analyse d'efficacité des recommandations
-export interface RecommendationEffectiveness {
+export interface LearningData {
+  timestamp: string;
+  quizData: QuizResponse;
   recommendationId: string;
-  clickRate: number;            // Taux de clic sur la recommandation
-  engagementScore: number;      // Score d'engagement avec la solution recommandée
-  followupRate: number;         // Taux de suivi des recommandations
+  userFeedback: {
+    helpful: boolean;
+    purchaseIntent: number;
+    additionalComments?: string;
+  };
+  sessionInfo: {
+    browser: string;
+    viewport: {
+      width: number;
+      height: number;
+    };
+  };
 }
 
-// Paramètres de personnalisation du quiz
-export interface PersonalizationFactors {
-  urgencyLevel: number;         // Niveau d'urgence perçu (0-100)
-  userIntent: 'educational' | 'solution-seeking' | 'browsing';
-  contentSource: string;        // Source du contenu qui a amené au quiz
-  previousEngagement?: number;  // Niveau d'engagement précédent
+export interface AIRecommendationModel {
+  version: string;
+  accuracy: number;
+  lastTraining: string;
+  featureImportance: {
+    [key: string]: number;  // Importance de chaque facteur
+  };
+  feedbackCount: number;
+  improvementRate: number;
 }

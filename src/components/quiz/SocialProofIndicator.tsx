@@ -1,78 +1,84 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Clock, TrendingUp, Activity } from 'lucide-react';
 
-// Removing the duplicate SocialProofIndicator component.  The second one was almost identical to the first and likely caused the confusion.
+import React, { useState, useEffect } from 'react';
+import { FaUsers, FaClock } from 'react-icons/fa';
 
 interface SocialProofIndicatorProps {
-  type: 'participants' | 'lastParticipation' | 'remainingSpots' | 'analysisProgress';
-  className?: string;
+  popularity: number;
+  recentUsers?: number;
+  isStable?: boolean;
 }
 
-const SocialProofIndicator: React.FC<SocialProofIndicatorProps> = ({ type, className = '' }) => {
-  // Using fixed values to prevent fluctuations as per the provided changes
-  const initialValues = {
-    participants: 1167,
-    minutesAgo: 5,
-    remainingSpots: 6,
-    analysisProgress: 98
-  };
-
-  const [value, setValue] = useState(initialValues);
-  const valueRef = useRef(initialValues);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+/**
+ * Composant amélioré d'indicateur de preuve sociale
+ * avec stabilité accrue pour une meilleure UX
+ */
+const SocialProofIndicator: React.FC<SocialProofIndicatorProps> = ({ 
+  popularity, 
+  recentUsers = 5,
+  isStable = true 
+}) => {
+  const [displayedPopularity, setDisplayedPopularity] = useState(popularity);
+  const [displayedTime, setDisplayedTime] = useState<number>(isStable ? 5 : Math.floor(Math.random() * 10) + 2);
+  const [displayedUsers, setDisplayedUsers] = useState(recentUsers);
 
   useEffect(() => {
-    if (type === 'analysisProgress') {
-      intervalRef.current = setInterval(() => {
-        const newProgress = 96 + Math.floor(Math.random() * 4);
-        setValue(prev => ({ ...prev, analysisProgress: newProgress }));
-      }, 15000);
+    // Si le mode stable est activé, utiliser des valeurs cohérentes
+    if (isStable) {
+      // Créer une variation minimale et stable basée sur l'heure du jour
+      const now = new Date();
+      const hourSeed = now.getHours();
+      const popularityVariation = Math.sin(hourSeed) * 3; // Variation de ±3%
+      
+      // Valeur stable avec légère variation
+      setDisplayedPopularity(Math.floor(popularity + popularityVariation));
+      
+      // Temps stable avec légère variation 
+      setDisplayedTime(Math.max(2, Math.min(15, 5 + Math.floor(Math.sin(hourSeed * 0.5) * 2))));
+      
+      // Nombre d'utilisateurs stable avec légère variation
+      setDisplayedUsers(Math.max(1, recentUsers + Math.floor(Math.sin(hourSeed * 0.7) * 2)));
+      
+      return;
     }
+    
+    // Comportement fluctuant (ancien mode) - pour référence uniquement
+    const interval = setInterval(() => {
+      // Variation aléatoire de la popularité
+      setDisplayedPopularity(prevPop => {
+        const variation = Math.floor(Math.random() * 5) - 2; // -2 à +2
+        return Math.max(50, Math.min(99, prevPop + variation));
+      });
+      
+      // Variation aléatoire du temps
+      setDisplayedTime(Math.floor(Math.random() * 15) + 2);
+      
+      // Variation aléatoire du nombre d'utilisateurs
+      setDisplayedUsers(Math.floor(Math.random() * 10) + 2);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [popularity, recentUsers, isStable]);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [type]);
-
-  const renderContent = () => {
-    switch (type) {
-      case 'participants':
-        return (
-          <div className={`flex items-center text-sm ${className}`}>
-            <Users size={16} className="mr-2 text-indigo-600" />
-            <span>Utilisé par <strong>{value.participants}</strong> membres</span>
-          </div>
-        );
-      case 'lastParticipation':
-        return (
-          <div className={`flex items-center text-sm ${className}`}>
-            <Clock size={16} className="mr-2 text-amber-600" />
-            <span>Dernière participation il y a <strong>{value.minutesAgo} min</strong></span>
-          </div>
-        );
-      case 'remainingSpots':
-        return (
-          <div className={`flex items-center text-sm ${className}`}>
-            <Users size={16} className="mr-2 text-rose-600" />
-            <span><strong>{value.remainingSpots}</strong> places restantes</span>
-          </div>
-        );
-      case 'analysisProgress':
-        return (
-          <div className={`flex items-center text-sm ${className}`}>
-            <Activity size={16} className="mr-2 text-emerald-600" />
-            <span>Analyses restantes aujourd'hui: <strong>{value.analysisProgress}/100</strong></span>
-          </div>
-        );
-      default:
-        return null;
+  // Formatage du temps (minutes ou heures)
+  const formatTime = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      return `${hours} h`;
     }
   };
 
   return (
-    <div className="social-proof-indicator">
-      {renderContent()}
+    <div className="flex flex-col items-end space-y-1 mt-1">
+      <div className="text-xs text-gray-600 flex items-center">
+        <FaUsers className="mr-1 text-gray-400" />
+        <span>{displayedPopularity}% des utilisateurs recommandent</span>
+      </div>
+      <div className="text-xs text-gray-600 flex items-center">
+        <FaClock className="mr-1 text-gray-400" />
+        <span>Dernière participation il y a {formatTime(displayedTime)}</span>
+      </div>
     </div>
   );
 };
