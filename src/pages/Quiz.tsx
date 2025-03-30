@@ -2,11 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
 import { toast } from "sonner";
-import { Beaker, ChevronRight, Award, Microscope, Users, Brain, Sparkles, CheckCircle, Star, BarChart, Activity, Clock } from "lucide-react";
+import { Beaker, ChevronRight, Award, Microscope, Users as LucideUsers, Brain, Sparkles, CheckCircle, Star, BarChart, Activity, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuizResponse } from "@/utils/types";
 import LabEffects from "@/components/quiz/LabEffects";
-import { secureStorage } from "@/utils/complianceFilter";
 import GDPRCompliance from "@/components/GDPRCompliance";
 import UrgencyCountdown from "@/components/quiz/UrgencyCountdown";
 import { collectPersonalizationFactors, getPersonalizedMessage } from "@/utils/dynamicPersonalization";
@@ -97,7 +96,7 @@ const Quiz = () => {
     resetMetrics(); // Réinitialiser les métriques comportementales
 
     // Enregistrer le début du quiz
-    secureStorage.setItem('quizStartTime', Date.now().toString());
+    localStorage.setItem('quizStartTime', Date.now().toString());
 
     // Notification de début de quiz
     toast.success("Analyse nutritionnelle initiée", {
@@ -111,11 +110,11 @@ const Quiz = () => {
     setQuizCompleted(true);
 
     // Calcul du temps total passé dans le quiz
-    const startTime = parseInt(secureStorage.getItem('quizStartTime') || '0');
+    const startTime = parseInt(localStorage.getItem('quizStartTime') || '0');
     const totalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
 
     // Enregistrement des statistiques anonymisées
-    secureStorage.setItem('quizCompletionStats', JSON.stringify({
+    localStorage.setItem('quizCompletionStats', JSON.stringify({
       timeToComplete: totalTime,
       questionsChanged: behavioralData.changedAnswers.length,
       date: new Date().toISOString()
@@ -416,7 +415,7 @@ const Quiz = () => {
 
               <div className="bg-white rounded-lg p-4 border border-gray-200 flex items-center gap-3">
                 <div className="bg-green-50 p-2 rounded-full flex-shrink-0">
-                  <Users className="h-5 w-5 text-green-600" />
+                  <LucideUsers className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
                   <div className="text-sm font-medium">Places disponibles</div>
