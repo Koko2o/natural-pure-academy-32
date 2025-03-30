@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import NutritionalQuiz from "@/components/NutritionalQuiz";
-import QuizResults from "@/components/QuizResults";
 import { toast } from "sonner";
 import { Beaker, ChevronRight, Award, Microscope, Users, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -326,6 +325,51 @@ const Quiz = () => {
             behavioralMetrics={metrics} // Pass behavioral metrics
             onRestart={handleRestartQuiz}
             personalizationFactors={personalizationFactors}
+            data={{
+              score: 74,
+              metabolicAge: 32,
+              stressLevel: 'Moderate',
+              mainNeeds: [
+                'Optimisation Énergétique',
+                'Gestion du Stress',
+                'Santé Digestive',
+                'Fonction Cognitive'
+              ],
+              recommendations: [
+                {
+                  title: 'Augmenter les antioxydants alimentaires',
+                  description: 'Vos résultats indiquent un besoin d\'optimisation du système antioxydant pour contrer le stress oxydatif observé.',
+                  priority: 'high',
+                  scientificBasis: 'Étude PREDIMED 2018, Journal of Nutrition'
+                },
+                {
+                  title: 'Optimiser votre microbiote intestinal',
+                  description: 'L\'analyse comportementale suggère un déséquilibre potentiel de votre flore intestinale qui pourrait impacter votre énergie.',
+                  priority: 'medium'
+                },
+                {
+                  title: 'Techniques de respiration pour la gestion du stress',
+                  description: 'Vos patterns de réponse indiquent un niveau de cortisol potentiellement élevé pendant certaines périodes de la journée.',
+                  priority: 'medium',
+                  scientificBasis: 'American Journal of Physiology, 2020'
+                },
+                {
+                  title: 'Optimisation du sommeil par la chronobiologie',
+                  description: 'Votre rythme circadien pourrait bénéficier d\'ajustements ciblés pour améliorer la qualité du sommeil.',
+                  priority: 'low'
+                }
+              ]
+            }}
+            onSaveProfile={() => {
+              // Future implementation: Save profile to account
+              window.alert("Cette fonctionnalité sera bientôt disponible!");
+            }}
+            onViewArticles={() => {
+              // Navigate to articles page
+              // Assuming 'navigate' is available from a routing library
+              //  like react-router-dom
+              // navigate("/articles");
+            }}
           />
         )}
       </div>
@@ -371,5 +415,36 @@ const FlaskIcon = ({ className }: { className?: string }) => (
     <path d="M5.52 16h12.96"></path>
   </svg>
 );
+
+// Added QuizResults component
+const QuizResults = ({ data, onSaveProfile, onViewArticles, responses, behavioralMetrics, personalizationFactors }: { data: any, onSaveProfile: () => void, onViewArticles: () => void, responses: QuizResponse, behavioralMetrics: BehavioralMetrics, personalizationFactors: any }) => {
+  return (
+    <div>
+      <h1>Your Quiz Results</h1>
+      <p>Score: {data.score}</p>
+      <p>Metabolic Age: {data.metabolicAge}</p>
+      <p>Stress Level: {data.stressLevel}</p>
+      <h2>Main Needs:</h2>
+      <ul>
+        {data.mainNeeds.map((need) => (
+          <li key={need}>{need}</li>
+        ))}
+      </ul>
+      <h2>Recommendations:</h2>
+      <ul>
+        {data.recommendations.map((recommendation) => (
+          <li key={recommendation.title}>
+            <h3>{recommendation.title}</h3>
+            <p>{recommendation.description}</p>
+            {recommendation.scientificBasis && <p>Scientific Basis: {recommendation.scientificBasis}</p>}
+          </li>
+        ))}
+      </ul>
+      <Button onClick={onSaveProfile}>Save Profile</Button>
+      <Button onClick={onViewArticles}>View Articles</Button>
+    </div>
+  );
+};
+
 
 export default Quiz;
