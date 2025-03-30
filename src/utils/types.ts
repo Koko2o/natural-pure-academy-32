@@ -1,4 +1,3 @@
-
 /**
  * Types pour le système de quiz et de recommandation
  */

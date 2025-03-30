@@ -6,6 +6,7 @@ import { ScientificHighlightedText } from './ui/ScientificHighlightedText';
 import SocialProofIndicator from './quiz/SocialProofIndicator';
 import { useBehavioralMetrics } from '@/hooks/useBehavioralMetrics';
 import { FaFlask, FaUsers, FaClock, FaChartLine, FaStar, FaCheck } from 'react-icons/fa';
+import secureStorage from '@/utils/secureStorage';
 
 interface QuizResultsProps {
   quizResponses: QuizResponse;
@@ -128,6 +129,32 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
     setAdditionalFeedback('');
     setPurchaseIntentSlider(7);
   };
+
+  // Enregistrement des résultats utilisateur
+  useEffect(() => {
+    if (quizResponses.personal?.email) {
+      try {
+        // Stocker de manière sécurisée
+        localStorage.setItem('user_email', quizResponses.personal.email);
+
+        // Pour des démonstrations seulement (à remplacer par une vraie API)
+        console.log("Mise à jour des informations utilisateur:", quizResponses.personal);
+
+        // Dans une implémentation réelle, vous enverriez ces données à votre API
+        // Exemple: 
+        // const apiClient = {
+        //   update: (email, data) => console.log("API update:", email, data)
+        // };
+        // apiClient.update(quizResponses.personal.email, {
+        //   lastQuizDate: new Date(),
+        //   quizResponses: quizResponses
+        // });
+      } catch (error) {
+        console.error("Erreur lors de l'enregistrement des résultats:", error);
+      }
+    }
+  }, [quizResponses]);
+
 
   return (
     <div className="max-w-4xl mx-auto pb-20 bg-white shadow-xl rounded-lg overflow-hidden">
@@ -632,8 +659,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizResponses }) => {
                         <span className="font-medium">Prochain raffinement du modèle:</span> dans 5 jours
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </div                </div>
               </div>
             )}
           </>
