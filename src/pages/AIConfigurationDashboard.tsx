@@ -45,7 +45,7 @@ const AIConfigurationDashboard = () => {
   const [isConfigSaved, setIsConfigSaved] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [activeTab, setActiveTab] = useState('openai');
-  const [isTraining, setIsTraining] = useState(false);
+  const [isTraining, setIsTraining] = useState(falsese);
 
   useEffect(() => {
     // Charger la configuration OpenAI
