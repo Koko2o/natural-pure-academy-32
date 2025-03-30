@@ -1,4 +1,3 @@
-
 /**
  * Catalogue complet des compléments alimentaires
  * Données basées sur la recherche scientifique actuelle
@@ -23,30 +22,72 @@ export interface SupplementInfo {
   sideEffects: string[];
   interactions: string[];
   sources: string[]; // Sources scientifiques
+  imageUrl?: string;
+  detailedMechanism?: string;
+  clinicalEvidence?: { study: string; finding: string; url: string }[];
+  formulations?: { type: string; bioavailability: string; bestFor: string; notes: string }[];
+  counterIndications?: string[];
+  synergisticWith?: string[];
 }
 
 export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
   magnesium: {
     id: "magnesium",
     name: "Magnésium",
-    scientificName: "Mg",
+    scientificName: "Magnesium",
     benefits: ["Réduction du stress", "Amélioration du sommeil", "Réduction des crampes musculaires"],
     timeToEffect: "2-4 semaines",
-    scienceScore: 8,
+    scienceScore: 8.5,
     vegetarian: true,
     vegan: true,
     glutenFree: true,
     dairyFree: true,
     scientificBasis: "Essentiel pour plus de 300 réactions biochimiques dans le corps, particulièrement efficace pour réduire l'excitabilité nerveuse",
-    description: "Le magnésium est un minéral essentiel jouant un rôle crucial dans la neurotransmission et la relaxation musculaire",
-    contraindications: ["Insuffisance rénale sévère"],
+    description: "Minéral essentiel au fonctionnement musculaire et nerveux",
+    contraindications: ["Insuffisance rénale sévère", "Bloc cardiaque", "Myasthénie grave"],
     dosageStandard: "300-400mg par jour",
     dosageVegetarian: "300-400mg par jour",
     sideEffects: ["Diarrhée à fortes doses"],
     interactions: ["Certains antibiotiques", "Diurétiques"],
-    sources: ["Nutritional Magnesium Association", "Journal of Research in Medical Sciences"]
+    sources: ["Nutritional Magnesium Association", "Journal of Research in Medical Sciences"],
+    imageUrl: '/supplements/magnesium.jpg',
+    detailedMechanism: 'Le magnésium agit comme cofacteur dans plus de 300 réactions enzymatiques, notamment dans la production d\'énergie, la synthèse des protéines et la régulation du système nerveux. Il module également les récepteurs NMDA impliqués dans la réponse au stress.',
+    clinicalEvidence: [
+      {
+        study: 'Nielsen FH, et al. (2010)',
+        finding: 'Réduction de 23% des marqueurs de stress chez les patients avec supplémentation en magnésium',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/20181314/'
+      },
+      {
+        study: 'Abbasi B, et al. (2012)',
+        finding: 'Amélioration significative de la qualité du sommeil et réduction du temps d\'endormissement',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23853635/'
+      }
+    ],
+    formulations: [
+      {
+        type: 'Citrate de magnésium',
+        bioavailability: 'Élevée',
+        bestFor: 'Stress et sommeil',
+        notes: 'Bien absorbé, peut avoir un effet laxatif léger'
+      },
+      {
+        type: 'Glycinate de magnésium',
+        bioavailability: 'Élevée',
+        bestFor: 'Stress et sommeil sans effets digestifs',
+        notes: 'Forme très bien tolérée, idéale pour les personnes sensibles'
+      },
+      {
+        type: 'Oxyde de magnésium',
+        bioavailability: 'Faible',
+        bestFor: 'Constipation',
+        notes: 'Moins recommandé pour les effets neurologiques'
+      }
+    ],
+    counterIndications: ['Insuffisance rénale sévère', 'Bloc cardiaque', 'Myasthénie grave'],
+    synergisticWith: ['Vitamine B6', 'Vitamine D', 'Zinc', 'Calcium']
   },
-  
+
   ashwagandha: {
     id: "ashwagandha",
     name: "Ashwagandha",
@@ -67,7 +108,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Thyroïde", "Sédatifs"],
     sources: ["Journal of Alternative and Complementary Medicine", "Journal of Ethnopharmacology"]
   },
-  
+
   omega3: {
     id: "omega3",
     name: "Oméga-3",
@@ -87,7 +128,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants"],
     sources: ["American Heart Association", "Journal of Lipid Research"]
   },
-  
+
   omega3_vegan: {
     id: "omega3_vegan",
     name: "Oméga-3 Végétal",
@@ -108,7 +149,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants"],
     sources: ["Alternative Medicine Review", "Nutrition Journal"]
   },
-  
+
   vitamin_d3: {
     id: "vitamin_d3",
     name: "Vitamine D3",
@@ -128,7 +169,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Certains médicaments hypertenseurs"],
     sources: ["National Institutes of Health", "Endocrine Society"]
   },
-  
+
   vitamin_d3_vegan: {
     id: "vitamin_d3_vegan",
     name: "Vitamine D3 Végane",
@@ -149,7 +190,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Certains médicaments hypertenseurs"],
     sources: ["Vegan Society Research", "Journal of Clinical Nutrition"]
   },
-  
+
   probiotics: {
     id: "probiotics",
     name: "Probiotiques",
@@ -170,7 +211,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Antibiotiques"],
     sources: ["International Scientific Association for Probiotics and Prebiotics", "Gastroenterology Journal"]
   },
-  
+
   zinc: {
     id: "zinc",
     name: "Zinc",
@@ -191,7 +232,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Antibiotiques", "Cuivre"],
     sources: ["National Institutes of Health", "Journal of Nutrition"]
   },
-  
+
   vitamin_b_complex: {
     id: "vitamin_b_complex",
     name: "Complexe Vitamine B",
@@ -211,7 +252,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Certains médicaments antiépileptiques"],
     sources: ["Harvard Medical School", "British Journal of Nutrition"]
   },
-  
+
   vitamin_b_complex_vegan: {
     id: "vitamin_b_complex_vegan",
     name: "Complexe Vitamine B Végan",
@@ -232,7 +273,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Certains médicaments antiépileptiques"],
     sources: ["Vegan Society", "Plant-Based Health Journal"]
   },
-  
+
   iron: {
     id: "iron",
     name: "Fer",
@@ -253,7 +294,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Calcium", "Thé", "Café"],
     sources: ["World Health Organization", "Journal of Hematology"]
   },
-  
+
   melatonin: {
     id: "melatonin",
     name: "Mélatonine",
@@ -274,7 +315,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants", "Immunosuppresseurs"],
     sources: ["Sleep Foundation", "Journal of Sleep Research"]
   },
-  
+
   l_theanine: {
     id: "l_theanine",
     name: "L-Théanine",
@@ -295,7 +336,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Médicaments hypertenseurs"],
     sources: ["Journal of Functional Foods", "Asia Pacific Journal of Clinical Nutrition"]
   },
-  
+
   rhodiola: {
     id: "rhodiola",
     name: "Rhodiola Rosea",
@@ -316,7 +357,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Antidépresseurs"],
     sources: ["Phytomedicine Journal", "Journal of Ethnopharmacology"]
   },
-  
+
   coq10: {
     id: "coq10",
     name: "CoQ10",
@@ -337,7 +378,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Statines", "Anticoagulants"],
     sources: ["Mayo Clinic Proceedings", "Journal of the American College of Cardiology"]
   },
-  
+
   bacopa: {
     id: "bacopa",
     name: "Bacopa Monnieri",
@@ -358,7 +399,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Médicaments thyroïdiens", "Médicaments anticholinergiques"],
     sources: ["Journal of Ethnopharmacology", "Neuropsychopharmacology"]
   },
-  
+
   ginkgo: {
     id: "ginkgo",
     name: "Ginkgo Biloba",
@@ -379,7 +420,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants", "Antiplaquettaires"],
     sources: ["Cochrane Database of Systematic Reviews", "Pharmacological Research"]
   },
-  
+
   digestive_enzymes: {
     id: "digestive_enzymes",
     name: "Enzymes Digestives",
@@ -399,7 +440,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Médicaments pour le diabète"],
     sources: ["World Journal of Gastroenterology", "Digestive Diseases and Sciences"]
   },
-  
+
   digestive_enzymes_vegan: {
     id: "digestive_enzymes_vegan",
     name: "Enzymes Digestives Véganes",
@@ -420,7 +461,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Médicaments pour le diabète"],
     sources: ["Plant-Based Journal of Nutrition", "Alternative Therapies in Health and Medicine"]
   },
-  
+
   fiber_complex: {
     id: "fiber_complex",
     name: "Complexe de Fibres",
@@ -441,7 +482,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Certains médicaments oraux (prendre à distance)"],
     sources: ["American Journal of Clinical Nutrition", "Gut Microbiome Research"]
   },
-  
+
   vitamin_c: {
     id: "vitamin_c",
     name: "Vitamine C",
@@ -462,7 +503,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants", "Statines"],
     sources: ["Cochrane Database", "Journal of Clinical Medicine"]
   },
-  
+
   turmeric: {
     id: "turmeric",
     name: "Curcuma",
@@ -483,7 +524,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Anticoagulants", "Antiplaquettaires"],
     sources: ["Journal of Medicinal Food", "Advances in Experimental Medicine and Biology"]
   },
-  
+
   choline: {
     id: "choline",
     name: "Choline",
@@ -504,7 +545,7 @@ export const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
     interactions: ["Médicaments métabolisés par le foie"],
     sources: ["Nutrition Reviews", "Journal of Neurochemistry"]
   },
-  
+
   adaptogens_complex: {
     id: "adaptogens_complex",
     name: "Complexe Adaptogène",

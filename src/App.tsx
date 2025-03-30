@@ -17,6 +17,7 @@ import LaboSolutions from "./pages/LaboSolutions";
 import SocialRedirect from "./pages/SocialRedirect";
 import AISystem from './pages/AISystem';
 import AILearningDashboard from './pages/AILearningDashboard';
+import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
 
 const queryClient = new QueryClient({
@@ -148,6 +149,7 @@ const App = () => {
             <Route path="/redirect/social" element={<SocialRedirect />} />
             <Route path="/ai-system" element={<AISystem />} />
             <Route path="/ai-learning" element={<AILearningDashboard />} />
+        <Route path="/ai-config" element={<AIConfigurationDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

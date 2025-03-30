@@ -389,7 +389,7 @@ export const trainAIModel = (): void => {
 
 /**
  * Génère des recommandations personnalisées en fonction du profil utilisateur
- * en utilisant le modèle AI entraîné
+ * en utilisant le modèle AI entraîné avec des mécanismes avancés d'analyse
  */
 export const generateAIPersonalizedRecommendations = (
   quizResponses: QuizResponse
@@ -408,25 +408,93 @@ export const generateAIPersonalizedRecommendations = (
       energyLevel = 0,
       concentration = 0,
       digestion = 0,
+      immuneFunction = 0,
+      jointHealth = 0,
+      skinHealth = 0,
       personalGoals = [],
-      dietaryRestrictions = {}
+      dietaryRestrictions = {},
+      ageRange = '',
+      gender = '',
+      activityLevel = 0,
+      medicalConditions = []
     } = quizResponses;
     
-    // Créer un profil utilisateur pour l'analyse
+    // Créer un profil utilisateur plus détaillé pour l'analyse
     const userProfile = {
+      demographics: {
+        ageRange,
+        gender,
+        activityLevel
+      },
       activeSymptoms: [],
       activeGoals: personalGoals,
-      dietaryRestrictions
+      dietaryRestrictions,
+      medicalConditions: medicalConditions || [],
+      intensityLevels: {
+        stress: stressLevel,
+        sleep: sleepQuality,
+        energy: energyLevel,
+        focus: concentration,
+        digestion: digestion,
+        immune: immuneFunction,
+        joints: jointHealth,
+        skin: skinHealth
+      }
     };
     
-    // Déterminer les symptômes actifs
-    if (stressLevel >= 5) userProfile.activeSymptoms.push('stress');
-    if (sleepQuality <= 5) userProfile.activeSymptoms.push('sleep');
-    if (energyLevel <= 5) userProfile.activeSymptoms.push('energy');
-    if (concentration <= 5) userProfile.activeSymptoms.push('focus');
-    if (digestion <= 5) userProfile.activeSymptoms.push('digestion');
+    // Analyse avancée des symptômes avec gestion de l'intensité
+    const symptomIntensityThreshold = 5; // Seuil configurable
     
-    // Calculer les scores des suppléments pour ce profil
+    // Déterminer les symptômes actifs avec priorité basée sur l'intensité
+    const symptomMapping = [
+      { key: 'stress', value: stressLevel, threshold: symptomIntensityThreshold, priority: 1 },
+      { key: 'sleep', value: sleepQuality, condition: 'lte', threshold: symptomIntensityThreshold, priority: 2 },
+      { key: 'energy', value: energyLevel, condition: 'lte', threshold: symptomIntensityThreshold, priority: 3 },
+      { key: 'focus', value: concentration, condition: 'lte', threshold: symptomIntensityThreshold, priority: 4 },
+      { key: 'digestion', value: digestion, condition: 'lte', threshold: symptomIntensityThreshold, priority: 5 },
+      { key: 'immune', value: immuneFunction, condition: 'lte', threshold: symptomIntensityThreshold, priority: 6 },
+      { key: 'joints', value: jointHealth, condition: 'lte', threshold: symptomIntensityThreshold, priority: 7 },
+      { key: 'skin', value: skinHealth, condition: 'lte', threshold: symptomIntensityThreshold, priority: 8 }
+    ];
+    
+    // Déterminer les symptômes actifs avec gestion de seuils configurables
+    symptomMapping.forEach(symptom => {
+      const { key, value, condition = 'gte', threshold, priority } = symptom;
+      const isActive = condition === 'lte' 
+        ? value <= threshold 
+        : value >= threshold;
+        
+      if (isActive) {
+        userProfile.activeSymptoms.push({
+          id: key,
+          intensity: Math.abs(value - threshold) + 1,
+          priority
+        });
+      }
+    });
+    
+    // Trier les symptômes par priorité et intensité
+    userProfile.activeSymptoms.sort((a, b) => {
+      // D'abord par priorité (plus petit nombre = plus haute priorité)
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      // Ensuite par intensité (plus grande intensité = plus haute priorité)
+      return b.intensity - a.intensity;
+    });
+    
+    // Extraire uniquement les IDs des symptômes pour la compatibilité avec le reste du code
+    const activeSymptomIds = userProfile.activeSymptoms.map(s => s.id);
+    
+    // Recherche de profils similaires pour affiner les recommandations
+    const similarProfiles = aiModel.userProfiles
+      .map(profile => ({
+        profile,
+        similarity: calculateProfileSimilarity(profile, userProfile)
+      }))
+      .filter(item => item.similarity > 0.7) // Seuil de similarité configurable
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 5); // Top 5 des profils les plus similaires
+    
+    // Calculer les scores des suppléments pour ce profil avec l'influence des profils similaires
     const supplementScores: Record<string, number> = {};
     
     // 1. Scores basés sur les symptômes

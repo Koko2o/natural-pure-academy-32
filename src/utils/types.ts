@@ -77,19 +77,51 @@ export interface LearningData {
 }
 
 export interface AIModelState {
-  version: string;
-  lastUpdated: number;
-  featureImportance: {
-    age?: number;
-    gender?: number;
-    stressLevel?: number;
-    sleepIssues?: number;
-    energyLevel?: number;
-    focusIssues?: number;
-    dietaryPreferences?: number;
-    [key: string]: number | undefined;
+  version: number;
+  trainingIterations: number;
+  supplementScores: Record<string, SupplementScore>;
+  symptomWeights: Record<string, number>;
+  goalWeights: Record<string, number>;
+  userProfiles: UserProfile[];
+  performanceMetrics: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+    lastEvaluated: string;
   };
-  clusterCenters?: any[];
-  weights?: any;
-  [key: string]: any;
+  featureImportance: Record<string, number>;
+  seasonalPatterns: Record<string, SeasonalPattern>;
 }
+
+export interface SeasonalPattern {
+  name: string;
+  startMonth: number;
+  endMonth: number;
+  relatedSymptoms: string[];
+  relatedSupplements: string[];
+  description: string;
+  confidence: number;
+}
+
+export interface PredictiveInsight {
+  type: 'seasonal' | 'statistical' | 'personalized';
+  symptom: string;
+  relevance: number;
+  supplements: string[];
+  description: string;
+  confidence?: number;
+}
+
+export interface SupplementSynergy {
+  primaryId: string;
+  secondaryId: string;
+  effect: 'enhance' | 'reduce' | 'neutral';
+  description: string;
+  strengthPercent: number;
+  evidence: 'strong' | 'moderate' | 'theoretical';
+}
+
+// Placeholder types -  replace with actual implementations
+export interface SupplementScore {}
+export interface UserProfile {}
