@@ -852,7 +852,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
       doseVegetarian: "1 gélule le matin"
     },
     {
-      id: "rhodiola,
+      id: "rhodiola",
       priority: 8,
       doseStandard: "300-600mg d'extrait standardisé le matin",
       doseVegetarian: "300-600mg d'extrait standardisé le matin"

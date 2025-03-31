@@ -854,10 +854,7 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   interestAreas: ['Stress', 'Sommeil', 'Énergie']
 });
 
-// Fonctions déjà importées depuis aiLearningEngine
-    accuracy: 0.87,
-    consistency: 0.83
-  };
+// Les fonctions sont déjà importées depuis aiLearningEngine
 }
 
 // Fonction pour analyser les performances des recommandations
