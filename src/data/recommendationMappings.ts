@@ -1852,7 +1852,7 @@ export const GOAL_INTENSITY: SymptomIntensityThresholds = {
 };
 
 // Mappings entre symptômes et recommandations de suppléments
-export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = {
+export const SYMPTOM_RECOMMENDATIONS_DETAILED: Record<string, SymptomRecommendation[]> = {
   // STRESS ET ANXIÉTÉ
   "stress_constant": [
     { id: "ashwagandha", priority: 10 },
@@ -2059,7 +2059,7 @@ export const SYMPTOM_RECOMMENDATIONS: Record<string, SymptomRecommendation[]> = 
 };
 
 // Mappings entre objectifs et recommandations de suppléments
-export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
+export const GOAL_RECOMMENDATIONS_DETAILED: Record<string, GoalRecommendation[]> = {
   // ÉNERGIE ET VITALITÉ
   "plus_energie": [
     { id: "vitamin_b_complex", priority: 10 },
