@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { SCIENTIFIC_TERMS_DATABASE } from "@/data/scientificTerms";
+import { getTermById, ScientificTerm } from "@/data/scientificTerms";
 
 interface ScientificHighlightedTextProps {
   text: string;
@@ -56,7 +56,7 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
       }
       
       // Ajouter le terme scientifique avec tooltip
-      const termInfo = SCIENTIFIC_TERMS_DATABASE[termId];
+      const termInfo = getTermById(termId);
       
       if (termInfo) {
         parts.push(
