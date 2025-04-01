@@ -1,144 +1,129 @@
-import React, { useState } from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
-interface ScientificTermInfo {
-  id: string;
-  title: string;
-  description: string;
+import React, { useState } from "react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Badge } from "@/components/ui/badge";
+import { Info, HelpCircle, BookOpen, ExternalLink, Terminal } from "lucide-react";
+import { scientificTerms, SCIENTIFIC_TERMS_DATABASE, ScientificTerm } from "@/data/scientificTerms";
+
+interface ScientificHighlightedTextProps {
+  text: string;
+  level?: number; // 1: Basic, 2: Intermediate, 3: Expert
 }
 
-interface TermData {
-  id: string;
-  title: string;
-}
+const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
+  text, 
+  level = 1
+}) => {
+  const [hoveredTerm, setHoveredTerm] = useState<string | null>(null);
 
-const ScientificHighlightedText: React.FC<{ text: string }> = ({ text }) => {
-  const [tooltipOpen, setTooltipOpen] = useState<Record<string, boolean>>({});
+  if (!text) return null;
 
-  const scientificTerms: Record<string, ScientificTermInfo> = {
-    'circadian-rhythm': {
-      id: 'circadian-rhythm',
-      title: 'Rythme Circadien',
-      description: 'Cycle naturel du corps sur 24 heures qui régule les cycles sommeil-éveil et de nombreuses fonctions biologiques.'
-    },
-    'cortisol': {
-      id: 'cortisol',
-      title: 'Cortisol',
-      description: 'Hormone du stress qui joue un rôle dans la régulation du métabolisme et la réponse immunitaire.'
-    },
-    'microbiome': {
-      id: 'microbiome',
-      title: 'Microbiome',
-      description: 'Ensemble des micro-organismes vivant dans l\'intestin humain, essentiels pour la digestion et l\'immunité.'
-    },
-    'inflammation': {
-      id: 'inflammation',
-      title: 'Inflammation',
-      description: 'Réponse protectrice impliquant des cellules immunitaires, vaisseaux sanguins et médiateurs moléculaires.'
-    },
-    'probiotics': {
-      id: 'probiotics',
-      title: 'Probiotiques',
-      description: 'Micro-organismes vivants qui, administrés en quantités adéquates, confèrent un bénéfice pour la santé.'
-    },
-    'vitamin-d': {
-      id: 'vitamin-d',
-      title: 'Vitamine D',
-      description: 'Nutriment essentiel régulant l\'absorption du calcium et la santé osseuse, avec des effets sur l\'immunité.'
-    },
-    'antioxidant': {
-      id: 'antioxidant',
-      title: 'Antioxydant',
-      description: 'Molécule capable de ralentir ou prévenir l\'oxydation d\'autres molécules, protégeant contre les dommages cellulaires.'
-    },
-    'adaptogens': {
-      id: 'adaptogens',
-      title: 'Adaptogènes',
-      description: 'Substances naturelles qui aident le corps à s\'adapter au stress et à retrouver l\'équilibre.'
-    },
-    'bioavailability': {
-      id: 'bioavailability',
-      title: 'Biodisponibilité',
-      description: 'Proportion d\'un nutriment qui est absorbée et utilisée par l\'organisme.'
-    },
-    'rda': {
-      id: 'rda',
-      title: 'AJR (Apports Journaliers Recommandés)',
-      description: 'Quantité moyenne quotidienne de nutriments suffisante pour répondre aux besoins de 97-98% des individus en bonne santé.'
-    },
-  };
-
-  // This function parses text containing [[id:title]] markup
-  // and returns an array of text and term objects
-  const parseText = (text: string): (string | TermData)[] => {
-    if (!text) return [''];
-
-    const regex = /\[\[([^:]+):([^\]]+)\]\]/g;
-    const parts: (string | TermData)[] = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.substring(lastIndex, match.index));
-      }
-
-      parts.push({
-        id: match[1],
-        title: match[2]
-      });
-
-      lastIndex = match.index + match[0].length;
+  // Regular expression to match scientific terms in format [[term-id:Displayed Text]]
+  const termRegex = /\[\[([^:]+):([^\]]+)\]\]/g;
+  
+  // Split text by scientific terms
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  
+  // Create a working copy of the text
+  let processedText = text;
+  
+  const renderDefinition = (termId: string) => {
+    const term = SCIENTIFIC_TERMS_DATABASE[termId];
+    
+    if (!term) {
+      return <span className="italic text-gray-600">Définition non disponible</span>;
     }
-
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-
-    return parts;
-  };
-
-  const handleTooltipOpen = (termId: string, open: boolean) => {
-    setTooltipOpen(prev => ({
-      ...prev,
-      [termId]: open
-    }));
-  };
-
-  const parsedText = parseText(text);
-
-  return (
-    <TooltipProvider>
-      <div className="text-gray-700 leading-relaxed"> {/* Changed from <p> to <div> */}
-        {parsedText.map((part, index) => {
-          if (typeof part === 'string') {
-            return <React.Fragment key={index}>{part}</React.Fragment>;
-          } else {
-            const termInfo = scientificTerms[part.id];
-            return (
-              <Tooltip
-                key={index}
-                open={tooltipOpen[part.id]}
-                onOpenChange={(open) => handleTooltipOpen(part.id, open)}
-              >
-                <TooltipTrigger asChild>
-                  <span className="bg-blue-50 text-blue-800 px-1 rounded cursor-help border-b border-dashed border-blue-400">
-                    {part.title}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs p-3">
-                  <div>
-                    <h3 className="font-semibold mb-1">{termInfo?.title || part.title}</h3>
-                    <p className="text-sm">{termInfo?.description || "Terme scientifique sans définition disponible."}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            );
-          }
-        })}
+    
+    return (
+      <div className="text-sm">
+        <h4 className="font-medium text-blue-700 mb-1 flex items-center">
+          {term.title}
+          {level >= 3 && term.source && (
+            <Badge variant="outline" className="ml-2 text-xs bg-blue-50">
+              Ref: {term.source.split(',')[0]}
+            </Badge>
+          )}
+        </h4>
+        <p className="text-gray-700">{term.definition}</p>
+        
+        {level >= 2 && term.relatedTerms && term.relatedTerms.length > 0 && (
+          <div className="mt-2">
+            <div className="text-xs text-gray-500 mb-1 flex items-center">
+              <Terminal className="h-3 w-3 mr-1" />
+              Termes associés:
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {term.relatedTerms.map((relatedId) => {
+                const relatedTerm = scientificTerms.find(t => t.id === relatedId);
+                return relatedTerm ? (
+                  <Badge 
+                    key={relatedId} 
+                    variant="outline"
+                    className="text-xs bg-gray-50"
+                  >
+                    {relatedTerm.title}
+                  </Badge>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
+        
+        {level >= 3 && term.source && (
+          <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
+            <BookOpen className="h-3 w-3 mr-1" />
+            Source: {term.source}
+          </div>
+        )}
       </div>
-    </TooltipProvider>
-  );
+    );
+  };
+  
+  while ((match = termRegex.exec(processedText)) !== null) {
+    // Add text before the match
+    parts.push(processedText.substring(lastIndex, match.index));
+    
+    // Extract term ID and display text
+    const [fullMatch, termId, displayText] = match;
+    
+    // Add the highlighted term
+    parts.push(
+      <HoverCard key={`term-${match.index}`} openDelay={300} closeDelay={200}>
+        <HoverCardTrigger asChild>
+          <span 
+            className="text-blue-600 border-b border-dotted border-blue-300 cursor-help"
+            onMouseEnter={() => setHoveredTerm(termId)}
+            onMouseLeave={() => setHoveredTerm(null)}
+          >
+            {displayText}
+          </span>
+        </HoverCardTrigger>
+        <HoverCardContent className="w-80 p-3">
+          {renderDefinition(termId)}
+        </HoverCardContent>
+      </HoverCard>
+    );
+    
+    // Update lastIndex
+    lastIndex = match.index + fullMatch.length;
+  }
+  
+  // Add remaining text
+  parts.push(processedText.substring(lastIndex));
+  
+  // For basic level (level=1), use simplified display with fewer tooltips
+  if (level === 1) {
+    // Simplified display - replace tooltips with just the term
+    return (
+      <div className="scientific-text">
+        {processedText.replace(termRegex, (_, __, displayText) => displayText)}
+      </div>
+    );
+  }
+  
+  return <div className="scientific-text">{parts}</div>;
 };
 
 export default ScientificHighlightedText;
