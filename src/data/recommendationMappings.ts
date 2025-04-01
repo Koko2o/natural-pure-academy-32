@@ -1741,7 +1741,13 @@ export const GOAL_RECOMMENDATIONS: Record<string, GoalRecommendation[]> = {
       id: "vitamin_d3_vegan",
       priority: 7,
       doseStandard: "2000-4000 UI par jour",
-      doseVegetarian: "2000000 UI par jour"
+      doseVegetarian: "2000-4000 UI par jour"
+    },
+    {
+      id: "garlic_extract",
+      priority: 7,
+      doseStandard: "600-1200mg d'extrait par jour",
+      doseVegetarian: "600-1200mg d'extrait par jour"
     }
   ],
 
@@ -2055,6 +2061,397 @@ export const SYMPTOM_RECOMMENDATIONS_DETAILED: Record<string, SymptomRecommendat
     { id: "msm", priority: 7 },
     { id: "omega3", priority: 7 },
     { id: "omega3_vegan", priority: 7 }
+  ]
+};
+
+// Mappings entre objectifs et recommandations de suppléments
+export const GOAL_RECOMMENDATIONS_DETAILED: Record<string, GoalRecommendation[]> = {
+  // ÉNERGIE ET VITALITÉ
+  "plus_energie": [
+    { id: "vitamin_b_complex", priority: 10 },
+    { id: "rhodiola", priority: 9 },
+    { id: "cordyceps", priority: 8 },
+    { id: "coq10", priority: 8 },
+    { id: "iron", priority: 7 },
+    { id: "maca", priority: 7 }
+  ],
+  "ameliorer_endurance": [
+    { id: "cordyceps", priority: 9 },
+    { id: "coq10", priority: 8 },
+    { id: "rhodiola", priority: 8 },
+    { id: "iron", priority: 7 },
+    { id: "vitamin_b_complex", priority: 7 },
+    { id: "maca", priority: 6 }
+  ],
+  "reduire_fatigue": [
+    { id: "iron", priority: 9 },
+    { id: "vitamin_b_complex", priority: 9 },
+    { id: "rhodiola", priority: 8 },
+    { id: "coq10", priority: 7 },
+    { id: "ashwagandha", priority: 6 },
+    { id: "cordyceps", priority: 6 }
+  ],
+
+  // STRESS ET RELAXATION
+  "reduire_stress": [
+    { id: "ashwagandha", priority: 10 },
+    { id: "l_theanine", priority: 9 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "rhodiola", priority: 8 },
+    { id: "holy_basil", priority: 7 }
+  ],
+  "ameliorer_humeur": [
+    { id: "vitamin_d3", priority: 9 },
+    { id: "vitamin_d3_vegan", priority: 9 },
+    { id: "saffron", priority: 8 },
+    { id: "rhodiola", priority: 8 },
+    { id: "omega3", priority: 7 },
+    { id: "omega3_vegan", priority: 7 },
+    { id: "vitamin_b_complex", priority: 7 }
+  ],
+  "plus_resilience": [
+    { id: "rhodiola", priority: 9 },
+    { id: "ashwagandha", priority: 8 },
+    { id: "holy_basil", priority: 7 },
+    { id: "cordyceps", priority: 7 },
+    { id: "mushroom_complex", priority: 6 },
+    { id: "vitamin_b_complex", priority: 6 }
+  ],
+
+  // SOMMEIL
+  "mieux_dormir": [
+    { id: "melatonin", priority: 9 },
+    { id: "magnesium_glycinate", priority: 9 },
+    { id: "l_theanine", priority: 8 },
+    { id: "glycine", priority: 8 },
+    { id: "valerian", priority: 7 },
+    { id: "tart_cherry", priority: 7 }
+  ],
+  "endormissement_rapide": [
+    { id: "melatonin", priority: 10 },
+    { id: "l_theanine", priority: 8 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "valerian", priority: 7 },
+    { id: "glycine", priority: 6 }
+  ],
+  "sommeil_profond": [
+    { id: "glycine", priority: 9 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "tart_cherry", priority: 7 },
+    { id: "melatonin", priority: 6 },
+    { id: "valerian", priority: 6 }
+  ],
+
+  // COGNITION ET CONCENTRATION
+  "ameliorer_concentration": [
+    { id: "bacopa", priority: 9 },
+    { id: "l_theanine", priority: 8 },
+    { id: "lions_mane", priority: 8 },
+    { id: "ginkgo", priority: 7 },
+    { id: "omega3", priority: 7 },
+    { id: "omega3_vegan", priority: 7 },
+    { id: "rhodiola", priority: 6 }
+  ],
+  "renforcer_memoire": [
+    { id: "bacopa", priority: 10 },
+    { id: "lions_mane", priority: 8 },
+    { id: "ginkgo", priority: 8 },
+    { id: "omega3", priority: 7 },
+    { id: "omega3_vegan", priority: 7 },
+    { id: "phosphatidylserine", priority: 7 }
+  ],
+  "lucidite_mentale": [
+    { id: "lions_mane", priority: 9 },
+    { id: "bacopa", priority: 8 },
+    { id: "rhodiola", priority: 8 },
+    { id: "ginkgo", priority: 7 },
+    { id: "l_theanine", priority: 7 },
+    { id: "omega3", priority: 6 },
+    { id: "omega3_vegan", priority: 6 }
+  ],
+
+  // DIGESTION ET MÉTABOLISME
+  "ameliorer_digestion": [
+    { id: "digestive_enzymes", priority: 10 },
+    { id: "probiotics", priority: 9 },
+    { id: "fiber_complex", priority: 8 },
+    { id: "ginger", priority: 7 },
+    { id: "slippery_elm", priority: 6 }
+  ],
+  "equilibre_intestinal": [
+    { id: "probiotics", priority: 10 },
+    { id: "fiber_complex", priority: 8 },
+    { id: "l_glutamine", priority: 7 },
+    { id: "slippery_elm", priority: 6 },
+    { id: "zinc", priority: 6 }
+  ],
+  "soutien_detox": [
+    { id: "milk_thistle", priority: 9 },
+    { id: "fiber_complex", priority: 8 },
+    { id: "n_acetyl_cysteine", priority: 8 },
+    { id: "chlorella", priority: 7 },
+    { id: "dandelion", priority: 7 }
+  ],
+
+  // IMMUNITÉ
+  "renforcer_immunite": [
+    { id: "vitamin_d3", priority: 10 },
+    { id: "vitamin_d3_vegan", priority: 10 },
+    { id: "vitamin_c", priority: 9 },
+    { id: "zinc", priority: 8 },
+    { id: "mushroom_complex", priority: 8 },
+    { id: "probiotics", priority: 7 }
+  ],
+  "recuperation_rapide": [
+    { id: "vitamin_c", priority: 9 },
+    { id: "zinc", priority: 8 },
+    { id: "vitamin_d3", priority: 8 },
+    { id: "vitamin_d3_vegan", priority: 8 },
+    { id: "mushroom_complex", priority: 7 },
+    { id: "elderberry", priority: 7 }
+  ],
+  "anti_inflammatoire": [
+    { id: "curcumin", priority: 10 },
+    { id: "omega3", priority: 9 },
+    { id: "omega3_vegan", priority: 9 },
+    { id: "boswellia", priority: 8 },
+    { id: "msm", priority: 7 },
+    { id: "tart_cherry", priority: 6 }
+  ]
+};
+
+// Mappings entre mode de vie et recommandations de suppléments
+export const LIFESTYLE_RECOMMENDATIONS: Record<string, LifestyleRecommendation[]> = {
+  // RÉGIMES ALIMENTAIRES
+  "vegan": [
+    { id: "vitamin_b12", priority: 10 },
+    { id: "vitamin_d3_vegan", priority: 9 },
+    { id: "omega3_vegan", priority: 9 },
+    { id: "iron", priority: 8 },
+    { id: "zinc", priority: 7 },
+    { id: "calcium_magnesium", priority: 7 }
+  ],
+  "vegetarien": [
+    { id: "vitamin_b12", priority: 8 },
+    { id: "vitamin_d3", priority: 7 },
+    { id: "vitamin_d3_vegan", priority: 7 },
+    { id: "omega3_vegan", priority: 7 },
+    { id: "iron", priority: 6 },
+    { id: "zinc", priority: 6 }
+  ],
+  "sans_gluten": [
+    { id: "digestive_enzymes", priority: 8 },
+    { id: "probiotics", priority: 8 },
+    { id: "l_glutamine", priority: 7 },
+    { id: "zinc", priority: 6 },
+    { id: "multivitamin", priority: 6 }
+  ],
+  "sans_lactose": [
+    { id: "calcium_magnesium", priority: 8 },
+    { id: "vitamin_d3", priority: 7 },
+    { id: "vitamin_d3_vegan", priority: 7 },
+    { id: "probiotics", priority: 7 },
+    { id: "digestive_enzymes", priority: 6 }
+  ],
+  "ceto": [
+    { id: "magnesium_glycinate", priority: 9 },
+    { id: "potassium", priority: 8 },
+    { id: "mct_oil", priority: 8 },
+    { id: "digestive_enzymes", priority: 7 },
+    { id: "vitamin_d3", priority: 6 },
+    { id: "vitamin_d3_vegan", priority: 6 }
+  ],
+
+  // ACTIVITÉ PHYSIQUE
+  "sport_intensif": [
+    { id: "whey_protein", priority: 9 },
+    { id: "bcaa", priority: 8 },
+    { id: "creatine", priority: 8 },
+    { id: "magnesium_glycinate", priority: 7 },
+    { id: "coq10", priority: 7 },
+    { id: "vitamin_d3", priority: 6 },
+    { id: "vitamin_d3_vegan", priority: 6 }
+  ],
+  "sport_endurance": [
+    { id: "iron", priority: 9 },
+    { id: "cordyceps", priority: 8 },
+    { id: "coq10", priority: 8 },
+    { id: "magnesium_glycinate", priority: 7 },
+    { id: "electrolytes", priority: 7 },
+    { id: "rhodiola", priority: 6 }
+  ],
+  "yoga_meditation": [
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "l_theanine", priority: 8 },
+    { id: "rhodiola", priority: 7 },
+    { id: "holy_basil", priority: 7 },
+    { id: "ashwagandha", priority: 7 },
+    { id: "vitamin_b_complex", priority: 6 }
+  ],
+  "sedentaire": [
+    { id: "vitamin_d3", priority: 9 },
+    { id: "vitamin_d3_vegan", priority: 9 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "coq10", priority: 7 },
+    { id: "omega3", priority: 7 },
+    { id: "omega3_vegan", priority: 7 },
+    { id: "vitamin_b_complex", priority: 6 }
+  ],
+
+  // MODE DE VIE
+  "travail_nuit": [
+    { id: "melatonin", priority: 10 },
+    { id: "vitamin_d3", priority: 9 },
+    { id: "vitamin_d3_vegan", priority: 9 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "vitamin_b_complex", priority: 7 },
+    { id: "rhodiola", priority: 7 }
+  ],
+  "voyages_frequents": [
+    { id: "melatonin", priority: 10 },
+    { id: "probiotics", priority: 8 },
+    { id: "vitamin_c", priority: 8 },
+    { id: "rhodiola", priority: 7 },
+    { id: "magnesium_glycinate", priority: 7 },
+    { id: "zinc", priority: 6 }
+  ],
+  "travail_stress": [
+    { id: "ashwagandha", priority: 9 },
+    { id: "rhodiola", priority: 9 },
+    { id: "l_theanine", priority: 8 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "vitamin_b_complex", priority: 7 },
+    { id: "holy_basil", priority: 7 }
+  ],
+  "parent_jeunes_enfants": [
+    { id: "vitamin_b_complex", priority: 9 },
+    { id: "ashwagandha", priority: 8 },
+    { id: "magnesium_glycinate", priority: 8 },
+    { id: "rhodiola", priority: 7 },
+    { id: "vitamin_c", priority: 7 },
+    { id: "zinc", priority: 6 }
+  ]
+};
+
+// Facteurs d'âge pour ajuster les recommandations
+export const AGE_FACTORS: Record<string, Record<string, number>> = {
+  "18-30": {
+    "vitamin_d3": 0.8,
+    "vitamin_d3_vegan": 0.8,
+    "coq10": 0.7,
+    "iron": 1.2,
+    "bacopa": 0.9,
+    "maca": 1.1
+  },
+  "31-45": {
+    "coq10": 0.9,
+    "vitamin_b_complex": 1.1,
+    "magnesium_glycinate": 1.1,
+    "rhodiola": 1.1,
+    "ashwagandha": 1.1
+  },
+  "46-60": {
+    "coq10": 1.2,
+    "vitamin_d3": 1.2,
+    "vitamin_d3_vegan": 1.2,
+    "bacopa": 1.2,
+    "lions_mane": 1.3,
+    "magnesium_glycinate": 1.2,
+    "omega3": 1.2,
+    "omega3_vegan": 1.2
+  },
+  "60+": {
+    "coq10": 1.3,
+    "vitamin_d3": 1.3,
+    "vitamin_d3_vegan": 1.3,
+    "vitamin_b_complex": 1.2,
+    "bacopa": 1.3,
+    "lions_mane": 1.3,
+    "magnesium_glycinate": 1.3,
+    "omega3": 1.3,
+    "omega3_vegan": 1.3,
+    "curcumin": 1.3,
+    "probiotics": 1.2
+  }
+};
+
+// Facteurs de sexe pour ajuster les recommandations
+export const GENDER_FACTORS: Record<string, Record<string, number>> = {
+  "femme": {
+    "iron": 1.3,
+    "calcium_magnesium": 1.2,
+    "vitamin_d3": 1.1,
+    "vitamin_d3_vegan": 1.1,
+    "probiotics": 1.1,
+    "maca": 1.1,
+    "evening_primrose": 1.3
+  },
+  "homme": {
+    "zinc": 1.2,
+    "magnesium_glycinate": 1.1,
+    "vitamin_d3": 1.1,
+    "vitamin_d3_vegan": 1.1,
+    "saw_palmetto": 1.3,
+    "maca": 1.1
+  },
+  "non_binaire": {
+    "vitamin_d3": 1.1,
+    "vitamin_d3_vegan": 1.1,
+    "vitamin_b_complex": 1.1,
+    "magnesium_glycinate": 1.1
+  }
+};
+
+// Facteurs de priorité pour les symptômes (certains sont plus prioritaires que d'autres)
+export const SYMPTOM_PRIORITY_FACTORS: Record<string, number> = {
+  "stress_constant": 1.5,       // Priorité élevée - Stress
+  "anxiete": 1.4,               // Priorité élevée - Anxiété
+  "fatigue_generale": 1.4,      // Priorité élevée - Fatigue
+  "anemic": 1.5,                // Priorité élevée - Condition médicale
+  "difficulte_endormissement": 1.3, // Priorité élevée - Sommeil
+  "reveils_nocturnes": 1.2,     // Priorité moyenne - Sommeil
+  "memoire_declin": 1.2,        // Priorité moyenne - Cognition
+  "difficulte_concentration": 1.2, // Priorité moyenne - Cognition
+  "douleurs_articulaires": 1.3, // Priorité élevée - Douleur
+  "problemes_peau": 1.1,        // Priorité moyenne-basse - Peau
+  "ballonnements": 1.1,         // Priorité moyenne-basse - Digestion
+  "constipation": 1.2,          // Priorité moyenne - Digestion
+  "diarrhee": 1.3,              // Priorité élevée - Digestion urgente
+  "brulures_estomac": 1.2,      // Priorité moyenne - Digestion
+  "humeur_basse": 1.3,          // Priorité élevée - Santé mentale
+  "brouillard_mental": 1.2,     // Priorité moyenne - Cognition
+  "allergies": 1.2              // Priorité moyenne - Allergie
+};
+
+export default { SYMPTOM_CATEGORIES, SYMPTOM_RECOMMENDATIONS, GOAL_RECOMMENDATIONS, LIFESTYLE_RECOMMENDATIONS, SYMPTOM_INTENSITY, GOAL_INTENSITY, AGE_FACTORS, GENDER_FACTORS, SYMPTOM_PRIORITY_FACTORS };
+
+</replit_file>
+  "brain_fog": [
+    { id: "lions_mane", priority: 1, doseInfo: "500-1000mg daily", synergies: ["vitamin_b_complex", "omega3"] },
+    { id: "bacopa_monnieri", priority: 2, doseInfo: "300mg standardized extract daily", synergies: ["ginkgo_biloba"] },
+    { id: "rhodiola_rosea", priority: 3, doseInfo: "200-400mg daily", synergies: ["ashwagandha"] },
+    { id: "acetyl_l_carnitine", priority: 4, doseInfo: "500-1500mg daily", synergies: ["alpha_lipoic_acid"] }
+  ],
+
+  "joint_pain": [
+    { id: "curcumin", priority: 1, doseInfo: "500-1000mg with piperine daily", synergies: ["omega3", "boswellia"] },
+    { id: "collagen_peptides", priority: 2, doseInfo: "10-15g daily", synergies: ["vitamin_c"] },
+    { id: "glucosamine_chondroitin", priority: 3, doseInfo: "1500mg glucosamine, 1200mg chondroitin daily", synergies: ["msm"] },
+    { id: "boswellia", priority: 4, doseInfo: "300-400mg three times daily", synergies: ["curcumin"] }
+  ],
+
+  "hormone_balance": [
+    { id: "ashwagandha", priority: 1, doseInfo: "300-600mg daily", synergies: ["magnesium_glycinate"] },
+    { id: "maca_root", priority: 2, doseInfo: "1500-3000mg daily", synergies: ["vitamin_d3"] },
+    { id: "dim", priority: 3, doseInfo: "100-200mg daily", synergies: ["calcium_d_glucarate"] },
+    { id: "vitex_agnus_castus", priority: 4, doseInfo: "160-240mg daily", synergies: ["omega3"] }
+  ],
+
+  "metabolic_health": [
+    { id: "berberine", priority: 1, doseInfo: "500mg three times daily", synergies: ["alpha_lipoic_acid"] },
+    { id: "chromium_picolinate", priority: 2, doseInfo: "200-1000mcg daily", synergies: ["cinnamon_extract"] },
+    { id: "alpha_lipoic_acid", priority: 3, doseInfo: "600-1200mg daily", synergies: ["berberine"] },
+    { id: "inositol", priority: 4, doseInfo: "2-4g daily", synergies: ["chromium_picolinate"] }
   ]
 };
 

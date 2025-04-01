@@ -7,6 +7,7 @@ import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText
 import { getComprehensiveRecommendations } from "@/utils/recommenderSystem";
 import { AILearningInsights } from "@/components/AILearningInsights";
 import { Recommendation } from "@/utils/types";
+import { SUPPLEMENT_CATALOG } from "@/data/supplementCatalog";
 
 interface QuizResultsProps {
   quizData: any;
@@ -17,6 +18,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [aiInsightsVisible, setAiInsightsVisible] = useState<boolean>(false);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<string | null>(null);
 
   useEffect(() => {
     // Ensure quizData has meaningful content
@@ -105,6 +107,29 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
     setAiInsightsVisible(!aiInsightsVisible);
   };
 
+  const toggleRecommendationDetails = (id: string) => {
+    if (selectedRecommendation === id) {
+      setSelectedRecommendation(null);
+    } else {
+      setSelectedRecommendation(id);
+    }
+  };
+
+  // Find supplement info if available in the catalog
+  const getSupplementInfo = (recommendationId: string) => {
+    // Strip any prefix or suffix from the ID to try to find a match
+    const simplifiedId = recommendationId.replace(/^[a-z]+-/, '').replace(/-[0-9]+$/, '');
+    
+    // Try to find the supplement in the catalog
+    for (const [id, supplement] of Object.entries(SUPPLEMENT_CATALOG)) {
+      if (id === recommendationId || id === simplifiedId || recommendationId.includes(id)) {
+        return supplement;
+      }
+    }
+    
+    return null;
+  };
+
   return (
     <Container className="py-8 px-4 md:px-6">
       <motion.div
@@ -127,48 +152,132 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
           </div>
         ) : (
           <div className="space-y-8">
-            {recommendations.map((recommendation, index) => (
-              <motion.div
-                key={recommendation.id || index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="p-6 border-l-4 border-l-blue-500 shadow-md">
-                  <h2 className="text-xl font-semibold mb-2">{recommendation.title}</h2>
-                  <div className="mb-4">
-                    <ScientificHighlightedText text={recommendation.description} />
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-md mb-3">
-                    <h3 className="text-sm font-medium text-gray-700 mb-1">Base scientifique:</h3>
-                    <p className="text-gray-600 text-sm">{recommendation.scientificBasis}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {recommendation.categories && recommendation.categories.map((category, idx) => (
-                      <span key={idx} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-2">
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-500 mr-2">Pertinence</span>
-                      <div className="h-2 bg-gray-200 rounded-full flex-1">
-                        <div 
-                          className="h-2 bg-green-500 rounded-full" 
-                          style={{ width: `${Math.round(recommendation.relevanceScore * 100)}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium ml-2">{Math.round(recommendation.relevanceScore * 100)}%</span>
+            {recommendations.map((recommendation, index) => {
+              const supplementInfo = getSupplementInfo(recommendation.id);
+              const isSelected = selectedRecommendation === recommendation.id;
+              
+              return (
+                <motion.div
+                  key={recommendation.id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card 
+                    className={`p-6 border-l-4 shadow-md transition-all duration-300 ${
+                      isSelected ? 'border-l-green-500 shadow-lg' : 'border-l-blue-500'
+                    }`}
+                  >
+                    <div className="flex justify-between">
+                      <h2 className="text-xl font-semibold mb-2">{recommendation.title}</h2>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => toggleRecommendationDetails(recommendation.id)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {isSelected ? 'Réduire' : 'Détails'}
+                      </Button>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                    
+                    <div className="mb-4">
+                      <ScientificHighlightedText text={recommendation.description} />
+                    </div>
+                    
+                    {/* Base scientifique - toujours visible */}
+                    <div className="bg-gray-50 p-4 rounded-md mb-3">
+                      <h3 className="text-sm font-medium text-gray-700 mb-1">Base scientifique:</h3>
+                      <p className="text-gray-600 text-sm">{recommendation.scientificBasis}</p>
+                    </div>
+                    
+                    {/* Détails supplémentaires - visibles uniquement lorsque sélectionnés */}
+                    {isSelected && supplementInfo && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="mt-4 bg-blue-50 p-4 rounded-md">
+                          <h3 className="text-sm font-medium text-blue-800 mb-2">Informations supplémentaires</h3>
+                          
+                          {supplementInfo.scientificName && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-gray-500">Nom scientifique:</span>
+                              <div className="text-sm text-gray-700">{supplementInfo.scientificName}</div>
+                            </div>
+                          )}
+                          
+                          {supplementInfo.standardDose && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-gray-500">Dosage standard:</span>
+                              <div className="text-sm text-gray-700">{supplementInfo.standardDose}</div>
+                            </div>
+                          )}
+                          
+                          {supplementInfo.timeToEffect && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-gray-500">Délai d'efficacité:</span>
+                              <div className="text-sm text-gray-700">{supplementInfo.timeToEffect}</div>
+                            </div>
+                          )}
+                          
+                          {supplementInfo.benefits && supplementInfo.benefits.length > 0 && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-gray-500">Bénéfices:</span>
+                              <ul className="text-sm text-gray-700 list-disc list-inside mt-1 space-y-1">
+                                {supplementInfo.benefits.map((benefit, idx) => (
+                                  <li key={idx}>{benefit}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {supplementInfo.contraindications && supplementInfo.contraindications.length > 0 && (
+                            <div>
+                              <span className="text-xs font-medium text-gray-500">Précautions:</span>
+                              <ul className="text-sm text-red-600 list-disc list-inside mt-1 space-y-1">
+                                {supplementInfo.contraindications.map((warning, idx) => (
+                                  <li key={idx}>{warning}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 mb-2 mt-3">
+                      {recommendation.categories && recommendation.categories.map((category, idx) => (
+                        <span key={idx} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-2">
+                      <div className="flex items-center">
+                        <span className="text-sm text-gray-500 mr-2">Pertinence</span>
+                        <div className="h-2 bg-gray-200 rounded-full flex-1">
+                          <div 
+                            className="h-2 bg-green-500 rounded-full" 
+                            style={{ width: `${Math.round(recommendation.relevanceScore * 100)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium ml-2">{Math.round(recommendation.relevanceScore * 100)}%</span>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              );
+            })}
 
             <div className="mt-12">
               <div className="text-center space-y-4">
-                <Button onClick={toggleAIInsights} variant="outline" className="mr-4">
+                <Button 
+                  onClick={toggleAIInsights} 
+                  variant="outline" 
+                  className="mr-4"
+                >
                   {aiInsightsVisible ? "Masquer les insights IA" : "Afficher les insights IA"}
                 </Button>
                 <Button onClick={restartQuiz}>

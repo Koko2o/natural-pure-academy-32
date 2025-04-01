@@ -387,7 +387,7 @@ export function enrichRecommendationsWithScientificTerms(recommendations: Recomm
               // Remplacer le terme par sa version avec balise
               enrichedDescription = enrichedDescription.replace(
                 regex, 
-                `[[${term.id}:${term.title}]]`
+                `[[${term.id}:${term.title}]],`
               );
             } else if (!enrichedDescription.endsWith('.')) {
               // Ajouter une mention à la fin si le terme n'est pas présent
@@ -743,7 +743,7 @@ export const generateRecommendations_original = (
 
 
   } catch (error) {
-    console.error("Erreur lors de la génération des recommandations:", error);
+    console.error("Erreur lors de la génération desrecommandations:", error);
     return [];
   }
 };

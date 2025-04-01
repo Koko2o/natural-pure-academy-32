@@ -46,6 +46,8 @@ export interface Supplement {
   timeToEffect?: { min: number; max: number; unit: string; };
   scientificBasis?: string;
   adaptabilityScore?: number;
+  standardDose?: string;
+  contraindications?: string[];
 
 }
 
@@ -410,19 +412,19 @@ export const SUPPLEMENT_CATALOG: Record<string, Supplement> = {
   },
 
   "lions_mane": {
-    name: "Crinière de Lion",
+    name: "Lion's Mane",
     scientificName: "Hericium erinaceus",
-    category: "cognitive",
-    benefits: ["Fonction cognitive", "Production de NGF", "Neuroprotection"],
-    sideEffects: ["Généralement bien toléré"],
-    timeToEffect: { min: 2, max: 12, unit: "semaines" },
-    scientificBasis: "Champignon médicinal qui stimule la production du facteur de croissance nerveux (NGF) et soutient la neuroplasticité.",
-    interactions: ["Anticoagulants (théorique)"],
-    vegan: true,
-    vegetarian: true,
-    glutenFree: true,
-    dairyFree: true,
-    adaptabilityScore: 8.3
+    description: "Champignon médicinal connu pour ses effets neuroprotecteurs et cognitifs",
+    benefits: [
+      "Stimule la production de facteur de croissance nerveuse (NGF)",
+      "Améliore la clarté mentale et la concentration",
+      "Contribue à la santé neuronale",
+      "Peut réduire l'inflammation neuronale"
+    ],
+    standardDose: "500-1000mg d'extrait standardisé par jour",
+    timeToEffect: "4-6 semaines pour les effets cognitifs",
+    scientificBasis: "Des études cliniques montrent que Lion's Mane augmente la production de NGF et améliore les performances cognitives chez les adultes souffrant de déficience cognitive légère.",
+    contraindications: ["Déconseillé aux personnes allergiques aux champignons"]
   },
 
   // IMMUNITÉ
@@ -569,6 +571,53 @@ export const SUPPLEMENT_CATALOG: Record<string, Supplement> = {
     glutenFree: true,
     dairyFree: true,
     adaptabilityScore: 7.8
+  },
+  "berberine": {
+    name: "Berbérine",
+    scientificName: "Berberis aristata",
+    description: "Composé bioactif aux propriétés anti-diabétiques et métaboliques puissantes",
+    benefits: [
+      "Améliore la sensibilité à l'insuline",
+      "Réduit les niveaux de glycémie à jeun",
+      "Diminue le cholestérol LDL",
+      "Favorise une composition corporelle saine"
+    ],
+    standardDose: "500mg trois fois par jour avant les repas",
+    timeToEffect: "2-4 semaines pour les effets métaboliques",
+    scientificBasis: "Des études cliniques montrent que la berbérine active l'AMPK, une enzyme qui régule le métabolisme, avec une efficacité comparable à la metformine pour améliorer la glycémie.",
+    contraindications: ["Déconseillé pendant la grossesse et l'allaitement", "Interaction possible avec certains médicaments métabolisés par le foie"]
+  },
+
+  "collagen_peptides": {
+    name: "Peptides de Collagène",
+    scientificName: "Hydrolyzed Collagen Peptides",
+    description: "Protéine structurelle qui soutient la santé des articulations, de la peau et des tissus conjonctifs",
+    benefits: [
+      "Améliore l'élasticité et l'hydratation de la peau",
+      "Soutient la santé des articulations et réduit les douleurs",
+      "Favorise la récupération musculaire",
+      "Renforce les cheveux et les ongles"
+    ],
+    standardDose: "10-15g par jour",
+    timeToEffect: "4-12 semaines selon l'objectif (peau, articulations)",
+    scientificBasis: "Des études en double aveugle contre placebo démontrent que les peptides de collagène augmentent l'hydratation de la peau et réduisent les signes de vieillissement cutané. Des études cliniques montrent également une réduction significative des douleurs articulaires chez les personnes souffrant d'arthrose.",
+    contraindications: ["Allergies potentielles aux sources animales"]
+  },
+
+  "bacopa_monnieri": {
+    name: "Bacopa Monnieri",
+    scientificName: "Bacopa monnieri",
+    description: "Plante adaptogène ayurvedique connue pour ses effets nootropiques et anxiolytiques",
+    benefits: [
+      "Améliore la mémoire et les capacités d'apprentissage",
+      "Réduit l'anxiété et le stress",
+      "Soutient la neuroplasticité cérébrale",
+      "Possède des propriétés antioxydantes pour le cerveau"
+    ],
+    standardDose: "300mg d'extrait standardisé à 50% de bacosides par jour",
+    timeToEffect: "8-12 semaines pour les effets cognitifs",
+    scientificBasis: "Des études cliniques montrent que Bacopa monnieri améliore significativement l'acquisition et la rétention de nouvelles informations, ainsi que la vitesse de traitement visuel chez des sujets sains.",
+    contraindications: ["Peut augmenter les sécrétions de l'appareil digestif", "Prendre avec un repas pour éviter l'irritation gastrique"]
   }
 };
 
