@@ -592,7 +592,7 @@ export function getAIModelDetailedStatus() {
     const dataQuality = evaluateDataQuality();
 
     // Obtenir les corrélations de motifs
-    const patternCorrelations = identifyPatternCorrelations();
+    const patternCorrelations = getPatternCorrelations();
 
     // Préparer des informations sur les recommandations les plus performantes
     const recommendationPerformance = analyzeRecommendationPerformance();
@@ -717,8 +717,9 @@ const analyzeRecommendationPerformance = () => ({
   'zinc': { averageRating: 4.3, totalRatings: 80 }
 });
 
-// Fonction pour identifier les corrélations de motifs
-const identifyPatternCorrelations = () => {
+// Cette fonction est utilisée à l'intérieur de getAIModelDetailedStatus,
+// donc nous la renommons ici pour éviter la duplication
+const getPatternCorrelations = () => {
   return {
     symptomCorrelations: {
       "stress": ["magnesium_glycinate", "ashwagandha", "l_theanine"],
@@ -1283,7 +1284,7 @@ export function getAIModelDetailedStatus() {
     const dataQuality = evaluateDataQuality();
 
     // Obtenir les corrélations de motifs
-    const patternCorrelations = identifyPatternCorrelations();
+    const patternCorrelations = getPatternCorrelations();
 
     // Préparer des informations sur les recommandations les plus performantes
     const recommendationPerformance = analyzeRecommendationPerformance();
@@ -1408,8 +1409,9 @@ const analyzeRecommendationPerformance = () => ({
   'zinc': { averageRating: 4.3, totalRatings: 80 }
 });
 
-// Fonction pour identifier les corrélations de motifs
-const identifyPatternCorrelations = () => {
+// Cette fonction est utilisée à l'intérieur de getAIModelDetailedStatus,
+// donc nous la renommons ici pour éviter la duplication
+const getPatternCorrelations = () => {
   return {
     symptomCorrelations: {
       "stress": ["magnesium_glycinate", "ashwagandha", "l_theanine"],
