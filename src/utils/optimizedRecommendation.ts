@@ -16,7 +16,7 @@ import {
 } from './recommenderSystem';
 
 // Fonction d'optimisation des recommandations
-export function optimizeRecommendations(
+function optimizeRecommendationsBasic(
   recommendations: Recommendation[], 
   quizResponses: any,
   behavioralMetrics?: any,

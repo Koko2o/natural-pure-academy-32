@@ -11,7 +11,7 @@ import {
   LearningData
 } from './types';
 
-import { secureStorageService } from '../lib/secureStorage';
+import { secureStorageService } from './secureStorage';
 import { findSimilarProfiles } from './userSimilarity';
 import { 
   SYMPTOM_MAPPING, 
