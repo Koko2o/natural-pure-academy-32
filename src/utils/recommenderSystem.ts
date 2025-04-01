@@ -854,9 +854,6 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   interestAreas: ['Stress', 'Sommeil', 'Énergie']
 });
 
-// Les fonctions sont déjà importées depuis aiLearningEngine
-}
-
 // Fonction pour analyser les performances des recommandations
 const analyzeRecommendationPerformance = () => ({
   'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
@@ -874,3 +871,10 @@ function identifyPatternCorrelations() {
     genderCorrelations: {}
   };
 }
+
+export default {
+  saveLearningData,
+  adjustRecommendationsWithLearning,
+  getAILearningStatus,
+  evaluateDataQuality
+};
