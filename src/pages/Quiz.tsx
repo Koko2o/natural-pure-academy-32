@@ -531,11 +531,3 @@ const Quiz = () => {
 };
 
 export default Quiz;
-
-
-// Placeholder for generateRecommendations function.  Replace with actual implementation.
-function generateRecommendations(responses: QuizResponse): any {
-  // Implement your recommendation logic here based on quizResponses
-  console.log("Generating recommendations based on:", responses);
-  return [{ recommendation: "Eat more vegetables", reason: "You answered..." }, { recommendation: "Drink more water", reason: "You chose..." }];
-}
