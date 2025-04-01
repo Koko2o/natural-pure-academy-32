@@ -1,82 +1,116 @@
-
 export interface ScientificTerm {
   id: string;
   title: string;
-  definition: string;
-  source?: string;
-  categories: string[];
+  description: string;
+  category: string;
+  relatedTerms?: string[];
 }
 
 export const scientificTerms: ScientificTerm[] = [
   {
-    id: "vitamin-d",
-    title: "Vitamine D",
-    definition: "Nutriment essentiel qui aide l'organisme à absorber le calcium et à maintenir des os solides. Elle joue également un rôle crucial dans la régulation du système immunitaire et la prévention de certaines maladies.",
-    source: "Journal of Nutritional Science, 2021",
-    categories: ["nutrition", "immunité"]
+    id: 'circadian-rhythm',
+    title: 'Rythme Circadien',
+    description: 'Cycle naturel du corps sur 24 heures qui régule les cycles sommeil-éveil et de nombreuses fonctions biologiques comme la production d\'hormones, la température corporelle et le métabolisme.',
+    category: 'chronobiologie',
+    relatedTerms: ['cortisol', 'melatonin']
   },
   {
-    id: "microbiome",
-    title: "Microbiome intestinal",
-    definition: "Ensemble des micro-organismes qui peuplent l'intestin humain, comprenant plus de 1000 espèces bactériennes différentes. Il joue un rôle crucial dans la digestion, l'immunité et même la santé mentale.",
-    source: "Nature Reviews Microbiology, 2022",
-    categories: ["digestion", "immunité"]
+    id: 'cortisol',
+    title: 'Cortisol',
+    description: 'Hormone du stress produite par les glandes surrénales qui joue un rôle dans la régulation du métabolisme, la réponse immunitaire et la réponse au stress.',
+    category: 'endocrinologie',
+    relatedTerms: ['adaptogens', 'stress-response']
   },
   {
-    id: "inflammation",
-    title: "Inflammation chronique",
-    definition: "Réaction inflammatoire prolongée du système immunitaire qui peut endommager les tissus sains. Contrairement à l'inflammation aiguë, elle persiste pendant des mois ou des années et est associée à de nombreuses maladies chroniques.",
-    source: "Journal of Clinical Investigation, 2020",
-    categories: ["immunité", "maladie"]
+    id: 'microbiome',
+    title: 'Microbiome',
+    description: 'Ensemble des micro-organismes (bactéries, virus, champignons) vivant dans l\'intestin humain, essentiels pour la digestion, l\'immunité et même la santé mentale.',
+    category: 'microbiologie',
+    relatedTerms: ['probiotics', 'gut-brain-axis']
   },
   {
-    id: "antioxidant",
-    title: "Antioxydants",
-    definition: "Molécules qui neutralisent les radicaux libres dans l'organisme, réduisant ainsi le stress oxydatif et les dommages cellulaires. On les trouve naturellement dans de nombreux fruits, légumes et certains compléments alimentaires.",
-    source: "Free Radical Biology and Medicine, 2022",
-    categories: ["nutrition", "biochimie"]
+    id: 'inflammation',
+    title: 'Inflammation',
+    description: 'Réponse protectrice de l\'organisme impliquant des cellules immunitaires, vaisseaux sanguins et médiateurs moléculaires. L\'inflammation chronique est liée à de nombreuses maladies.',
+    category: 'immunologie',
+    relatedTerms: ['antioxidant', 'cytokines']
   },
   {
-    id: "probiotics",
-    title: "Probiotiques",
-    definition: "Micro-organismes vivants qui, lorsqu'ils sont administrés en quantités adéquates, confèrent un bénéfice pour la santé de l'hôte. Ils contribuent à l'équilibre de la flore intestinale et renforcent le système immunitaire.",
-    source: "International Journal of Molecular Sciences, 2023",
-    categories: ["nutrition", "digestion"]
+    id: 'probiotics',
+    title: 'Probiotiques',
+    description: 'Micro-organismes vivants qui, administrés en quantités adéquates, confèrent un bénéfice pour la santé de l\'hôte, particulièrement au niveau intestinal.',
+    category: 'microbiologie',
+    relatedTerms: ['microbiome', 'gut-health']
   },
   {
-    id: "adaptogens",
-    title: "Adaptogènes",
-    definition: "Substances naturelles qui aident l'organisme à résister à divers stress biologiques, chimiques et physiques. Ils normalisent les fonctions physiologiques et renforcent la résilience du corps.",
-    source: "Journal of Ethnopharmacology, 2021",
-    categories: ["phytothérapie", "stress"]
+    id: 'vitamin-d',
+    title: 'Vitamine D',
+    description: 'Nutriment liposoluble essentiel régulant l\'absorption du calcium et la santé osseuse, avec des effets significatifs sur le système immunitaire et la santé globale.',
+    category: 'nutrition',
+    relatedTerms: ['calcium', 'immune-function']
   },
   {
-    id: "rda",
-    title: "AJR (Apport Journalier Recommandé)",
-    definition: "Niveau moyen d'apport quotidien en nutriments suffisant pour répondre aux besoins nutritionnels de presque toutes les personnes en bonne santé dans une population donnée.",
-    source: "Organisation Mondiale de la Santé, 2020",
-    categories: ["nutrition", "santé publique"]
+    id: 'antioxidant',
+    title: 'Antioxydant',
+    description: 'Molécule capable de ralentir ou prévenir l\'oxydation d\'autres molécules, protégeant ainsi les cellules contre les dommages des radicaux libres.',
+    category: 'biochimie',
+    relatedTerms: ['free-radicals', 'oxidative-stress']
   },
   {
-    id: "bioavailability",
-    title: "Biodisponibilité",
-    definition: "Proportion d'un nutriment qui est absorbée et utilisée par l'organisme après ingestion. Elle varie selon la forme chimique du nutriment, la composition du repas et l'état de santé individuel.",
-    source: "Advanced Drug Delivery Reviews, 2022",
-    categories: ["pharmacologie", "nutrition"]
+    id: 'adaptogens',
+    title: 'Adaptogènes',
+    description: 'Substances naturelles (souvent des plantes) qui aident le corps à s\'adapter au stress et à retrouver l\'équilibre homéostatique.',
+    category: 'phytothérapie',
+    relatedTerms: ['cortisol', 'stress-response']
   },
   {
-    id: "cortisol",
-    title: "Cortisol",
-    definition: "Hormone stéroïde produite par les glandes surrénales en réponse au stress. Régule le métabolisme, la réponse immunitaire et la pression artérielle, mais peut devenir nocif à des niveaux chroniquement élevés.",
-    source: "Endocrine Reviews, 2021",
-    categories: ["endocrinologie", "stress"]
+    id: 'bioavailability',
+    title: 'Biodisponibilité',
+    description: 'Proportion d\'un nutriment ou médicament qui est absorbée et utilisée par l\'organisme pour ses fonctions physiologiques.',
+    category: 'pharmacologie',
+    relatedTerms: ['absorption', 'metabolism']
   },
   {
-    id: "circadian-rhythm",
-    title: "Rythme circadien",
-    definition: "Cycle biologique d'environ 24 heures qui régule de nombreux processus physiologiques comme le sommeil, la digestion et la température corporelle. Il est influencé par la lumière et d'autres facteurs environnementaux.",
-    source: "Science Translational Medicine, 2023",
-    categories: ["chronobiologie", "sommeil"]
+    id: 'rda',
+    title: 'AJR (Apports Journaliers Recommandés)',
+    description: 'Quantité moyenne quotidienne de nutriments suffisante pour répondre aux besoins de 97-98% des individus en bonne santé dans une catégorie spécifique.',
+    category: 'nutrition',
+    relatedTerms: ['nutritional-requirements', 'dietary-guidelines']
+  },
+  {
+    id: 'gut-brain-axis',
+    title: 'Axe Intestin-Cerveau',
+    description: 'Système de communication bidirectionnelle entre le système nerveux central et le système nerveux entérique, influençant à la fois la digestion et la santé mentale.',
+    category: 'neurobiologie',
+    relatedTerms: ['microbiome', 'vagus-nerve']
+  },
+  {
+    id: 'oxidative-stress',
+    title: 'Stress Oxydatif',
+    description: 'Déséquilibre entre la production de radicaux libres et la capacité antioxydante de l\'organisme, pouvant endommager les cellules et tissus.',
+    category: 'biochimie',
+    relatedTerms: ['antioxidant', 'free-radicals']
+  },
+  {
+    id: 'melatonin',
+    title: 'Mélatonine',
+    description: 'Hormone produite par la glande pinéale qui régule les cycles de sommeil-éveil et est influencée par l\'exposition à la lumière.',
+    category: 'endocrinologie',
+    relatedTerms: ['circadian-rhythm', 'sleep']
+  },
+  {
+    id: 'polyphenols',
+    title: 'Polyphénols',
+    description: 'Composés chimiques produits par les plantes, possédant des propriétés antioxydantes et anti-inflammatoires bénéfiques pour la santé.',
+    category: 'phytochimie',
+    relatedTerms: ['antioxidant', 'flavonoids']
+  },
+  {
+    id: 'omega-3',
+    title: 'Oméga-3',
+    description: 'Acides gras essentiels polyinsaturés importants pour la santé cardiovasculaire, la fonction cérébrale et la réduction de l\'inflammation.',
+    category: 'nutrition',
+    relatedTerms: ['epa', 'dha', 'inflammation']
   }
 ];
 
@@ -85,5 +119,5 @@ export const getTermById = (id: string): ScientificTerm | undefined => {
 };
 
 export const getTermsByCategory = (category: string): ScientificTerm[] => {
-  return scientificTerms.filter(term => term.categories.includes(category));
+  return scientificTerms.filter(term => term.category === category);
 };

@@ -1,224 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  RadialLinearScale,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar, Line, Radar, Doughnut } from 'react-chartjs-2';
-import { secureStorageService } from '@/utils/secureStorage';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Button } from './ui/button';
-import { trainAIModel } from '@/utils/aiLearning';
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { getAIModelDetailedStatus } from "@/utils/recommenderSystem";
 
-// Enregistrer les composants Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  RadialLinearScale,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+interface AILearningInsightsProps {
+  quizData: any;
+}
 
-// Données de démonstration
-const userProgressData = {
-  labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-  datasets: [
-    {
-      label: 'Engagement utilisateur',
-      data: [65, 59, 80, 81, 56, 90],
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1,
-    },
-  ],
-};
+export const AILearningInsights: React.FC<AILearningInsightsProps> = ({ quizData }) => {
+  const [aiStatus, setAiStatus] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-const modelAccuracyData = {
-  labels: ['Recommandations', 'Prédictions', 'Classifications', 'Personnalisation'],
-  datasets: [
-    {
-      label: 'Précision actuelle',
-      data: [85, 75, 90, 80],
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1,
-    },
-    {
-      label: 'Objectif',
-      data: [95, 90, 95, 90],
-      backgroundColor: 'rgba(255, 99, 132, 0.2)',
-      borderColor: 'rgba(255, 99, 132, 1)',
-      borderWidth: 1,
-    },
-  ],
-};
-
-const insightAnalysisData = {
-  labels: ['Préférences alimentaires', 'Réponse aux recommandations', 'Habitudes', 'Objectifs', 'Restrictions'],
-  datasets: [
-    {
-      label: 'Importance des facteurs',
-      data: [80, 85, 65, 90, 70],
-      backgroundColor: 'rgba(255, 206, 86, 0.2)',
-      borderColor: 'rgba(255, 206, 86, 1)',
-      borderWidth: 1,
-      fill: true,
-    },
-  ],
-};
-
-const adaptiveModelData = {
-  labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
-  datasets: [
-    {
-      label: 'Apprentissage adaptatif',
-      data: [30, 20, 25, 25],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.6)',
-        'rgba(54, 162, 235, 0.6)',
-        'rgba(255, 206, 86, 0.6)',
-        'rgba(75, 192, 192, 0.6)',
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
-
-const AILearningInsights = () => {
-  const [activeTab, setActiveTab] = useState('progress');
-  const [isTraining, setIsTraining] = useState(false);
-  const [trainingProgress, setTrainingProgress] = useState(0);
-
-  const handleTrainModel = async () => {
-    setIsTraining(true);
-    setTrainingProgress(0);
-
-    const interval = setInterval(() => {
-      setTrainingProgress((prev) => {
-        const newProgress = prev + Math.random() * 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsTraining(false);
-            setTrainingProgress(100);
-          }, 500);
-          return 100;
-        }
-        return newProgress;
-      });
+  useEffect(() => {
+    // Simulate fetching AI model status
+    setTimeout(() => {
+      try {
+        const status = getAIModelDetailedStatus();
+        setAiStatus(status);
+      } catch (error) {
+        console.error("Error fetching AI model status:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }, 800);
+  }, []);
 
-    try {
-      await trainAIModel();
-    } catch (error) {
-      console.error("Erreur lors de l'entraînement du modèle:", error);
-      clearInterval(interval);
-      setIsTraining(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Analyse de données d\'apprentissage',
-      },
-    },
-  };
+  if (!aiStatus) {
+    return (
+      <Card className="p-6 text-center">
+        <p className="text-gray-600">Informations sur le modèle d'IA non disponibles pour le moment.</p>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Centre d'Apprentissage IA</CardTitle>
-          <CardDescription>
-            Visualisation de l'apprentissage et de l'amélioration continue de notre système de recommandation
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8">
-              <TabsTrigger value="progress">Progression</TabsTrigger>
-              <TabsTrigger value="accuracy">Précision</TabsTrigger>
-              <TabsTrigger value="insights">Insights</TabsTrigger>
-              <TabsTrigger value="adaptability">Adaptabilité</TabsTrigger>
-            </TabsList>
+    <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <h3 className="text-xl font-semibold mb-4">Insights du Système d'Intelligence Artificielle</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <div className="text-sm text-gray-500 mb-1">Précision du modèle</div>
+          <div className="text-2xl font-bold">{(aiStatus.accuracy * 100).toFixed(1)}%</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <div className="text-sm text-gray-500 mb-1">Points de données</div>
+          <div className="text-2xl font-bold">{aiStatus.dataPointsAnalyzed.toLocaleString()}</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <div className="text-sm text-gray-500 mb-1">Profils uniques</div>
+          <div className="text-2xl font-bold">{aiStatus.uniqueProfiles?.toLocaleString() || "N/A"}</div>
+        </div>
+      </div>
 
-            <TabsContent value="progress" className="space-y-4">
-              <h3 className="text-lg font-medium">Progrès de l'Engagement Utilisateur</h3>
-              <div className="h-80">
-                <Line options={chartOptions} data={userProgressData} />
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Ce graphique montre l'évolution de l'engagement des utilisateurs au fil du temps, démontrant
-                l'efficacité croissante des recommandations personnalisées.
-              </p>
-            </TabsContent>
+      <div className="mb-6">
+        <h4 className="font-semibold mb-2">Améliorations récentes</h4>
+        <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+          {aiStatus.improvements?.map((improvement: string, index: number) => (
+            <li key={index}>{improvement}</li>
+          ))}
+        </ul>
+      </div>
 
-            <TabsContent value="accuracy" className="space-y-4">
-              <h3 className="text-lg font-medium">Précision du Modèle</h3>
-              <div className="h-80">
-                <Bar options={chartOptions} data={modelAccuracyData} />
+      {aiStatus.topPerformingRecommendations && aiStatus.topPerformingRecommendations.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-semibold mb-2">Recommandations les plus efficaces</h4>
+          <div className="space-y-2">
+            {aiStatus.topPerformingRecommendations.map((rec: any, index: number) => (
+              <div key={index} className="flex justify-between items-center text-sm bg-white p-2 rounded">
+                <span>{rec.id}</span>
+                <span className="font-medium">{rec.averageRating.toFixed(1)}/5</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Comparaison entre la précision actuelle du modèle et les objectifs fixés pour différentes fonctionnalités
-                de prédiction.
-              </p>
-            </TabsContent>
-
-            <TabsContent value="insights" className="space-y-4">
-              <h3 className="text-lg font-medium">Analyse des Facteurs d'Influence</h3>
-              <div className="h-80">
-                <Radar options={chartOptions} data={insightAnalysisData} />
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Représentation de l'importance relative des différents facteurs utilisés par notre IA pour formuler des
-                recommandations personnalisées.
-              </p>
-            </TabsContent>
-
-            <TabsContent value="adaptability" className="space-y-4">
-              <h3 className="text-lg font-medium">Capacité d'Adaptation du Modèle</h3>
-              <div className="h-80">
-                <Doughnut options={chartOptions} data={adaptiveModelData} />
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Distribution des différentes phases d'apprentissage adaptatif, montrant comment notre modèle équilibre
-                l'exploration et l'exploitation des données.
-              </p>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        <CardFooter className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Dernier entraînement: {new Date().toLocaleDateString()}
+            ))}
           </div>
-          <Button onClick={handleTrainModel} disabled={isTraining}>
-            {isTraining ? `Entraînement en cours (${Math.round(trainingProgress)}%)` : "Entraîner le modèle"}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center text-sm text-gray-500 mt-4">
+        <div>Version {aiStatus.modelVersion}</div>
+        <div>Dernière mise à jour: {new Date(aiStatus.lastTrainingDate).toLocaleDateString()}</div>
+      </div>
+    </Card>
   );
 };
-
-export default AILearningInsights;
