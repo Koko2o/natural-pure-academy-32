@@ -446,7 +446,7 @@ export function getComprehensiveRecommendations(quizData: QuizData): Recommendat
 /**
  * Génère une explication détaillée pour une recommandation spécifique
  */
-export const generateRecommendationExplanation = (
+export const generateDetailedRecommendationExplanation = (
   recommendation: Recommendation,
   quizResponses: QuizResponse
 ): string => {
@@ -533,22 +533,24 @@ export function optimizeRecommendations(
 }
 
 // Exportation des fonctions principales
-export default {
+const recommenderSystemUtils = {
   getComprehensiveRecommendations,
   generateRecommendations,
   enrichRecommendationsWithScientificTerms,
-  generateRecommendationExplanation,
+  generateDetailedRecommendationExplanation,
   getAILearningStatus,
   evaluateDataQuality,
   saveLearningData,
   adjustRecommendationsWithLearning,
   optimizeRecommendations,
-  getAIModelStatus,
+  getAIModelDetailedStatus,
   recordLearningData,
   calculateProfileSimilarity,
   enrichRecommendationsWithExternalAI,
   updateAiModel
 };
+
+export default recommenderSystemUtils;
 
 // Définition d'interfaces pour les types utilisés
 interface QuizResponses {
@@ -581,7 +583,7 @@ interface BehavioralMetrics {
  * Retourne le statut du modèle d'IA actuel
  * @returns Information sur le statut du modèle d'IA
  */
-export function getAIModelStatus() {
+export function getAIModelDetailedStatus() {
   try {
     // Récupérer les informations depuis le moteur d'apprentissage
     const aiLearningStatus = getAILearningStatus();
@@ -749,7 +751,7 @@ export const generateRecommendations_original = (
 /**
  * Génère une explication détaillée pour une recommandation spécifique
  */
-export const generateRecommendationExplanation = (
+export const generateDetailedRecommendationExplanation = (
   recommendation: Recommendation,
   quizResponses: QuizResponse
 ): string => {
@@ -1258,7 +1260,7 @@ interface BehavioralMetrics {
  * Retourne le statut du modèle d'IA actuel
  * @returns Information sur le statut du modèle d'IA
  */
-export function getAIModelStatus() {
+export function getAIModelDetailedStatus() {
   try {
     // Récupérer les informations depuis le moteur d'apprentissage
     const aiLearningStatus = getAILearningStatus();
@@ -1400,20 +1402,3 @@ function identifyPatternCorrelations() {
     genderCorrelations: {}
   };
 }
-
-export default {
-  getComprehensiveRecommendations,
-  generateRecommendations,
-  enrichRecommendationsWithScientificTerms,
-  generateRecommendationExplanation,
-  getAILearningStatus,
-  evaluateDataQuality,
-  saveLearningData,
-  adjustRecommendationsWithLearning,
-  optimizeRecommendations,
-  getAIModelStatus,
-  recordLearningData,
-  calculateProfileSimilarity,
-  enrichRecommendationsWithExternalAI,
-  updateAiModel
-};
