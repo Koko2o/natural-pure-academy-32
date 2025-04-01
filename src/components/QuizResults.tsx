@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,17 +13,10 @@ import {
 import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from '@/utils/types';
 import { motion } from "framer-motion";
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
-import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle } from 'lucide-react';
+import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle, ArrowRight, Check, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, Check, Info } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Recommendation, QuizResponse, BehavioralMetrics, NeuroProfile } from "@/utils/types";
 
 // Fonction utilitaire pour identifier les priorités des problèmes de santé
 function identifyConcernPriorities(quizResponses: QuizResponse) {

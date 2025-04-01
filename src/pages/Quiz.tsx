@@ -15,6 +15,8 @@ import { useBehavioralMetrics } from "@/hooks/useBehavioralMetrics";
 import QuizResults from "@/components/QuizResults";
 import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText";
 import { useAdvancedRecommendations } from "@/hooks/useAdvancedRecommendations";
+import { generateRecommendations } from "@/utils/recommenderSystem"; // Added import
+
 
 /**
  * Génère un nombre stable de participants basé sur la date actuelle
@@ -52,7 +54,7 @@ const Quiz = () => {
 
   // Préparation des recommandations avancées
   const {
-    recommendations,
+    recommendations: advancedRecommendations, // Rename to avoid conflict
     explanation,
     isLoading: recommendationsLoading,
     isPrioritized,
@@ -477,7 +479,7 @@ const Quiz = () => {
             ) : (
               /* Résultats du quiz */
               <QuizResults
-                recommendations={recommendations}
+                recommendations={generateRecommendations(responses)} // Using generateRecommendations
                 quizResponses={responses}
                 behavioralMetrics={behavioralData}
                 neuroProfile={{
@@ -529,3 +531,11 @@ const Quiz = () => {
 };
 
 export default Quiz;
+
+
+// Placeholder for generateRecommendations function.  Replace with actual implementation.
+function generateRecommendations(responses: QuizResponse): any {
+  // Implement your recommendation logic here based on quizResponses
+  console.log("Generating recommendations based on:", responses);
+  return [{ recommendation: "Eat more vegetables", reason: "You answered..." }, { recommendation: "Drink more water", reason: "You chose..." }];
+}
