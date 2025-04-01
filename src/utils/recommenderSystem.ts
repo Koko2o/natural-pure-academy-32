@@ -40,10 +40,36 @@ export const generateRecommendations = (
   neuroProfile?: NeuroProfile
 ): Recommendation[] => {
   try {
-    // Vérifier si les données du quiz sont valides
-    if (!quizResponses || !quizResponses.healthConcerns || !quizResponses.goals) {
-      console.error("Données du quiz insuffisantes pour générer des recommandations");
+    // Vérification plus robuste des données du quiz
+    if (!quizResponses) {
+      console.error("Données du quiz manquantes");
       return [];
+    }
+    
+    if (!quizResponses.healthConcerns || Object.keys(quizResponses.healthConcerns).length === 0) {
+      console.error("Problèmes de santé non spécifiés dans les données du quiz");
+      return [];
+    }
+    
+    if (!quizResponses.goals || Object.keys(quizResponses.goals).length === 0) {
+      console.error("Objectifs non spécifiés dans les données du quiz");
+      return [];
+    }
+    
+    // Validation plus spécifique de la structure attendue
+    const requiredHealthFields = ['stressLevel', 'energyLevel', 'sleepIssues', 'focusIssues', 'digestiveIssues'];
+    const missingHealthFields = requiredHealthFields.filter(field => !(field in quizResponses.healthConcerns));
+    
+    if (missingHealthFields.length > 0) {
+      console.warn(`Certains champs de santé sont manquants: ${missingHealthFields.join(', ')}`);
+      // Continuer quand même, on va utiliser les champs disponibles
+    }
+    
+    // Vérification qu'au moins un objectif est défini
+    const hasActiveGoals = Object.values(quizResponses.goals).some(value => value === true);
+    if (!hasActiveGoals) {
+      console.warn("Aucun objectif actif n'a été sélectionné");
+      // Continuer quand même, on utilisera les problèmes de santé
     }
 
     const recommendations: Recommendation[] = [];

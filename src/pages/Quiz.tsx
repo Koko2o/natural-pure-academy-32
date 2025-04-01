@@ -479,9 +479,22 @@ const Quiz = () => {
             ) : (
               /* Résultats du quiz */
               <QuizResults
-                recommendations={responses && responses.healthConcerns && responses.goals ? 
-                  generateRecommendations(responses) : 
-                  [
+                recommendations={(() => {
+                  // Vérifier que les données du quiz sont suffisantes pour générer des recommandations
+                  if (responses && 
+                      responses.healthConcerns && 
+                      Object.keys(responses.healthConcerns).length > 0 &&
+                      responses.goals && 
+                      Object.keys(responses.goals).length > 0) {
+                    try {
+                      const recs = generateRecommendations(responses);
+                      if (recs && recs.length > 0) return recs;
+                    } catch (err) {
+                      console.error("Erreur lors de la génération des recommandations:", err);
+                    }
+                  }
+                  // Recommandations par défaut en cas d'échec
+                  return [
                     {
                       id: "default_rec_1",
                       name: "Multivitamine complète",
@@ -493,9 +506,21 @@ const Quiz = () => {
                       timeToEffect: "2-4 semaines",
                       scientificBasis: "Soutien nutritionnel général",
                       reason: "Recommandation de base adaptée à la plupart des profils"
+                    },
+                    {
+                      id: "default_rec_2",
+                      name: "Oméga-3 EPA/DHA",
+                      description: "Acides gras essentiels pour la santé globale",
+                      priority: 2,
+                      matchScore: 70,
+                      benefits: ["Santé cardiovasculaire", "Fonction cognitive", "Anti-inflammatoire naturel"],
+                      recommendedDose: "1000-2000mg par jour avec un repas",
+                      timeToEffect: "4-8 semaines",
+                      scientificBasis: "Nombreuses études sur les bénéfices cardiovasculaires et neurocognitifs",
+                      reason: "Recommandation de base pour la santé globale"
                     }
-                  ]
-                }
+                  ];
+                })()}
                 quizResponses={responses}
                 behavioralMetrics={behavioralData}
                 neuroProfile={{
