@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { getAIModelDetailedStatus } from "@/utils/recommenderSystem";
 import { motion } from "framer-motion";
 import { SUPPLEMENT_CATALOG } from "@/data/supplementCatalog";
+import { SymptomsStep, DietaryHabitsStep, LifestyleStep, ObjectivesStep, ProteinConsumptionStep } from "@/components/quiz/steps"; //Corrected import
+
 
 interface AILearningInsightsProps {
   quizData: any;

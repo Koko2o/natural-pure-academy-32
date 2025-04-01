@@ -718,11 +718,25 @@ const analyzeRecommendationPerformance = () => ({
 });
 
 // Fonction pour identifier les corrélations de motifs
-function identifyPatternCorrelations() {
+const identifyPatternCorrelations = () => {
   return {
-    symptomCorrelations: {},
-    ageCorrelations: {},
-    genderCorrelations: {}
+    symptomCorrelations: {
+      "stress": ["magnesium_glycinate", "ashwagandha", "l_theanine"],
+      "fatigue": ["vitamin_b_complex", "iron", "coq10"],
+      "insomnia": ["melatonin", "magnesium_glycinate", "valerian_root"],
+      "digestion": ["probiotics", "digestive_enzymes", "fiber_supplement"],
+      "joint_pain": ["omega3", "curcumin", "glucosamine_chondroitin"]
+    },
+    ageCorrelations: {
+      "18-30": ["vitamin_d3", "iron", "probiotics"],
+      "31-45": ["coq10", "vitamin_b_complex", "ashwagandha"],
+      "46-60": ["omega3", "vitamin_d3", "magnesium_glycinate"],
+      "60+": ["vitamin_d3", "calcium", "vitamin_b12"]
+    },
+    genderCorrelations: {
+      "male": ["magnesium_glycinate", "omega3", "vitamin_d3"],
+      "female": ["iron", "vitamin_b_complex", "probiotics"]
+    }
   };
 }
 
@@ -1395,10 +1409,24 @@ const analyzeRecommendationPerformance = () => ({
 });
 
 // Fonction pour identifier les corrélations de motifs
-function identifyPatternCorrelations() {
+const identifyPatternCorrelations = () => {
   return {
-    symptomCorrelations: {},
-    ageCorrelations: {},
-    genderCorrelations: {}
+    symptomCorrelations: {
+      "stress": ["magnesium_glycinate", "ashwagandha", "l_theanine"],
+      "fatigue": ["vitamin_b_complex", "iron", "coq10"],
+      "insomnia": ["melatonin", "magnesium_glycinate", "valerian_root"],
+      "digestion": ["probiotics", "digestive_enzymes", "fiber_supplement"],
+      "joint_pain": ["omega3", "curcumin", "glucosamine_chondroitin"]
+    },
+    ageCorrelations: {
+      "18-30": ["vitamin_d3", "iron", "probiotics"],
+      "31-45": ["coq10", "vitamin_b_complex", "ashwagandha"],
+      "46-60": ["omega3", "vitamin_d3", "magnesium_glycinate"],
+      "60+": ["vitamin_d3", "calcium", "vitamin_b12"]
+    },
+    genderCorrelations: {
+      "male": ["magnesium_glycinate", "omega3", "vitamin_d3"],
+      "female": ["iron", "vitamin_b_complex", "probiotics"]
+    }
   };
 }

@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { 
-  SymptomsStep, 
-  DietaryHabitsStep, 
-  LifestyleStep, 
-  ObjectivesStep,
-  ProteinConsumptionStep
-} from "@/components/quiz";
+import SymptomsStep from "@/components/quiz/SymptomsStep";
+import DietaryHabitsStep from "@/components/quiz/DietaryHabitsStep";
+import LifestyleStep from "@/components/quiz/LifestyleStep";
+import ObjectivesStep from "@/components/quiz/ObjectivesStep";
+import ProteinConsumptionStep from "@/components/quiz/ProteinConsumptionStep";
 import QuizResults from "@/components/QuizResults";
 import ScientificTrustBadges from "@/components/quiz/ScientificTrustBadges";
 import { QuizStep } from "@/components/quiz/types";

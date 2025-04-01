@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
@@ -73,7 +72,7 @@ const ScientificHighlightedText: React.FC<{ text: string }> = ({ text }) => {
   // and returns an array of text and term objects
   const parseText = (text: string): (string | TermData)[] => {
     if (!text) return [''];
-    
+
     const regex = /\[\[([^:]+):([^\]]+)\]\]/g;
     const parts: (string | TermData)[] = [];
     let lastIndex = 0;
@@ -83,12 +82,12 @@ const ScientificHighlightedText: React.FC<{ text: string }> = ({ text }) => {
       if (match.index > lastIndex) {
         parts.push(text.substring(lastIndex, match.index));
       }
-      
+
       parts.push({
         id: match[1],
         title: match[2]
       });
-      
+
       lastIndex = match.index + match[0].length;
     }
 
@@ -110,7 +109,7 @@ const ScientificHighlightedText: React.FC<{ text: string }> = ({ text }) => {
 
   return (
     <TooltipProvider>
-      <p className="text-gray-700 leading-relaxed">
+      <div className="text-gray-700 leading-relaxed"> {/* Changed from <p> to <div> */}
         {parsedText.map((part, index) => {
           if (typeof part === 'string') {
             return <React.Fragment key={index}>{part}</React.Fragment>;
@@ -137,7 +136,7 @@ const ScientificHighlightedText: React.FC<{ text: string }> = ({ text }) => {
             );
           }
         })}
-      </p>
+      </div>
     </TooltipProvider>
   );
 };
