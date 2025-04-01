@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getTermById, ScientificTerm } from "@/data/scientificTerms";
+import { getTermById } from "@/data/scientificTerms";
 
 interface ScientificHighlightedTextProps {
   text: string;
@@ -22,7 +22,6 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let match;
-  let plainText = text;
   
   // Extraire tous les matchs d'abord
   const matches: Array<{
@@ -71,7 +70,7 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-md p-4">
                 <div className="text-sm">
-                  <h4 className="font-semibold mb-1">{termInfo.term}</h4>
+                  <h4 className="font-semibold mb-1">{termInfo.title}</h4>
                   <div>{termInfo.definition}</div>
                   {termInfo.source && (
                     <div className="text-xs mt-2 text-gray-500">
@@ -97,7 +96,6 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
     }
   }
   
-  // Le composant ne retourne plus une balise p mais un span
   return <>{parts}</>;
 };
 

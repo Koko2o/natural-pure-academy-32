@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,11 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { generateRecommendations } from "@/utils/recommenderSystem";
+import { generateRecommendations, getComprehensiveRecommendations } from "@/utils/recommenderSystem";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
-import { getComprehensiveRecommendations, Recommendation } from "@/utils/recommenderSystem";
-
 
 interface QuizResultsProps {
   quizData: any;
@@ -24,11 +23,79 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
   const navigate = useNavigate();
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Génération des recommandations basées sur les données du quiz
-    const generatedRecommendations = getComprehensiveRecommendations(quizData);
-    setRecommendations(generatedRecommendations);
+    // Ensure quizData has meaningful content
+    const hasValidData = quizData && Object.keys(quizData).length > 0;
+    
+    if (hasValidData) {
+      console.log("Generating recommendations with quiz data:", quizData);
+      try {
+        // Tenter de générer des recommandations
+        const generatedRecommendations = getComprehensiveRecommendations(quizData);
+        
+        // Assurer au moins des recommandations par défaut si aucune n'est générée
+        if (!generatedRecommendations || generatedRecommendations.length === 0) {
+          console.log("Aucune recommandation générée, utilisation de recommandations par défaut");
+          setRecommendations([
+            {
+              id: "default-recommendation-1",
+              title: "Amélioration de l'alimentation générale",
+              description: "Une alimentation équilibrée riche en nutriments essentiels peut améliorer votre santé globale et votre bien-être.",
+              scientificBasis: "Des études montrent qu'une alimentation équilibrée est fondamentale pour la santé.",
+              relevanceScore: 0.85,
+              categories: ["nutrition", "santé générale"],
+              relatedTerms: ["nutrition", "well-being"]
+            },
+            {
+              id: "default-recommendation-2",
+              title: "Hydratation optimale",
+              description: "Maintenir une bonne hydratation est essentiel pour de nombreuses fonctions corporelles et peut améliorer l'énergie et la concentration.",
+              scientificBasis: "La recherche indique qu'une hydratation adéquate améliore les performances cognitives et physiques.",
+              relevanceScore: 0.80,
+              categories: ["hydratation", "santé générale"],
+              relatedTerms: ["hydration", "cognitive-performance"]
+            },
+            {
+              id: "default-recommendation-3",
+              title: "Activité physique régulière",
+              description: "L'exercice régulier peut améliorer votre santé cardiovasculaire, votre humeur et votre gestion du stress.",
+              scientificBasis: "De nombreuses études confirment les bienfaits de l'activité physique sur la santé globale.",
+              relevanceScore: 0.75,
+              categories: ["exercice", "bien-être"],
+              relatedTerms: ["physical-activity", "stress-management"]
+            }
+          ]);
+        } else {
+          setRecommendations(generatedRecommendations);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la génération des recommandations:", error);
+        toast({
+          title: "Erreur de génération",
+          description: "Une erreur est survenue lors de la génération des recommandations. Des valeurs par défaut sont affichées.",
+          variant: "destructive"
+        });
+        // Recommandations par défaut en cas d'erreur
+        setRecommendations([
+          {
+            id: "error-recommendation",
+            title: "Recommandation générale de nutrition",
+            description: "Une alimentation équilibrée et variée est recommandée pour maintenir une bonne santé.",
+            scientificBasis: "Principes fondamentaux de la nutrition",
+            relevanceScore: 0.7,
+            categories: ["nutrition", "santé générale"],
+            relatedTerms: []
+          }
+        ]);
+      }
+    } else {
+      console.warn("Données du quiz insuffisantes pour générer des recommandations personnalisées");
+      // Recommandations par défaut si pas de données
+      setRecommendations([]);
+    }
+    
     setLoading(false);
   }, [quizData]);
 
@@ -77,6 +144,13 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
                 <p className="text-sm text-gray-600 mt-3 italic">
                   Base scientifique: {rec.scientificBasis}
                 </p>
+                {rec.categories && rec.categories.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {rec.categories.map((category, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">{category}</Badge>
+                    ))}
+                  </div>
+                )}
               </Card>
             ))}
           </div>
@@ -115,6 +189,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
           <h2 className="text-2xl font-bold mb-4">
             Données du quiz insuffisantes pour générer des recommandations
           </h2>
+          <p className="text-gray-600 mb-6">
+            Pour obtenir des recommandations personnalisées, veuillez compléter le quiz avec plus d'informations sur vos symptômes, objectifs et habitudes.
+          </p>
           <div className="mt-8">
             <Button
               onClick={restartQuiz}
