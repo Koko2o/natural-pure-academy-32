@@ -1,4 +1,3 @@
-
 export interface ScientificTerm {
   id: string;
   title: string;
@@ -196,6 +195,36 @@ export const scientificTerms: ScientificTerm[] = [
     definition: "Minéral vital pour la formation de l'hémoglobine et des globules rouges, le transport de l'oxygène, la production d'énergie cellulaire et de nombreuses réactions enzymatiques.",
     source: "Journal of Research in Medical Sciences, 2014",
     relatedTerms: ["hemoglobin", "energy-production"]
+  },
+  {
+    id: "mitochondria",
+    title: "Mitochondries",
+    definition: "Organites cellulaires responsables de la production d'énergie cellulaire sous forme d'ATP.",
+    relatedTerms: ["atp", "energy-metabolism"]
+  },
+  {
+    id: "autophagy",
+    title: "Autophagie",
+    definition: "Processus cellulaire de dégradation et de recyclage des composants cellulaires endommagés, crucial pour la longévité et la santé cellulaire.",
+    relatedTerms: ["cellular-regeneration", "longevity"]
+  },
+  {
+    id: "neuroplasticity",
+    title: "Neuroplasticité",
+    definition: "Capacité du cerveau à se restructurer en créant de nouvelles connexions neuronales tout au long de la vie.",
+    relatedTerms: ["synaptic-density", "brain-health", "cognitive-function"]
+  },
+  {
+    id: "epigenetics",
+    title: "Épigénétique",
+    definition: "Étude des modifications héritables de l'expression génique sans changement de la séquence d'ADN, influencées par l'environnement et le mode de vie.",
+    relatedTerms: ["dna-methylation", "histone-modification", "gene-expression"]
+  },
+  {
+    id: "polyphenols",
+    title: "Polyphénols",
+    definition: "Micronutriments présents dans les plantes avec des propriétés antioxydantes et anti-inflammatoires puissantes.",
+    relatedTerms: ["flavonoids", "anthocyanins", "resveratrol", "antioxidant"]
   }
 ];
 

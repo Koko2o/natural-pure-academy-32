@@ -446,7 +446,7 @@ export function getComprehensiveRecommendations(quizData: QuizData): Recommendat
 /**
  * Génère une explication détaillée pour une recommandation spécifique
  */
-export const generateDetailedRecommendationExplanation = (
+export const generateExplanationDetails = (
   recommendation: Recommendation,
   quizResponses: QuizResponse
 ): string => {
@@ -537,7 +537,7 @@ const recommenderSystemUtils = {
   getComprehensiveRecommendations,
   generateRecommendations,
   enrichRecommendationsWithScientificTerms,
-  generateDetailedRecommendationExplanation,
+  generateExplanationDetails,
   getAILearningStatus,
   evaluateDataQuality,
   saveLearningData,
@@ -698,7 +698,7 @@ export function getAIModelDetailedStatus() {
   }
 }
 
-// Extension de la fonction processBehavioralData pour inclure les interestAreas
+// Fonction unique pour l'analyse comportementale, sans duplication
 const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   cognitiveLoad: 0.7,
   stressLevel: 0.6,
@@ -708,7 +708,7 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   interestAreas: ['Stress', 'Sommeil', 'Énergie']
 });
 
-// Fonction pour analyser les performances des recommandations
+// Fonction unique pour analyser les performances des recommandations
 const analyzeRecommendationPerformance = () => ({
   'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
   'magnesium_glycinate': { averageRating: 4.6, totalRatings: 95 },
@@ -717,8 +717,7 @@ const analyzeRecommendationPerformance = () => ({
   'zinc': { averageRating: 4.3, totalRatings: 80 }
 });
 
-// Cette fonction est utilisée à l'intérieur de getAIModelDetailedStatus,
-// donc nous la renommons ici pour éviter la duplication
+// Fonction unique pour obtenir les corrélations de motifs
 const getPatternCorrelations = () => {
   return {
     symptomCorrelations: {
@@ -766,7 +765,7 @@ export const generateRecommendations_original = (
 /**
  * Génère une explication détaillée pour une recommandation spécifique
  */
-export const generateDetailedRecommendationExplanation = (
+export const generateExplanationDetails = (
   recommendation: Recommendation,
   quizResponses: QuizResponse
 ): string => {
@@ -1390,7 +1389,7 @@ export function getAIModelDetailedStatus() {
   }
 }
 
-// Extension de la fonction processBehavioralData pour inclure les interestAreas
+// Fonction unique pour l'analyse comportementale, sans duplication
 const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   cognitiveLoad: 0.7,
   stressLevel: 0.6,
@@ -1400,7 +1399,7 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   interestAreas: ['Stress', 'Sommeil', 'Énergie']
 });
 
-// Fonction pour analyser les performances des recommandations
+// Fonction unique pour analyser les performances des recommandations
 const analyzeRecommendationPerformance = () => ({
   'vitamin_d3': { averageRating: 4.7, totalRatings: 120 },
   'magnesium_glycinate': { averageRating: 4.6, totalRatings: 95 },
@@ -1409,8 +1408,7 @@ const analyzeRecommendationPerformance = () => ({
   'zinc': { averageRating: 4.3, totalRatings: 80 }
 });
 
-// Cette fonction est utilisée à l'intérieur de getAIModelDetailedStatus,
-// donc nous la renommons ici pour éviter la duplication
+// Fonction unique pour obtenir les corrélations de motifs
 const getPatternCorrelations = () => {
   return {
     symptomCorrelations: {

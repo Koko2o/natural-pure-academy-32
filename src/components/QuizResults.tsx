@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getComprehensiveRecommendations, Recommendation, getAILearningStatus } from "@/utils/recommenderSystem";
+import recommenderSystemUtils, { Recommendation } from "@/utils/recommenderSystem";
+const { getComprehensiveRecommendations, getAILearningStatus } = recommenderSystemUtils;
 import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText";
 import AILearningInsights from "@/components/AILearningInsights";
 import { ArrowLeft, Brain, CheckCircle, Download, ExternalLink, FileText, HelpCircle, Info, LayoutDashboard, Microscope, Pill, Share2, Sparkles, ThumbsUp } from "lucide-react";
@@ -178,6 +179,15 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
                     <Microscope className="h-4 w-4 mr-1 text-blue-500 flex-shrink-0 mt-0.5" />
                     <span>Base scientifique: {recommendation.scientificBasis}</span>
                   </p>
+                  
+                  {scientificLevel > 2 && (
+                    <div className="mt-2 bg-blue-50 p-2 rounded-md">
+                      <p className="text-xs text-blue-700 font-medium">Mécanisme d'action</p>
+                      <p className="text-xs text-blue-600">
+                        {recommendation.mechanismOfAction || "Ce supplément agit en modulant les voies métaboliques impliquées dans votre profil de santé spécifique."}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

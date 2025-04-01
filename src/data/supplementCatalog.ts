@@ -19,7 +19,7 @@ interface Supplement {
   categories?: string[];
 }
 
-export const SUPPLEMENT_CATALOG: Record<string, Supplement> = {
+export const SUPPLEMENT_CATALOG = {
   vitamin_d3: {
     id: "vitamin_d3",
     name: "Vitamine D3",
@@ -407,6 +407,63 @@ export const SUPPLEMENT_CATALOG: Record<string, Supplement> = {
     safetyProfile: 7,
     naturalSources: ["Produite naturellement dans la glande pinéale"],
     categories: ["Sommeil", "Rythme circadien"]
+  },
+
+  "resveratrol": {
+    id: "resveratrol",
+    name: "Resveratrol",
+    scientificName: "Trans-resveratrol",
+    description: "Puissant antioxydant présent dans les raisins et le vin rouge, connu pour ses effets potentiels sur la longévité.",
+    standardDose: "250-500mg par jour",
+    timeToEffect: "4-6 semaines pour effets antioxydants",
+    scientificBasis: "Des études précliniques suggèrent que le resveratrol active les sirtuines, des protéines liées à la longévité cellulaire.",
+    benefits: [
+      "Protection cellulaire contre le stress oxydatif",
+      "Soutien de la santé cardiovasculaire",
+      "Potentiel anti-âge au niveau cellulaire"
+    ],
+    contraindications: [
+      "Peut interférer avec les anticoagulants",
+      "Non recommandé pour les femmes enceintes"
+    ]
+  },
+
+  "coq10_new": {
+    id: "coq10_new",
+    name: "Coenzyme Q10",
+    scientificName: "Ubiquinone",
+    description: "Cofacteur essentiel dans la production d'énergie cellulaire, particulièrement important pour le cœur et les muscles.",
+    standardDose: "100-200mg par jour",
+    timeToEffect: "2-4 semaines pour augmentation du niveau d'énergie",
+    scientificBasis: "Le CoQ10 joue un rôle crucial dans la chaîne de transport d'électrons mitochondriale, la principale source de production d'ATP.",
+    benefits: [
+      "Amélioration des niveaux d'énergie",
+      "Soutien de la fonction cardiaque",
+      "Protection contre le stress oxydatif"
+    ],
+    contraindications: [
+      "Peut interagir avec les anticoagulants et les médicaments hypotenseurs",
+      "Surveiller en cas de diabète (peut affecter la glycémie)"
+    ]
+  },
+
+  "nac": {
+    id: "nac",
+    name: "N-Acétyl Cystéine",
+    scientificName: "N-acetylcysteine",
+    description: "Précurseur du glutathion, l'un des plus puissants antioxydants de l'organisme, soutient la détoxification hépatique.",
+    standardDose: "600-1200mg par jour",
+    timeToEffect: "2-4 semaines pour effets antioxydants",
+    scientificBasis: "Le NAC augmente les niveaux de glutathion intracellulaire, améliorant les défenses antioxydantes et les processus de détoxification.",
+    benefits: [
+      "Soutien de la fonction hépatique et des processus de détoxification",
+      "Protection des cellules contre les radicaux libres",
+      "Amélioration de la santé respiratoire"
+    ],
+    contraindications: [
+      "Précaution chez les personnes asthmatiques (peut provoquer un bronchospasme)",
+      "Éviter en cas de traitement aux nitrates"
+    ]
   }
 };
 
