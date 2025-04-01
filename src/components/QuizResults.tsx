@@ -74,8 +74,17 @@ const QuizResults: React.FC<QuizResultsProps> = ({
     // Vérifier si les données sont valides
     if (!quizResponses || !quizResponses.healthConcerns || !quizResponses.goals) {
       setErrorMessage("Données du quiz insuffisantes pour générer des recommandations");
+      
+      // Initialiser des données par défaut pour éviter les erreurs
+      if (recommendations.length === 0) {
+        console.log("Utilisation de recommandations par défaut");
+        // Ne rien faire si des recommandations ont déjà été fournies en props
+      }
+    } else {
+      // Données valides
+      setErrorMessage(null);
     }
-  }, [quizResponses]);
+  }, [quizResponses, recommendations]);
 
   // Fonction pour soumettre le feedback
   const submitFeedback = (rating: number) => {

@@ -479,7 +479,23 @@ const Quiz = () => {
             ) : (
               /* Résultats du quiz */
               <QuizResults
-                recommendations={generateRecommendations(responses)} // Using generateRecommendations
+                recommendations={responses && responses.healthConcerns && responses.goals ? 
+                  generateRecommendations(responses) : 
+                  [
+                    {
+                      id: "default_rec_1",
+                      name: "Multivitamine complète",
+                      description: "Formule complète de vitamines et minéraux essentiels",
+                      priority: 1,
+                      matchScore: 75,
+                      benefits: ["Soutien nutritionnel quotidien", "Comble les carences potentielles"],
+                      recommendedDose: "1 comprimé par jour",
+                      timeToEffect: "2-4 semaines",
+                      scientificBasis: "Soutien nutritionnel général",
+                      reason: "Recommandation de base adaptée à la plupart des profils"
+                    }
+                  ]
+                }
                 quizResponses={responses}
                 behavioralMetrics={behavioralData}
                 neuroProfile={{
