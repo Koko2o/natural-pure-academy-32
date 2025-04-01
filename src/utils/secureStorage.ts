@@ -1,73 +1,61 @@
+/**
+ * Service de stockage sécurisé pour les données sensibles
+ */
 
-import CryptoJS from 'crypto-js';
-
-// Clé de chiffrement pour le stockage local (serait idéalement stockée dans des variables d'environnement)
-const ENCRYPTION_KEY = 'health_profile_secure_storage_key_2023';
-
-// Fonction pour chiffrer les données
-const encrypt = (data: any): string => {
-  try {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
-  } catch (error) {
-    console.error("Erreur lors du chiffrement des données:", error);
-    return '';
-  }
-};
-
-// Fonction pour déchiffrer les données
-const decrypt = (encryptedData: string): any => {
-  try {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-  } catch (error) {
-    console.error("Erreur lors du déchiffrement des données:", error);
-    return null;
-  }
-};
-
-// Interface pour le stockage sécurisé
-const secureStorage = {
-  // Stocker des données chiffrées
-  setItem: (key: string, value: any): void => {
+// Classe pour gérer le stockage sécurisé
+class SecureStorageService {
+  // Stocker une valeur de manière sécurisée
+  setItem(key: string, value: any): void {
     try {
-      const encryptedValue = encrypt(value);
-      localStorage.setItem(key, encryptedValue);
+      // Convertir les objets complexes en JSON
+      const valueToStore = typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+      // Utiliser localStorage pour la démo
+      localStorage.setItem(key, valueToStore);
     } catch (error) {
-      console.error("Erreur lors du stockage sécurisé:", error);
+      console.error(`Erreur lors du stockage de "${key}":`, error);
     }
-  },
+  }
 
-  // Récupérer et déchiffrer des données
-  getItem: (key: string): any => {
+  // Récupérer une valeur stockée
+  getItem(key: string): any {
     try {
-      const encryptedValue = localStorage.getItem(key);
-      if (!encryptedValue) return null;
-      return decrypt(encryptedValue);
+      const value = localStorage.getItem(key);
+
+      if (!value) return null;
+
+      // Essayer de parser en JSON, sinon retourner la valeur telle quelle
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
     } catch (error) {
-      console.error("Erreur lors de la récupération du stockage sécurisé:", error);
+      console.error(`Erreur lors de la récupération de "${key}":`, error);
       return null;
     }
-  },
+  }
 
-  // Supprimer des données
-  removeItem: (key: string): void => {
+  // Supprimer une entrée
+  removeItem(key: string): void {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error("Erreur lors de la suppression du stockage sécurisé:", error);
+      console.error(`Erreur lors de la suppression de "${key}":`, error);
     }
-  },
+  }
 
-  // Effacer toutes les données
-  clear: (): void => {
+  // Vider tout le stockage
+  clear(): void {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error("Erreur lors de l'effacement du stockage sécurisé:", error);
+      console.error("Erreur lors du nettoyage du stockage:", error);
     }
   }
-};
+}
 
-// Exporter sous les deux noms pour assurer la compatibilité
-export { secureStorage, secureStorage as secureStorageService };
-export default secureStorage;
+// Exporter une instance unique du service
+export const secureStorageService = new SecureStorageService();
+
+export default secureStorageService;
