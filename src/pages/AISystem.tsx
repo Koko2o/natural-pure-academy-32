@@ -17,17 +17,17 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { getAIModelStatus } from '@/utils/recommenderSystem';
+import { getAIModelDetailedStatus } from '@/utils/recommenderSystem';
 
 const AISystem = () => {
-  const [aiStatus, setAiStatus] = useState(getAIModelStatus());
+  const [aiStatus, setAiStatus] = useState(getAIModelDetailedStatus());
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const refreshStatus = () => {
     setIsRefreshing(true);
     setTimeout(() => {
-      setAiStatus(getAIModelStatus());
+      setAiStatus(getAIModelDetailedStatus());
       setIsRefreshing(false);
     }, 800);
   };
