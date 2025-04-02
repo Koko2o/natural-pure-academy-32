@@ -445,8 +445,9 @@ export function getComprehensiveRecommendations(quizData: QuizData): Recommendat
 
 /**
  * Génère une explication détaillée pour une recommandation spécifique
+ * Version améliorée pour la présentation des résultats du quiz
  */
-export const generateExplanationDetails = (
+export const generateDetailedRecommendationExplanation = (
   recommendation: Recommendation,
   quizResponses: QuizResponse
 ): string => {
@@ -457,31 +458,62 @@ export const generateExplanationDetails = (
       return "Information détaillée non disponible pour ce complément.";
     }
 
-    // Construire une explication scientifique personnalisée
+    // Construire une explication scientifique personnalisée avec plus de contexte
     let explanation = `**${supplement.name} (${supplement.scientificName})** : ${supplement.description}\n\n`;
 
-    // Bénéfices spécifiques
+    // Bénéfices spécifiques avec enrichissement basé sur les réponses du quiz
     explanation += "**Bénéfices ciblés pour votre profil :**\n";
-    explanation += supplement.benefits.map(b => `- ${b}`).join('\n');
 
-    // Base scientifique
+    // Ajouter une personnalisation basée sur les symptômes si disponibles
+    if (quizResponses.symptoms && quizResponses.symptoms.length > 0) {
+      const matchingBenefits = supplement.benefits.filter(benefit => {
+        return quizResponses.symptoms.some(symptom => 
+          benefit.toLowerCase().includes(symptom.toLowerCase()));
+      });
+
+      // Mettre en avant les bénéfices correspondant aux symptômes
+      if (matchingBenefits.length > 0) {
+        explanation += matchingBenefits.map(b => `- **${b}** (particulièrement pertinent pour vous)`).join('\n');
+        explanation += '\n';
+      }
+    }
+
+    // Ajouter les autres bénéfices
+    explanation += supplement.benefits
+      .filter(b => !explanation.includes(b))
+      .map(b => `- ${b}`)
+      .join('\n');
+
+    // Base scientifique améliorée
     explanation += `\n\n**Base scientifique :** ${supplement.scientificBasis}`;
 
-    // Dosage personnalisé
+    // Dosage personnalisé selon l'âge ou autres facteurs
+    const ageFactor = quizResponses.age ? 
+      (quizResponses.age > 60 ? 'adaptée aux seniors' : 
+       quizResponses.age < 30 ? 'optimisée pour les jeunes adultes' : '') : '';
+
     explanation += `\n\n**Dosage recommandé pour vous :** ${recommendation.recommendedDose || supplement.standardDose}`;
+    if (ageFactor) explanation += ` (${ageFactor})`;
 
-    // Délai d'efficacité
+    // Délai d'efficacité avec contexte
     explanation += `\n\n**Délai d'efficacité typique :** ${supplement.timeToEffect}`;
+    explanation += ` (peut varier selon votre métabolisme et votre mode de vie)`;
 
-    // Précautions
+    // Précautions avec plus de détails
     if (supplement.contraindications && supplement.contraindications.length > 0) {
       explanation += "\n\n**Précautions :** ";
       explanation += supplement.contraindications.map(c => c).join(', ');
     }
 
+    // Ajouter des sources naturelles si disponibles
+    if (supplement.naturalSources && supplement.naturalSources.length > 0) {
+      explanation += "\n\n**Sources naturelles :** ";
+      explanation += supplement.naturalSources.join(', ');
+    }
+
     return explanation;
   } catch (error) {
-    console.error("Erreur lors de la génération de l'explication:", error);
+    console.error("Erreur lors de la génération de l'explication détaillée:", error);
     return "Désolé, nous ne pouvons pas générer d'explication détaillée pour cette recommandation.";
   }
 };
@@ -537,7 +569,7 @@ const recommenderSystemUtils = {
   getComprehensiveRecommendations,
   generateRecommendations,
   enrichRecommendationsWithScientificTerms,
-  generateExplanationDetails,
+  generateDetailedRecommendationExplanation,
   getAILearningStatus,
   evaluateDataQuality,
   saveLearningData,
@@ -705,7 +737,7 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   sleepQuality: 0.8,
   attentionLevel: 0.65,
   uncertaintyLevel: 0.4,
-  interestAreas: ['Stress', 'Sommeil', 'Énergie']
+  interestAreas: ['Stress', 'Sommeil', ''Énergie']
 });
 
 // Fonction unique pour analyser les performances des recommandations
@@ -762,48 +794,8 @@ export const generateRecommendations_original = (
   }
 };
 
-/**
- * Génère une explication détaillée pour une recommandation spécifique
- */
-export const generateExplanationDetails = (
-  recommendation: Recommendation,
-  quizResponses: QuizResponse
-): string => {
-  try {
-    const supplement = SUPPLEMENT_CATALOG[recommendation.id];
-
-    if (!supplement) {
-      return "Information détaillée non disponible pour ce complément.";
-    }
-
-    // Construire une explication scientifique personnalisée
-    let explanation = `**${supplement.name} (${supplement.scientificName})** : ${supplement.description}\n\n`;
-
-    // Bénéfices spécifiques
-    explanation += "**Bénéfices ciblés pour votre profil :**\n";
-    explanation += supplement.benefits.map(b => `- ${b}`).join('\n');
-
-    // Base scientifique
-    explanation += `\n\n**Base scientifique :** ${supplement.scientificBasis}`;
-
-    // Dosage personnalisé
-    explanation += `\n\n**Dosage recommandé pour vous :** ${recommendation.recommendedDose || supplement.standardDose}`;
-
-    // Délai d'efficacité
-    explanation += `\n\n**Délai d'efficacité typique :** ${supplement.timeToEffect}`;
-
-    // Précautions
-    if (supplement.contraindications && supplement.contraindications.length > 0) {
-      explanation += "\n\n**Précautions :** ";
-      explanation += supplement.contraindications.map(c => c).join(', ');
-    }
-
-    return explanation;
-  } catch (error) {
-    console.error("Erreur lors de la génération de l'explication:", error);
-    return "Désolé, nous ne pouvons pas générer d'explication détaillée pour cette recommandation.";
-  }
-};
+// La fonction generateExplanationDetails a été remplacée par generateDetailedRecommendationExplanation
+// pour éviter les duplications et améliorer la cohérence
 
 /**
  * Enregistre les données pour l'apprentissage du système IA

@@ -225,6 +225,55 @@ export const scientificTerms: ScientificTerm[] = [
     title: "Polyphénols",
     definition: "Micronutriments présents dans les plantes avec des propriétés antioxydantes et anti-inflammatoires puissantes.",
     relatedTerms: ["flavonoids", "anthocyanins", "resveratrol", "antioxidant"]
+  },
+  {
+    id: "glutathione",
+    title: "Glutathion",
+    definition: "Antioxydant majeur produit naturellement par le foie, essentiel pour la détoxification et le fonctionnement optimal du système immunitaire.",
+    source: "Annual Review of Biochemistry, 2018",
+    relatedTerms: ["antioxidant", "detoxification", "nac"]
+  },
+  {
+    id: "ampk",
+    title: "AMPK (Protéine Kinase Activée par l'AMP)",
+    definition: "Enzyme clé qui agit comme un capteur métabolique régulant l'équilibre énergétique cellulaire. Son activation favorise la sensibilité à l'insuline et le métabolisme lipidique.",
+    source: "Cell Metabolism, 2017",
+    relatedTerms: ["metabolism", "insulin-sensitivity", "berberine"]
+  },
+  {
+    id: "neurogenesis",
+    title: "Neurogenèse",
+    definition: "Processus de formation de nouveaux neurones à partir de cellules souches neurales, particulièrement important pour l'apprentissage, la mémoire et la récupération neurologique.",
+    source: "Nature Reviews Neuroscience, 2019",
+    relatedTerms: ["brain-health", "neuroplasticity", "bdnf"]
+  },
+  {
+    id: "bdnf",
+    title: "BDNF (Facteur Neurotrophique Dérivé du Cerveau)",
+    definition: "Protéine qui favorise la survie des neurones existants et encourage la croissance et la différenciation de nouveaux neurones et synapses.",
+    source: "Frontiers in Cellular Neuroscience, 2020",
+    relatedTerms: ["neurogenesis", "neuroplasticity", "lions-mane"]
+  },
+  {
+    id: "insulin-sensitivity",
+    title: "Sensibilité à l'insuline",
+    definition: "Mesure de la réactivité des cellules à l'insuline. Une meilleure sensibilité permet une utilisation plus efficace du glucose sanguin et est associée à un métabolisme sain.",
+    source: "The Lancet Diabetes & Endocrinology, 2018",
+    relatedTerms: ["metabolism", "berberine", "chromium"]
+  },
+  {
+    id: "adaptogenic-herbs",
+    title: "Plantes adaptogènes",
+    definition: "Groupe de plantes médicinales qui aident l'organisme à s'adapter au stress physique, chimique ou biologique, en normalisant les fonctions physiologiques et en renforçant la résistance.",
+    source: "Pharmaceuticals, 2010",
+    relatedTerms: ["ashwagandha", "rhodiola", "stress-response"]
+  },
+  {
+    id: "acetylcholine",
+    title: "Acétylcholine",
+    definition: "Neurotransmetteur essentiel pour la mémoire, l'apprentissage, l'attention et la fonction musculaire. Des niveaux optimaux sont cruciaux pour la performance cognitive.",
+    source: "Neuropharmacology, 2019",
+    relatedTerms: ["alpha-gpc", "choline", "cognitive-function"]
   }
 ];
 

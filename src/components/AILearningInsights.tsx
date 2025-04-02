@@ -100,41 +100,76 @@ const AILearningInsights: React.FC<AILearningInsightsProps> = ({
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="bg-white rounded-lg border p-3">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="bg-white rounded-lg border p-3 hover:shadow-md transition-shadow"
+            >
               <div className="text-sm text-gray-500 mb-1 flex items-center">
                 <Activity className="h-3.5 w-3.5 mr-1 text-blue-500" />
                 Satisfaction utilisateur
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-2xl font-bold">{aiStatus.userSatisfaction}%</span>
-                <span className="text-green-600 text-xs pb-1">+3.2%</span>
+                <Badge variant="outline" className="text-green-600 bg-green-50 border-green-100">
+                  +3.2%
+                </Badge>
               </div>
               <Progress value={aiStatus.userSatisfaction} className="h-1.5 mt-2" />
-            </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Basé sur {aiStatus.dataPointsAnalyzed > 1000 ? '1000+' : aiStatus.dataPointsAnalyzed} avis utilisateurs
+              </p>
+            </motion.div>
 
-            <div className="bg-white rounded-lg border p-3">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="bg-white rounded-lg border p-3 hover:shadow-md transition-shadow"
+            >
               <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <BookOpen className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                <BookOpen className="h-3.5 w-3.5 mr-1 text-indigo-500" />
                 Couverture des cas
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-2xl font-bold">{aiStatus.useCaseCoverage}%</span>
-                <span className="text-green-600 text-xs pb-1">+5.8%</span>
+                <Badge variant="outline" className="text-green-600 bg-green-50 border-green-100">
+                  +5.8%
+                </Badge>
               </div>
-              <Progress value={aiStatus.useCaseCoverage} className="h-1.5 mt-2" />
-            </div>
+              <Progress value={aiStatus.useCaseCoverage} className="h-1.5 mt-2" color="indigo" />
+              <p className="text-xs text-gray-500 mt-2">
+                {aiStatus.uniqueProfiles} profils nutritionnels uniques identifiés
+              </p>
+            </motion.div>
 
-            <div className="bg-white rounded-lg border p-3">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              className="bg-white rounded-lg border p-3 hover:shadow-md transition-shadow"
+            >
               <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <FlaskConical className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                <FlaskConical className="h-3.5 w-3.5 mr-1 text-purple-500" />
                 Efficacité des recommandations
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-2xl font-bold">{aiStatus.recommendationEfficiency}%</span>
-                <span className="text-green-600 text-xs pb-1">+2.5%</span>
+                <Badge variant="outline" className="text-green-600 bg-green-50 border-green-100">
+                  +2.5%
+                </Badge>
               </div>
               <Progress value={aiStatus.recommendationEfficiency} className="h-1.5 mt-2" />
-            </div>
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs text-gray-500">
+                  Précision du modèle: {Math.round(aiStatus.accuracy * 100)}%
+                </p>
+                <p className="text-xs text-gray-500">
+                  v{aiStatus.modelVersion}
+                </p>
+              </div>
+            </motion.div>
           </div>
 
           <Card className="mt-4">

@@ -463,7 +463,126 @@ export const SUPPLEMENT_CATALOG = {
     contraindications: [
       "Précaution chez les personnes asthmatiques (peut provoquer un bronchospasme)",
       "Éviter en cas de traitement aux nitrates"
-    ]
+    ],
+    researchScore: 8,
+    safetyProfile: 7,
+    naturalSources: ["L-cystéine présente dans les protéines animales", "Œufs", "Ail", "Oignon"],
+    categories: ["Antioxydant", "Détoxification", "Santé respiratoire"]
+  },
+  
+  "berberine": {
+    id: "berberine",
+    name: "Berbérine",
+    scientificName: "Berberine hydrochloride",
+    description: "Composé bioactif extrait de diverses plantes, particulièrement connu pour ses effets sur le métabolisme du glucose et les lipides sanguins.",
+    benefits: [
+      "Soutient l'équilibre glycémique",
+      "Améliore le profil lipidique",
+      "Favorise la santé métabolique",
+      "Soutient la santé intestinale",
+      "Peut aider à la gestion du poids"
+    ],
+    scientificBasis: "La berbérine active l'AMPK, une enzyme qui régule le métabolisme cellulaire, améliorant ainsi la sensibilité à l'insuline et le métabolisme des lipides.",
+    standardDose: "500-1500mg par jour, répartis en 3 prises",
+    timeToEffect: "4-8 semaines pour les effets métaboliques",
+    contraindications: [
+      "Femmes enceintes ou allaitantes",
+      "Personnes sous médicaments pour le diabète (risque d'hypoglycémie)",
+      "Personnes sous anticoagulants"
+    ],
+    interactions: [
+      "Médicaments métabolisés par le CYP3A4",
+      "Antidiabétiques",
+      "Anticoagulants"
+    ],
+    researchScore: 7,
+    safetyProfile: 7,
+    naturalSources: ["Hydrastis canadensis (Hydraste du Canada)", "Berberis vulgaris (Épine-vinette)", "Coptis chinensis (Huang Lian)"],
+    categories: ["Métabolisme", "Santé cardiovasculaire", "Équilibre glycémique"]
+  },
+  
+  "lions_mane": {
+    id: "lions_mane",
+    name: "Crinière de Lion",
+    scientificName: "Hericium erinaceus",
+    description: "Champignon médicinal connu pour ses propriétés neuroprotectrices et son potentiel à stimuler la production de facteurs de croissance neuronale.",
+    benefits: [
+      "Soutient la fonction cognitive et la mémoire",
+      "Protège et stimule la croissance neuronale",
+      "Peut réduire l'anxiété et la dépression légère",
+      "Soutient la santé du système nerveux",
+      "Possède des propriétés antioxydantes et anti-inflammatoires"
+    ],
+    scientificBasis: "Contient des composés bioactifs (érinacines et hericenones) qui stimulent la production du facteur de croissance nerveuse (NGF) et protègent contre le stress oxydatif neuronal.",
+    standardDose: "500-3000mg d'extrait par jour",
+    timeToEffect: "2-4 semaines pour les effets cognitifs initiaux, 8-12 semaines pour les effets optimaux",
+    contraindications: [
+      "Allergie aux champignons",
+      "Précaution chez les personnes asthmatiques"
+    ],
+    interactions: [
+      "Anticoagulants (effet potentiellement additif)"
+    ],
+    researchScore: 6,
+    safetyProfile: 9,
+    naturalSources: ["Champignon Hericium erinaceus"],
+    categories: ["Fonction cognitive", "Neuroprotection", "Santé mentale"]
+  },
+  
+  "rhodiola": {
+    id: "rhodiola",
+    name: "Rhodiola Rosea",
+    scientificName: "Rhodiola rosea",
+    description: "Plante adaptogène utilisée traditionnellement pour améliorer l'endurance physique et mentale, et réduire la fatigue liée au stress.",
+    benefits: [
+      "Réduit la fatigue liée au stress",
+      "Améliore les performances cognitives sous stress",
+      "Augmente l'énergie et l'endurance",
+      "Équilibre l'humeur",
+      "Soutient le système immunitaire pendant les périodes de stress"
+    ],
+    scientificBasis: "Le rhodiola contient des composés actifs (rosavines et salidrosides) qui modulent les niveaux de neurotransmetteurs et protègent contre les effets néfastes du stress chronique.",
+    standardDose: "200-600mg par jour d'un extrait standardisé (3% rosavines, 1% salidrosides)",
+    timeToEffect: "1-3 semaines pour les effets adaptogènes",
+    contraindications: [
+      "Troubles bipolaires (peut provoquer une activation excessive)",
+      "Hypertension sévère"
+    ],
+    interactions: [
+      "Antidépresseurs (ISRS, IMAO)",
+      "Stimulants"
+    ],
+    researchScore: 7,
+    safetyProfile: 8,
+    naturalSources: ["Racine de Rhodiola rosea"],
+    categories: ["Adaptogène", "Anti-stress", "Énergie"]
+  },
+  
+  "alpha_gpc": {
+    id: "alpha_gpc",
+    name: "Alpha-GPC",
+    scientificName: "L-Alpha-glycérophosphorylcholine",
+    description: "Précurseur naturel de l'acétylcholine, un neurotransmetteur crucial pour la mémoire, l'apprentissage et la fonction musculaire.",
+    benefits: [
+      "Améliore les performances cognitives et la mémoire",
+      "Soutient la santé cérébrale et la plasticité neuronale",
+      "Peut améliorer la force et les performances physiques",
+      "Favorise la récupération cognitive après un effort intense",
+      "Peut être bénéfique pour certains troubles cognitifs"
+    ],
+    scientificBasis: "L'Alpha-GPC augmente la disponibilité de la choline dans le cerveau, permettant une synthèse accrue d'acétylcholine, ce qui améliore la communication neuronale et la fonction cognitive.",
+    standardDose: "300-600mg par jour",
+    timeToEffect: "1-2 semaines pour les effets cognitifs",
+    contraindications: [
+      "Personnes avec une hypersensibilité à la choline"
+    ],
+    interactions: [
+      "Médicaments anticholinergiques (effet antagoniste)"
+    ],
+    researchScore: 7,
+    safetyProfile: 8,
+    naturalSources: ["Présent en petites quantités dans les produits laitiers et la viande"],
+    categories: ["Fonction cognitive", "Performance physique", "Santé cérébrale"]
   }
 };
 

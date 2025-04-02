@@ -149,100 +149,205 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
 
   const renderRecommendations = () => (
     <div className="space-y-6">
-      {recommendations.map((recommendation, index) => (
-        <Card 
-          key={recommendation.id || index}
-          className={`overflow-hidden hover:shadow-md transition-shadow ${
-            selectedRecommendation === recommendation.id ? 'ring-2 ring-blue-500' : ''
-          }`}
-        >
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg text-blue-800">
-                {recommendation.title}
-              </CardTitle>
-              <Badge variant={recommendation.relevanceScore > 0.8 ? "default" : "outline"}>
-                {Math.round(recommendation.relevanceScore * 100)}% pertinent
-              </Badge>
-            </div>
-            <CardDescription className="text-blue-700">
-              {recommendation.categories?.map(cat => cat).join(', ')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="prose prose-sm max-w-none">
-              <ScientificHighlightedText text={recommendation.description} level={scientificLevel} />
-              
-              {scientificLevel > 1 && (
-                <div className="mt-4 border-t border-gray-100 pt-3">
-                  <p className="text-sm text-gray-500 flex items-start">
-                    <Microscope className="h-4 w-4 mr-1 text-blue-500 flex-shrink-0 mt-0.5" />
-                    <span>Base scientifique: {recommendation.scientificBasis}</span>
-                  </p>
+      {recommendations.map((recommendation, index) => {
+        // Extract supplement information if available
+        const supplement = recommendation.id ? SUPPLEMENT_CATALOG[recommendation.id] : null;
+        
+        return (
+          <motion.div 
+            key={recommendation.id || index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+          >
+            <Card 
+              className={`overflow-hidden hover:shadow-md transition-all ${
+                selectedRecommendation === recommendation.id ? 'ring-2 ring-blue-500 shadow-md' : ''
+              }`}
+            >
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg text-blue-800 flex items-center">
+                    {index === 0 && (
+                      <Badge variant="secondary" className="mr-2 bg-amber-100 text-amber-800 border-amber-200">
+                        TOP
+                      </Badge>
+                    )}
+                    {recommendation.title}
+                  </CardTitle>
+                  <Badge variant={recommendation.relevanceScore > 0.8 ? "default" : "outline"}>
+                    {Math.round(recommendation.relevanceScore * 100)}% pertinent
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <CardDescription className="text-blue-700">
+                    {recommendation.categories?.map(cat => cat).join(', ')}
+                  </CardDescription>
                   
-                  {scientificLevel > 2 && (
-                    <div className="mt-2 bg-blue-50 p-2 rounded-md">
-                      <p className="text-xs text-blue-700 font-medium">Mécanisme d'action</p>
-                      <p className="text-xs text-blue-600">
-                        {recommendation.mechanismOfAction || "Ce supplément agit en modulant les voies métaboliques impliquées dans votre profil de santé spécifique."}
-                      </p>
+                  {supplement && supplement.safetyProfile && (
+                    <div className="flex items-center">
+                      <span className="text-xs text-gray-500 mr-1">Sécurité:</span>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div 
+                            key={i} 
+                            className={`w-1.5 h-4 rounded-sm mx-0.5 ${
+                              i < Math.floor(supplement.safetyProfile / 2) 
+                                ? 'bg-green-500' 
+                                : 'bg-gray-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="bg-gray-50 flex justify-between py-2 px-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-              onClick={() => setSelectedRecommendation(
-                selectedRecommendation === recommendation.id ? null : recommendation.id
-              )}
-            >
-              <Info className="h-4 w-4 mr-1" />
-              Plus d'infos
-            </Button>
-            <Button variant="ghost" size="sm" className="text-gray-600">
-              <ThumbsUp className="h-4 w-4 mr-1" />
-              Utile
-            </Button>
-          </CardFooter>
-          
-          {selectedRecommendation === recommendation.id && (
-            <div className="px-6 py-4 bg-blue-50 border-t border-blue-100">
-              <h4 className="font-medium text-blue-900 mb-2 flex items-center">
-                <Sparkles className="h-4 w-4 mr-1 text-blue-600" />
-                Détails supplémentaires
-              </h4>
-              <p className="text-sm text-gray-700 mb-3">
-                Cette recommandation est particulièrement adaptée à votre profil en raison 
-                {quizData.symptoms?.length > 0 && 
-                  ` de vos symptômes de ${quizData.symptoms.slice(0, 2).join(', ')}`
-                }
-                {quizData.objectives?.length > 0 && quizData.symptoms?.length > 0 && ' et '}
-                {quizData.objectives?.length > 0 && 
-                  ` de vos objectifs de ${quizData.objectives.slice(0, 2).join(', ')}`
-                }.
-              </p>
+              </CardHeader>
               
-              {scientificLevel > 1 && recommendation.relatedTerms && recommendation.relatedTerms.length > 0 && (
-                <div className="mt-3">
-                  <h5 className="font-medium text-sm text-gray-700 mb-1">Termes scientifiques associés:</h5>
-                  <div className="flex flex-wrap gap-1">
-                    {recommendation.relatedTerms.map((term, idx) => (
-                      <Badge key={idx} variant="outline" className="bg-white">
-                        {term}
-                      </Badge>
-                    ))}
-                  </div>
+              <CardContent className="pt-4">
+                <div className="prose prose-sm max-w-none">
+                  <ScientificHighlightedText text={recommendation.description} level={scientificLevel} />
+                  
+                  {scientificLevel > 1 && (
+                    <div className="mt-4 border-t border-gray-100 pt-3">
+                      <p className="text-sm text-gray-500 flex items-start">
+                        <Microscope className="h-4 w-4 mr-1 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <span>Base scientifique: {recommendation.scientificBasis}</span>
+                      </p>
+                      
+                      {scientificLevel > 2 && (
+                        <div className="mt-2 bg-blue-50 p-2 rounded-md">
+                          <p className="text-xs text-blue-700 font-medium">Mécanisme d'action</p>
+                          <p className="text-xs text-blue-600">
+                            {recommendation.mechanismOfAction || supplement?.scientificBasis || "Ce supplément agit en modulant les voies métaboliques impliquées dans votre profil de santé spécifique."}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {supplement && supplement.researchScore && (
+                        <div className="mt-2 flex items-center">
+                          <span className="text-xs text-gray-500 mr-2">Niveau de recherche:</span>
+                          <div className="flex items-center">
+                            <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="bg-blue-600 h-1.5 rounded-full" 
+                                style={{ width: `${supplement.researchScore * 10}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs ml-2 text-gray-600">{supplement.researchScore}/10</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+              </CardContent>
+              
+              <CardFooter className="bg-gray-50 flex justify-between py-2 px-4">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                  onClick={() => setSelectedRecommendation(
+                    selectedRecommendation === recommendation.id ? null : recommendation.id
+                  )}
+                >
+                  <Info className="h-4 w-4 mr-1" />
+                  {selectedRecommendation === recommendation.id ? 'Masquer les détails' : 'Plus d\'infos'}
+                </Button>
+                
+                <div className="flex">
+                  <Button variant="ghost" size="sm" className="text-gray-600">
+                    <ThumbsUp className="h-4 w-4 mr-1" />
+                    Utile
+                  </Button>
+                  {supplement && (
+                    <Button variant="ghost" size="sm" className="text-purple-600">
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Études
+                    </Button>
+                  )}
+                </div>
+              </CardFooter>
+              
+              {selectedRecommendation === recommendation.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-6 py-4 bg-blue-50 border-t border-blue-100"
+                >
+                  <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                    <Sparkles className="h-4 w-4 mr-1 text-blue-600" />
+                    Détails personnalisés
+                  </h4>
+                  
+                  {supplement && (
+                    <>
+                      <div className="mb-4">
+                        <h5 className="text-sm font-medium text-blue-800 mb-1">Pourquoi c'est recommandé pour vous</h5>
+                        <p className="text-sm text-gray-700">
+                          Cette recommandation est particulièrement adaptée à votre profil en raison 
+                          {quizData.symptoms?.length > 0 && 
+                            ` de vos symptômes de ${quizData.symptoms.slice(0, 2).join(', ')}`
+                          }
+                          {quizData.objectives?.length > 0 && quizData.symptoms?.length > 0 && ' et '}
+                          {quizData.objectives?.length > 0 && 
+                            ` de vos objectifs de ${quizData.objectives.slice(0, 2).join(', ')}`
+                          }.
+                        </p>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <h5 className="text-sm font-medium text-blue-800 mb-1">Dosage recommandé</h5>
+                        <p className="text-sm text-gray-700">{supplement.standardDose}</p>
+                      </div>
+                      
+                      {supplement.timeToEffect && (
+                        <div className="mb-4">
+                          <h5 className="text-sm font-medium text-blue-800 mb-1">Délai d'efficacité</h5>
+                          <p className="text-sm text-gray-700">{supplement.timeToEffect}</p>
+                        </div>
+                      )}
+                      
+                      {supplement.contraindications && supplement.contraindications.length > 0 && (
+                        <div className="mb-4">
+                          <h5 className="text-sm font-medium text-blue-800 mb-1">Précautions</h5>
+                          <ul className="text-sm text-gray-700 list-disc pl-5">
+                            {supplement.contraindications.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {supplement.naturalSources && supplement.naturalSources.length > 0 && (
+                        <div className="mb-4">
+                          <h5 className="text-sm font-medium text-blue-800 mb-1">Sources naturelles</h5>
+                          <p className="text-sm text-gray-700">{supplement.naturalSources.join(', ')}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  
+                  {scientificLevel > 1 && recommendation.relatedTerms && recommendation.relatedTerms.length > 0 && (
+                    <div className="mt-3">
+                      <h5 className="font-medium text-sm text-blue-800 mb-1">Termes scientifiques associés:</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {recommendation.relatedTerms.map((term, idx) => (
+                          <Badge key={idx} variant="outline" className="bg-white">
+                            {term}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
               )}
-            </div>
-          )}
-        </Card>
-      ))}
+            </Card>
+          </motion.div>
+        );
+      })}
     </div>
   );
 
