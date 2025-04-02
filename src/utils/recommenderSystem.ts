@@ -564,53 +564,6 @@ export function optimizeRecommendations(
   return baseRecommendations;
 }
 
-// Exportation des fonctions principales
-const recommenderSystemUtils = {
-  getComprehensiveRecommendations,
-  generateRecommendations,
-  enrichRecommendationsWithScientificTerms,
-  generateDetailedRecommendationExplanation,
-  getAILearningStatus,
-  evaluateDataQuality,
-  saveLearningData,
-  adjustRecommendationsWithLearning,
-  optimizeRecommendations,
-  getAIModelDetailedStatus,
-  recordLearningData,
-  calculateProfileSimilarity,
-  enrichRecommendationsWithExternalAI,
-  updateAiModel
-};
-
-export default recommenderSystemUtils;
-
-// Définition d'interfaces pour les types utilisés
-interface QuizResponses {
-  // Interface pour les réponses du quiz
-  healthConcerns?: {
-    stressLevel?: string;
-    energyLevel?: string;
-    sleepIssues?: string;
-    focusIssues?: string;
-    digestiveIssues?: string;
-  };
-  goals?: {
-    reduceStress?: boolean;
-    increaseEnergy?: boolean;
-    improveSleep?: boolean;
-    improveFocus?: boolean;
-    improveDigestion?: boolean;
-  };
-}
-
-interface BehavioralMetrics {
-  // Interface pour les métriques comportementales
-  cognitiveLoad: number;
-  stressLevel: number;
-  sleepQuality: number;
-}
-
-
 /**
  * Retourne le statut du modèle d'IA actuel
  * @returns Information sur le statut du modèle d'IA
@@ -796,28 +749,6 @@ export const generateRecommendations_original = (
 
 // La fonction generateExplanationDetails a été remplacée par generateDetailedRecommendationExplanation
 // pour éviter les duplications et améliorer la cohérence
-
-/**
- * Enregistre les données pour l'apprentissage du système IA
- */
-export const recordLearningData = (data: LearningData): void => {
-  try {
-    // Récupérer les données existantes
-    const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
-
-    // Ajouter les nouvelles données
-    existingData.push(data);
-
-    // Limiter la taille des données stockées (garder les 1000 plus récentes)
-    const trimmedData = existingData.slice(-1000);
-
-    // Sauvegarder les données
-    secureStorageService.setItem('aiLearningData', trimmedData);
-
-  } catch (error) {
-    console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
-  }
-};
 
 /**
  * Calcule le score de similarité entre deux profils utilisateurs
@@ -1254,3 +1185,46 @@ interface QuizResponses {
 }
 
 // Note: L'interface BehavioralMetrics est déjà définie plus haut dans le fichier
+
+/**
+ * Enregistre les données pour l'apprentissage du système IA
+ */
+export const recordLearningData = (data: LearningData): void => {
+  try {
+    // Récupérer les données existantes
+    const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+
+    // Ajouter les nouvelles données
+    existingData.push(data);
+
+    // Limiter la taille des données stockées (garder les 1000 plus récentes)
+    const trimmedData = existingData.slice(-1000);
+
+    // Sauvegarder les données
+    secureStorageService.setItem('aiLearningData', trimmedData);
+
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
+  }
+};
+
+
+// Exportation des fonctions principales
+const recommenderSystemUtils = {
+  getComprehensiveRecommendations,
+  generateRecommendations,
+  enrichRecommendationsWithScientificTerms,
+  generateDetailedRecommendationExplanation,
+  getAILearningStatus,
+  evaluateDataQuality,
+  saveLearningData,
+  adjustRecommendationsWithLearning,
+  optimizeRecommendations,
+  getAIModelDetailedStatus,
+  recordLearningData,
+  calculateProfileSimilarity,
+  enrichRecommendationsWithExternalAI,
+  updateAiModel
+};
+
+export default recommenderSystemUtils;
