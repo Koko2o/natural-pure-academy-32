@@ -25,10 +25,21 @@ export const detectBannedTerms = (content: string): string[] => {
   // Deuxième passe : analyse contextuelle (exclure les contextes éducatifs)
   const safeContextPhrases = [
     'étude scientifique', 'recherche montre', 'selon les études',
-    'à titre informatif', 'à but éducatif', 'contenu éducatif'
+    'à titre informatif', 'à but éducatif', 'contenu éducatif',
+    'aucune vente', 'sans vente', 'ne commercialise', 
+    'non commercial', 'scientifique uniquement'
   ];
   
   for (const term of simpleDetectedTerms) {
+    // Si le terme est "vente" et le contexte contient des phrases de non-vente,
+    // considérer le contexte comme sûr automatiquement
+    if (term === 'vente' && safeContextPhrases.some(phrase => 
+        pageContent.includes('aucune vente') || 
+        pageContent.includes('sans vente') || 
+        pageContent.includes('ne commercialise'))) {
+      continue;
+    }
+    
     // Recherche des occurrences du terme
     const termIndex = pageContent.indexOf(term);
     if (termIndex > -1) {

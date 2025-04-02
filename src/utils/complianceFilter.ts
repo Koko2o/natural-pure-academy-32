@@ -429,18 +429,21 @@ export const detectBannedTerms = (content: string): string[] => {
       'réduction', 'promotion', 'meilleur prix', 'tarif', '€'
     ];
 
-    // Check if the term 'vente' is used in an educational context
-    const venteInEducationalContext = /vente\s+de\s+produit/i.test(content) && 
-                                      /aucune\s+vente/i.test(content);
+    // Détection améliorée pour exclure les contextes éducatifs et de non-vente
+    const educationalContextPhrases = [
+      'aucune vente', 'sans vente', 'ne commercialise', 'non commercial',
+      'but éducatif', 'à titre éducatif', 'contenu éducatif',
+      'scientifique uniquement'
+    ];
+    
+    // Vérifier si le terme "vente" est utilisé dans un contexte éducatif
+    const hasEducationalContext = educationalContextPhrases.some(phrase => 
+      content.toLowerCase().includes(phrase.toLowerCase())
+    );
 
-    let termsToCheck = bannedTerms;
-    if (venteInEducationalContext) {
-      // If 'vente' is used in an educational context, exclude it from banned terms
-      termsToCheck = bannedTerms;
-    } else {
-      // Otherwise, include it
-      termsToCheck = [...bannedTerms, 'vente'];
-    }
+    // Exclure "vente" si utilisé dans un contexte éducatif
+    let termsToCheck = hasEducationalContext ? 
+      bannedTerms : [...bannedTerms, 'vente'];
 
     return termsToCheck.filter(term => 
       new RegExp(`\\b${term}\\b`, 'i').test(content)
