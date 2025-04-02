@@ -737,7 +737,7 @@ const processBehavioralData = (behavioralMetrics: BehavioralMetrics) => ({
   sleepQuality: 0.8,
   attentionLevel: 0.65,
   uncertaintyLevel: 0.4,
-  interestAreas: ['Stress', 'Sommeil', ''Énergie']
+  interestAreas: ['Stress', 'Sommeil','Énergie']
 });
 
 // Fonction unique pour analyser les performances des recommandations
