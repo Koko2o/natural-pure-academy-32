@@ -1190,22 +1190,22 @@ interface QuizResponses {
  * Enregistre les données pour l'apprentissage du système IA
  */
 export const recordLearningData = (data: LearningData): void => {
-  try {
-    // Récupérer les données existantes
-    const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
+    try {
+        // Récupérer les données existantes
+        const existingData: LearningData[] = secureStorageService.getItem('aiLearningData') || [];
 
-    // Ajouter les nouvelles données
-    existingData.push(data);
+        // Ajouter les nouvelles données
+        existingData.push(data);
 
-    // Limiter la taille des données stockées (garder les 1000 plus récentes)
-    const trimmedData = existingData.slice(-1000);
+        // Limiter la taille des données stockées (garder les 1000 plus récentes)
+        const trimmedData = existingData.slice(-1000);
 
-    // Sauvegarder les données
-    secureStorageService.setItem('aiLearningData', trimmedData);
+        // Sauvegarder les données
+        secureStorageService.setItem('aiLearningData', trimmedData);
 
-  } catch (error) {
-    console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
-  }
+    } catch (error) {
+        console.error("Erreur lors de l'enregistrement des données d'apprentissage:", error);
+    }
 };
 
 
