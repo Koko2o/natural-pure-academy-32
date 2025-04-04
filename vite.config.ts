@@ -12,7 +12,8 @@ export default defineConfig(({ mode }) => ({
     allowedHosts: [
       "abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev",
       ".replit.dev",
-      ".repl.co"
+      ".repl.co",
+      "natural-pure-academy-32-1-kossayelbenna00.replit.app"
     ],
   },
   plugins: [
