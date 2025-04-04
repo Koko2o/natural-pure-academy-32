@@ -25,6 +25,9 @@ interface LegacyDietaryHabitsStepProps {
 const DietaryHabitsStep = (props: QuizStepProps | LegacyDietaryHabitsStepProps) => {
   // Déterminer quelle interface est utilisée
   const isLegacyProps = 'data' in props;
+  
+  // Pour le débogage
+  console.log("DietaryHabitsStep props:", JSON.stringify(props, null, 2));
 
   const toggleOption = (option: string) => {
     try {
@@ -40,10 +43,13 @@ const DietaryHabitsStep = (props: QuizStepProps | LegacyDietaryHabitsStepProps) 
         }
       } else {
         // Utiliser l'interface QuizStepProps
-        const { responses, updateResponse } = props as QuizStepProps;
+        const { responses = {}, updateResponse } = props as QuizStepProps;
         if (!updateResponse) return;
 
-        const currentOptions = Array.isArray(responses?.dietaryHabits) ? [...responses.dietaryHabits] : [];
+        // S'assurer que responses.dietaryHabits existe et est un tableau
+        const currentOptions = Array.isArray(responses?.dietaryHabits) 
+          ? [...responses.dietaryHabits] 
+          : (responses?.dietaryHabits ? [responses.dietaryHabits] : []);
 
         if (currentOptions.includes(option)) {
           updateResponse(
@@ -83,8 +89,9 @@ const DietaryHabitsStep = (props: QuizStepProps | LegacyDietaryHabitsStepProps) 
                 checked={
                   isLegacyProps 
                     ? ((props as LegacyDietaryHabitsStepProps).data || []).includes(option)
-                    : Array.isArray((props as QuizStepProps).responses?.dietaryHabits) && 
-                      (props as QuizStepProps).responses.dietaryHabits.includes(option)
+                    : Array.isArray((props as QuizStepProps).responses?.dietaryHabits) 
+                      ? (props as QuizStepProps).responses.dietaryHabits.includes(option)
+                      : false
                 }
                 onCheckedChange={() => toggleOption(option)}
                 id={`diet-${option}`}

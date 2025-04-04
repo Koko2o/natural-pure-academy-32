@@ -25,7 +25,7 @@ const Quiz = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [quizData, setQuizData] = useState<any>({
     symptoms: [],
-    dietaryHabits: [],
+    dietaryHabits: [], // S'assurer que c'est toujours un tableau
     lifestyle: [],
     objectives: [],
     proteinConsumption: ""
