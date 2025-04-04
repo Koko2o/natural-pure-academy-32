@@ -11,7 +11,7 @@ import {
   UserProfile,
   UserFeedback
 } from './types';
-import { calculateProfileSimilarity } from './recommenderSystem';
+import { calculateProfileSimilarity } from './userSimilarity';
 import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import { SYMPTOM_CATEGORIES, SYMPTOM_RECOMMENDATIONS, GOAL_RECOMMENDATIONS } from '../data/recommendationMappings';
 

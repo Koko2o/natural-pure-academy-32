@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
         setTimeout(() => {
           // Enrichir les données du quiz avec des informations contextuelles
           const enrichedQuizData = QuizIntegrationService.enrichQuizData(quizData);
-          
+
           // Generate recommendations using the recommender system
           const generatedRecommendations = QuizIntegrationService.getPersonalizedRecommendations(enrichedQuizData);
           console.log("Generated recommendations:", generatedRecommendations);
