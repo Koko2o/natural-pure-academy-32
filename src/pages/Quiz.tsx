@@ -100,8 +100,8 @@ const Quiz = () => {
       case "dietaryHabits":
         return (
           <DietaryHabitsStep 
-            data={quizData.dietaryHabits} 
-            updateData={(data) => updateQuizData("dietaryHabits", data)} 
+            responses={{ dietaryHabits: quizData.dietaryHabits }}
+            updateResponse={(field, value) => updateQuizData(field, value)} 
           />
         );
       case "lifestyle":
