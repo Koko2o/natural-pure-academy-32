@@ -27,6 +27,9 @@ const Quiz = () => {
     symptoms: [],
     dietaryHabits: [], // S'assurer que c'est toujours un tableau
     lifestyle: [],
+    exerciseFrequency: "",
+    sleepQuality: "",
+    stressLevel: "",
     objectives: [],
     proteinConsumption: ""
   });
@@ -75,6 +78,9 @@ const Quiz = () => {
       symptoms: [],
       dietaryHabits: [],
       lifestyle: [],
+      exerciseFrequency: "",
+      sleepQuality: "",
+      stressLevel: "",
       objectives: [],
       proteinConsumption: ""
     });
@@ -107,7 +113,12 @@ const Quiz = () => {
       case "lifestyle":
         return (
           <LifestyleStep 
-            responses={{ lifestyle: quizData.lifestyle, exerciseFrequency: "" }}
+            responses={{ 
+              lifestyle: quizData.lifestyle || [],
+              exerciseFrequency: quizData.exerciseFrequency || "",
+              sleepQuality: quizData.sleepQuality || "",
+              stressLevel: quizData.stressLevel || ""
+            }}
             updateResponse={(field, value) => updateQuizData(field, value)}
           />
         );

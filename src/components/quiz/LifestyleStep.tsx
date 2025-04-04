@@ -46,13 +46,15 @@ const LifestyleStep = (props: QuizStepProps | QuizLifestyleStepProps) => {
     ? (props as QuizStepProps).updateData
     : undefined;
 
+  // S'assurer que les réponses sont correctement extraites, qu'elles utilisent l'ancien ou le nouveau format
   const responses = !isLegacyProps
     ? (props as QuizLifestyleStepProps).responses || {}
     : {};
 
+  // S'assurer que la fonction de mise à jour est correctement extraite
   const updateResponse = !isLegacyProps
     ? (props as QuizLifestyleStepProps).updateResponse
-    : undefined;
+    : updateData;
 
 
   return (
