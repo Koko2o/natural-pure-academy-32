@@ -31,7 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { evaluateDataQuality, getAILearningStatus, identifyPatternCorrelations, trainAIModel } from '@/utils/aiLearningEngine';
-import { SUPPLEMENT_CATALOG } from '@/data/supplementCatalog';
+import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import { analyzeRecommendationPerformance } from '@/utils/aiLearningEngine';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

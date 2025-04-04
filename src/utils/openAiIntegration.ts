@@ -1,4 +1,3 @@
-
 /**
  * Module d'intégration avancée avec l'API OpenAI pour l'enrichissement
  * des recommandations nutritionnelles
@@ -12,7 +11,7 @@ import {
   SupplementInfo
 } from './types';
 
-import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
+import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import { generatePredictiveInsights } from './predictiveAnalysis';
 
 /**
@@ -82,13 +81,13 @@ const buildUserProfilePrompt = (userProfile: UserProfile): string => {
     dietaryRestrictions = {},
     demographics = {}
   } = userProfile;
-  
+
   const { ageRange, gender, activityLevel } = demographics;
-  
+
   const symptomsList = activeSymptoms.map(symptom => 
     typeof symptom === 'string' ? symptom : symptom.id
   ).join(', ');
-  
+
   const dietaryList = Object.entries(dietaryRestrictions)
     .filter(([_, value]) => value)
     .map(([key]) => key)
@@ -111,16 +110,16 @@ Profil utilisateur:
 const getCachedResponse = (cacheKey: string): any | null => {
   try {
     const cacheData = secureStorageService.getItem(`openai_cache_${cacheKey}`);
-    
+
     if (cacheData) {
       const { response, timestamp, expiryHours } = cacheData;
       const ageInHours = (Date.now() - timestamp) / (1000 * 60 * 60);
-      
+
       if (ageInHours < expiryHours) {
         return response;
       }
     }
-    
+
     return null;
   } catch (error) {
     console.error("Erreur lors de la récupération du cache OpenAI:", error);
@@ -138,7 +137,7 @@ const cacheResponse = (cacheKey: string, response: any, expiryHours: number): vo
       timestamp: Date.now(),
       expiryHours
     };
-    
+
     secureStorageService.setItem(`openai_cache_${cacheKey}`, cacheData);
   } catch (error) {
     console.error("Erreur lors du stockage en cache OpenAI:", error);
@@ -155,11 +154,11 @@ const callOpenAI = async (
   maxTokens: number
 ): Promise<any> => {
   const apiKey = secureStorageService.getItem('openai_api_key');
-  
+
   if (!apiKey) {
     throw new Error("Clé API OpenAI non configurée");
   }
-  
+
   const requestData = {
     model,
     messages: [
@@ -175,7 +174,7 @@ const callOpenAI = async (
     temperature,
     max_tokens: maxTokens
   };
-  
+
   try {
     // Configuration de la requête
     const requestOptions = {
@@ -186,14 +185,14 @@ const callOpenAI = async (
       },
       body: JSON.stringify(requestData)
     };
-    
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', requestOptions);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(`Erreur API OpenAI: ${errorData.error?.message || response.statusText}`);
     }
-    
+
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
@@ -214,11 +213,11 @@ export const enrichRecommendationsWithExternalAI = async (
     console.log("OpenAI n'est pas configuré ou activé. Utilisation des recommandations standard.");
     return recommendations;
   }
-  
+
   try {
     const config = getOpenAIConfig();
     const enrichedRecommendations = [...recommendations];
-    
+
     // Génération du cacheKey basé sur les principales caractéristiques du profil
     const profileKeys = [
       ...userProfile.activeSymptoms,
@@ -227,9 +226,9 @@ export const enrichRecommendationsWithExternalAI = async (
         .filter(([_, v]) => Boolean(v))
         .map(([k]) => k)
     ].sort().join('_');
-    
+
     const cacheKey = `bulk_${profileKeys}_${recommendations.map(r => r.id).join('-')}`;
-    
+
     // Vérifier si les résultats sont en cache
     if (config.cacheResponses) {
       const cachedResult = getCachedResponse(cacheKey);
@@ -238,7 +237,7 @@ export const enrichRecommendationsWithExternalAI = async (
         return cachedResult;
       }
     }
-    
+
     // Préparer le prompt pour l'analyse de masse
     const userProfilePrompt = buildUserProfilePrompt(userProfile);
     const recommendationsList = recommendations.map(rec => {
@@ -253,7 +252,7 @@ export const enrichRecommendationsWithExternalAI = async (
         predictiveInsights.map(insight => `- ${insight.description}`).join('\n')
       }` : 
       'Aucune tendance prédictive significative identifiée.';
-    
+
     const bulkPrompt = `
 En tant que nutritionniste expert, analysez les recommandations suivantes pour ce profil utilisateur et fournissez:
 1. Une explication personnalisée de pourquoi chaque supplément est pertinent pour ce profil spécifique
@@ -290,15 +289,15 @@ Répondez au format JSON avec une structure comme suit:
       config.temperature,
       config.maxTokens
     );
-    
+
     try {
       // Parser le résultat JSON
       const aiResponse = JSON.parse(result);
-      
+
       // Enrichir les recommandations avec les données de l'IA
       for (const rec of enrichedRecommendations) {
         const aiEnrichment = aiResponse.recommendations.find((r: any) => r.id === rec.id);
-        
+
         if (aiEnrichment) {
           rec.aiEnhanced = true;
           rec.personalizedExplanation = aiEnrichment.personalizedExplanation;
@@ -307,19 +306,19 @@ Répondez au format JSON avec une structure comme suit:
           rec.dietaryAlternatives = aiEnrichment.dietaryAlternatives;
         }
       }
-      
+
       // Ajouter l'analyse globale
       if (aiResponse.overallAnalysis) {
         for (const rec of enrichedRecommendations) {
           rec.overallAnalysis = aiResponse.overallAnalysis;
         }
       }
-      
+
       // Mettre en cache si activé
       if (config.cacheResponses) {
         cacheResponse(cacheKey, enrichedRecommendations, config.cacheExpiry);
       }
-      
+
       return enrichedRecommendations;
     } catch (parseError) {
       console.error("Erreur lors du parsing de la réponse OpenAI:", parseError);
@@ -343,18 +342,18 @@ export const generatePersonalizedExplanation = async (
     if (!isOpenAIConfigured()) {
       return "Explication détaillée non disponible (OpenAI non configuré)";
     }
-    
+
     const config = getOpenAIConfig();
     const supplement = SUPPLEMENT_CATALOG[supplementId];
-    
+
     if (!supplement) {
       return "Information sur ce supplément non disponible";
     }
-    
+
     // Générer le cacheKey
     const profileCacheKey = Object.values(userProfile).flat().filter(Boolean).join('_');
     const cacheKey = `explanation_${supplementId}_${profileCacheKey}`;
-    
+
     // Vérifier si une explication est en cache
     if (config.cacheResponses) {
       const cachedExplanation = getCachedResponse(cacheKey);
@@ -362,10 +361,10 @@ export const generatePersonalizedExplanation = async (
         return cachedExplanation;
       }
     }
-    
+
     // Construire le prompt
     const userProfilePrompt = buildUserProfilePrompt(userProfile);
-    
+
     const supplementDetails = `
 Nom: ${supplement.name} (${supplement.scientificName})
 Description: ${supplement.description}
@@ -377,7 +376,7 @@ ${supplement.detailedMechanism ? `Mécanisme d'action: ${supplement.detailedMech
 ${supplement.clinicalEvidence ? `Preuves cliniques: ${supplement.clinicalEvidence.map(e => `${e.study}: ${e.finding}`).join(', ')}` : ''}
 ${supplement.formulations ? `Formulations: ${supplement.formulations.map(f => `${f.type} (Biodisponibilité: ${f.bioavailability})`).join(', ')}` : ''}
     `;
-    
+
     const prompt = `
 Générez une explication personnalisée, scientifique et approfondie sur le supplément nutritionnel suivant, spécifiquement adaptée au profil utilisateur fourni. 
 L'explication doit être:
@@ -399,7 +398,7 @@ Incluez ces sections:
 - Ce que la science en dit
 - Alternatives alimentaires
     `;
-    
+
     // Appeler l'API
     const explanation = await callOpenAI(
       prompt,
@@ -407,12 +406,12 @@ Incluez ces sections:
       config.temperature,
       config.maxTokens
     );
-    
+
     // Mettre en cache si activé
     if (config.cacheResponses) {
       cacheResponse(cacheKey, explanation, config.cacheExpiry);
     }
-    
+
     return explanation;
   } catch (error) {
     console.error("Erreur lors de la génération d'explication personnalisée via OpenAI:", error);
@@ -430,15 +429,15 @@ export const generatePersonalizedNutritionPlan = async (
   if (!isOpenAIConfigured()) {
     return "Plan nutritionnel personnalisé non disponible (OpenAI non configuré)";
   }
-  
+
   try {
     const config = getOpenAIConfig();
-    
+
     // Générer le cacheKey
     const recIds = recommendations.map(r => r.id).sort().join('-');
     const profileCacheKey = Object.values(userProfile).flat().filter(Boolean).join('_');
     const cacheKey = `plan_${recIds}_${profileCacheKey}`;
-    
+
     // Vérifier si un plan est en cache
     if (config.cacheResponses) {
       const cachedPlan = getCachedResponse(cacheKey);
@@ -446,7 +445,7 @@ export const generatePersonalizedNutritionPlan = async (
         return cachedPlan;
       }
     }
-    
+
     // Préparer les informations sur les suppléments recommandés
     const supplementsInfo = recommendations.slice(0, 5).map(rec => {
       const supplement = SUPPLEMENT_CATALOG[rec.id];
@@ -457,10 +456,10 @@ export const generatePersonalizedNutritionPlan = async (
         dosage: supplement?.recommendedDosage || 'Non spécifié'
       };
     });
-    
+
     // Construire le prompt
     const userProfilePrompt = buildUserProfilePrompt(userProfile);
-    
+
     const prompt = `
 En tant que nutritionniste expert, créez un plan nutritionnel personnalisé de 7 jours basé sur le profil utilisateur et les suppléments recommandés.
 Le plan doit:
@@ -481,7 +480,7 @@ Fournissez un plan détaillé sous forme de texte structuré, incluant:
 - Des conseils de mise en œuvre spécifiques au profil
 - Des recettes adaptées mettant en avant les sources naturelles des nutriments recommandés
     `;
-    
+
     // Appeler l'API
     const plan = await callOpenAI(
       prompt,
@@ -489,12 +488,12 @@ Fournissez un plan détaillé sous forme de texte structuré, incluant:
       config.temperature,
       1500 // Plus de tokens pour un plan complet
     );
-    
+
     // Mettre en cache si activé
     if (config.cacheResponses) {
       cacheResponse(cacheKey, plan, config.cacheExpiry);
     }
-    
+
     return plan;
   } catch (error) {
     console.error("Erreur lors de la génération du plan nutritionnel via OpenAI:", error);
