@@ -30,12 +30,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev -- --port 8080 --host 0.0.0.0"
-
-[[workflows.workflow]]
-name = "Run with kill-port"
-author = 40962122
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx kill-port 8080 --yes && npm run dev -- --port 8080 --host 0.0.0.0"
