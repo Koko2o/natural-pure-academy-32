@@ -191,71 +191,74 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
 
       {/* Recommendations */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-        {recommendations.map((recommendation, index) => (
-          <Card 
-            key={index} 
-            className={`overflow-hidden transition-shadow hover:shadow-lg ${
-              recommendation.relevanceScore > 0.8 ? 'border-primary/50' : ''
-            }`}
-          >
-            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-4">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{recommendation.title}</CardTitle>
-                <Badge>{Math.round(recommendation.relevanceScore * 100)}% match</Badge>
-              </div>
-              <CardDescription>
-                {recommendation.categories.slice(0, 2).join(' • ')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="text-sm text-gray-500 mb-3">
-                <ScientificHighlightedText 
-                  text={recommendation.description} 
-                  scientificLevel={scientificLevel}
-                />
-              </div>
-              <div className="flex items-center text-xs text-gray-500 mt-4">
-                {SUPPLEMENT_CATALOG[recommendation.id]?.timeToEffect && (
-                  <div className="flex items-center gap-1 mr-4">
-                    <Clock size={14} /> 
-                    {SUPPLEMENT_CATALOG[recommendation.id].timeToEffect}
-                  </div>
-                )}
-                {SUPPLEMENT_CATALOG[recommendation.id]?.naturalSources && (
-                  <div className="flex items-center gap-1">
-                    <Leaf size={14} /> 
-                    Sources naturelles disponibles
-                  </div>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="bg-gray-50 flex justify-between">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSelectedRecommendation(
-                  selectedRecommendation === recommendation.id ? null : recommendation.id
-                )}
-              >
-                {selectedRecommendation === recommendation.id ? 'Masquer détails' : 'Voir détails'}
-              </Button>
-              <Button size="icon" variant="ghost">
-                <Info size={16} />
-              </Button>
-            </CardFooter>
-
-            {selectedRecommendation === recommendation.id && (
-              <div className="px-6 pb-6">
-                <Separator className="mb-4" />
-                <div className="text-sm prose prose-sm max-w-none">
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: getDetailedExplanation(recommendation).replace(/\n/g, '<br />') 
-                  }} />
+        {recommendations.map((recommendation, index) => {
+          const supplement = SUPPLEMENT_CATALOG[recommendation.id];
+          return (
+            <Card 
+              key={index} 
+              className={`overflow-hidden transition-shadow hover:shadow-lg ${
+                recommendation.relevanceScore > 0.8 ? 'border-primary/50' : ''
+              }`}
+            >
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-4">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{recommendation.title}</CardTitle>
+                  <Badge>{Math.round(recommendation.relevanceScore * 100)}% match</Badge>
                 </div>
-              </div>
-            )}
-          </Card>
-        ))}
+                <CardDescription>
+                  {recommendation.categories.slice(0, 2).join(' • ')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="text-sm text-gray-500 mb-3">
+                  <ScientificHighlightedText 
+                    text={recommendation.description} 
+                    scientificLevel={scientificLevel}
+                  />
+                </div>
+                <div className="flex items-center text-xs text-gray-500 mt-4">
+                  {supplement && supplement.timeToEffect && (
+                    <div className="flex items-center gap-1 mr-4">
+                      <Clock size={14} /> 
+                      {supplement.timeToEffect}
+                    </div>
+                  )}
+                  {supplement && supplement.naturalSources && (
+                    <div className="flex items-center gap-1">
+                      <Leaf size={14} /> 
+                      Sources naturelles disponibles
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="bg-gray-50 flex justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedRecommendation(
+                    selectedRecommendation === recommendation.id ? null : recommendation.id
+                  )}
+                >
+                  {selectedRecommendation === recommendation.id ? 'Masquer détails' : 'Voir détails'}
+                </Button>
+                <Button size="icon" variant="ghost">
+                  <Info size={16} />
+                </Button>
+              </CardFooter>
+
+              {selectedRecommendation === recommendation.id && (
+                <div className="px-6 pb-6">
+                  <Separator className="mb-4" />
+                  <div className="text-sm prose prose-sm max-w-none">
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: getDetailedExplanation(recommendation).replace(/\n/g, '<br />') 
+                    }} />
+                  </div>
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
 
       {/* AI Insights Toggle */}
