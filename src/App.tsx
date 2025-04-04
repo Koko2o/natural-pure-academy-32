@@ -57,7 +57,7 @@ const runContentSafetyCheck = () => {
     // Logique pour détecter les sections problématiques (exemple amélioré)
     document.querySelectorAll('p, h1, h2, h3, h4, h5, div, button, a').forEach((element) => {
       const content = element.textContent?.toLowerCase() || '';
-      const hasBannedTerm = foundTerms.some(term => content.includes(term));
+      const hasBannedTerm = foundTerms.some(term => content.includecontains(term));
 
       if (hasBannedTerm) {
         // Enregistrer les sections problématiques pour faciliter le nettoyage
@@ -81,7 +81,13 @@ const runContentSafetyCheck = () => {
   }
 };
 
-// Fonction utilitaire pour obtenir le chemin d'un élément dans le DOM
+// Fonction utilitaire pour obtenir le chemin d'un élément
+const getElementPath = (element: HTMLElement): string => {
+  let path = element.tagName.toLowerCase();
+  if (element.id) path += '#' + element.id;
+  if (element.className) path += '.' + element.className.replace(/\s+/g, '.');
+  return path;
+}un élément dans le DOM
 const getElementPath = (element: HTMLElement) => {
   const path: string[] = [];
   let currentElement: HTMLElement | null = element;

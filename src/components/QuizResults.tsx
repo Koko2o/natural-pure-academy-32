@@ -15,7 +15,21 @@ import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 
 interface QuizResultsProps {
-  quizData: any;
+  quizData: {
+    userInfo?: {
+      name?: string;
+      email?: string;
+      age?: number;
+      gender?: string;
+    };
+    symptoms?: string[];
+    dietaryHabits?: string[];
+    lifestyle?: string[];
+    objectives?: string[];
+    proteinConsumption?: string;
+    score?: number;
+    recommendations?: any[];
+  };
   restartQuiz: () => void;
 }
 
