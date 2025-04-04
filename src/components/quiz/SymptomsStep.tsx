@@ -18,14 +18,19 @@ const symptoms = [
 
 const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
   const toggleSymptom = (symptom: string) => {
-    const currentSymptoms = [...(responses?.symptoms || [])]; // Handle potential undefined
-    if (currentSymptoms.includes(symptom)) {
-      updateResponse(
-        "symptoms",
-        currentSymptoms.filter((sym) => sym !== symptom)
-      );
-    } else {
-      updateResponse("symptoms", [...currentSymptoms, symptom]);
+    try {
+      const currentSymptoms = Array.isArray(responses?.symptoms) ? [...responses.symptoms] : [];
+      
+      if (currentSymptoms.includes(symptom)) {
+        updateResponse(
+          "symptoms",
+          currentSymptoms.filter((sym) => sym !== symptom)
+        );
+      } else {
+        updateResponse("symptoms", [...currentSymptoms, symptom]);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour des symptômes:", error);
     }
   };
 
@@ -37,7 +42,7 @@ const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
           <div 
             key={symptom}
             className={`border rounded-lg p-3 cursor-pointer transition-all ${
-              responses?.symptoms?.includes(symptom) // Handle potential undefined
+              Array.isArray(responses?.symptoms) && responses.symptoms.includes(symptom)
                 ? "border-primary bg-primary/5" 
                 : "hover:border-primary/50"
             }`}
@@ -45,7 +50,7 @@ const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
           >
             <div className="flex items-center space-x-3">
               <Checkbox
-                checked={responses?.symptoms?.includes(symptom)} // Handle potential undefined
+                checked={Array.isArray(responses?.symptoms) && responses.symptoms.includes(symptom)}
                 onCheckedChange={() => toggleSymptom(symptom)}
                 id={`symptom-${symptom}`}
               />

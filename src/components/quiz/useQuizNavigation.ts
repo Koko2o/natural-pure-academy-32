@@ -26,7 +26,7 @@ export const useQuizNavigation = ({
     exerciseFrequency: "",
     sleepQuality: "",
     stressLevel: "",
-    symptoms: [],
+    symptoms: [], // Assurons-nous que c'est initialisé comme un tableau vide
   });
 
   const updateResponse = (field: string, value: any) => {
