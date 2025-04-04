@@ -87,7 +87,9 @@ const getElementPath = (element: HTMLElement): string => {
   if (element.id) path += '#' + element.id;
   if (element.className) path += '.' + element.className.replace(/\s+/g, '.');
   return path;
-}un élément dans le DOM
+}
+
+// Fonction utilitaire pour obtenir le chemin d'un élément dans le DOM
 const getElementPath = (element: HTMLElement) => {
   const path: string[] = [];
   let currentElement: HTMLElement | null = element;
