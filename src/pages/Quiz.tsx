@@ -93,8 +93,8 @@ const Quiz = () => {
       case "symptoms":
         return (
           <SymptomsStep 
-            data={quizData.symptoms} 
-            updateData={(data) => updateQuizData("symptoms", data)} 
+            responses={{ symptoms: quizData.symptoms }}
+            updateResponse={(field, value) => updateQuizData(field, value)} 
           />
         );
       case "dietaryHabits":
