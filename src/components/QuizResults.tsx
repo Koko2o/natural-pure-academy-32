@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, ArrowLeft, CheckCircle2, Clock, Info, Leaf } from "lucide-react";
+import { AlertCircle, ArrowLeft, Clock, Info, Leaf } from "lucide-react";
 import { getComprehensiveRecommendations, generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
 import { QuizData, Recommendation, QuizResponse } from '@/utils/types';
 import { SUPPLEMENT_CATALOG } from '@/data/supplementCatalog';
