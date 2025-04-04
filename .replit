@@ -20,10 +20,6 @@ externalPort = 80
 localPort = 8081
 externalPort = 8081
 
-[[deployment.rewrites]]
-from = "/*"
-to = "/index.html"
-
 [workflows]
 runButton = "Run"
 
@@ -43,8 +39,16 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run start"
+
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
