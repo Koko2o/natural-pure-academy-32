@@ -726,4 +726,5 @@ const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
   }
 };
 
+export { SUPPLEMENT_CATALOG };
 export default SUPPLEMENT_CATALOG;

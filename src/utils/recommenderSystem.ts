@@ -13,7 +13,7 @@ import {
   LearningData
 } from './types';
 
-import { SUPPLEMENT_CATALOG } from '../data/supplementCatalog';
+import SUPPLEMENT_CATALOG from '../data/supplementCatalog';
 import { scientificTerms } from '@/data/scientificTerms';
 
 // Base de connaissances pour les recommandations

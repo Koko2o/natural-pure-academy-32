@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
+import SUPPLEMENT_CATALOG from '../data/supplementCatalog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
