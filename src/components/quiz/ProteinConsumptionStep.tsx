@@ -1,64 +1,76 @@
-import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { QuizStepProps } from "./types";
 
-// Interface pour les anciennes props
-interface LegacyProteinConsumptionStepProps {
-  data?: string;
-  updateData?: (data: string) => void;
-}
-
-const proteinOptions = [
-  { value: "high", label: "Élevée - Viande ou poisson à chaque repas principal" },
-  { value: "moderate", label: "Modérée - Viande ou poisson plusieurs fois par semaine" },
-  { value: "low", label: "Faible - Peu de viande ou poisson, alimentation plutôt végétale" },
-  { value: "vegan", label: "Je suis végétarien/végétalien" }
+const frequencyOptions = [
+  { value: "daily", label: "Quotidiennement" },
+  { value: "weekly", label: "Plusieurs fois par semaine" },
+  { value: "monthly", label: "Quelques fois par mois" },
+  { value: "rarely", label: "Rarement ou jamais" },
 ];
 
-const ProteinConsumptionStep = (props: QuizStepProps | LegacyProteinConsumptionStepProps) => {
-  // Déterminer quelle interface est utilisée
-  const isLegacyProps = 'data' in props;
+const fruitVegOptions = [
+  { value: "0-1", label: "0 à 1 portion" },
+  { value: "2-3", label: "2 à 3 portions" },
+  { value: "4-5", label: "4 à 5 portions" },
+  { value: "6+", label: "6 portions ou plus" },
+];
 
-  // Pour le débogage
-  console.log("ProteinConsumptionStep props:", JSON.stringify(props, null, 2));
-
-  const handleChange = (value: string) => {
-    if (isLegacyProps) {
-      // Utiliser l'interface LegacyProteinConsumptionStepProps
-      const { updateData } = props as LegacyProteinConsumptionStepProps;
-      if (updateData) {
-        updateData(value);
-      }
-    } else {
-      // Utiliser l'interface QuizStepProps
-      const { updateResponse } = props as QuizStepProps;
-      if (updateResponse) {
-        updateResponse("proteinConsumption", value);
-      }
-    }
-  };
-
-  // Déterminer la valeur actuelle
-  const currentValue = isLegacyProps 
-    ? (props as LegacyProteinConsumptionStepProps).data || ""
-    : (props as QuizStepProps).responses?.proteinConsumption || "";
-
+const ProteinConsumptionStep = ({ responses, updateResponse }: QuizStepProps) => {
   return (
-    <div>
-      <p className="font-medium mb-3">Quelle est votre consommation habituelle de protéines animales ?</p>
-      <RadioGroup
-        value={currentValue}
-        onValueChange={handleChange}
-        className="space-y-3"
-      >
-        {proteinOptions.map((option) => (
-          <div key={option.value} className="flex items-center space-x-2">
-            <RadioGroupItem value={option.value} id={`protein-${option.value}`} />
-            <Label htmlFor={`protein-${option.value}`}>{option.label}</Label>
-          </div>
-        ))}
-      </RadioGroup>
+    <div className="space-y-6">
+      <div>
+        <p className="font-medium mb-3">À quelle fréquence consommez-vous de la viande ?</p>
+        <RadioGroup
+          value={responses.meatConsumption}
+          onValueChange={(value) => updateResponse("meatConsumption", value)}
+          className="space-y-3"
+        >
+          {frequencyOptions.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.value} id={`meat-${option.value}`} />
+              <Label htmlFor={`meat-${option.value}`}>{option.label}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
+      <Separator />
+
+      <div>
+        <p className="font-medium mb-3">À quelle fréquence consommez-vous du poisson ou des fruits de mer ?</p>
+        <RadioGroup
+          value={responses.fishConsumption}
+          onValueChange={(value) => updateResponse("fishConsumption", value)}
+          className="space-y-3"
+        >
+          {frequencyOptions.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.value} id={`fish-${option.value}`} />
+              <Label htmlFor={`fish-${option.value}`}>{option.label}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
+      <Separator />
+
+      <div>
+        <p className="font-medium mb-3">Combien de portions de fruits et légumes consommez-vous par jour ?</p>
+        <RadioGroup
+          value={responses.fruitVegConsumption}
+          onValueChange={(value) => updateResponse("fruitVegConsumption", value)}
+          className="space-y-3"
+        >
+          {fruitVegOptions.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.value} id={`fruitveg-${option.value}`} />
+              <Label htmlFor={`fruitveg-${option.value}`}>{option.label}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
     </div>
   );
 };

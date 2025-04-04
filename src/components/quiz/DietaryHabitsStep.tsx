@@ -1,106 +1,31 @@
-import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { QuizStepProps } from "./types";
 
 const dietaryOptions = [
-  "Régime végétarien",
-  "Régime végétalien",
-  "Régime sans gluten",
-  "Régime sans lactose",
-  "Régime paléo",
-  "Régime cétogène (keto)",
-  "Jeûne intermittent",
-  "Alimentation intuitive",
-  "Régime méditerranéen",
-  "Aucun régime particulier"
+  { value: "omnivore", label: "Omnivore (je mange de tout)" },
+  { value: "flexitarian", label: "Flexitarien (je limite ma consommation de viande)" },
+  { value: "pescatarian", label: "Pescetarien (je mange du poisson mais pas de viande)" },
+  { value: "vegetarian", label: "Végétarien (pas de viande ni poisson)" },
+  { value: "vegan", label: "Végan (aucun produit animal)" },
 ];
 
-// Interface pour les anciennes props
-interface LegacyDietaryHabitsStepProps {
-  data?: string[];
-  updateData?: (data: string[]) => void;
-}
-
-// Accepter les deux interfaces de props
-const DietaryHabitsStep = (props: QuizStepProps | LegacyDietaryHabitsStepProps) => {
-  // Déterminer quelle interface est utilisée
-  const isLegacyProps = 'data' in props;
-  
-  // Pour le débogage
-  console.log("DietaryHabitsStep props:", JSON.stringify(props, null, 2));
-
-  const toggleOption = (option: string) => {
-    try {
-      if (isLegacyProps) {
-        // Utiliser l'interface legacy
-        const { data = [], updateData } = props as LegacyDietaryHabitsStepProps;
-        if (!updateData) return;
-
-        if (data.includes(option)) {
-          updateData(data.filter(item => item !== option));
-        } else {
-          updateData([...data, option]);
-        }
-      } else {
-        // Utiliser l'interface QuizStepProps
-        const { responses = {}, updateResponse } = props as QuizStepProps;
-        if (!updateResponse) return;
-
-        // S'assurer que responses.dietaryHabits existe et est un tableau
-        const currentOptions = Array.isArray(responses?.dietaryHabits) 
-          ? [...responses.dietaryHabits] 
-          : (responses?.dietaryHabits ? [responses.dietaryHabits] : []);
-
-        if (currentOptions.includes(option)) {
-          updateResponse(
-            "dietaryHabits",
-            currentOptions.filter(item => item !== option)
-          );
-        } else {
-          updateResponse("dietaryHabits", [...currentOptions, option]);
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour des habitudes alimentaires:", error);
-    }
-  };
-
+const DietaryHabitsStep = ({ responses = { dietaryHabits: '' }, updateResponse }: QuizStepProps) => {
   return (
     <div>
-      <p className="font-medium mb-4">Sélectionnez vos habitudes alimentaires :</p>
-      <div className="grid md:grid-cols-2 gap-3">
+      <p className="font-medium mb-4">Quel régime alimentaire suivez-vous ?</p>
+      <RadioGroup
+        value={responses.dietaryHabits}
+        onValueChange={(value) => updateResponse("dietaryHabits", value)}
+        className="space-y-3"
+      >
         {dietaryOptions.map((option) => (
-          <div 
-            key={option}
-            className={`border rounded-lg p-3 cursor-pointer transition-all ${
-              isLegacyProps 
-                ? ((props as LegacyDietaryHabitsStepProps).data || []).includes(option)
-                  ? "border-primary bg-primary/5" 
-                  : "hover:border-primary/50"
-                : Array.isArray((props as QuizStepProps).responses?.dietaryHabits) && 
-                  (props as QuizStepProps).responses.dietaryHabits.includes(option)
-                  ? "border-primary bg-primary/5" 
-                  : "hover:border-primary/50"
-            }`}
-            onClick={() => toggleOption(option)}
-          >
-            <div className="flex items-center space-x-3">
-              <Checkbox
-                checked={
-                  isLegacyProps 
-                    ? ((props as LegacyDietaryHabitsStepProps).data || []).includes(option)
-                    : Array.isArray((props as QuizStepProps).responses?.dietaryHabits) 
-                      ? (props as QuizStepProps).responses.dietaryHabits.includes(option)
-                      : false
-                }
-                onCheckedChange={() => toggleOption(option)}
-                id={`diet-${option}`}
-              />
-              <span>{option}</span>
-            </div>
+          <div key={option.value} className="flex items-center space-x-2">
+            <RadioGroupItem value={option.value} id={option.value} />
+            <Label htmlFor={option.value}>{option.label}</Label>
           </div>
         ))}
-      </div>
+      </RadioGroup>
     </div>
   );
 };
