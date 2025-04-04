@@ -1,8 +1,13 @@
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { QuizStepProps } from "./types";
+
+// Interface pour les nouvelles props
+interface QuizLifestyleStepProps {
+  responses?: any;
+  updateResponse?: (field: string, value: any) => void;
+}
 
 const exerciseOptions = [
   { value: "daily", label: "Quotidiennement" },
@@ -25,14 +30,38 @@ const stressOptions = [
   { value: "severe", label: "Sévère - Stress chronique" },
 ];
 
-const LifestyleStep = ({ responses, updateResponse }: QuizStepProps) => {
+const LifestyleStep = (props: QuizStepProps | QuizLifestyleStepProps) => {
+  // Déterminer quelle interface est utilisée
+  const isLegacyProps = 'data' in props;
+
+  // Pour le débogage
+  console.log("LifestyleStep props:", JSON.stringify(props, null, 2));
+
+  // Extraire les données selon l'interface
+  const data = isLegacyProps 
+    ? (props as QuizStepProps).data || []
+    : [];
+
+  const updateData = isLegacyProps
+    ? (props as QuizStepProps).updateData
+    : undefined;
+
+  const responses = !isLegacyProps
+    ? (props as QuizLifestyleStepProps).responses || {}
+    : {};
+
+  const updateResponse = !isLegacyProps
+    ? (props as QuizLifestyleStepProps).updateResponse
+    : undefined;
+
+
   return (
     <div className="space-y-6">
       <div>
         <p className="font-medium mb-3">À quelle fréquence pratiquez-vous une activité physique ?</p>
         <RadioGroup
           value={responses.exerciseFrequency}
-          onValueChange={(value) => updateResponse("exerciseFrequency", value)}
+          onValueChange={(value) => updateResponse && updateResponse("exerciseFrequency", value)}
           className="space-y-3"
         >
           {exerciseOptions.map((option) => (
@@ -50,7 +79,7 @@ const LifestyleStep = ({ responses, updateResponse }: QuizStepProps) => {
         <p className="font-medium mb-3">Comment évaluez-vous la qualité de votre sommeil ?</p>
         <RadioGroup
           value={responses.sleepQuality}
-          onValueChange={(value) => updateResponse("sleepQuality", value)}
+          onValueChange={(value) => updateResponse && updateResponse("sleepQuality", value)}
           className="space-y-3"
         >
           {sleepOptions.map((option) => (
@@ -68,7 +97,7 @@ const LifestyleStep = ({ responses, updateResponse }: QuizStepProps) => {
         <p className="font-medium mb-3">Comment évaluez-vous votre niveau de stress ?</p>
         <RadioGroup
           value={responses.stressLevel}
-          onValueChange={(value) => updateResponse("stressLevel", value)}
+          onValueChange={(value) => updateResponse && updateResponse("stressLevel", value)}
           className="space-y-3"
         >
           {stressOptions.map((option) => (

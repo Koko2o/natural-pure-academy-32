@@ -107,22 +107,22 @@ const Quiz = () => {
       case "lifestyle":
         return (
           <LifestyleStep 
-            data={quizData.lifestyle} 
-            updateData={(data) => updateQuizData("lifestyle", data)} 
+            responses={{ lifestyle: quizData.lifestyle, exerciseFrequency: "" }}
+            updateResponse={(field, value) => updateQuizData(field, value)}
           />
         );
       case "objectives":
         return (
           <ObjectivesStep 
-            data={quizData.objectives} 
-            updateData={(data) => updateQuizData("objectives", data)} 
+            responses={{ objectives: quizData.objectives }}
+            updateResponse={(field, value) => updateQuizData(field, value)}
           />
         );
       case "proteinConsumption":
         return (
           <ProteinConsumptionStep 
-            data={quizData.proteinConsumption} 
-            updateData={(data) => updateQuizData("proteinConsumption", data)} 
+            responses={{ proteinConsumption: quizData.proteinConsumption }}
+            updateResponse={(field, value) => updateQuizData(field, value)}
           />
         );
       default:

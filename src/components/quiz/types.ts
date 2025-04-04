@@ -6,17 +6,19 @@ export interface UserInfo {
 }
 
 export interface QuizResponse {
-  name: string;
-  email: string;
-  objectives: string[];
-  dietaryHabits: string;
-  meatConsumption: string;
-  fishConsumption: string;
-  fruitVegConsumption: string;
-  exerciseFrequency: string;
-  sleepQuality: string;
-  stressLevel: string;
-  symptoms: string[];
+  name?: string;
+  email?: string;
+  objectives?: string[];
+  dietaryHabits?: string[] | string;
+  lifestyle?: string[];
+  meatConsumption?: string;
+  fishConsumption?: string;
+  fruitVegConsumption?: string;
+  exerciseFrequency?: string;
+  sleepQuality?: string;
+  stressLevel?: string;
+  symptoms?: string[];
+  proteinConsumption?: string;
 }
 
 export interface QuizStep {
