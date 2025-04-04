@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, ArrowLeft, Clock, Info, Leaf } from "lucide-react";
-import { getComprehensiveRecommendations, generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
+import { generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
 import { QuizData, Recommendation, QuizResponse } from '@/utils/types';
 import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import AILearningInsights from './AILearningInsights';
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
+import QuizIntegrationService from '@/utils/quizIntegrationService';
 
 interface QuizResultsProps {
   quizData: QuizData;
@@ -34,8 +35,11 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
       try {
         // Add a small delay to simulate processing
         setTimeout(() => {
+          // Enrichir les données du quiz avec des informations contextuelles
+          const enrichedQuizData = QuizIntegrationService.enrichQuizData(quizData);
+          
           // Generate recommendations using the recommender system
-          const generatedRecommendations = getComprehensiveRecommendations(quizData);
+          const generatedRecommendations = QuizIntegrationService.getPersonalizedRecommendations(enrichedQuizData);
           console.log("Generated recommendations:", generatedRecommendations);
 
           if (generatedRecommendations && generatedRecommendations.length > 0) {
