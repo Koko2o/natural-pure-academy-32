@@ -8,7 +8,6 @@ import { Progress } from "@/components/ui/progress";
 import { AlertCircle, ArrowLeft, Clock, Info, Leaf } from "lucide-react";
 import { generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
 import { QuizData, Recommendation, QuizResponse } from '@/utils/types';
-import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import AILearningInsights from './AILearningInsights';
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
 import QuizIntegrationService from '@/utils/quizIntegrationService';

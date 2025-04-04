@@ -1,130 +1,162 @@
 
 /**
  * Service d'intégration du système de recommandation au quiz nutritionnel
- * Version adaptée pour React à partir du fichier quiz_integration.ts
+ * Ce service connecte l'algorithme de recommandation aux réponses du quiz
+ * et génère des recommandations personnalisées
  */
 
-import { getComprehensiveRecommendations } from './recommenderSystem';
-import { QuizData, Recommendation, QuizResponse } from './types';
+import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
+import { QuizData, Recommendation } from '@/utils/types';
+import { SYMPTOM_RECOMMENDATIONS, GOAL_RECOMMENDATIONS } from '@/data/recommendationMappings';
 
-/**
- * Classe responsable de l'intégration du quiz avec le système de recommandation
- */
-export class QuizIntegrationService {
-  /**
-   * Convertit les données du quiz au format attendu par l'algorithme de recommandation
-   * @param quizData - Données du quiz depuis le composant React
-   * @returns Données formatées pour le système de recommandation
-   */
-  public static formatQuizDataForRecommendation(quizData: QuizData): QuizResponse {
-    // Extraction et transformation des données du quiz
+// Convertir les données du quiz en format exploitable
+const enrichQuizData = (quizData: QuizData) => {
+  // Copier les données de base
+  const enrichedData = { ...quizData };
+  
+  // Ajouter des catégories de santé basées sur les symptômes
+  const healthCategories: string[] = [];
+  
+  if (quizData.symptoms?.includes('Fatigue')) {
+    healthCategories.push('energy_issues');
+  }
+  
+  if (quizData.symptoms?.includes('Troubles du sommeil')) {
+    healthCategories.push('sleep_issues');
+  }
+  
+  if (quizData.symptoms?.includes('Stress') || quizData.symptoms?.includes('Anxiété')) {
+    healthCategories.push('stress_issues');
+  }
+  
+  if (quizData.symptoms?.includes('Problèmes digestifs')) {
+    healthCategories.push('digestive_issues');
+  }
+  
+  // Ajouter les catégories au data enrichi
+  return {
+    ...enrichedData,
+    healthCategories
+  };
+};
+
+// Obtenir des recommandations personnalisées basées sur les réponses au quiz
+const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[] => {
+  console.log("Génération de recommandations complètes avec les données:", enrichedQuizData);
+  
+  // Tableau pour stocker toutes les recommandations candidates
+  const recommendationCandidates: any[] = [];
+  
+  // Traiter les symptômes
+  if (enrichedQuizData.symptoms && enrichedQuizData.symptoms.length > 0) {
+    console.log("Analyse des données du quiz pour les recommandations:", enrichedQuizData);
+    
+    enrichedQuizData.symptoms.forEach((symptom: string) => {
+      // Récupérer les recommandations liées aux symptômes depuis les mappings
+      const symptomRecs = SYMPTOM_RECOMMENDATIONS[symptom] || [];
+      
+      symptomRecs.forEach((recId: string) => {
+        const supplement = SUPPLEMENT_CATALOG[recId];
+        
+        if (supplement) {
+          recommendationCandidates.push({
+            id: recId,
+            title: supplement.name,
+            description: supplement.description,
+            scientificBasis: supplement.scientificBasis,
+            relevanceScore: 0.6 + Math.random() * 0.3, // Score de base + facteur aléatoire
+            categories: supplement.categories || ['nutrition'],
+            relatedTerms: []
+          });
+        }
+      });
+    });
+  }
+  
+  // Traiter les objectifs
+  if (enrichedQuizData.objectives && enrichedQuizData.objectives.length > 0) {
+    enrichedQuizData.objectives.forEach((objective: string) => {
+      // Récupérer les recommandations liées aux objectifs depuis les mappings
+      const goalRecs = GOAL_RECOMMENDATIONS[objective] || [];
+      
+      goalRecs.forEach((recId: string) => {
+        const supplement = SUPPLEMENT_CATALOG[recId];
+        
+        if (supplement) {
+          recommendationCandidates.push({
+            id: recId,
+            title: supplement.name,
+            description: supplement.description,
+            scientificBasis: supplement.scientificBasis,
+            relevanceScore: 0.7 + Math.random() * 0.3, // Score légèrement plus élevé pour les objectifs
+            categories: supplement.categories || ['nutrition'],
+            relatedTerms: []
+          });
+        }
+      });
+    });
+  }
+  
+  // Éliminer les doublons en conservant celui avec le score de pertinence le plus élevé
+  const uniqueRecommendations = recommendationCandidates.reduce((acc: any[], current: any) => {
+    const duplicate = acc.find(item => item.id === current.id);
+    
+    if (!duplicate) {
+      return [...acc, current];
+    } else if (duplicate.relevanceScore < current.relevanceScore) {
+      return acc.map(item => item.id === current.id ? current : item);
+    }
+    return acc;
+  }, []);
+  
+  // Enrichir les descriptions avec du texte scientifique
+  const enrichedRecommendations = uniqueRecommendations.map((rec: any) => {
+    // Ajouter des balises pour le traitement des termes scientifiques
+    let enrichedDescription = rec.description;
+    
+    // Si la description ne contient pas déjà de balises scientifiques
+    if (!enrichedDescription.includes('[[')) {
+      // Exemples de termes scientifiques à mettre en évidence
+      const termPairs = [
+        ['vitamine D', 'vitamin-d'],
+        ['antioxydants', 'antioxidant'],
+        ['inflammation', 'inflammation'],
+        ['magnésium', 'magnesium'],
+        ['probiotiques', 'probiotics'],
+        ['oméga-3', 'omega3']
+      ];
+      
+      // Rechercher et remplacer les termes scientifiques
+      termPairs.forEach(([term, tag]) => {
+        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        if (regex.test(enrichedDescription)) {
+          enrichedDescription = enrichedDescription.replace(
+            regex, 
+            `[[${tag}:${term}]]`
+          );
+        }
+      });
+    }
+    
     return {
-      symptoms: quizData.symptoms || [],
-      objectives: quizData.objectives || [],
-      dietaryHabits: quizData.dietaryHabits || [],
-      lifestyle: quizData.lifestyle || []
+      ...rec,
+      description: enrichedDescription
     };
-  }
+  });
+  
+  // Trier par score de pertinence et limiter à 5 recommandations
+  const finalRecommendations = enrichedRecommendations
+    .sort((a: any, b: any) => b.relevanceScore - a.relevanceScore)
+    .slice(0, 5);
+  
+  console.log("Recommandations de base générées:", finalRecommendations.length);
+  console.log("Recommandations enrichies générées:", finalRecommendations.length);
+  
+  return finalRecommendations;
+};
 
-  /**
-   * Récupère les recommandations personnalisées basées sur les données du quiz
-   * @param quizData - Données du quiz complété
-   * @returns Liste des recommandations générées
-   */
-  public static getPersonalizedRecommendations(quizData: QuizData): Recommendation[] {
-    try {
-      console.log("Traitement des données du quiz pour recommandations:", quizData);
-      
-      // Vérification des données minimales requises
-      if (!quizData || !quizData.symptoms) {
-        console.warn("Données du quiz insuffisantes pour des recommandations précises");
-        return [];
-      }
-      
-      // Génération des recommandations via l'algorithme
-      const recommendations = getComprehensiveRecommendations(quizData);
-      
-      return recommendations;
-    } catch (error) {
-      console.error("Erreur lors de la génération des recommandations:", error);
-      return [];
-    }
-  }
-
-  /**
-   * Enrichit les données du quiz avec des informations contextuelles
-   * @param quizData - Données brutes du quiz
-   * @returns Données du quiz enrichies
-   */
-  public static enrichQuizData(quizData: QuizData): QuizData {
-    try {
-      const enrichedData = { ...quizData };
-      
-      // Déduire des catégories de problèmes de santé à partir des symptômes
-      if (enrichedData.symptoms && enrichedData.symptoms.length > 0) {
-        const healthCategories: string[] = [];
-        
-        if (enrichedData.symptoms.some(symptom => 
-          symptom.toLowerCase().includes('fatigue') || 
-          symptom.toLowerCase().includes('énergie'))) {
-          healthCategories.push('energy_issues');
-        }
-        
-        if (enrichedData.symptoms.some(symptom => 
-          symptom.toLowerCase().includes('sommeil') || 
-          symptom.toLowerCase().includes('insomnie'))) {
-          healthCategories.push('sleep_issues');
-        }
-        
-        if (enrichedData.symptoms.some(symptom => 
-          symptom.toLowerCase().includes('stress') || 
-          symptom.toLowerCase().includes('anxiété'))) {
-          healthCategories.push('stress_issues');
-        }
-        
-        if (enrichedData.symptoms.some(symptom => 
-          symptom.toLowerCase().includes('digestion') || 
-          symptom.toLowerCase().includes('intestin'))) {
-          healthCategories.push('digestive_issues');
-        }
-        
-        enrichedData.healthCategories = healthCategories;
-      }
-      
-      return enrichedData;
-    } catch (error) {
-      console.error("Erreur lors de l'enrichissement des données du quiz:", error);
-      return quizData;
-    }
-  }
-
-  /**
-   * Analyse la gravité des symptômes et leur impact
-   * @param symptoms - Liste des symptômes sélectionnés
-   * @returns Score de gravité estimé (0-1)
-   */
-  public static analyzeSymptomSeverity(symptoms: string[]): number {
-    if (!symptoms || symptoms.length === 0) return 0;
-    
-    // Un plus grand nombre de symptômes indique généralement une gravité plus élevée
-    const baseScore = Math.min(symptoms.length / 10, 0.7);
-    
-    // Certains symptômes sont considérés comme plus graves
-    const criticalSymptoms = [
-      'troubles du sommeil chroniques',
-      'fatigue extrême',
-      'douleurs chroniques',
-      'inflammation'
-    ];
-    
-    const hasCriticalSymptoms = symptoms.some(symptom => 
-      criticalSymptoms.some(critical => 
-        symptom.toLowerCase().includes(critical.toLowerCase())
-      )
-    );
-    
-    return hasCriticalSymptoms ? baseScore + 0.3 : baseScore;
-  }
-}
-
-export default QuizIntegrationService;
+// Exporter les fonctions du service
+export default {
+  enrichQuizData,
+  getPersonalizedRecommendations
+};
