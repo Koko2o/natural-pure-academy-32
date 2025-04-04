@@ -19,6 +19,21 @@ interface Supplement {
   categories?: string[];
 }
 
+export interface SupplementInfo {
+  name: string;
+  scientificName?: string;
+  description: string;
+  benefits: string[];
+  standardDose: string;
+  recommendedDose?: string;
+  scientificBasis: string;
+  contraindications?: string[];
+  naturalSources?: string[];
+  timeToEffect: string;
+  category: string;
+}
+
+
 export const SUPPLEMENT_CATALOG = {
   vitamin_d3: {
     id: "vitamin_d3",
@@ -80,7 +95,42 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Légumes verts à feuilles", "Noix et graines", "Légumineuses", "Chocolat noir"],
     categories: ["Sommeil", "Stress", "Fonction musculaire"]
   },
-
+  "vitamin-d-supplement": {
+    id: "vitamin-d-supplement",
+    name: "Supplément de Vitamine D",
+    scientificName: "Cholécalciférol (D3)",
+    description: "La vitamine D soutient la santé immunitaire, osseuse et musculaire",
+    benefits: [
+      "Renforce le système immunitaire",
+      "Améliore l'absorption du calcium",
+      "Contribue à la santé osseuse",
+      "Soutient la fonction musculaire"
+    ],
+    standardDose: "1000-2000 UI par jour",
+    timeToEffect: "4-6 semaines",
+    scientificBasis: "Des études montrent une réduction des infections respiratoires de 30% chez les personnes carencées",
+    contraindications: ["Précaution en cas d'hypercalcémie", "Consulter un médecin pour dosages élevés"],
+    naturalSources: ["Poissons gras", "Exposition au soleil", "Jaune d'œuf", "Champignons exposés aux UV"],
+    categories: ["Vitamines"]
+  },
+  "probiotics-daily": {
+    id: "probiotics-daily",
+    name: "Probiotiques quotidiens",
+    scientificName: "Cultures bactériennes vivantes",
+    description: "Soutien à l'équilibre de la flore intestinale et à la fonction immunitaire",
+    benefits: [
+      "Améliore la digestion",
+      "Renforce l'immunité intestinale",
+      "Réduit l'inflammation intestinale",
+      "Peut améliorer l'apparence de la peau"
+    ],
+    standardDose: "5-10 milliards UFC par jour",
+    timeToEffect: "2-4 semaines",
+    scientificBasis: "Recherches indiquant une amélioration de la barrière intestinale et réduction de l'inflammation",
+    contraindications: ["Consulter un médecin en cas d'immunodéficience"],
+    naturalSources: ["Yaourt", "Kéfir", "Choucroute", "Kimchi", "Kombucha"],
+    categories: ["Probiotiques"]
+  },
   omega3: {
     id: "omega3",
     name: "Oméga-3 EPA/DHA",
@@ -109,7 +159,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Poissons gras (saumon, maquereau)", "Graines de lin", "Graines de chia", "Algues marines"],
     categories: ["Anti-inflammatoire", "Santé cardiovasculaire", "Santé cognitive"]
   },
-
   probiotics: {
     id: "probiotics",
     name: "Probiotiques",
@@ -138,7 +187,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Yaourt", "Kéfir", "Choucroute", "Kombucha", "Kimchi"],
     categories: ["Santé digestive", "Immunité", "Santé mentale"]
   },
-
   vitamin_b_complex: {
     id: "vitamin_b_complex",
     name: "Complexe Vitamine B",
@@ -167,7 +215,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Viandes", "Œufs", "Légumineuses", "Grains entiers", "Légumes verts"],
     categories: ["Énergie", "Santé neurologique", "Métabolisme"]
   },
-
   vitamin_c: {
     id: "vitamin_c",
     name: "Vitamine C",
@@ -197,7 +244,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Agrumes", "Kiwi", "Poivrons", "Fraises", "Brocoli"],
     categories: ["Immunité", "Antioxydant", "Santé de la peau"]
   },
-
   zinc: {
     id: "zinc",
     name: "Zinc",
@@ -226,7 +272,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Huîtres", "Viandes rouges", "Noix et graines", "Légumineuses"],
     categories: ["Immunité", "Cicatrisation", "Santé hormonale"]
   },
-
   ashwagandha: {
     id: "ashwagandha",
     name: "Ashwagandha",
@@ -257,7 +302,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Racine d'ashwagandha"],
     categories: ["Adaptogène", "Anti-stress", "Équilibre hormonal"]
   },
-
   l_theanine: {
     id: "l_theanine",
     name: "L-Théanine",
@@ -285,7 +329,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Thé vert", "Thé noir (en quantités moindres)"],
     categories: ["Relaxation", "Cognition", "Sommeil"]
   },
-
   curcumin: {
     id: "curcumin",
     name: "Curcumine",
@@ -316,7 +359,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Curcuma (racine)"],
     categories: ["Anti-inflammatoire", "Santé articulaire", "Antioxydant"]
   },
-
   coq10: {
     id: "coq10",
     name: "Coenzyme Q10",
@@ -345,7 +387,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Viandes d'organes", "Poissons gras", "Graines de sésame", "Pistaches"],
     categories: ["Énergie", "Santé cardiovasculaire", "Antioxydant"]
   },
-
   iron: {
     id: "iron",
     name: "Fer",
@@ -376,7 +417,6 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Viandes rouges", "Légumineuses", "Épinards", "Tofu"],
     categories: ["Énergie", "Santé sanguine", "Fonction cognitive"]
   },
-
   melatonin: {
     id: "melatonin",
     name: "Mélatonine",
@@ -408,8 +448,7 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Produite naturellement dans la glande pinéale"],
     categories: ["Sommeil", "Rythme circadien"]
   },
-
-  "resveratrol": {
+  resveratrol: {
     id: "resveratrol",
     name: "Resveratrol",
     scientificName: "Trans-resveratrol",
@@ -427,8 +466,7 @@ export const SUPPLEMENT_CATALOG = {
       "Non recommandé pour les femmes enceintes"
     ]
   },
-
-  "coq10_new": {
+  coq10_new: {
     id: "coq10_new",
     name: "Coenzyme Q10",
     scientificName: "Ubiquinone",
@@ -446,8 +484,7 @@ export const SUPPLEMENT_CATALOG = {
       "Surveiller en cas de diabète (peut affecter la glycémie)"
     ]
   },
-
-  "nac": {
+  nac: {
     id: "nac",
     name: "N-Acétyl Cystéine",
     scientificName: "N-acetylcysteine",
@@ -469,8 +506,7 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["L-cystéine présente dans les protéines animales", "Œufs", "Ail", "Oignon"],
     categories: ["Antioxydant", "Détoxification", "Santé respiratoire"]
   },
-  
-  "berberine": {
+  berberine: {
     id: "berberine",
     name: "Berbérine",
     scientificName: "Berberine hydrochloride",
@@ -500,8 +536,7 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Hydrastis canadensis (Hydraste du Canada)", "Berberis vulgaris (Épine-vinette)", "Coptis chinensis (Huang Lian)"],
     categories: ["Métabolisme", "Santé cardiovasculaire", "Équilibre glycémique"]
   },
-  
-  "lions_mane": {
+  lions_mane: {
     id: "lions_mane",
     name: "Crinière de Lion",
     scientificName: "Hericium erinaceus",
@@ -528,8 +563,7 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Champignon Hericium erinaceus"],
     categories: ["Fonction cognitive", "Neuroprotection", "Santé mentale"]
   },
-  
-  "rhodiola": {
+  rhodiola: {
     id: "rhodiola",
     name: "Rhodiola Rosea",
     scientificName: "Rhodiola rosea",
@@ -557,8 +591,7 @@ export const SUPPLEMENT_CATALOG = {
     naturalSources: ["Racine de Rhodiola rosea"],
     categories: ["Adaptogène", "Anti-stress", "Énergie"]
   },
-  
-  "alpha_gpc": {
+  alpha_gpc: {
     id: "alpha_gpc",
     name: "Alpha-GPC",
     scientificName: "L-Alpha-glycérophosphorylcholine",
@@ -583,20 +616,172 @@ export const SUPPLEMENT_CATALOG = {
     safetyProfile: 8,
     naturalSources: ["Présent en petites quantités dans les produits laitiers et la viande"],
     categories: ["Fonction cognitive", "Performance physique", "Santé cérébrale"]
+  },
+  "anti-inflammatory-diet": {
+    id: "anti-inflammatory-diet",
+    name: "Alimentation anti-inflammatoire",
+    description: "Approche nutritionnelle visant à réduire l'inflammation chronique dans l'organisme",
+    benefits: [
+      "Réduit l'inflammation systémique",
+      "Améliore la digestion",
+      "Soutient la fonction immunitaire",
+      "Peut améliorer la clarté mentale"
+    ],
+    standardDose: "Approche alimentaire quotidienne",
+    scientificBasis: "Études observationnelles montrant une corrélation avec la réduction des marqueurs inflammatoires",
+    naturalSources: ["Fruits et légumes colorés", "Poissons gras", "Noix et graines", "Épices (curcuma, gingembre)"],
+    timeToEffect: "2-4 semaines",
+    categories: ["Approche nutritionnelle"]
+  },
+  "circadian-rhythm-optimization": {
+    id: "circadian-rhythm-optimization",
+    name: "Optimisation du rythme circadien",
+    description: "Alignement des habitudes de vie avec les cycles naturels jour-nuit",
+    benefits: [
+      "Améliore la qualité du sommeil",
+      "Optimise le métabolisme",
+      "Augmente l'énergie diurne",
+      "Équilibre la production hormonale"
+    ],
+    standardDose: "Pratique quotidienne consistante",
+    scientificBasis: "Recherches en chronobiologie montrant des améliorations de la sensibilité à l'insuline et qualité du sommeil",
+    contraindications: ["Adaptations nécessaires pour travail posté"],
+    timeToEffect: "1-3 semaines",
+    categories: ["Chronobiologie"]
+  },
+  "adaptogenic-herbs": {
+    id: "adaptogenic-herbs",
+    name: "Plantes adaptogènes",
+    scientificName: "Adaptogens",
+    description: "Plantes médicinales qui aident l'organisme à s'adapter au stress",
+    benefits: [
+      "Aide à gérer le stress quotidien",
+      "Soutient l'équilibre hormonal",
+      "Améliore la résilience face aux facteurs de stress",
+      "Peut améliorer l'énergie et la concentration"
+    ],
+    standardDose: "Varie selon la plante (généralement 200-600mg par jour)",
+    scientificBasis: "Études cliniques sur la modulation du stress via l'axe hypothalamo-hypophyso-surrénalien",
+    contraindications: ["Certaines adaptogènes peuvent interagir avec des médicaments"],
+    naturalSources: ["Ashwagandha", "Rhodiola", "Ginseng", "Eleuthérocoque"],
+    timeToEffect: "2-4 semaines",
+    categories: ["Plantes adaptogènes"]
+  },
+  "nutrient-timing": {
+    id: "nutrient-timing",
+    name: "Chrononutrition optimisée",
+    description: "Optimisation des moments de prise alimentaire selon les rythmes biologiques",
+    benefits: [
+      "Améliore l'utilisation des nutriments",
+      "Optimise la composition corporelle",
+      "Peut améliorer les performances physiques et mentales",
+      "Soutient les rythmes biologiques naturels"
+    ],
+    standardDose: "Approche alimentaire quotidienne",
+    scientificBasis: "Recherches montrant une meilleure synchronisation des apports nutritionnels avec les cycles biologiques",
+    timeToEffect: "2-3 semaines",
+    categories: ["Chronobiologie"]
+  },
+  "micronutrient-assessment": {
+    id: "micronutrient-assessment",
+    name: "Évaluation des micronutriments",
+    description: "Analyse personnalisée des niveaux de vitamines et minéraux",
+    benefits: [
+      "Identifie les carences spécifiques",
+      "Permet une supplémentation ciblée",
+      "Optimise les fonctions biochimiques",
+      "Améliore l'efficacité énergétique cellulaire"
+    ],
+    standardDose: "Analyse périodique, généralement semestrielle",
+    scientificBasis: "L'analyse des déficiences subcliniques permet d'optimiser divers systèmes physiologiques",
+    timeToEffect: "Variable selon les interventions",
+    categories: ["Évaluation biochimique"]
+  },
+  "intermittent-fasting": {
+    id: "intermittent-fasting",
+    name: "Jeûne intermittent personnalisé",
+    description: "Alternance structurée de périodes de jeûne et d'alimentation",
+    benefits: [
+      "Favorise la régénération cellulaire",
+      "Améliore la sensibilité à l'insuline",
+      "Peut aider à la gestion du poids",
+      "Soutient la santé métabolique"
+    ],
+    standardDose: "Protocoles variables (16/8, 5:2, etc.)",
+    scientificBasis: "Études montrant la stimulation de l'autophagie et amélioration des marqueurs métaboliques",
+    contraindications: ["Déconseillé pour femmes enceintes", "Précaution pour diabétiques"],
+    timeToEffect: "2-4 semaines",
+    categories: ["Approche nutritionnelle"]
+  },
+  "omega3-supplementation": {
+    id: "omega3-supplementation",
+    name: "Supplémentation en Oméga-3",
+    scientificName: "Acides gras EPA/DHA",
+    description: "Acides gras essentiels pour la santé cardiovasculaire et cérébrale",
+    benefits: [
+      "Soutient la santé cardiovasculaire",
+      "Contribue à la fonction cognitive",
+      "Réduit l'inflammation systémique",
+      "Améliore la santé de la peau"
+    ],
+    standardDose: "1000-2000mg par jour (dont 500mg d'EPA/DHA)",
+    scientificBasis: "Nombreuses études cliniques sur les bénéfices cardiovasculaires et anti-inflammatoires",
+    contraindications: ["Consulter un médecin si sous anticoagulants"],
+    naturalSources: ["Poissons gras", "Graines de lin", "Graines de chia", "Noix"],
+    timeToEffect: "4-8 semaines",
+    categories: ["Acides gras essentiels"]
+  },
+  "magnesium-glycinate": {
+    id: "magnesium-glycinate",
+    name: "Magnésium Glycinate",
+    scientificName: "Bis-glycinate de magnésium",
+    description: "Forme biodisponible de magnésium pour la santé neuromusculaire",
+    benefits: [
+      "Améliore la qualité du sommeil",
+      "Réduit l'anxiété et le stress",
+      "Soutient la fonction musculaire",
+      "Contribue à plus de 300 réactions enzymatiques"
+    ],
+    standardDose: "300-400mg par jour",
+    scientificBasis: "Études montrant l'amélioration du sommeil et réduction des symptômes d'anxiété",
+    contraindications: ["Peut avoir un effet laxatif à forte dose"],
+    naturalSources: ["Légumes verts", "Noix et graines", "Légumineuses", "Chocolat noir"],
+    timeToEffect: "2-3 semaines",
+    categories: ["Minéraux"]
+  },
+  "mindfulness-meditation": {
+    id: "mindfulness-meditation",
+    name: "Méditation de pleine conscience",
+    description: "Pratique mentale pour développer l'attention au moment présent",
+    benefits: [
+      "Réduit le stress chronique",
+      "Améliore la concentration",
+      "Peut réduire les symptômes d'anxiété",
+      "Soutient la fonction immunitaire"
+    ],
+    standardDose: "10-20 minutes par jour",
+    scientificBasis: "Recherches en neurosciences montrant des modifications de l'activité cérébrale et réduction des marqueurs de stress",
+    timeToEffect: "2-8 semaines de pratique régulière",
+    categories: ["Pratiques mentales"]
+  },
+  "vitamin-b-complex": {
+    id: "vitamin-b-complex",
+    name: "Complexe de vitamines B",
+    scientificName: "Vitamines B1, B2, B3, B5, B6, B7, B9, B12",
+    description: "Groupe de vitamines essentielles pour le métabolisme énergétique et la fonction neurologique",
+    benefits: [
+      "Soutient la production d'énergie cellulaire",
+      "Contribue à la santé neurologique",
+      "Aide à réduire la fatigue",
+      "Soutient les fonctions cognitives"
+    ],
+    standardDose: "Selon AJR pour chaque vitamine B",
+    scientificBasis: "Carences associées à la fatigue, troubles cognitifs et problèmes neurologiques",
+    contraindications: ["Peut colorer l'urine en jaune vif (normal)"],
+    naturalSources: ["Viandes", "Œufs", "Légumineuses", "Céréales complètes", "Levure nutritionnelle"],
+    timeToEffect: "2-4 semaines",
+    categories: ["Vitamines"]
   }
 };
 
-export const SUPPLEMENT_CATEGORIES = {
-  ENERGY: "Énergie",
-  IMMUNITY: "Immunité",
-  DIGESTION: "Digestion",
-  SLEEP: "Sommeil",
-  STRESS: "Stress",
-  COGNITIVE: "Fonction cognitive",
-  HORMONAL: "Équilibre hormonal",
-  JOINT: "Santé articulaire",
-  CARDIOVASCULAR: "Santé cardiovasculaire",
-  ANTIOXIDANT: "Antioxydant"
-};
-
-export default { SUPPLEMENT_CATALOG, SUPPLEMENT_CATEGORIES };
+export default SUPPLEMENT_CATALOG;

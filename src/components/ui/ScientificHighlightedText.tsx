@@ -1,129 +1,117 @@
 
-import React, { useState } from "react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Badge } from "@/components/ui/badge";
-import { Info, HelpCircle, BookOpen, ExternalLink, Terminal } from "lucide-react";
-import { scientificTerms, SCIENTIFIC_TERMS_DATABASE, ScientificTerm } from "@/data/scientificTerms";
+import React from 'react';
+import { 
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { scientificTerms } from '@/data/scientificTerms';
 
 interface ScientificHighlightedTextProps {
   text: string;
-  level?: number; // 1: Basic, 2: Intermediate, 3: Expert
+  scientificLevel: number;
 }
 
 const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
   text, 
-  level = 1
+  scientificLevel = 1 
 }) => {
-  const [hoveredTerm, setHoveredTerm] = useState<string | null>(null);
-
-  if (!text) return null;
-
-  // Regular expression to match scientific terms in format [[term-id:Displayed Text]]
-  const termRegex = /\[\[([^:]+):([^\]]+)\]\]/g;
+  // Regex pour trouver les termes formatés spécialement: [[term-id:displayed text]]
+  const regex = /\[\[([\w-]+):(.*?)\]\]/g;
   
-  // Split text by scientific terms
-  const parts = [];
+  // Si le texte ne contient pas de termes scientifiques ou le niveau est défini à 0, retourner le texte brut
+  if (!regex.test(text) || scientificLevel === 0) {
+    return <span>{text.replace(regex, '$2')}</span>;
+  }
+  
+  // Reset le regex après le test
+  regex.lastIndex = 0;
+  
+  // Diviser le texte en segments (termes scientifiques et texte normal)
+  const segments = [];
   let lastIndex = 0;
   let match;
   
-  // Create a working copy of the text
-  let processedText = text;
-  
-  const renderDefinition = (termId: string) => {
-    const term = SCIENTIFIC_TERMS_DATABASE[termId];
-    
-    if (!term) {
-      return <span className="italic text-gray-600">Définition non disponible</span>;
+  while ((match = regex.exec(text)) !== null) {
+    // Ajouter le texte avant le terme scientifique
+    if (match.index > lastIndex) {
+      segments.push({
+        type: 'text',
+        content: text.substring(lastIndex, match.index)
+      });
     }
     
-    return (
-      <div className="text-sm">
-        <h4 className="font-medium text-blue-700 mb-1 flex items-center">
-          {term.title}
-          {level >= 3 && term.source && (
-            <Badge variant="outline" className="ml-2 text-xs bg-blue-50">
-              Ref: {term.source.split(',')[0]}
-            </Badge>
-          )}
-        </h4>
-        <p className="text-gray-700">{term.definition}</p>
-        
-        {level >= 2 && term.relatedTerms && term.relatedTerms.length > 0 && (
-          <div className="mt-2">
-            <div className="text-xs text-gray-500 mb-1 flex items-center">
-              <Terminal className="h-3 w-3 mr-1" />
-              Termes associés:
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {term.relatedTerms.map((relatedId) => {
-                const relatedTerm = scientificTerms.find(t => t.id === relatedId);
-                return relatedTerm ? (
-                  <Badge 
-                    key={relatedId} 
-                    variant="outline"
-                    className="text-xs bg-gray-50"
-                  >
-                    {relatedTerm.title}
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
-        )}
-        
-        {level >= 3 && term.source && (
-          <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
-            <BookOpen className="h-3 w-3 mr-1" />
-            Source: {term.source}
-          </div>
-        )}
-      </div>
-    );
-  };
-  
-  while ((match = termRegex.exec(processedText)) !== null) {
-    // Add text before the match
-    parts.push(processedText.substring(lastIndex, match.index));
+    // Ajouter le terme scientifique
+    segments.push({
+      type: 'term',
+      id: match[1],
+      content: match[2]
+    });
     
-    // Extract term ID and display text
-    const [fullMatch, termId, displayText] = match;
-    
-    // Add the highlighted term
-    parts.push(
-      <HoverCard key={`term-${match.index}`} openDelay={300} closeDelay={200}>
-        <HoverCardTrigger asChild>
-          <span 
-            className="text-blue-600 border-b border-dotted border-blue-300 cursor-help"
-            onMouseEnter={() => setHoveredTerm(termId)}
-            onMouseLeave={() => setHoveredTerm(null)}
-          >
-            {displayText}
-          </span>
-        </HoverCardTrigger>
-        <HoverCardContent className="w-80 p-3">
-          {renderDefinition(termId)}
-        </HoverCardContent>
-      </HoverCard>
-    );
-    
-    // Update lastIndex
-    lastIndex = match.index + fullMatch.length;
+    lastIndex = regex.lastIndex;
   }
   
-  // Add remaining text
-  parts.push(processedText.substring(lastIndex));
-  
-  // For basic level (level=1), use simplified display with fewer tooltips
-  if (level === 1) {
-    // Simplified display - replace tooltips with just the term
-    return (
-      <div className="scientific-text">
-        {processedText.replace(termRegex, (_, __, displayText) => displayText)}
-      </div>
-    );
+  // Ajouter le texte restant après le dernier terme scientifique
+  if (lastIndex < text.length) {
+    segments.push({
+      type: 'text',
+      content: text.substring(lastIndex)
+    });
   }
   
-  return <div className="scientific-text">{parts}</div>;
+  // Rendu des segments
+  return (
+    <span>
+      {segments.map((segment, index) => {
+        if (segment.type === 'text') {
+          return <span key={index}>{segment.content}</span>;
+        } else {
+          // Trouver le terme scientifique dans la base de données
+          const term = scientificTerms.find(t => t.id === segment.id);
+          
+          // Si le terme n'est pas trouvé, afficher simplement le texte
+          if (!term) {
+            return <span key={index}>{segment.content}</span>;
+          }
+          
+          // Déterminer l'apparence en fonction du niveau scientifique
+          let className = 'cursor-help ';
+          
+          switch(scientificLevel) {
+            case 3: // Niveau expert
+              className += 'font-semibold text-indigo-700 border-b border-dashed border-indigo-300';
+              break;
+            case 2: // Niveau intermédiaire
+              className += 'font-medium text-indigo-600 border-b border-dotted border-indigo-200';
+              break;
+            case 1: // Niveau basique
+            default:
+              className += 'text-indigo-600';
+              break;
+          }
+          
+          return (
+            <HoverCard key={index} openDelay={300} closeDelay={100}>
+              <HoverCardTrigger asChild>
+                <span className={className}>{segment.content}</span>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 text-sm" side="top">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-slate-900">{term.title}</h4>
+                  <p className="text-slate-600 text-xs leading-relaxed">{term.description}</p>
+                  <div className="flex items-center pt-1">
+                    <span className="text-xs bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">
+                      {term.category}
+                    </span>
+                  </div>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          );
+        }
+      })}
+    </span>
+  );
 };
 
 export default ScientificHighlightedText;

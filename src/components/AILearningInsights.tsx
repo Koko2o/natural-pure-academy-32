@@ -1,7 +1,6 @@
-import React from 'react';
-import recommenderSystemUtils from "@/utils/recommenderSystem";
-const { getAIModelDetailedStatus } = recommenderSystemUtils;
-import { evaluateDataQuality } from '@/utils/recommenderSystem';
+
+import React, { useState } from 'react';
+import { getAIModelDetailedStatus, evaluateDataQuality } from '@/utils/recommenderSystem';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -19,16 +18,15 @@ import {
   Sparkles,
   Cpu
 } from 'lucide-react';
+import { Recommendation } from '@/utils/types';
+import { motion } from 'framer-motion';
 
 interface AILearningInsightsProps {
-  expanded?: boolean;
-  onToggle?: () => void;
+  recommendations: Recommendation[];
 }
 
-const AILearningInsights: React.FC<AILearningInsightsProps> = ({ 
-  expanded = false,
-  onToggle = () => {}
-}) => {
+const AILearningInsights: React.FC<AILearningInsightsProps> = ({ recommendations }) => {
+  const [expanded, setExpanded] = useState<boolean>(false);
   const aiStatus = getAIModelDetailedStatus();
   const dataQuality = evaluateDataQuality();
 
@@ -42,7 +40,7 @@ const AILearningInsights: React.FC<AILearningInsightsProps> = ({
             <p className="text-sm text-gray-500">Dernière mise à jour: {aiStatus.lastUpdate}</p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={onToggle}>
+        <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)}>
           {expanded ? (
             <>
               <span className="mr-1">Réduire</span>
@@ -138,7 +136,7 @@ const AILearningInsights: React.FC<AILearningInsightsProps> = ({
                   +5.8%
                 </Badge>
               </div>
-              <Progress value={aiStatus.useCaseCoverage} className="h-1.5 mt-2" color="indigo" />
+              <Progress value={aiStatus.useCaseCoverage} className="h-1.5 mt-2" />
               <p className="text-xs text-gray-500 mt-2">
                 {aiStatus.uniqueProfiles} profils nutritionnels uniques identifiés
               </p>

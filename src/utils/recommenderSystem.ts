@@ -1,3 +1,4 @@
+
 /**
  * Système de recommandation nutritionnelle avancé avec IA
  */
@@ -134,7 +135,7 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
 
   // Vérifier si les données du quiz sont suffisantes pour une analyse pertinente
   const hasValidData = quizData && Object.keys(quizData).filter(key => {
-    const value = quizData[key];
+    const value = quizData[key as keyof QuizData];
     return Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null;
   }).length >= 2;
 
@@ -153,29 +154,29 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
   if (quizData.symptoms && quizData.symptoms.length > 0) {
     scoredRecommendations.forEach(rec => {
       // Correspondance des symptômes avec les catégories
-      if (quizData.symptoms.includes('fatigue') && (rec.categories.includes('énergie') || rec.id === 'vitamin-b-complex')) {
+      if (quizData.symptoms?.includes('fatigue') && (rec.categories.includes('énergie') || rec.id === 'vitamin-b-complex')) {
         rec.relevanceScore += 0.3;
       }
-      if (quizData.symptoms.includes('digestion') && rec.categories.includes('digestion')) {
+      if (quizData.symptoms?.includes('digestion') && rec.categories.includes('digestion')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.symptoms.includes('sommeil') && (rec.categories.includes('sommeil') || rec.id === 'magnesium-glycinate')) {
+      if (quizData.symptoms?.includes('sommeil') && (rec.categories.includes('sommeil') || rec.id === 'magnesium-glycinate')) {
         rec.relevanceScore += 0.3;
       }
-      if (quizData.symptoms.includes('inflammation') && (rec.categories.includes('inflammation') || rec.id === 'omega3-supplementation')) {
+      if (quizData.symptoms?.includes('inflammation') && (rec.categories.includes('inflammation') || rec.id === 'omega3-supplementation')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.symptoms.includes('immunite') && rec.categories.includes('immunité')) {
+      if (quizData.symptoms?.includes('immunite') && rec.categories.includes('immunité')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.symptoms.includes('stress') && (rec.categories.includes('stress') || rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation')) {
+      if (quizData.symptoms?.includes('stress') && (rec.categories.includes('stress') || rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation')) {
         rec.relevanceScore += 0.35;
       }
-      if (quizData.symptoms.includes('concentration') && (rec.categories.includes('fonction cognitive') || rec.id === 'omega3-supplementation')) {
+      if (quizData.symptoms?.includes('concentration') && (rec.categories.includes('fonction cognitive') || rec.id === 'omega3-supplementation')) {
         rec.relevanceScore += 0.3;
       }
       // Support pour les troubles du sommeil
-      if (quizData.symptoms.includes('Troubles du sommeil') && (rec.categories.includes('sommeil') || rec.id === 'magnesium-glycinate' || rec.id === 'circadian-rhythm-optimization')) {
+      if (quizData.symptoms?.includes('Troubles du sommeil') && (rec.categories.includes('sommeil') || rec.id === 'magnesium-glycinate' || rec.id === 'circadian-rhythm-optimization')) {
         rec.relevanceScore += 0.5;
       }
     });
@@ -184,16 +185,16 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
   // Évaluation des habitudes alimentaires
   if (quizData.dietaryHabits && quizData.dietaryHabits.length > 0) {
     scoredRecommendations.forEach(rec => {
-      if (quizData.dietaryHabits.includes('processed') && (rec.id === 'anti-inflammatory-diet' || rec.id === 'omega3-supplementation')) {
+      if (quizData.dietaryHabits?.includes('processed') && (rec.id === 'anti-inflammatory-diet' || rec.id === 'omega3-supplementation')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.dietaryHabits.includes('low_variety') && (rec.id === 'micronutrient-assessment' || rec.id === 'vitamin-d-supplement' || rec.id === 'vitamin-b-complex')) {
+      if (quizData.dietaryHabits?.includes('low_variety') && (rec.id === 'micronutrient-assessment' || rec.id === 'vitamin-d-supplement' || rec.id === 'vitamin-b-complex')) {
         rec.relevanceScore += 0.3;
       }
-      if (quizData.dietaryHabits.includes('irregular_meals') && (rec.id === 'nutrient-timing' || rec.id === 'circadian-rhythm-optimization')) {
+      if (quizData.dietaryHabits?.includes('irregular_meals') && (rec.id === 'nutrient-timing' || rec.id === 'circadian-rhythm-optimization')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.dietaryHabits.includes('high_sugar') && (rec.id === 'anti-inflammatory-diet' || rec.id === 'intermittent-fasting')) {
+      if (quizData.dietaryHabits?.includes('high_sugar') && (rec.id === 'anti-inflammatory-diet' || rec.id === 'intermittent-fasting')) {
         rec.relevanceScore += 0.35;
       }
     });
@@ -202,16 +203,16 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
   // Évaluation du mode de vie
   if (quizData.lifestyle && quizData.lifestyle.length > 0) {
     scoredRecommendations.forEach(rec => {
-      if (quizData.lifestyle.includes('high_stress') && (rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation' || rec.id === 'magnesium-glycinate')) {
+      if (quizData.lifestyle?.includes('high_stress') && (rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation' || rec.id === 'magnesium-glycinate')) {
         rec.relevanceScore += 0.45;
       }
-      if (quizData.lifestyle.includes('sedentary') && rec.id === 'circadian-rhythm-optimization') {
+      if (quizData.lifestyle?.includes('sedentary') && rec.id === 'circadian-rhythm-optimization') {
         rec.relevanceScore += 0.3;
       }
-      if (quizData.lifestyle.includes('poor_sleep') && (rec.id === 'circadian-rhythm-optimization' || rec.id === 'magnesium-glycinate')) {
+      if (quizData.lifestyle?.includes('poor_sleep') && (rec.id === 'circadian-rhythm-optimization' || rec.id === 'magnesium-glycinate')) {
         rec.relevanceScore += 0.5;
       }
-      if (quizData.lifestyle.includes('screen_time') && (rec.id === 'vitamin-b-complex' || rec.id === 'omega3-supplementation')) {
+      if (quizData.lifestyle?.includes('screen_time') && (rec.id === 'vitamin-b-complex' || rec.id === 'omega3-supplementation')) {
         rec.relevanceScore += 0.25;
       }
     });
@@ -220,22 +221,22 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
   // Évaluation des objectifs
   if (quizData.objectives && quizData.objectives.length > 0) {
     scoredRecommendations.forEach(rec => {
-      if (quizData.objectives.includes('immune_boost') && rec.categories.includes('immunité')) {
+      if (quizData.objectives?.includes('immune_boost') && rec.categories.includes('immunité')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.objectives.includes('digestion') && rec.categories.includes('digestion')) {
+      if (quizData.objectives?.includes('digestion') && rec.categories.includes('digestion')) {
         rec.relevanceScore += 0.4;
       }
-      if (quizData.objectives.includes('energy') && (rec.id === 'vitamin-b-complex' || rec.id === 'circadian-rhythm-optimization')) {
+      if (quizData.objectives?.includes('energy') && (rec.id === 'vitamin-b-complex' || rec.id === 'circadian-rhythm-optimization')) {
         rec.relevanceScore += 0.35;
       }
-      if (quizData.objectives.includes('stress_management') && (rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation')) {
+      if (quizData.objectives?.includes('stress_management') && (rec.id === 'adaptogenic-herbs' || rec.id === 'mindfulness-meditation')) {
         rec.relevanceScore += 0.5;
       }
-      if (quizData.objectives.includes('sleep_improvement') && (rec.id === 'magnesium-glycinate' || rec.id === 'circadian-rhythm-optimization')) {
+      if (quizData.objectives?.includes('sleep_improvement') && (rec.id === 'magnesium-glycinate' || rec.id === 'circadian-rhythm-optimization')) {
         rec.relevanceScore += 0.45;
       }
-      if (quizData.objectives.includes('mental_clarity') && (rec.id === 'omega3-supplementation' || rec.id === 'vitamin-b-complex')) {
+      if (quizData.objectives?.includes('mental_clarity') && (rec.id === 'omega3-supplementation' || rec.id === 'vitamin-b-complex')) {
         rec.relevanceScore += 0.4;
       }
     });
@@ -314,7 +315,7 @@ export function generateRecommendations(quizData: QuizData): Recommendation[] {
   try {
     // Vérifier si les données du quiz contiennent au moins quelques informations utiles
     const hasMinimalData = quizData && Object.keys(quizData).some(key => {
-      const value = quizData[key];
+      const value = quizData[key as keyof QuizData];
       return Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== '';
     });
 
@@ -430,7 +431,7 @@ export const generateDetailedRecommendationExplanation = (
     }
 
     // Construire une explication scientifique personnalisée avec plus de contexte
-    let explanation = `**${supplement.name} (${supplement.scientificName})** : ${supplement.description}\n\n`;
+    let explanation = `**${supplement.name} (${supplement.scientificName || ''})** : ${supplement.description}\n\n`;
 
     // Bénéfices spécifiques avec enrichissement basé sur les réponses du quiz
     explanation += "**Bénéfices ciblés pour votre profil :**\n";
@@ -642,7 +643,8 @@ export function getAIModelDetailedStatus() {
       ],
       knowledgeBase: 2500,
       accuracyImprovement: 2.3,
-      processingTime: 234, userSatisfaction: 94,
+      processingTime: 234, 
+      userSatisfaction: 94,
       useCaseCoverage: 87,
       recommendationEfficiency: 92,
       lastUpdate: new Date().toLocaleDateString(),

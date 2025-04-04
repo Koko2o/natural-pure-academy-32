@@ -122,30 +122,50 @@ export interface SupplementSynergy {
   evidence: 'strong' | 'moderate' | 'theoretical';
 }
 
-// Placeholder types -  replace with actual implementations
-export interface SupplementScore {}
-export interface UserProfile {}
+
+// These are the new types from the edited snippet. They replace and extend existing types.
+
 /**
  * Types pour le système de recommandation nutritionnelle
  */
 
-// Type pour les réponses du quiz
+// Données brutes du quiz
 export interface QuizData {
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
   symptoms?: string[];
-  dietaryHabits?: string;
-  lifestyle?: string[];
+  objectives?: string[];
+  dietaryHabits?: string[];
+  proteinConsumption?: string;
   exerciseFrequency?: string;
   sleepQuality?: string;
   stressLevel?: string;
-  objectives?: string[];
-  proteinConsumption?: string;
-  age?: number;
-  gender?: string;
-  [key: string]: any; // Pour les propriétés supplémentaires
+  lifestyle?: string[];
 }
 
-// Interface pour les recommandations
-export interface Recommendation {
+// Réponse complète au quiz
+export interface QuizResponseNew {
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
+  symptoms?: string[];
+  objectives?: string[];
+  dietaryHabits?: any;
+  proteinConsumption?: string;
+  exerciseFrequency?: string;
+  sleepQuality?: string;
+  stressLevel?: string;
+  lifestyle?: string[];
+  dietaryRestrictions?: Record<string, boolean>;
+  personalGoals?: string[];
+  medicalConditions?: string[];
+}
+
+// Recommandation de supplément
+export interface RecommendationNew {
   id: string;
   title: string;
   description: string;
@@ -156,79 +176,79 @@ export interface Recommendation {
   recommendedDose?: string;
 }
 
-// Interface pour les réponses du quiz complètes
-export interface QuizResponse {
-  symptoms?: string[];
-  dietaryHabits?: string;
-  lifestyle?: string[];
-  objectives?: string[];
-  proteinConsumption?: string;
-  age?: number;
-  gender?: string;
-  [key: string]: any;
-}
-
-// Interface pour un supplément nutritionnel
-export interface Supplement {
-  id: string;
+// Suppléments spécifiques
+export interface SupplementInfo {
   name: string;
-  scientificName: string;
+  scientificName?: string;
   description: string;
   benefits: string[];
-  scientificBasis: string;
   standardDose: string;
-  timeToEffect: string;
+  recommendedDose?: string;
+  scientificBasis: string;
   contraindications?: string[];
-  interactions?: string[];
-  researchScore?: number;
-  safetyProfile?: number;
   naturalSources?: string[];
-  categories?: string[];
+  timeToEffect: string;
+  category: string;
 }
 
-// Interface pour les métriques comportementales
-export interface BehavioralMetrics {
-  timeSpentOnQuiz?: number;
-  revisitedQuestions?: string[];
-  hesitationPatterns?: {[key: string]: number};
-  clickPatterns?: any[];
-  viewportTime?: {[key: string]: number};
-  [key: string]: any;
-}
-
-// Interface pour le profil neuronal
-export interface NeuroProfile {
-  decisionStyle?: 'analytical' | 'intuitive' | 'mixed';
-  confidenceLevel?: number;
-  informationProcessingSpeed?: number;
-  riskTolerance?: 'low' | 'medium' | 'high';
-  [key: string]: any;
-}
-
-// Interface pour le feedback utilisateur
-export interface UserFeedback {
+// Feedback utilisateur
+export interface UserFeedbackNew {
   recommendationId: string;
   rating: number;
-  comment?: string;
-  timestamp: number;
-  userId?: string;
+  comments?: string;
+  effectiveAfterDays?: number;
+  sideEffects?: string[];
+  wouldRecommend?: boolean;
 }
 
-// Interface pour les données d'apprentissage
-export interface LearningData {
-  quizResponses: QuizResponse;
-  generatedRecommendations: Recommendation[];
-  userFeedback?: UserFeedback[];
-  behavioralMetrics?: BehavioralMetrics;
-  timestamp: number;
-  userId?: string;
+// Métriques comportementales
+export interface BehavioralMetricsNew {
+  timeOnQuiz: number;
+  changedAnswers: number;
+  engagementScore: number;
+  completionTime: Date;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
+  interactionPattern: string[];
 }
 
-// Interface pour la base de recommandation simplifiée
-export interface BaseRecommendation {
+// Profil neuronal de l'utilisateur
+export interface NeuroProfile {
+  attentionScore: number;
+  decisionSpeed: number;
+  consistencyIndex: number;
+  responsePatterns: string[];
+  trustScore: number;
+}
+
+// Données d'apprentissage pour l'IA
+export interface LearningDataNew {
+  quizResponses: QuizResponseNew;
+  recommendations: RecommendationNew[];
+  userFeedback?: UserFeedbackNew[];
+  behavioralMetrics?: BehavioralMetricsNew;
+  neuroProfile?: NeuroProfile;
+  effectivenessScore?: number;
+}
+
+// Données pour l'affichage des résultats
+export interface ResultsDisplayData {
+  recommendations: RecommendationNew[];
+  userProfile: {
+    symptoms: string[];
+    objectives: string[];
+    lifestyle: string[];
+  };
+  scientificLevel: number;
+  analysisDate: Date;
+}
+
+// Terme scientifique
+export interface ScientificTerm {
   id: string;
   title: string;
-  relevanceScore: number;
-  recommendedDose?: string;
-  categories?: string[];
+  description: string;
+  category: string;
+  references?: string[];
 }
+
+// Placeholder types removed
