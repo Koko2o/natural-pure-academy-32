@@ -1,9 +1,10 @@
+
 /**
  * Mappages entre symptômes, objectifs et suppléments recommandés
  * Ce fichier définit les relations entre les problèmes de santé et les solutions nutritionnelles
  */
 
-// Mappages des symptômes vers les suppléments recommandés
+// Mappages des symptômes vers les catégories
 export const SYMPTOM_CATEGORIES = {
   "Fatigue": ["energy", "nutrition"],
   "Troubles du sommeil": ["sleep", "relaxation"],
@@ -11,7 +12,7 @@ export const SYMPTOM_CATEGORIES = {
   "Anxiété": ["mood", "relaxation"],
   "Problèmes digestifs": ["digestion", "gut-health"],
   "Douleurs articulaires": ["joints", "anti-inflammatory"],
-  "Peau terne": ["skin", "antioxidant"],
+  "Problèmes de peau": ["skin", "antioxidant"],
   "Cheveux cassants": ["hair", "nutrition"],
   "Système immunitaire faible": ["immune", "antioxidant"],
   "Troubles de la concentration": ["brain", "cognitive"],
@@ -26,7 +27,7 @@ export const SYMPTOM_RECOMMENDATIONS = {
   "Anxiété": ["ashwagandha", "l_theanine", "magnesium_glycinate", "rhodiola"],
   "Problèmes digestifs": ["probiotics", "magnesium_glycinate", "anti-inflammatory-diet"],
   "Douleurs articulaires": ["curcumin", "omega3", "vitamin_d3"],
-  "Peau terne": ["vitamin_c", "omega3", "zinc"],
+  "Problèmes de peau": ["vitamin_c", "omega3", "zinc", "probiotics"],
   "Cheveux cassants": ["vitamin_b_complex", "zinc", "iron"],
   "Système immunitaire faible": ["vitamin_c", "vitamin_d3", "zinc", "probiotics"],
   "Troubles de la concentration": ["omega3", "vitamin_b_complex", "l_theanine", "lions_mane", "alpha_gpc"],
@@ -35,15 +36,15 @@ export const SYMPTOM_RECOMMENDATIONS = {
 
 // Mappages des objectifs vers les suppléments recommandés
 export const GOAL_RECOMMENDATIONS = {
-  "Améliorer mon sommeil": ["magnesium_glycinate", "melatonin", "l_theanine", "circadian-rhythm-optimization"],
-  "Réduire le stress": ["ashwagandha", "rhodiola", "l_theanine", "mindfulness-meditation"],
-  "Augmenter mon énergie": ["vitamin_b_complex", "iron", "coq10", "vitamin_c"],
+  "Meilleur sommeil": ["magnesium_glycinate", "melatonin", "l_theanine", "circadian-rhythm-optimization"],
+  "Réduire mon stress": ["ashwagandha", "rhodiola", "l_theanine", "mindfulness-meditation"],
+  "Plus d'énergie": ["vitamin_b_complex", "iron", "coq10", "vitamin_c"],
   "Renforcer mon immunité": ["vitamin_c", "vitamin_d3", "zinc", "probiotics"],
   "Soutenir ma digestion": ["probiotics", "anti-inflammatory-diet", "magnesium_glycinate"],
   "Améliorer ma concentration": ["omega3", "vitamin_b_complex", "l_theanine", "lions_mane", "alpha_gpc"],
-  "Equilibrer mes hormones": ["vitamin_d3", "magnesium_glycinate", "omega3", "ashwagandha"],
-  "Améliorer ma qualité de peau": ["vitamin_c", "omega3", "zinc", "anti-inflammatory-diet"],
-  "Perdre du poids": ["intermittent-fasting", "berberine", "magnesium_glycinate", "nutrient-timing"],
+  "Équilibrer mes hormones": ["vitamin_d3", "magnesium_glycinate", "omega3", "ashwagandha"],
+  "Améliorer ma peau": ["vitamin_c", "omega3", "zinc", "anti-inflammatory-diet"],
+  "Équilibrer mon poids": ["intermittent-fasting", "berberine", "magnesium_glycinate", "nutrient-timing"],
   "Optimiser ma santé globale": ["micronutrient-assessment", "vitamin_d3", "magnesium_glycinate", "omega3-supplementation", "probiotics"]
 };
 
@@ -53,7 +54,7 @@ export const LIFESTYLE_RECOMMENDATIONS = {
   "Actif": ["magnesium_glycinate", "vitamin_c", "coq10"],
   "Très actif": ["magnesium_glycinate", "vitamin_b_complex", "vitamin_c", "zinc", "coq10"],
   "Alimentation végétarienne": ["vitamin_b12", "iron", "vitamin_d3", "omega3"],
-  "Alimentation végane": ["vitamin_b12", "vitamin_d3", "iron", "omega3", "zinc"],
+  "Alimentation végane": ["vitamin_b12", "vitamin_d3", "iron", "omega3_vegan", "zinc"],
   "Stress chronique": ["ashwagandha", "rhodiola", "magnesium_glycinate", "vitamin_b_complex"],
   "Troubles du sommeil": ["magnesium_glycinate", "melatonin", "l_theanine"]
 };
@@ -112,7 +113,7 @@ export const SYMPTOM_PRIORITY_FACTORS = {
   "Anxiété": 1.1,
   "Problèmes digestifs": 1.0,
   "Douleurs articulaires": 1.0,
-  "Peau terne": 0.9,
+  "Problèmes de peau": 0.9,
   "Cheveux cassants": 0.9,
   "Système immunitaire faible": 1.1
 };

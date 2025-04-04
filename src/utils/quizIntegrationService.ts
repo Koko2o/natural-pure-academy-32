@@ -9,7 +9,9 @@ import SUPPLEMENT_CATALOG from '@/data/supplementCatalog';
 import { QuizData, Recommendation } from '@/utils/types';
 import { SYMPTOM_RECOMMENDATIONS, GOAL_RECOMMENDATIONS } from '@/data/recommendationMappings';
 
-// Convertir les données du quiz en format exploitable
+/**
+ * Convertit les données du quiz en format exploitable pour le système de recommandation
+ */
 const enrichQuizData = (quizData: QuizData) => {
   // Copier les données de base
   const enrichedData = { ...quizData };
@@ -33,14 +35,42 @@ const enrichQuizData = (quizData: QuizData) => {
     healthCategories.push('digestive_issues');
   }
   
+  if (quizData.symptoms?.includes('Douleurs articulaires')) {
+    healthCategories.push('joint_issues');
+  }
+  
+  if (quizData.symptoms?.includes('Problèmes de peau')) {
+    healthCategories.push('skin_issues');
+  }
+  
+  if (quizData.symptoms?.includes('Système immunitaire faible')) {
+    healthCategories.push('immune_issues');
+  }
+  
+  // Ajouter des profils alimentaires basés sur les habitudes
+  let dietProfile = 'balanced';
+  
+  if (quizData.dietaryHabits?.includes('Végétarien')) {
+    dietProfile = 'vegetarian';
+  } else if (quizData.dietaryHabits?.includes('Végan')) {
+    dietProfile = 'vegan';
+  } else if (quizData.dietaryHabits?.includes('Pescetarien')) {
+    dietProfile = 'pescetarian';
+  } else if (quizData.dietaryHabits?.includes('Flexitarien')) {
+    dietProfile = 'flexitarian';
+  }
+  
   // Ajouter les catégories au data enrichi
   return {
     ...enrichedData,
-    healthCategories
+    healthCategories,
+    dietProfile
   };
 };
 
-// Obtenir des recommandations personnalisées basées sur les réponses au quiz
+/**
+ * Obtenir des recommandations personnalisées basées sur les réponses au quiz
+ */
 const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[] => {
   console.log("Génération de recommandations complètes avec les données:", enrichedQuizData);
   
@@ -49,6 +79,7 @@ const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[]
   
   // Traiter les symptômes
   if (enrichedQuizData.symptoms && enrichedQuizData.symptoms.length > 0) {
+    console.log("Génération de recommandations avec les données:", enrichedQuizData);
     console.log("Analyse des données du quiz pour les recommandations:", enrichedQuizData);
     
     enrichedQuizData.symptoms.forEach((symptom: string) => {
@@ -66,7 +97,7 @@ const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[]
             scientificBasis: supplement.scientificBasis,
             relevanceScore: 0.6 + Math.random() * 0.3, // Score de base + facteur aléatoire
             categories: supplement.categories || ['nutrition'],
-            relatedTerms: []
+            relatedTerms: supplement.relatedTerms || []
           });
         }
       });
@@ -90,10 +121,34 @@ const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[]
             scientificBasis: supplement.scientificBasis,
             relevanceScore: 0.7 + Math.random() * 0.3, // Score légèrement plus élevé pour les objectifs
             categories: supplement.categories || ['nutrition'],
-            relatedTerms: []
+            relatedTerms: supplement.relatedTerms || []
           });
         }
       });
+    });
+  }
+  
+  // Si aucune recommandation n'a été trouvée, ajouter des recommandations par défaut
+  if (recommendationCandidates.length === 0) {
+    // Recommandations de base
+    const defaultRecommendations = [
+      "vitamin_d3", "magnesium_glycinate", "omega3-supplementation", 
+      "vitamin_b_complex", "probiotics"
+    ];
+    
+    defaultRecommendations.forEach(recId => {
+      const supplement = SUPPLEMENT_CATALOG[recId];
+      if (supplement) {
+        recommendationCandidates.push({
+          id: recId,
+          title: supplement.name,
+          description: supplement.description,
+          scientificBasis: supplement.scientificBasis,
+          relevanceScore: 0.5 + Math.random() * 0.2, // Score de base pour les recommandations par défaut
+          categories: supplement.categories || ['nutrition'],
+          relatedTerms: supplement.relatedTerms || []
+        });
+      }
     });
   }
   
@@ -155,8 +210,54 @@ const getPersonalizedRecommendations = (enrichedQuizData: any): Recommendation[]
   return finalRecommendations;
 };
 
+// Fonction d'intégration pour générer des explications détaillées pour chaque recommandation
+const generateDetailedExplanation = (recommendation: Recommendation, quizData: QuizData): string => {
+  const supplement = SUPPLEMENT_CATALOG[recommendation.id];
+  
+  if (!supplement) {
+    return `Aucune information détaillée n'est disponible pour cette recommandation.`;
+  }
+  
+  // Construire une explication personnalisée
+  let explanation = `<strong>${supplement.name}</strong>\n\n`;
+  
+  // Ajouter la base scientifique
+  explanation += `<p class="scientific-basis"><strong>Base scientifique:</strong> ${supplement.scientificBasis}</p>\n\n`;
+  
+  // Ajouter le mode d'action
+  explanation += `<p><strong>Comment ça fonctionne:</strong> `;
+  
+  // Personnaliser selon les symptômes de l'utilisateur
+  const relevantSymptoms = quizData.symptoms?.filter(symptom => 
+    supplement.targetSymptoms?.includes(symptom)
+  ) || [];
+  
+  if (relevantSymptoms.length > 0) {
+    explanation += `Ce complément est particulièrement adapté pour aider avec vos symptômes de ${relevantSymptoms.join(', ')}. `;
+  }
+  
+  // Ajouter le dosage recommandé
+  explanation += `</p>\n\n<p><strong>Dosage recommandé:</strong> ${supplement.recommendedDosage}</p>`;
+  
+  // Ajouter le délai d'efficacité
+  explanation += `\n\n<p><strong>Délai d'efficacité:</strong> Généralement, les effets commencent à se faire sentir après ${supplement.timeToEffect}.</p>`;
+  
+  // Ajouter les sources naturelles
+  if (supplement.naturalSources && supplement.naturalSources.length > 0) {
+    explanation += `\n\n<p><strong>Sources naturelles:</strong> ${supplement.naturalSources.join(', ')}</p>`;
+  }
+  
+  // Ajouter les précautions si elles existent
+  if (supplement.cautions) {
+    explanation += `\n\n<p><strong>Précautions:</strong> ${supplement.cautions}</p>`;
+  }
+  
+  return explanation;
+};
+
 // Exporter les fonctions du service
 export default {
   enrichQuizData,
-  getPersonalizedRecommendations
+  getPersonalizedRecommendations,
+  generateDetailedExplanation
 };

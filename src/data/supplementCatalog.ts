@@ -1,786 +1,728 @@
+
 /**
- * Catalogue des suppléments nutritionnels avec informations détaillées
+ * Catalogue des compléments alimentaires naturels
+ * Ce fichier contient les données sur les compléments, leurs propriétés et bénéfices
  */
 
-interface Supplement {
-  id: string;
-  name: string;
-  scientificName: string;
-  description: string;
-  benefits: string[];
-  scientificBasis: string;
-  standardDose: string;
-  timeToEffect: string;
-  contraindications?: string[];
-  interactions?: string[];
-  researchScore?: number; // 1-10 score based on research quality
-  safetyProfile?: number; // 1-10 score
-  naturalSources?: string[];
-  categories?: string[];
-}
-
+// Interface pour définir la structure d'un complément alimentaire
 export interface SupplementInfo {
   name: string;
-  scientificName?: string;
   description: string;
-  benefits: string[];
-  standardDose: string;
-  recommendedDose?: string;
-  scientificBasis: string;
-  contraindications?: string[];
-  naturalSources?: string[];
-  timeToEffect: string;
   category: string;
+  benefits: string[];
+  scientificBasis: string;
+  recommendedDosage: string;
+  timeToEffect: string;
+  naturalSources: string[];
+  efficacyScore: number;
+  cautions?: string;
+  compatibleDiets: string[];
+  targetSymptoms: string[];
+  targetGoals: string[];
+  categories: string[];
+  relatedTerms: string[];
 }
 
-
-export const SUPPLEMENT_CATALOG = {
-  vitamin_d3: {
-    id: "vitamin_d3",
-    name: "Vitamine D3",
-    scientificName: "Cholécalciférol",
-    description: "Hormone stéroïde essentielle pour l'absorption du calcium, la fonction immunitaire et la santé osseuse.",
+// Catalogue des compléments alimentaires
+const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
+  "magnesium_glycinate": {
+    name: "Magnésium marin",
+    description: "Contribue à réduire la fatigue et soutenir le système nerveux et musculaire",
+    category: "Minéraux",
     benefits: [
-      "Renforce le système immunitaire",
-      "Améliore l'absorption du calcium",
-      "Favorise la santé osseuse",
-      "Peut réduire le risque de dépression saisonnière",
-      "Soutient la fonction musculaire"
+      "Contribue à réduire la fatigue",
+      "Soutient le fonctionnement normal du système nerveux",
+      "Aide à maintenir des fonctions musculaires normales",
+      "Contribue à l'équilibre électrolytique"
     ],
-    scientificBasis: "Des études ont montré qu'une supplémentation en vitamine D3 peut réduire le risque d'infections respiratoires de 30% chez les personnes carencées.",
-    standardDose: "1000-4000 UI par jour selon le niveau initial",
-    timeToEffect: "4-8 semaines pour normaliser les niveaux sanguins",
-    contraindications: [
-      "Hypercalcémie",
-      "Maladies rénales sévères",
-      "Sarcoïdose"
-    ],
-    interactions: [
-      "Médicaments contenant de l'aluminium",
-      "Anticonvulsivants",
-      "Statines"
-    ],
-    researchScore: 9,
-    safetyProfile: 9,
-    naturalSources: ["Exposition au soleil", "Poissons gras", "Jaunes d'œufs", "Champignons exposés aux UV"],
-    categories: ["Immunité", "Santé osseuse", "Humeur"]
+    scientificBasis: "Des études cliniques montrent que le magnésium joue un rôle crucial dans plus de 300 réactions enzymatiques dans le corps",
+    recommendedDosage: "300-400 mg par jour",
+    timeToEffect: "2-3 semaines",
+    naturalSources: ["Fruits à coque", "Légumes verts", "Céréales complètes", "Chocolat noir"],
+    efficacyScore: 90,
+    cautions: "Peut avoir un effet laxatif à forte dose",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Stress", "Anxiété", "Troubles du sommeil", "Douleurs articulaires"],
+    targetGoals: ["Plus d'énergie", "Réduire mon stress", "Meilleur sommeil"],
+    categories: ["minerals", "sleep", "stress", "energy"],
+    relatedTerms: ["magnesium", "electrolytes", "muscle function"]
   },
-
-  magnesium_glycinate: {
-    id: "magnesium_glycinate",
-    name: "Magnésium Glycinate",
-    scientificName: "Bis-glycinate de magnésium",
-    description: "Forme hautement biodisponible et bien tolérée de magnésium, liée à l'acide aminé glycine.",
+  
+  "vitamin_b_complex": {
+    name: "Complexe Vitamine B",
+    description: "Soutient le métabolisme énergétique et contribue à réduire la fatigue",
+    category: "Vitamines",
     benefits: [
-      "Améliore la qualité du sommeil",
-      "Réduit le stress et l'anxiété",
-      "Soutient la fonction musculaire",
-      "Aide à la régulation de la glycémie",
-      "Contribue à la santé cardiovasculaire"
+      "Contribue au métabolisme énergétique normal",
+      "Aide à réduire la fatigue",
+      "Soutient le fonctionnement normal du système nerveux",
+      "Contribue à des fonctions psychologiques normales"
     ],
-    scientificBasis: "Le magnésium est impliqué dans plus de 300 réactions enzymatiques dans le corps. La forme glycinate est particulièrement bien absorbée et présente moins d'effets secondaires digestifs.",
-    standardDose: "300-400mg par jour (en magnésium élémentaire)",
-    timeToEffect: "2-4 semaines pour les effets sur le sommeil et l'anxiété",
-    contraindications: [
-      "Insuffisance rénale sévère",
-      "Blocs cardiaques"
-    ],
-    interactions: [
-      "Antibiotiques (tétracyclines, fluoroquinolones)",
-      "Diurétiques",
-      "Médicaments pour le cœur"
-    ],
-    researchScore: 8,
-    safetyProfile: 9,
-    naturalSources: ["Légumes verts à feuilles", "Noix et graines", "Légumineuses", "Chocolat noir"],
-    categories: ["Sommeil", "Stress", "Fonction musculaire"]
+    scientificBasis: "Les vitamines B sont essentielles pour la conversion des nutriments en énergie au niveau cellulaire",
+    recommendedDosage: "Selon les besoins individuels, généralement 1 comprimé par jour",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Céréales complètes", "Légumineuses", "Levure nutritionnelle", "Viandes", "Œufs"],
+    efficacyScore: 85,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien"],
+    targetSymptoms: ["Fatigue", "Manque de concentration", "Stress", "Anxiété"],
+    targetGoals: ["Plus d'énergie", "Améliorer ma concentration", "Réduire mon stress"],
+    categories: ["vitamins", "energy", "cognitive"],
+    relatedTerms: ["metabolism", "b vitamins", "energy"]
   },
-  "vitamin-d-supplement": {
-    id: "vitamin-d-supplement",
-    name: "Supplément de Vitamine D",
-    scientificName: "Cholécalciférol (D3)",
-    description: "La vitamine D soutient la santé immunitaire, osseuse et musculaire",
+  
+  "vitamin_b12": {
+    name: "Vitamine B12 naturelle",
+    description: "Essentielle pour l'énergie, le système nerveux et la formation des globules rouges",
+    category: "Vitamines",
     benefits: [
-      "Renforce le système immunitaire",
-      "Améliore l'absorption du calcium",
-      "Contribue à la santé osseuse",
-      "Soutient la fonction musculaire"
+      "Contribue à un métabolisme énergétique normal",
+      "Aide à réduire la fatigue",
+      "Soutient le fonctionnement normal du système nerveux",
+      "Contribue à la formation normale de globules rouges"
     ],
-    standardDose: "1000-2000 UI par jour",
+    scientificBasis: "La vitamine B12 est nécessaire à la synthèse de l'ADN, à la formation des globules rouges et au maintien de la gaine de myéline",
+    recommendedDosage: "1000-2000 μg par semaine ou 250 μg par jour",
+    timeToEffect: "4-12 semaines",
+    naturalSources: ["Viandes", "Poissons", "Fruits de mer", "Œufs", "Produits laitiers", "Levure nutritionnelle enrichie"],
+    efficacyScore: 95,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Manque de concentration", "Sensibilité au froid"],
+    targetGoals: ["Plus d'énergie", "Améliorer ma concentration"],
+    categories: ["vitamins", "energy", "vegan-essential"],
+    relatedTerms: ["cobalamin", "methylcobalamin", "red blood cells"]
+  },
+  
+  "vitamin_d3": {
+    name: "Vitamine D3 naturelle",
+    description: "Soutient le système immunitaire et contribue à la santé osseuse",
+    category: "Vitamines",
+    benefits: [
+      "Contribue au maintien d'une ossature normale",
+      "Soutient le système immunitaire",
+      "Aide à l'absorption du calcium",
+      "Contribue au maintien d'une fonction musculaire normale"
+    ],
+    scientificBasis: "Des études montrent qu'une supplémentation en vitamine D peut réduire le risque d'infections respiratoires de 30% chez les personnes carencées",
+    recommendedDosage: "1000-2000 UI par jour",
     timeToEffect: "4-6 semaines",
-    scientificBasis: "Des études montrent une réduction des infections respiratoires de 30% chez les personnes carencées",
-    contraindications: ["Précaution en cas d'hypercalcémie", "Consulter un médecin pour dosages élevés"],
-    naturalSources: ["Poissons gras", "Exposition au soleil", "Jaune d'œuf", "Champignons exposés aux UV"],
-    categories: ["Vitamines"]
+    naturalSources: ["Exposition au soleil", "Poissons gras", "Jaune d'œuf"],
+    efficacyScore: 85,
+    cautions: "Consulter un professionnel pour les dosages élevés",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien"],
+    targetSymptoms: ["Fatigue", "Sensibilité au froid", "Douleurs articulaires"],
+    targetGoals: ["Plus d'énergie", "Renforcer mon immunité"],
+    categories: ["vitamins", "immune", "bone-health"],
+    relatedTerms: ["sunshine vitamin", "calcium absorption", "cholecalciferol"]
   },
-  "probiotics-daily": {
-    id: "probiotics-daily",
-    name: "Probiotiques quotidiens",
-    scientificName: "Cultures bactériennes vivantes",
-    description: "Soutien à l'équilibre de la flore intestinale et à la fonction immunitaire",
+  
+  "vitamin_d_vegan": {
+    name: "Vitamine D3 d'origine végétale",
+    description: "Version végane de la vitamine D, extraite de lichen, soutient l'immunité et la santé osseuse",
+    category: "Vitamines",
     benefits: [
-      "Améliore la digestion",
-      "Renforce l'immunité intestinale",
-      "Réduit l'inflammation intestinale",
+      "Contribue au maintien d'une ossature normale",
+      "Soutient le système immunitaire",
+      "Aide à l'absorption du calcium",
+      "Contribue au maintien d'une fonction musculaire normale"
+    ],
+    scientificBasis: "La vitamine D3 d'origine végétale (lichen) a montré une biodisponibilité comparable à celle d'origine animale",
+    recommendedDosage: "1000-2000 UI par jour",
+    timeToEffect: "4-6 semaines",
+    naturalSources: ["Exposition au soleil", "Lichen"],
+    efficacyScore: 80,
+    cautions: "Consulter un professionnel pour les dosages élevés",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Sensibilité au froid", "Douleurs articulaires"],
+    targetGoals: ["Plus d'énergie", "Renforcer mon immunité"],
+    categories: ["vitamins", "immune", "bone-health", "vegan-friendly"],
+    relatedTerms: ["lichen-derived", "plant-based", "cholecalciferol"]
+  },
+  
+  "vitamin_c": {
+    name: "Vitamine C naturelle",
+    description: "Puissant antioxydant qui soutient le système immunitaire et la production de collagène",
+    category: "Vitamines",
+    benefits: [
+      "Contribue à réduire la fatigue",
+      "Soutient le système immunitaire",
+      "Aide à la protection des cellules contre le stress oxydatif",
+      "Améliore l'absorption du fer"
+    ],
+    scientificBasis: "La vitamine C est essentielle à la synthèse du collagène et agit comme un puissant antioxydant dans l'organisme",
+    recommendedDosage: "500-1000 mg par jour",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Agrumes", "Kiwi", "Baies", "Poivrons", "Brocoli"],
+    efficacyScore: 80,
+    cautions: "Peut causer des troubles digestifs à forte dose",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Problèmes de peau"],
+    targetGoals: ["Plus d'énergie", "Renforcer mon immunité", "Améliorer ma peau"],
+    categories: ["vitamins", "immune", "skin-health", "antioxidant"],
+    relatedTerms: ["ascorbic acid", "collagen", "antioxidant"]
+  },
+  
+  "zinc": {
+    name: "Zinc naturel",
+    description: "Minéral essentiel pour l'immunité, la santé de la peau et la fonction cognitive",
+    category: "Minéraux",
+    benefits: [
+      "Soutient le système immunitaire",
+      "Contribue au maintien d'une peau normale",
+      "Aide à la protection des cellules contre le stress oxydatif",
+      "Contribue au maintien d'une fonction cognitive normale"
+    ],
+    scientificBasis: "Le zinc est impliqué dans plus de 300 réactions enzymatiques et joue un rôle crucial dans la division cellulaire et la réparation des tissus",
+    recommendedDosage: "15-30 mg par jour",
+    timeToEffect: "4-6 semaines",
+    naturalSources: ["Huîtres", "Viande rouge", "Graines de citrouille", "Légumineuses"],
+    efficacyScore: 75,
+    cautions: "Doses élevées peuvent interférer avec l'absorption du cuivre",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Problèmes de peau", "Cheveux/Ongles fragiles"],
+    targetGoals: ["Renforcer mon immunité", "Améliorer ma peau"],
+    categories: ["minerals", "immune", "skin-health"],
+    relatedTerms: ["trace mineral", "immunity", "enzyme cofactor"]
+  },
+  
+  "iron": {
+    name: "Fer naturel",
+    description: "Minéral essentiel pour le transport de l'oxygène et la production d'énergie",
+    category: "Minéraux",
+    benefits: [
+      "Contribue à réduire la fatigue",
+      "Aide à la formation normale de globules rouges",
+      "Soutient le transport normal d'oxygène dans le corps",
+      "Contribue à une fonction cognitive normale"
+    ],
+    scientificBasis: "Le fer est un composant essentiel de l'hémoglobine, responsable du transport de l'oxygène des poumons vers les tissus",
+    recommendedDosage: "14-18 mg par jour (femmes), 8-10 mg par jour (hommes)",
+    timeToEffect: "4-12 semaines",
+    naturalSources: ["Viande rouge", "Légumineuses", "Épinards", "Graines de citrouille"],
+    efficacyScore: 85,
+    cautions: "Peut causer des troubles digestifs, ne pas prendre sans carence avérée",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Sensibilité au froid"],
+    targetGoals: ["Plus d'énergie"],
+    categories: ["minerals", "energy", "blood-health"],
+    relatedTerms: ["hemoglobin", "ferritin", "anemia"]
+  },
+  
+  "omega3": {
+    name: "Oméga-3 (EPA/DHA)",
+    description: "Acides gras essentiels pour la santé cardiovasculaire et cérébrale",
+    category: "Acides gras essentiels",
+    benefits: [
+      "Soutient la santé cardiovasculaire",
+      "Contribue au fonctionnement normal du cerveau",
+      "Aide à maintenir une vision normale",
+      "Propriétés anti-inflammatoires naturelles"
+    ],
+    scientificBasis: "Les oméga-3 sont des acides gras polyinsaturés qui modulent l'inflammation et sont des composants structurels des membranes cellulaires",
+    recommendedDosage: "1000-2000 mg par jour (dont 500 mg d'EPA/DHA)",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Poissons gras (saumon, maquereau, sardines)", "Algues marines"],
+    efficacyScore: 80,
+    cautions: "Consulter un médecin si sous anticoagulants",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien"],
+    targetSymptoms: ["Douleurs articulaires", "Manque de concentration", "Sautes d'humeur"],
+    targetGoals: ["Améliorer ma concentration", "Réduire mon stress"],
+    categories: ["essential-fatty-acids", "brain-health", "heart-health", "anti-inflammatory"],
+    relatedTerms: ["EPA", "DHA", "fish oil"]
+  },
+  
+  "omega3_vegan": {
+    name: "Oméga-3 d'origine végétale (ALA)",
+    description: "Version végétale des acides gras essentiels, principalement sous forme d'ALA",
+    category: "Acides gras essentiels",
+    benefits: [
+      "Soutient la santé cardiovasculaire",
+      "Contribue au maintien d'un taux normal de cholestérol",
+      "Propriétés anti-inflammatoires naturelles"
+    ],
+    scientificBasis: "L'ALA (acide alpha-linolénique) peut être partiellement converti en EPA et DHA dans l'organisme, mais avec un taux de conversion limité",
+    recommendedDosage: "2000-4000 mg par jour",
+    timeToEffect: "8-12 semaines",
+    naturalSources: ["Graines de lin", "Graines de chia", "Noix", "Huile de colza"],
+    efficacyScore: 65,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Douleurs articulaires", "Sautes d'humeur"],
+    targetGoals: ["Réduire mon stress"],
+    categories: ["essential-fatty-acids", "heart-health", "vegan-friendly"],
+    relatedTerms: ["ALA", "flaxseed", "plant-based omega"]
+  },
+  
+  "probiotics": {
+    name: "Probiotiques multi-souches",
+    description: "Bactéries bénéfiques qui soutiennent l'équilibre de la flore intestinale",
+    category: "Probiotiques",
+    benefits: [
+      "Soutient l'équilibre de la flore intestinale",
+      "Aide à maintenir une digestion saine",
+      "Contribue au renforcement du système immunitaire",
       "Peut améliorer l'apparence de la peau"
     ],
-    standardDose: "5-10 milliards UFC par jour",
+    scientificBasis: "Les probiotiques modulent le microbiome intestinal et influencent positivement l'immunité et la digestion",
+    recommendedDosage: "5-10 milliards UFC par jour",
     timeToEffect: "2-4 semaines",
-    scientificBasis: "Recherches indiquant une amélioration de la barrière intestinale et réduction de l'inflammation",
-    contraindications: ["Consulter un médecin en cas d'immunodéficience"],
     naturalSources: ["Yaourt", "Kéfir", "Choucroute", "Kimchi", "Kombucha"],
-    categories: ["Probiotiques"]
+    efficacyScore: 85,
+    cautions: "Consulter un médecin en cas de système immunitaire affaibli",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Problèmes digestifs", "Problèmes de peau", "Fringales"],
+    targetGoals: ["Soutenir ma digestion", "Renforcer mon immunité", "Améliorer ma peau"],
+    categories: ["gut-health", "immune", "digestive"],
+    relatedTerms: ["microbiome", "gut bacteria", "lactobacillus"]
   },
-  omega3: {
-    id: "omega3",
-    name: "Oméga-3 EPA/DHA",
-    scientificName: "Acides eicosapentaénoïque et docosahexaénoïque",
-    description: "Acides gras polyinsaturés essentiels jouant un rôle crucial dans la santé cardiovasculaire et cérébrale.",
+  
+  "prebiotics": {
+    name: "Fibres prébiotiques",
+    description: "Nourrissent les bactéries bénéfiques de l'intestin pour une meilleure santé digestive",
+    category: "Prébiotiques",
     benefits: [
-      "Réduit l'inflammation systémique",
-      "Améliore la santé cardiovasculaire",
-      "Soutient la fonction cognitive",
-      "Peut améliorer la santé des articulations",
-      "Contribue à l'équilibre émotionnel"
+      "Nourrit les bonnes bactéries intestinales",
+      "Favorise une digestion saine",
+      "Aide à réguler l'appétit",
+      "Contribue à l'équilibre glycémique"
     ],
-    scientificBasis: "Les oméga-3 à longue chaîne (EPA et DHA) modulent l'inflammation et sont des composants structurels des membranes cellulaires, particulièrement concentrés dans le cerveau.",
-    standardDose: "1000-3000mg par jour (EPA+DHA combinés)",
-    timeToEffect: "1-3 mois pour les effets anti-inflammatoires",
-    contraindications: [
-      "Troubles de la coagulation",
-      "Allergie aux poissons ou fruits de mer (pour les sources marines)"
-    ],
-    interactions: [
-      "Anticoagulants et antiplaquettaires",
-      "Médicaments hypotenseurs"
-    ],
-    researchScore: 9,
-    safetyProfile: 8,
-    naturalSources: ["Poissons gras (saumon, maquereau)", "Graines de lin", "Graines de chia", "Algues marines"],
-    categories: ["Anti-inflammatoire", "Santé cardiovasculaire", "Santé cognitive"]
+    scientificBasis: "Les prébiotiques sont des fibres non digestibles qui servent de substrat pour les bactéries bénéfiques de l'intestin",
+    recommendedDosage: "5-10 g par jour",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Chicorée", "Topinambour", "Oignon", "Ail", "Banane verte", "Avoine"],
+    efficacyScore: 80,
+    cautions: "Introduire progressivement pour éviter les ballonnements",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Problèmes digestifs", "Fringales"],
+    targetGoals: ["Soutenir ma digestion", "Équilibrer mon poids"],
+    categories: ["gut-health", "digestive", "fiber"],
+    relatedTerms: ["inulin", "FOS", "GOS"]
   },
-  probiotics: {
-    id: "probiotics",
-    name: "Probiotiques",
-    scientificName: "Cultures bactériennes bénéfiques",
-    description: "Micro-organismes vivants qui, lorsqu'ils sont administrés en quantités adéquates, confèrent un bénéfice pour la santé.",
-    benefits: [
-      "Améliore la santé digestive",
-      "Renforce le système immunitaire",
-      "Peut réduire l'inflammation intestinale",
-      "Aide à la production de vitamines",
-      "Peut améliorer l'humeur via l'axe intestin-cerveau"
-    ],
-    scientificBasis: "Les probiotiques modulent le microbiome intestinal, améliorant la barrière intestinale et interagissant avec le système immunitaire pour réduire l'inflammation.",
-    standardDose: "10-50 milliards d'UFC par jour",
-    timeToEffect: "2-4 semaines pour les effets digestifs",
-    contraindications: [
-      "Immunodéficience sévère",
-      "Pancréatite aiguë"
-    ],
-    interactions: [
-      "Antibiotiques (prendre à distance)",
-      "Immunosuppresseurs"
-    ],
-    researchScore: 7,
-    safetyProfile: 9,
-    naturalSources: ["Yaourt", "Kéfir", "Choucroute", "Kombucha", "Kimchi"],
-    categories: ["Santé digestive", "Immunité", "Santé mentale"]
-  },
-  vitamin_b_complex: {
-    id: "vitamin_b_complex",
-    name: "Complexe Vitamine B",
-    scientificName: "Vitamines B1, B2, B3, B5, B6, B7, B9, B12",
-    description: "Groupe de vitamines hydrosolubles jouant des rôles essentiels dans le métabolisme énergétique et la fonction neurologique.",
-    benefits: [
-      "Favorise la production d'énergie cellulaire",
-      "Soutient la fonction neurologique",
-      "Aide à la formation des globules rouges",
-      "Contribue à la santé cardiovasculaire",
-      "Participe à la méthylation et la synthèse de l'ADN"
-    ],
-    scientificBasis: "Les vitamines B sont des cofacteurs essentiels dans de nombreuses voies métaboliques, particulièrement celles liées à la production d'énergie et aux fonctions neurologiques.",
-    standardDose: "100% des AJR pour chaque vitamine B",
-    timeToEffect: "2-4 semaines pour ressentir les effets sur l'énergie",
-    contraindications: [
-      "Allergies spécifiques aux composants"
-    ],
-    interactions: [
-      "Certains antibiotiques",
-      "Médicaments antiépileptiques",
-      "Méthotrexate"
-    ],
-    researchScore: 8,
-    safetyProfile: 8,
-    naturalSources: ["Viandes", "Œufs", "Légumineuses", "Grains entiers", "Légumes verts"],
-    categories: ["Énergie", "Santé neurologique", "Métabolisme"]
-  },
-  vitamin_c: {
-    id: "vitamin_c",
-    name: "Vitamine C",
-    scientificName: "Acide ascorbique",
-    description: "Puissant antioxydant hydrosoluble essentiel à de nombreuses fonctions métaboliques et immunologiques.",
-    benefits: [
-      "Renforce le système immunitaire",
-      "Protège contre les dommages des radicaux libres",
-      "Aide à la synthèse du collagène",
-      "Améliore l'absorption du fer non-héminique",
-      "Soutient la santé des gencives"
-    ],
-    scientificBasis: "La vitamine C est un cofacteur enzymatique pour la biosynthèse du collagène et a des propriétés antioxydantes et immunomodulatrices importantes.",
-    standardDose: "500-1000mg par jour",
-    timeToEffect: "1-2 semaines pour les effets immunitaires",
-    contraindications: [
-      "Antécédents de calculs rénaux à l'oxalate",
-      "Hémochromatose"
-    ],
-    interactions: [
-      "Warfarine",
-      "Statines",
-      "Chimiothérapie (consulter un médecin)"
-    ],
-    researchScore: 8,
-    safetyProfile: 8,
-    naturalSources: ["Agrumes", "Kiwi", "Poivrons", "Fraises", "Brocoli"],
-    categories: ["Immunité", "Antioxydant", "Santé de la peau"]
-  },
-  zinc: {
-    id: "zinc",
-    name: "Zinc",
-    scientificName: "Zn",
-    description: "Oligo-élément essentiel impliqué dans plus de 300 réactions enzymatiques dans l'organisme.",
-    benefits: [
-      "Renforce le système immunitaire",
-      "Améliore la cicatrisation des plaies",
-      "Soutient la synthèse des protéines et de l'ADN",
-      "Aide au maintien d'une peau saine",
-      "Contribue à la fonction cognitive"
-    ],
-    scientificBasis: "Le zinc est un cofacteur pour de nombreuses enzymes et joue un rôle crucial dans la division cellulaire, la croissance et la fonction immunitaire.",
-    standardDose: "15-30mg par jour",
-    timeToEffect: "2-3 semaines pour les effets immunitaires",
-    contraindications: [
-      "Allergie au zinc"
-    ],
-    interactions: [
-      "Antibiotiques (tétracyclines, quinolones)",
-      "Diurétiques thiazidiques",
-      "Suppléments de cuivre (compétition pour l'absorption)"
-    ],
-    researchScore: 7,
-    safetyProfile: 7,
-    naturalSources: ["Huîtres", "Viandes rouges", "Noix et graines", "Légumineuses"],
-    categories: ["Immunité", "Cicatrisation", "Santé hormonale"]
-  },
-  ashwagandha: {
-    id: "ashwagandha",
+  
+  "ashwagandha": {
     name: "Ashwagandha",
-    scientificName: "Withania somnifera",
-    description: "Plante adaptogène utilisée depuis des millénaires en médecine ayurvédique pour réduire le stress et améliorer la vitalité.",
+    description: "Plante adaptogène qui aide à réduire le stress et soutient l'équilibre hormonal",
+    category: "Plantes adaptogènes",
     benefits: [
-      "Réduit les niveaux de cortisol et le stress",
-      "Améliore la résistance à la fatigue",
-      "Peut aider à équilibrer les hormones thyroïdiennes",
-      "Soutient la fonction cognitive sous stress",
+      "Aide à réduire le stress et l'anxiété",
+      "Soutient l'équilibre hormonal",
+      "Contribue à améliorer la qualité du sommeil",
+      "Aide à maintenir l'énergie et la vitalité"
+    ],
+    scientificBasis: "L'ashwagandha a démontré des effets modulateurs sur les niveaux de cortisol et l'activité des neurotransmetteurs",
+    recommendedDosage: "300-500 mg par jour (extrait standardisé)",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Racine d'ashwagandha"],
+    efficacyScore: 85,
+    cautions: "Déconseillé en cas de maladie auto-immune ou de grossesse",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Stress", "Anxiété", "Troubles du sommeil", "Fatigue"],
+    targetGoals: ["Réduire mon stress", "Meilleur sommeil", "Plus d'énergie"],
+    categories: ["adaptogen", "stress", "sleep", "hormonal-balance"],
+    relatedTerms: ["withania somnifera", "adaptogen", "stress relief"]
+  },
+  
+  "rhodiola": {
+    name: "Rhodiola Rosea",
+    description: "Plante adaptogène qui combat la fatigue et améliore les performances cognitives",
+    category: "Plantes adaptogènes",
+    benefits: [
+      "Aide à combattre la fatigue",
+      "Soutient les performances cognitives",
+      "Contribue à réduire le stress",
+      "Aide à maintenir l'énergie physique et mentale"
+    ],
+    scientificBasis: "La Rhodiola a montré des effets positifs sur la réduction de la fatigue mentale et l'amélioration des performances cognitives",
+    recommendedDosage: "200-400 mg par jour (extrait standardisé)",
+    timeToEffect: "1-3 semaines",
+    naturalSources: ["Racine de rhodiola"],
+    efficacyScore: 80,
+    cautions: "Peut interagir avec certains médicaments, déconseillé en cas de trouble bipolaire",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Stress", "Anxiété", "Manque de concentration"],
+    targetGoals: ["Plus d'énergie", "Réduire mon stress", "Améliorer ma concentration"],
+    categories: ["adaptogen", "energy", "cognitive", "stress"],
+    relatedTerms: ["golden root", "mental fatigue", "cognitive performance"]
+  },
+  
+  "melatonin": {
+    name: "Mélatonine naturelle",
+    description: "Hormone qui régule le cycle veille-sommeil, aide à l'endormissement",
+    category: "Sommeil",
+    benefits: [
+      "Aide à réduire le temps d'endormissement",
+      "Contribue à atténuer les effets du décalage horaire",
+      "Aide à réguler le cycle veille-sommeil",
       "Peut améliorer la qualité du sommeil"
     ],
-    scientificBasis: "L'ashwagandha contient des withanolides qui modulent les réponses au stress en agissant sur l'axe hypothalamo-hypophyso-surrénalien et les récepteurs GABA.",
-    standardDose: "300-600mg d'extrait standardisé par jour",
-    timeToEffect: "2-8 semaines pour les effets adaptogènes",
-    contraindications: [
-      "Grossesse et allaitement",
-      "Maladies auto-immunes (lupus, polyarthrite rhumatoïde)",
-      "Hyperthyroïdie"
-    ],
-    interactions: [
-      "Sédatifs",
-      "Thyroïdiens",
-      "Immunosuppresseurs"
-    ],
-    researchScore: 7,
-    safetyProfile: 7,
-    naturalSources: ["Racine d'ashwagandha"],
-    categories: ["Adaptogène", "Anti-stress", "Équilibre hormonal"]
+    scientificBasis: "La mélatonine est une hormone naturellement produite par la glande pinéale qui régule le rythme circadien",
+    recommendedDosage: "1-3 mg avant le coucher",
+    timeToEffect: "Dès la première prise",
+    naturalSources: ["Cerise de Montmorency", "Riz", "Maïs", "Avoine"],
+    efficacyScore: 75,
+    cautions: "Peut causer de la somnolence, ne pas conduire après la prise",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Troubles du sommeil"],
+    targetGoals: ["Meilleur sommeil"],
+    categories: ["sleep", "hormonal-balance", "circadian-rhythm"],
+    relatedTerms: ["sleep hormone", "circadian rhythm", "jet lag"]
   },
-  l_theanine: {
-    id: "l_theanine",
+  
+  "valerian": {
+    name: "Valériane",
+    description: "Plante qui favorise l'endormissement et améliore la qualité du sommeil",
+    category: "Plantes pour le sommeil",
+    benefits: [
+      "Aide à l'endormissement",
+      "Contribue à améliorer la qualité du sommeil",
+      "Aide à réduire l'anxiété légère",
+      "Favorise la relaxation"
+    ],
+    scientificBasis: "La valériane influencerait les niveaux de GABA, un neurotransmetteur calmant dans le cerveau",
+    recommendedDosage: "300-600 mg d'extrait avant le coucher",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Racine de valériane"],
+    efficacyScore: 70,
+    cautions: "Peut interagir avec certains médicaments, éviter l'alcool",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Troubles du sommeil", "Stress", "Anxiété"],
+    targetGoals: ["Meilleur sommeil", "Réduire mon stress"],
+    categories: ["sleep", "relaxation", "herbal"],
+    relatedTerms: ["valeriana officinalis", "sleep aid", "GABA"]
+  },
+  
+  "curcumin": {
+    name: "Curcuma et poivre noir",
+    description: "Puissant anti-inflammatoire naturel qui soutient la santé digestive et articulaire",
+    category: "Anti-inflammatoires naturels",
+    benefits: [
+      "Propriétés anti-inflammatoires naturelles",
+      "Soutient la santé digestive",
+      "Aide à maintenir la santé des articulations",
+      "Contribue à la protection cellulaire"
+    ],
+    scientificBasis: "La curcumine, principe actif du curcuma, a démontré des effets anti-inflammatoires comparables à certains médicaments",
+    recommendedDosage: "500-1000 mg de curcuma avec 5-10 mg de pipérine",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Racine de curcuma", "Poivre noir"],
+    efficacyScore: 75,
+    cautions: "Consulter un médecin si sous anticoagulants",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Douleurs articulaires", "Problèmes digestifs"],
+    targetGoals: ["Soutenir ma digestion"],
+    categories: ["anti-inflammatory", "digestive", "joint-health"],
+    relatedTerms: ["turmeric", "curcuminoids", "piperine"]
+  },
+  
+  "coq10": {
+    name: "Coenzyme Q10",
+    description: "Soutient la production d'énergie cellulaire et possède des propriétés antioxydantes",
+    category: "Antioxydants",
+    benefits: [
+      "Soutient la production d'énergie cellulaire",
+      "Propriétés antioxydantes",
+      "Contribue à la santé cardiovasculaire",
+      "Aide à maintenir les niveaux d'énergie"
+    ],
+    scientificBasis: "Le CoQ10 est un cofacteur essentiel dans la chaîne de transport d'électrons mitochondriale, impliqué dans la production d'ATP",
+    recommendedDosage: "100-200 mg par jour",
+    timeToEffect: "4-12 semaines",
+    naturalSources: ["Viandes", "Poissons gras", "Légumineuses", "Noix"],
+    efficacyScore: 70,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Douleurs articulaires"],
+    targetGoals: ["Plus d'énergie"],
+    categories: ["antioxidant", "energy", "heart-health"],
+    relatedTerms: ["ubiquinone", "cellular energy", "mitochondria"]
+  },
+  
+  "ginseng": {
+    name: "Ginseng",
+    description: "Plante adaptogène qui maintient l'énergie et améliore les performances cognitives",
+    category: "Plantes adaptogènes",
+    benefits: [
+      "Aide à maintenir l'énergie physique et mentale",
+      "Soutient les performances cognitives",
+      "Contribue au fonctionnement normal du système immunitaire",
+      "Aide à maintenir la vitalité"
+    ],
+    scientificBasis: "Le ginseng contient des ginsénosides qui moduleraient les voies énergétiques et l'adaptation au stress",
+    recommendedDosage: "200-400 mg par jour (extrait standardisé)",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Racine de ginseng"],
+    efficacyScore: 75,
+    cautions: "Déconseillé en cas d'hypertension, peut interagir avec certains médicaments",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Manque de concentration"],
+    targetGoals: ["Plus d'énergie", "Améliorer ma concentration", "Renforcer mon immunité"],
+    categories: ["adaptogen", "energy", "cognitive", "immune"],
+    relatedTerms: ["panax ginseng", "ginsenosides", "vitality"]
+  },
+  
+  "l_theanine": {
     name: "L-Théanine",
-    scientificName: "L-γ-glutamylethylamide",
-    description: "Acide aminé présent naturellement dans le thé vert qui favorise la détente sans somnolence.",
+    description: "Acide aminé favorisant la relaxation sans somnolence, améliore la concentration",
+    category: "Acides aminés",
     benefits: [
-      "Favorise la relaxation sans sédation",
+      "Favorise la relaxation sans somnolence",
       "Améliore la concentration et l'attention",
-      "Réduit le stress mental",
-      "Peut améliorer la qualité du sommeil",
-      "Synergie avec la caféine pour une attention améliorée sans nervosité"
+      "Réduit les effets négatifs du stress",
+      "Peut améliorer la qualité du sommeil"
     ],
-    scientificBasis: "La L-théanine augmente les ondes alpha cérébrales associées à la relaxation alerte et module les neurotransmetteurs comme le GABA, la sérotonine et la dopamine.",
-    standardDose: "100-200mg par prise, 1-3 fois par jour",
-    timeToEffect: "30-60 minutes pour les effets aigus sur la relaxation",
-    contraindications: [
-      "Aucune connue à des doses normales"
-    ],
-    interactions: [
-      "Médicaments pour l'hypertension (possible effet additif)",
-      "Stimulants (peut atténuer les effets secondaires de la caféine)"
-    ],
-    researchScore: 7,
-    safetyProfile: 9,
-    naturalSources: ["Thé vert", "Thé noir (en quantités moindres)"],
-    categories: ["Relaxation", "Cognition", "Sommeil"]
+    scientificBasis: "La L-théanine augmente les ondes alpha dans le cerveau, associées à un état de relaxation alerte",
+    recommendedDosage: "100-200 mg, 1-2 fois par jour",
+    timeToEffect: "30 minutes à 1 heure",
+    naturalSources: ["Thé vert", "Thé noir"],
+    efficacyScore: 85,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Stress", "Anxiété", "Troubles du sommeil", "Manque de concentration"],
+    targetGoals: ["Réduire mon stress", "Améliorer ma concentration", "Meilleur sommeil"],
+    categories: ["relaxation", "cognitive", "stress", "sleep"],
+    relatedTerms: ["alpha waves", "focus", "calm alertness"]
   },
-  curcumin: {
-    id: "curcumin",
-    name: "Curcumine",
-    scientificName: "Différencuméthoxycurcumine",
-    description: "Composé actif du curcuma aux puissantes propriétés anti-inflammatoires et antioxydantes.",
+  
+  "lions_mane": {
+    name: "Champignon Crinière de Lion",
+    description: "Champignon médicinal qui soutient les fonctions cognitives et la santé neurologique",
+    category: "Champignons médicinaux",
     benefits: [
-      "Réduit l'inflammation chronique",
-      "Soulage les douleurs articulaires",
-      "Puissant antioxydant",
-      "Soutient la fonction cognitive",
-      "Favorise la santé digestive"
+      "Soutient les fonctions cognitives et la mémoire",
+      "Favorise la santé du système nerveux",
+      "Propriétés neuroprotectrices",
+      "Soutient le système immunitaire"
     ],
-    scientificBasis: "La curcumine inhibe plusieurs molécules impliquées dans l'inflammation, notamment NF-κB, et active les voies antioxydantes comme Nrf2.",
-    standardDose: "500-1000mg par jour (avec enhancer d'absorption)",
-    timeToEffect: "4-8 semaines pour les effets anti-inflammatoires",
-    contraindications: [
-      "Calculs biliaires",
-      "Obstruction des voies biliaires",
-      "Chirurgie imminente (effet anticoagulant)"
-    ],
-    interactions: [
-      "Anticoagulants",
-      "Antidiabétiques",
-      "Inhibiteurs de la pompe à protons"
-    ],
-    researchScore: 8,
-    safetyProfile: 8,
-    naturalSources: ["Curcuma (racine)"],
-    categories: ["Anti-inflammatoire", "Santé articulaire", "Antioxydant"]
+    scientificBasis: "La crinière de lion contient des composés qui stimulent la production du facteur de croissance nerveux (NGF)",
+    recommendedDosage: "500-1000 mg d'extrait par jour",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Champignon crinière de lion"],
+    efficacyScore: 75,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Manque de concentration", "Troubles de la mémoire"],
+    targetGoals: ["Améliorer ma concentration"],
+    categories: ["cognitive", "brain-health", "mushroom"],
+    relatedTerms: ["hericium erinaceus", "NGF", "brain function"]
   },
-  coq10: {
-    id: "coq10",
-    name: "Coenzyme Q10",
-    scientificName: "Ubiquinone/Ubiquinol",
-    description: "Composé semblable à une vitamine, présent dans toutes les cellules du corps et essentiel à la production d'énergie cellulaire.",
-    benefits: [
-      "Améliore la production d'énergie cellulaire",
-      "Soutient la santé cardiovasculaire",
-      "Puissant antioxydant",
-      "Peut réduire la fatigue liée aux statines",
-      "Contribue à la santé des mitochondries"
-    ],
-    scientificBasis: "Le CoQ10 est un composant essentiel de la chaîne de transport d'électrons mitochondriale et un antioxydant lipophile qui protège les membranes cellulaires.",
-    standardDose: "100-200mg par jour",
-    timeToEffect: "4-12 semaines pour les effets énergétiques",
-    contraindications: [
-      "Aucune connue à des doses normales"
-    ],
-    interactions: [
-      "Anticoagulants (warfarine)",
-      "Antihypertenseurs",
-      "Chimiothérapie (consulter un médecin)"
-    ],
-    researchScore: 8,
-    safetyProfile: 9,
-    naturalSources: ["Viandes d'organes", "Poissons gras", "Graines de sésame", "Pistaches"],
-    categories: ["Énergie", "Santé cardiovasculaire", "Antioxydant"]
-  },
-  iron: {
-    id: "iron",
-    name: "Fer",
-    scientificName: "Fe",
-    description: "Minéral essentiel à la formation de l'hémoglobine et au transport de l'oxygène dans l'organisme.",
-    benefits: [
-      "Combat la fatigue liée à l'anémie",
-      "Améliore le transport d'oxygène",
-      "Soutient la fonction cognitive",
-      "Renforce le système immunitaire",
-      "Essentiel au métabolisme énergétique"
-    ],
-    scientificBasis: "Le fer est un composant crucial de l'hémoglobine, responsable du transport de l'oxygène, et de nombreuses enzymes impliquées dans la production d'énergie.",
-    standardDose: "14-18mg par jour pour les femmes, 8mg pour les hommes",
-    timeToEffect: "4-12 semaines pour corriger une carence",
-    contraindications: [
-      "Hémochromatose",
-      "Thalassémie",
-      "Anémie sidéroblastique"
-    ],
-    interactions: [
-      "Inhibiteurs de la pompe à protons",
-      "Antibiotiques (tétracyclines, quinolones)",
-      "Lévodopa"
-    ],
-    researchScore: 9,
-    safetyProfile: 6,
-    naturalSources: ["Viandes rouges", "Légumineuses", "Épinards", "Tofu"],
-    categories: ["Énergie", "Santé sanguine", "Fonction cognitive"]
-  },
-  melatonin: {
-    id: "melatonin",
-    name: "Mélatonine",
-    scientificName: "N-acétyl-5-méthoxytryptamine",
-    description: "Hormone produite naturellement par la glande pinéale qui régule le cycle veille-sommeil.",
-    benefits: [
-      "Améliore l'endormissement",
-      "Aide à synchroniser le rythme circadien",
-      "Utile pour le décalage horaire",
-      "Peut améliorer la qualité du sommeil",
-      "Propriétés antioxydantes"
-    ],
-    scientificBasis: "La mélatonine se lie aux récepteurs MT1 et MT2 dans le cerveau, signalant le début de la période de sommeil et synchronisant le rythme circadien.",
-    standardDose: "0.5-5mg avant le coucher",
-    timeToEffect: "30-60 minutes pour l'endormissement",
-    contraindications: [
-      "Maladies auto-immunes",
-      "Troubles convulsifs",
-      "Dépression"
-    ],
-    interactions: [
-      "Anticoagulants",
-      "Immunosuppresseurs",
-      "Antidiabétiques",
-      "Contraceptifs oraux"
-    ],
-    researchScore: 8,
-    safetyProfile: 7,
-    naturalSources: ["Produite naturellement dans la glande pinéale"],
-    categories: ["Sommeil", "Rythme circadien"]
-  },
-  resveratrol: {
-    id: "resveratrol",
-    name: "Resveratrol",
-    scientificName: "Trans-resveratrol",
-    description: "Puissant antioxydant présent dans les raisins et le vin rouge, connu pour ses effets potentiels sur la longévité.",
-    standardDose: "250-500mg par jour",
-    timeToEffect: "4-6 semaines pour effets antioxydants",
-    scientificBasis: "Des études précliniques suggèrent que le resveratrol active les sirtuines, des protéines liées à la longévité cellulaire.",
-    benefits: [
-      "Protection cellulaire contre le stress oxydatif",
-      "Soutien de la santé cardiovasculaire",
-      "Potentiel anti-âge au niveau cellulaire"
-    ],
-    contraindications: [
-      "Peut interférer avec les anticoagulants",
-      "Non recommandé pour les femmes enceintes"
-    ]
-  },
-  coq10_new: {
-    id: "coq10_new",
-    name: "Coenzyme Q10",
-    scientificName: "Ubiquinone",
-    description: "Cofacteur essentiel dans la production d'énergie cellulaire, particulièrement important pour le cœur et les muscles.",
-    standardDose: "100-200mg par jour",
-    timeToEffect: "2-4 semaines pour augmentation du niveau d'énergie",
-    scientificBasis: "Le CoQ10 joue un rôle crucial dans la chaîne de transport d'électrons mitochondriale, la principale source de production d'ATP.",
-    benefits: [
-      "Amélioration des niveaux d'énergie",
-      "Soutien de la fonction cardiaque",
-      "Protection contre le stress oxydatif"
-    ],
-    contraindications: [
-      "Peut interagir avec les anticoagulants et les médicaments hypotenseurs",
-      "Surveiller en cas de diabète (peut affecter la glycémie)"
-    ]
-  },
-  nac: {
-    id: "nac",
-    name: "N-Acétyl Cystéine",
-    scientificName: "N-acetylcysteine",
-    description: "Précurseur du glutathion, l'un des plus puissants antioxydants de l'organisme, soutient la détoxification hépatique.",
-    standardDose: "600-1200mg par jour",
-    timeToEffect: "2-4 semaines pour effets antioxydants",
-    scientificBasis: "Le NAC augmente les niveaux de glutathion intracellulaire, améliorant les défenses antioxydantes et les processus de détoxification.",
-    benefits: [
-      "Soutien de la fonction hépatique et des processus de détoxification",
-      "Protection des cellules contre les radicaux libres",
-      "Amélioration de la santé respiratoire"
-    ],
-    contraindications: [
-      "Précaution chez les personnes asthmatiques (peut provoquer un bronchospasme)",
-      "Éviter en cas de traitement aux nitrates"
-    ],
-    researchScore: 8,
-    safetyProfile: 7,
-    naturalSources: ["L-cystéine présente dans les protéines animales", "Œufs", "Ail", "Oignon"],
-    categories: ["Antioxydant", "Détoxification", "Santé respiratoire"]
-  },
-  berberine: {
-    id: "berberine",
-    name: "Berbérine",
-    scientificName: "Berberine hydrochloride",
-    description: "Composé bioactif extrait de diverses plantes, particulièrement connu pour ses effets sur le métabolisme du glucose et les lipides sanguins.",
-    benefits: [
-      "Soutient l'équilibre glycémique",
-      "Améliore le profil lipidique",
-      "Favorise la santé métabolique",
-      "Soutient la santé intestinale",
-      "Peut aider à la gestion du poids"
-    ],
-    scientificBasis: "La berbérine active l'AMPK, une enzyme qui régule le métabolisme cellulaire, améliorant ainsi la sensibilité à l'insuline et le métabolisme des lipides.",
-    standardDose: "500-1500mg par jour, répartis en 3 prises",
-    timeToEffect: "4-8 semaines pour les effets métaboliques",
-    contraindications: [
-      "Femmes enceintes ou allaitantes",
-      "Personnes sous médicaments pour le diabète (risque d'hypoglycémie)",
-      "Personnes sous anticoagulants"
-    ],
-    interactions: [
-      "Médicaments métabolisés par le CYP3A4",
-      "Antidiabétiques",
-      "Anticoagulants"
-    ],
-    researchScore: 7,
-    safetyProfile: 7,
-    naturalSources: ["Hydrastis canadensis (Hydraste du Canada)", "Berberis vulgaris (Épine-vinette)", "Coptis chinensis (Huang Lian)"],
-    categories: ["Métabolisme", "Santé cardiovasculaire", "Équilibre glycémique"]
-  },
-  lions_mane: {
-    id: "lions_mane",
-    name: "Crinière de Lion",
-    scientificName: "Hericium erinaceus",
-    description: "Champignon médicinal connu pour ses propriétés neuroprotectrices et son potentiel à stimuler la production de facteurs de croissance neuronale.",
-    benefits: [
-      "Soutient la fonction cognitive et la mémoire",
-      "Protège et stimule la croissance neuronale",
-      "Peut réduire l'anxiété et la dépression légère",
-      "Soutient la santé du système nerveux",
-      "Possède des propriétés antioxydantes et anti-inflammatoires"
-    ],
-    scientificBasis: "Contient des composés bioactifs (érinacines et hericenones) qui stimulent la production du facteur de croissance nerveuse (NGF) et protègent contre le stress oxydatif neuronal.",
-    standardDose: "500-3000mg d'extrait par jour",
-    timeToEffect: "2-4 semaines pour les effets cognitifs initiaux, 8-12 semaines pour les effets optimaux",
-    contraindications: [
-      "Allergie aux champignons",
-      "Précaution chez les personnes asthmatiques"
-    ],
-    interactions: [
-      "Anticoagulants (effet potentiellement additif)"
-    ],
-    researchScore: 6,
-    safetyProfile: 9,
-    naturalSources: ["Champignon Hericium erinaceus"],
-    categories: ["Fonction cognitive", "Neuroprotection", "Santé mentale"]
-  },
-  rhodiola: {
-    id: "rhodiola",
-    name: "Rhodiola Rosea",
-    scientificName: "Rhodiola rosea",
-    description: "Plante adaptogène utilisée traditionnellement pour améliorer l'endurance physique et mentale, et réduire la fatigue liée au stress.",
-    benefits: [
-      "Réduit la fatigue liée au stress",
-      "Améliore les performances cognitives sous stress",
-      "Augmente l'énergie et l'endurance",
-      "Équilibre l'humeur",
-      "Soutient le système immunitaire pendant les périodes de stress"
-    ],
-    scientificBasis: "Le rhodiola contient des composés actifs (rosavines et salidrosides) qui modulent les niveaux de neurotransmetteurs et protègent contre les effets néfastes du stress chronique.",
-    standardDose: "200-600mg par jour d'un extrait standardisé (3% rosavines, 1% salidrosides)",
-    timeToEffect: "1-3 semaines pour les effets adaptogènes",
-    contraindications: [
-      "Troubles bipolaires (peut provoquer une activation excessive)",
-      "Hypertension sévère"
-    ],
-    interactions: [
-      "Antidépresseurs (ISRS, IMAO)",
-      "Stimulants"
-    ],
-    researchScore: 7,
-    safetyProfile: 8,
-    naturalSources: ["Racine de Rhodiola rosea"],
-    categories: ["Adaptogène", "Anti-stress", "Énergie"]
-  },
-  alpha_gpc: {
-    id: "alpha_gpc",
+  
+  "alpha_gpc": {
     name: "Alpha-GPC",
-    scientificName: "L-Alpha-glycérophosphorylcholine",
-    description: "Précurseur naturel de l'acétylcholine, un neurotransmetteur crucial pour la mémoire, l'apprentissage et la fonction musculaire.",
+    description: "Composé choline qui améliore les fonctions cognitives et la performance mentale",
+    category: "Cholinergiques",
     benefits: [
-      "Améliore les performances cognitives et la mémoire",
-      "Soutient la santé cérébrale et la plasticité neuronale",
-      "Peut améliorer la force et les performances physiques",
-      "Favorise la récupération cognitive après un effort intense",
-      "Peut être bénéfique pour certains troubles cognitifs"
+      "Améliore les fonctions cognitives",
+      "Soutient la mémoire et l'apprentissage",
+      "Favorise la concentration et la clarté mentale",
+      "Précurseur de l'acétylcholine, neurotransmetteur important"
     ],
-    scientificBasis: "L'Alpha-GPC augmente la disponibilité de la choline dans le cerveau, permettant une synthèse accrue d'acétylcholine, ce qui améliore la communication neuronale et la fonction cognitive.",
-    standardDose: "300-600mg par jour",
-    timeToEffect: "1-2 semaines pour les effets cognitifs",
-    contraindications: [
-      "Personnes avec une hypersensibilité à la choline"
-    ],
-    interactions: [
-      "Médicaments anticholinergiques (effet antagoniste)"
-    ],
-    researchScore: 7,
-    safetyProfile: 8,
-    naturalSources: ["Présent en petites quantités dans les produits laitiers et la viande"],
-    categories: ["Fonction cognitive", "Performance physique", "Santé cérébrale"]
+    scientificBasis: "L'alpha-GPC augmente les niveaux d'acétylcholine, un neurotransmetteur crucial pour la mémoire et les fonctions cognitives",
+    recommendedDosage: "300-600 mg par jour",
+    timeToEffect: "2-4 semaines",
+    naturalSources: ["Produits laitiers", "Organes (foie)"],
+    efficacyScore: 80,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien"],
+    targetSymptoms: ["Manque de concentration", "Troubles de la mémoire"],
+    targetGoals: ["Améliorer ma concentration"],
+    categories: ["cognitive", "brain-health", "focus"],
+    relatedTerms: ["choline", "acetylcholine", "cognitive enhancer"]
   },
+  
   "anti-inflammatory-diet": {
-    id: "anti-inflammatory-diet",
     name: "Alimentation anti-inflammatoire",
-    description: "Approche nutritionnelle visant à réduire l'inflammation chronique dans l'organisme",
+    description: "Approche alimentaire qui réduit l'inflammation systémique et améliore la santé globale",
+    category: "Approches alimentaires",
     benefits: [
       "Réduit l'inflammation systémique",
-      "Améliore la digestion",
-      "Soutient la fonction immunitaire",
-      "Peut améliorer la clarté mentale"
+      "Soutient la santé digestive",
+      "Améliore la santé cardiovasculaire",
+      "Favorise l'équilibre énergétique"
     ],
-    standardDose: "Approche alimentaire quotidienne",
-    scientificBasis: "Études observationnelles montrant une corrélation avec la réduction des marqueurs inflammatoires",
-    naturalSources: ["Fruits et légumes colorés", "Poissons gras", "Noix et graines", "Épices (curcuma, gingembre)"],
+    scientificBasis: "Des études observationnelles montrent une corrélation entre la consommation d'aliments anti-inflammatoires et la réduction des marqueurs inflammatoires sanguins",
+    recommendedDosage: "Application quotidienne des principes alimentaires",
     timeToEffect: "2-4 semaines",
-    categories: ["Approche nutritionnelle"]
+    naturalSources: ["Fruits et légumes colorés", "Poissons gras", "Noix et graines", "Huile d'olive", "Épices (curcuma, gingembre)"],
+    efficacyScore: 85,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Douleurs articulaires", "Problèmes digestifs", "Fatigue", "Problèmes de peau"],
+    targetGoals: ["Soutenir ma digestion", "Plus d'énergie", "Améliorer ma peau"],
+    categories: ["anti-inflammatory", "digestive", "lifestyle", "nutritional-approach"],
+    relatedTerms: ["mediterranean diet", "polyphenols", "omega-3:omega-6 ratio"]
   },
+  
+  "vitamin-d-supplement": {
+    name: "Supplément de Vitamine D",
+    description: "Un apport quotidien en vitamine D, essentielle pour l'immunité et la santé osseuse",
+    category: "Vitamines",
+    benefits: [
+      "Renforce le système immunitaire",
+      "Contribue à la santé osseuse",
+      "Améliore l'absorption du calcium",
+      "Influence positivement l'humeur"
+    ],
+    scientificBasis: "Des études cliniques montrent qu'une supplémentation en vitamine D peut réduire le risque d'infections respiratoires de 30% chez les personnes carencées",
+    recommendedDosage: "1000-2000 UI par jour",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Exposition au soleil", "Poissons gras", "Jaunes d'œufs"],
+    efficacyScore: 90,
+    cautions: "La surdose est possible avec des suppléments à forte dose sur le long terme",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Faiblesse musculaire", "Humeur basse en hiver"],
+    targetGoals: ["Renforcer mon immunité", "Optimiser ma santé"],
+    categories: ["immunité", "os", "nutrition"],
+    relatedTerms: ["vitamin-d"]
+  },
+  
   "circadian-rhythm-optimization": {
-    id: "circadian-rhythm-optimization",
     name: "Optimisation du rythme circadien",
-    description: "Alignement des habitudes de vie avec les cycles naturels jour-nuit",
+    description: "Stratégies pour synchroniser votre horloge biologique et améliorer la qualité du sommeil",
+    category: "Approches de mode de vie",
     benefits: [
       "Améliore la qualité du sommeil",
-      "Optimise le métabolisme",
-      "Augmente l'énergie diurne",
-      "Équilibre la production hormonale"
+      "Optimise les niveaux d'énergie",
+      "Régule les hormones du stress",
+      "Soutient la fonction cognitive"
     ],
-    standardDose: "Pratique quotidienne consistante",
-    scientificBasis: "Recherches en chronobiologie montrant des améliorations de la sensibilité à l'insuline et qualité du sommeil",
-    contraindications: ["Adaptations nécessaires pour travail posté"],
+    scientificBasis: "La chronobiologie démontre l'importance de l'alignement des rythmes biologiques avec les cycles naturels lumière-obscurité",
+    recommendedDosage: "Pratiques quotidiennes spécifiques",
     timeToEffect: "1-3 semaines",
-    categories: ["Chronobiologie"]
+    naturalSources: ["Exposition à la lumière naturelle", "Alimentation chronométrée", "Routines régulières"],
+    efficacyScore: 85,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Troubles du sommeil", "Fatigue", "Irritabilité"],
+    targetGoals: ["Meilleur sommeil", "Plus d'énergie", "Réduire mon stress"],
+    categories: ["sommeil", "mode de vie", "énergie"],
+    relatedTerms: ["horloge biologique", "mélatonine", "photothérapie"]
   },
-  "adaptogenic-herbs": {
-    id: "adaptogenic-herbs",
-    name: "Plantes adaptogènes",
-    scientificName: "Adaptogens",
-    description: "Plantes médicinales qui aident l'organisme à s'adapter au stress",
+  
+  "mindfulness-meditation": {
+    name: "Méditation de pleine conscience",
+    description: "Pratique qui réduit le stress et améliore la santé mentale",
+    category: "Pratiques mentales",
     benefits: [
-      "Aide à gérer le stress quotidien",
-      "Soutient l'équilibre hormonal",
-      "Améliore la résilience face aux facteurs de stress",
-      "Peut améliorer l'énergie et la concentration"
+      "Réduit les niveaux de stress et d'anxiété",
+      "Améliore la concentration et la clarté mentale",
+      "Favorise un meilleur sommeil",
+      "Renforce la régulation émotionnelle"
     ],
-    standardDose: "Varie selon la plante (généralement 200-600mg par jour)",
-    scientificBasis: "Études cliniques sur la modulation du stress via l'axe hypothalamo-hypophyso-surrénalien",
-    contraindications: ["Certaines adaptogènes peuvent interagir avec des médicaments"],
-    naturalSources: ["Ashwagandha", "Rhodiola", "Ginseng", "Eleuthérocoque"],
+    scientificBasis: "Des études en neurosciences démontrent que la méditation régulière modifie la structure et l'activité cérébrales",
+    recommendedDosage: "10-20 minutes quotidiennes",
+    timeToEffect: "2-8 semaines de pratique régulière",
+    naturalSources: ["Pratique guidée", "Applications", "Cours en ligne ou en personne"],
+    efficacyScore: 80,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Stress", "Anxiété", "Troubles du sommeil", "Ruminations mentales"],
+    targetGoals: ["Réduire mon stress", "Meilleur sommeil", "Améliorer ma concentration"],
+    categories: ["mental", "stress", "bien-être"],
+    relatedTerms: ["méditation", "pleine conscience", "réduction du stress"]
+  },
+  
+  "intermittent-fasting": {
+    name: "Jeûne intermittent",
+    description: "Approche alimentaire qui alterne périodes de jeûne et d'alimentation pour optimiser le métabolisme",
+    category: "Approches de nutrition",
+    benefits: [
+      "Favorise l'équilibre métabolique",
+      "Soutient la gestion du poids",
+      "Améliore la sensibilité à l'insuline",
+      "Stimule l'autophagie cellulaire"
+    ],
+    scientificBasis: "Des recherches indiquent que le jeûne intermittent peut déclencher des processus de réparation cellulaire et améliorer les marqueurs métaboliques",
+    recommendedDosage: "Fenêtre de jeûne de 14-18h par 24h",
     timeToEffect: "2-4 semaines",
-    categories: ["Plantes adaptogènes"]
+    naturalSources: ["Protocoles 16/8, 5:2, ou autres approches personnalisées"],
+    efficacyScore: 85,
+    cautions: "Non recommandé pour les personnes souffrant de certains troubles alimentaires ou conditions médicales",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Problèmes de poids", "Fatigue après les repas", "Fringales"],
+    targetGoals: ["Équilibrer mon poids", "Plus d'énergie", "Optimiser ma santé"],
+    categories: ["métabolisme", "poids", "longévité"],
+    relatedTerms: ["autophagie", "cétose", "fenêtre alimentaire"]
   },
-  "nutrient-timing": {
-    id: "nutrient-timing",
-    name: "Chrononutrition optimisée",
-    description: "Optimisation des moments de prise alimentaire selon les rythmes biologiques",
+  
+  "berberine": {
+    name: "Berbérine",
+    description: "Composé végétal qui améliore le métabolisme du glucose et la santé cardiovasculaire",
+    category: "Composés végétaux",
     benefits: [
-      "Améliore l'utilisation des nutriments",
-      "Optimise la composition corporelle",
-      "Peut améliorer les performances physiques et mentales",
-      "Soutient les rythmes biologiques naturels"
+      "Soutient le métabolisme du glucose",
+      "Contribue à l'équilibre lipidique",
+      "Favorise la santé intestinale",
+      "Propriétés anti-inflammatoires"
     ],
-    standardDose: "Approche alimentaire quotidienne",
-    scientificBasis: "Recherches montrant une meilleure synchronisation des apports nutritionnels avec les cycles biologiques",
-    timeToEffect: "2-3 semaines",
-    categories: ["Chronobiologie"]
+    scientificBasis: "Des études cliniques montrent que la berbérine peut améliorer la sensibilité à l'insuline et les marqueurs lipidiques",
+    recommendedDosage: "500-1500 mg par jour, répartis en plusieurs prises",
+    timeToEffect: "4-8 semaines",
+    naturalSources: ["Épine-vinette", "Hydraste du Canada", "Coptis chinois"],
+    efficacyScore: 80,
+    cautions: "Peut interagir avec certains médicaments, consulter un professionnel de santé",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Déséquilibres métaboliques", "Problèmes digestifs"],
+    targetGoals: ["Équilibrer mon poids", "Optimiser ma santé"],
+    categories: ["métabolisme", "digestion", "cardiovasculaire"],
+    relatedTerms: ["AMPK", "métabolisme du glucose", "insuline"]
   },
+  
+  "nutrient-timing": {
+    name: "Chrononutrition",
+    description: "Optimisation des moments de prise alimentaire pour maximiser les bénéfices métaboliques",
+    category: "Approches de nutrition",
+    benefits: [
+      "Optimise l'utilisation des nutriments",
+      "Améliore les performances physiques",
+      "Soutient la récupération musculaire",
+      "Favorise un meilleur sommeil"
+    ],
+    scientificBasis: "La chronobiologie nutritionnelle démontre que le timing des repas affecte le métabolisme, l'insuline et l'expression génique",
+    recommendedDosage: "Adaptation personnalisée des horaires alimentaires",
+    timeToEffect: "2-3 semaines",
+    naturalSources: ["Ajustement des repas selon le rythme circadien et l'activité"],
+    efficacyScore: 75,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue", "Récupération lente", "Troubles du sommeil"],
+    targetGoals: ["Plus d'énergie", "Équilibrer mon poids", "Optimiser ma santé"],
+    categories: ["nutrition", "métabolisme", "performance"],
+    relatedTerms: ["chrononutrition", "fenêtre anabolique", "métabolisme"]
+  },
+  
   "micronutrient-assessment": {
-    id: "micronutrient-assessment",
     name: "Évaluation des micronutriments",
-    description: "Analyse personnalisée des niveaux de vitamines et minéraux",
+    description: "Analyse personnalisée des besoins en vitamines et minéraux pour une nutrition optimale",
+    category: "Approches diagnostiques",
     benefits: [
       "Identifie les carences spécifiques",
       "Permet une supplémentation ciblée",
-      "Optimise les fonctions biochimiques",
-      "Améliore l'efficacité énergétique cellulaire"
+      "Optimise le fonctionnement cellulaire",
+      "Soutient l'énergie et la vitalité"
     ],
-    standardDose: "Analyse périodique, généralement semestrielle",
-    scientificBasis: "L'analyse des déficiences subcliniques permet d'optimiser divers systèmes physiologiques",
-    timeToEffect: "Variable selon les interventions",
-    categories: ["Évaluation biochimique"]
+    scientificBasis: "Des études montrent que les carences subcliniques en micronutriments sont courantes et affectent de nombreuses fonctions physiologiques",
+    recommendedDosage: "Évaluation initiale suivie de supplémentation personnalisée",
+    timeToEffect: "Varie selon les carences identifiées",
+    naturalSources: ["Analyses sanguines avancées", "Analyses capillaires", "Questionnaires spécialisés"],
+    efficacyScore: 90,
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Fatigue chronique", "Problèmes de peau/cheveux", "Système immunitaire affaibli"],
+    targetGoals: ["Optimiser ma santé", "Plus d'énergie", "Renforcer mon immunité"],
+    categories: ["nutrition", "prévention", "personnalisation"],
+    relatedTerms: ["oligoscan", "spectrométrie", "médecine fonctionnelle"]
   },
-  "intermittent-fasting": {
-    id: "intermittent-fasting",
-    name: "Jeûne intermittent personnalisé",
-    description: "Alternance structurée de périodes de jeûne et d'alimentation",
-    benefits: [
-      "Favorise la régénération cellulaire",
-      "Améliore la sensibilité à l'insuline",
-      "Peut aider à la gestion du poids",
-      "Soutient la santé métabolique"
-    ],
-    standardDose: "Protocoles variables (16/8, 5:2, etc.)",
-    scientificBasis: "Études montrant la stimulation de l'autophagie et amélioration des marqueurs métaboliques",
-    contraindications: ["Déconseillé pour femmes enceintes", "Précaution pour diabétiques"],
-    timeToEffect: "2-4 semaines",
-    categories: ["Approche nutritionnelle"]
-  },
+  
   "omega3-supplementation": {
-    id: "omega3-supplementation",
     name: "Supplémentation en Oméga-3",
-    scientificName: "Acides gras EPA/DHA",
-    description: "Acides gras essentiels pour la santé cardiovasculaire et cérébrale",
+    description: "Apport équilibré en acides gras essentiels pour la santé cardiovasculaire et cérébrale",
+    category: "Acides gras essentiels",
     benefits: [
       "Soutient la santé cardiovasculaire",
-      "Contribue à la fonction cognitive",
-      "Réduit l'inflammation systémique",
-      "Améliore la santé de la peau"
+      "Favorise les fonctions cognitives optimales",
+      "Possède des propriétés anti-inflammatoires",
+      "Contribue à la santé cellulaire"
     ],
-    standardDose: "1000-2000mg par jour (dont 500mg d'EPA/DHA)",
-    scientificBasis: "Nombreuses études cliniques sur les bénéfices cardiovasculaires et anti-inflammatoires",
-    contraindications: ["Consulter un médecin si sous anticoagulants"],
-    naturalSources: ["Poissons gras", "Graines de lin", "Graines de chia", "Noix"],
-    timeToEffect: "4-8 semaines",
-    categories: ["Acides gras essentiels"]
-  },
-  "magnesium-glycinate": {
-    id: "magnesium-glycinate",
-    name: "Magnésium Glycinate",
-    scientificName: "Bis-glycinate de magnésium",
-    description: "Forme biodisponible de magnésium pour la santé neuromusculaire",
-    benefits: [
-      "Améliore la qualité du sommeil",
-      "Réduit l'anxiété et le stress",
-      "Soutient la fonction musculaire",
-      "Contribue à plus de 300 réactions enzymatiques"
-    ],
-    standardDose: "300-400mg par jour",
-    scientificBasis: "Études montrant l'amélioration du sommeil et réduction des symptômes d'anxiété",
-    contraindications: ["Peut avoir un effet laxatif à forte dose"],
-    naturalSources: ["Légumes verts", "Noix et graines", "Légumineuses", "Chocolat noir"],
-    timeToEffect: "2-3 semaines",
-    categories: ["Minéraux"]
-  },
-  "mindfulness-meditation": {
-    id: "mindfulness-meditation",
-    name: "Méditation de pleine conscience",
-    description: "Pratique mentale pour développer l'attention au moment présent",
-    benefits: [
-      "Réduit le stress chronique",
-      "Améliore la concentration",
-      "Peut réduire les symptômes d'anxiété",
-      "Soutient la fonction immunitaire"
-    ],
-    standardDose: "10-20 minutes par jour",
-    scientificBasis: "Recherches en neurosciences montrant des modifications de l'activité cérébrale et réduction des marqueurs de stress",
-    timeToEffect: "2-8 semaines de pratique régulière",
-    categories: ["Pratiques mentales"]
-  },
-  "vitamin-b-complex": {
-    id: "vitamin-b-complex",
-    name: "Complexe de vitamines B",
-    scientificName: "Vitamines B1, B2, B3, B5, B6, B7, B9, B12",
-    description: "Groupe de vitamines essentielles pour le métabolisme énergétique et la fonction neurologique",
-    benefits: [
-      "Soutient la production d'énergie cellulaire",
-      "Contribue à la santé neurologique",
-      "Aide à réduire la fatigue",
-      "Soutient les fonctions cognitives"
-    ],
-    standardDose: "Selon AJR pour chaque vitamine B",
-    scientificBasis: "Carences associées à la fatigue, troubles cognitifs et problèmes neurologiques",
-    contraindications: ["Peut colorer l'urine en jaune vif (normal)"],
-    naturalSources: ["Viandes", "Œufs", "Légumineuses", "Céréales complètes", "Levure nutritionnelle"],
-    timeToEffect: "2-4 semaines",
-    categories: ["Vitamines"]
+    scientificBasis: "De nombreuses études démontrent les bénéfices des EPA et DHA sur l'inflammation et la fonction cérébrale",
+    recommendedDosage: "1000-2000 mg combinés d'EPA et DHA par jour",
+    timeToEffect: "3-6 mois pour les effets complets",
+    naturalSources: ["Poissons gras", "Algues marines", "Huiles dérivées d'algues (pour végans)"],
+    efficacyScore: 85,
+    cautions: "Consultez un médecin si vous prenez des anticoagulants",
+    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
+    targetSymptoms: ["Inflammation chronique", "Clarté mentale réduite", "Sécheresse cutanée"],
+    targetGoals: ["Améliorer ma concentration", "Réduire mon stress", "Optimiser ma santé"],
+    categories: ["cerveau", "cœur", "anti-inflammatoire"],
+    relatedTerms: ["EPA", "DHA", "acides gras essentiels"]
   }
 };
 
