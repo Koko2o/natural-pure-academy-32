@@ -42,8 +42,8 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
   const [analysisDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    // Ensure quizData has meaningful content
-    const hasValidData = quizData && Object.keys(quizData).length > 0;
+    // Ensure quizData has meaningful content with safer checks
+    const hasValidData = quizData && typeof quizData === 'object' && Object.keys(quizData).length > 0;
 
     if (hasValidData) {
       console.log("Generating recommendations with quiz data:", quizData);

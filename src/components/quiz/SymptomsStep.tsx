@@ -1,4 +1,3 @@
-
 import { Checkbox } from "@/components/ui/checkbox";
 import { QuizStepProps } from "./types";
 
@@ -19,7 +18,7 @@ const symptoms = [
 
 const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
   const toggleSymptom = (symptom: string) => {
-    const currentSymptoms = [...(responses.symptoms || [])];
+    const currentSymptoms = [...(responses?.symptoms || [])]; // Handle potential undefined
     if (currentSymptoms.includes(symptom)) {
       updateResponse(
         "symptoms",
@@ -38,7 +37,7 @@ const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
           <div 
             key={symptom}
             className={`border rounded-lg p-3 cursor-pointer transition-all ${
-              responses.symptoms?.includes(symptom) 
+              responses?.symptoms?.includes(symptom) // Handle potential undefined
                 ? "border-primary bg-primary/5" 
                 : "hover:border-primary/50"
             }`}
@@ -46,7 +45,7 @@ const SymptomsStep = ({ responses, updateResponse }: QuizStepProps) => {
           >
             <div className="flex items-center space-x-3">
               <Checkbox
-                checked={responses.symptoms?.includes(symptom)}
+                checked={responses?.symptoms?.includes(symptom)} // Handle potential undefined
                 onCheckedChange={() => toggleSymptom(symptom)}
                 id={`symptom-${symptom}`}
               />
