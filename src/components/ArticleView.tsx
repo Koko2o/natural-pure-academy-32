@@ -89,7 +89,7 @@ interface ArticleViewProps {
 const ArticleView: React.FC<ArticleViewProps> = ({ 
   article, 
   onNavigateToQuiz,
-  relatedArticles = article.relatedArticles || [],
+  relatedArticles = [],
   studyHighlights = [],
   renderEnhancedContent = (content) => content
 }) => {
@@ -97,9 +97,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const [readingProgress, setReadingProgress] = useState(0);
   const [isTOCExpanded, setIsTOCExpanded] = useState(true);
   const [visibleSection, setVisibleSection] = useState("");
-  // Ensure article.references exists before accessing its length
+  
+  // Safe handling of references
+  const safeReferences = article?.references || [];
   const [referencesOpen, setReferencesOpen] = useState(
-    Array((article.references || []).length).fill(false)
+    Array(safeReferences.length).fill(false)
   );
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
@@ -410,7 +412,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             {/* Introduction */}
             <div className="prose prose-lg max-w-none mb-10">
               <ScientificHighlightedText className="lead">
-                {article.excerpt}
+                {article?.excerpt || ''}
               </ScientificHighlightedText>
             </div>
             

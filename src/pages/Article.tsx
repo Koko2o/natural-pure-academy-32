@@ -221,6 +221,9 @@ const Article = () => {
     }
   }, [articleData]);
 
+  // Ensure relatedArticles is properly initialized
+  const safeRelatedArticles = relatedArticles || [];
+
   const handleNavigateToQuiz = () => {
     navigate('/quiz');
   };
@@ -270,7 +273,7 @@ const Article = () => {
         <ArticleView 
           article={article} 
           onNavigateToQuiz={handleNavigateToQuiz} 
-          relatedArticles={article.relatedArticles}
+          relatedArticles={safeRelatedArticles}
           studyHighlights={studyHighlights}
           renderEnhancedContent={renderEnhancedContent}
         />
