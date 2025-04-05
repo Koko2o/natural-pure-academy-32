@@ -115,3 +115,24 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({
 };
 
 export default ScientificHighlightedText;
+import React from 'react';
+import { cn } from '@/lib/utils';
+
+interface ScientificHighlightedTextProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
+  children, 
+  className 
+}) => {
+  return (
+    <div className={cn("relative py-2", className)}>
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-natural-600 rounded-full"></div>
+      <div className="pl-4">{children}</div>
+    </div>
+  );
+};
+
+export default ScientificHighlightedText;

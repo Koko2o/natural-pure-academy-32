@@ -26,4 +26,35 @@ const TooltipContent = React.forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+// Composant de tooltip spécifique pour les termes scientifiques
+const ScientificTermTooltip = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & { 
+    term: string;
+    definition: string;
+  }
+>(({ className, term, definition, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Content
+    ref={ref}
+    sideOffset={sideOffset}
+    className={cn(
+      "z-50 overflow-hidden rounded-md border border-indigo-100 bg-white px-4 py-3 shadow-lg max-w-md",
+      className
+    )}
+    {...props}
+  >
+    <div className="space-y-1">
+      <h4 className="font-medium text-indigo-800">{term}</h4>
+      <p className="text-xs text-gray-700">{definition}</p>
+    </div>
+  </TooltipPrimitive.Content>
+))
+ScientificTermTooltip.displayName = "ScientificTermTooltip"
+
+export { 
+  Tooltip, 
+  TooltipTrigger, 
+  TooltipContent, 
+  TooltipProvider,
+  ScientificTermTooltip
+}

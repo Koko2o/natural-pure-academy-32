@@ -8,18 +8,6 @@ channel = "stable-24_05"
 run = ["sh", "-c", "npm run start"]
 build = ["sh", "-c", "npm install --legacy-peer-deps && npm run build"]
 
-[[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 8080
-externalPort = 80
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
-
 [workflows]
 runButton = "Run"
 
@@ -30,7 +18,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev -- --port 8080 --host 0.0.0.0"
+args = "npm run dev -- --port 5000 --host 0.0.0.0"
 
 [[workflows.workflow]]
 name = "Deploy"
@@ -52,3 +40,19 @@ args = "npm run start"
 [[deployment.rewrites]]
 from = "/*"
 to = "/index.html"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
