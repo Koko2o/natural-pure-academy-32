@@ -471,49 +471,50 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                 
                 <div className="space-y-3">
                   {article.references.map((reference, index) => (
-                  <div 
-                    key={index}
-                    className="border border-gray-200 rounded-md overflow-hidden"
-                  >
                     <div 
-                      className="flex justify-between items-center p-3 bg-gray-50 cursor-pointer"
-                      onClick={() => handleToggleReference(index)}
+                      key={index}
+                      className="border border-gray-200 rounded-md overflow-hidden"
                     >
-                      <div className="flex items-center">
-                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold mr-3">
-                          {reference.id}
-                        </span>
-                        <span className="font-medium">{reference.title}</span>
-                      </div>
-                      {referencesOpen[index] ? 
-                        <ChevronUp className="h-5 w-5 text-gray-500" /> : 
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
-                      }
-                    </div>
-                    
-                    {referencesOpen[index] && (
-                      <div className="p-4 bg-white border-t border-gray-200">
-                        <p className="text-sm text-gray-600 mb-2">{reference.authors}</p>
-                        <p className="text-sm"><strong>Journal:</strong> {reference.journal}, {reference.year}</p>
-                        <div className="mt-3">
-                          <Button variant="link" className="p-0 h-auto" asChild>
-                            <a 
-                              href={reference.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-indigo-600 hover:text-indigo-800 flex items-center"
-                            >
-                              <LinkIcon className="h-4 w-4 mr-1" />
-                              Consulter l'étude originale
-                            </a>
-                          </Button>
+                      <div 
+                        className="flex justify-between items-center p-3 bg-gray-50 cursor-pointer"
+                        onClick={() => handleToggleReference(index)}
+                      >
+                        <div className="flex items-center">
+                          <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold mr-3">
+                            {reference.id}
+                          </span>
+                          <span className="font-medium">{reference.title}</span>
                         </div>
+                        {referencesOpen[index] ? 
+                          <ChevronUp className="h-5 w-5 text-gray-500" /> : 
+                          <ChevronDown className="h-5 w-5 text-gray-500" />
+                        }
                       </div>
-                    )}
-                  </div>
-                ))}
+                      
+                      {referencesOpen[index] && (
+                        <div className="p-4 bg-white border-t border-gray-200">
+                          <p className="text-sm text-gray-600 mb-2">{reference.authors}</p>
+                          <p className="text-sm"><strong>Journal:</strong> {reference.journal}, {reference.year}</p>
+                          <div className="mt-3">
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <a 
+                                href={reference.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-indigo-600 hover:text-indigo-800 flex items-center"
+                              >
+                                <LinkIcon className="h-4 w-4 mr-1" />
+                                Consulter l'étude originale
+                              </a>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
             
             {/* Section de validation scientifique */}
             <div className="mt-12 bg-green-50 border border-green-200 rounded-lg p-5">
@@ -651,7 +652,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                 </div>
               </div>
             )}
-            </div>
+          </div>
         </div>
       </div>
     </div>
