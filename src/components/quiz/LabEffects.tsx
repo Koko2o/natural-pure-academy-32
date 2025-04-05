@@ -262,7 +262,7 @@ const LabEffects: React.FC<LabEffectsProps> = ({
       
       // Dessiner l'effet "flacon" scientifique
       // Use a different function or render a different lab item
-      drawBeaker(ctx, canvas.width - 100, canvas.height - 150, 80, 120);
+      drawLabFlask(ctx, canvas.width - 100, canvas.height - 150, 80, 120);
       
       animationFrameId = window.requestAnimationFrame(render);
     };
@@ -276,7 +276,7 @@ const LabEffects: React.FC<LabEffectsProps> = ({
   }, [density, speed, isMobile]);
   
   // Fonction pour dessiner un flacon de laboratoire
-  const drawBeaker = (
+  const drawLabFlask = (
     ctx: CanvasRenderingContext2D, 
     x: number, 
     y: number, 

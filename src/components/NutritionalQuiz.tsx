@@ -5,6 +5,7 @@ import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
 import { ArrowLeft, ArrowRight, TestTube, Microscope, Atom, CheckCircle, Sparkles, Brain, Beaker } from "lucide-react";
+import { FlaskConical } from "@/components/ui/icons";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { getStrategicDelay } from "./quiz/NeuroEngine";

@@ -18,6 +18,7 @@ import {
   Sparkles,
   Cpu
 } from 'lucide-react';
+import { FlaskConical } from '@/components/ui/icons';
 import { Recommendation } from '@/utils/types';
 import { motion } from 'framer-motion';
 

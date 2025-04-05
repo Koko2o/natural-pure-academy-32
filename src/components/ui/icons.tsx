@@ -1,17 +1,15 @@
-
 import React from 'react';
-import { LucideProps } from 'lucide-react';
 
-export const ClipboardList: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -24,16 +22,16 @@ export const ClipboardList: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const ClipboardCheck: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const ClipboardCheck: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -43,16 +41,16 @@ export const ClipboardCheck: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const BarChart4: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const BarChart4: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -64,16 +62,16 @@ export const BarChart4: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const Factory: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const Factory: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -84,16 +82,16 @@ export const Factory: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const Apple: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const Apple: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -102,33 +100,54 @@ export const Apple: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const Flask: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const Flask: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
+    className={className}
     {...props}
   >
-    <path d="M9 3h6M5 3h1M19 3h-1M9 3v3M15 6v1M10 10L8 9M14 10l2-1M2 19h20M5.5 19a4.5 4.5 0 0 1-.42-9M18.5 19a4.5 4.5 0 0 0 .42-9M4 9c.96 0 1.75.75 1.75 1.67 0 .93-.79 1.67-1.75 1.67s-1.75.74-1.75 1.66c0 .93.79 1.67 1.75 1.67M20 9c.96 0 1.75.75 1.75 1.67 0 .93-.79 1.67-1.75 1.67s-1.75.74-1.75 1.66c0 .93.79 1.67 1.75 1.67M12 9a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1 1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z" />
+    <path d="M9 3h6v2H9zM8 3h8a7 7 0 0 1 7 7v7a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4v-7a7 7 0 0 1 7-7zM7 15a3 3 0 0 0 3 3M9 13a3 3 0 0 0-3-3"></path>
   </svg>
 );
 
-export const PuzzlePiece: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const FlaskConical: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/>
+    <path d="M8.5 2h7"/>
+    <path d="M7 16h10"/>
+  </svg>
+);
+
+export const PuzzlePiece: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -136,16 +155,16 @@ export const PuzzlePiece: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const Lightbulb: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const Lightbulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
@@ -155,16 +174,16 @@ export const Lightbulb: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
-export const List: React.FC<LucideProps> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+export const List: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
