@@ -8,6 +8,10 @@ channel = "stable-24_05"
 run = ["sh", "-c", "npm run start"]
 build = ["sh", "-c", "npm install --legacy-peer-deps && npm run build"]
 
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
+
 [workflows]
 runButton = "Run"
 
@@ -36,10 +40,6 @@ args = "npm run build"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run start"
-
-[[deployment.rewrites]]
-from = "/*"
-to = "/index.html"
 
 [[ports]]
 localPort = 3000
