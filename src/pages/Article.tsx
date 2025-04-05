@@ -30,16 +30,64 @@ const fetchArticle = async (id: string) => {
   return {
     id,
     title: "Les compléments alimentaires essentiels pour supporter votre système immunitaire",
-    author: "Dr. Marie Dupont",
+    author: {
+      name: "Dr. Marie Dupont",
+      title: "Docteur en Nutrition",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
+      institution: "Institut de Recherche Nutritionnelle",
+      credentials: ["PhD", "Nutrition Certifiée"],
+      profileUrl: "/profile/dr-dupont"
+    },
     date: "15 juin 2023",
     category: "Nutrition",
+    tags: ["Immunité", "Compléments", "Vitamines"],
     readTime: "8 min",
-    labVerified: true,
+    peerReviewed: true,
     studyDuration: "16 semaines",
     participants: 243,
     year: 2023,
     keyInsight: "72% de réduction des symptômes inflammatoires",
     image: "https://images.unsplash.com/photo-1584362917165-526a968579e8?q=80&w=2574&auto=format&fit=crop",
+    references: [
+      {
+        id: 1,
+        title: "Effets de la vitamine D sur l'immunité",
+        authors: "Martin et al.",
+        journal: "Journal of Nutrition",
+        year: "2022",
+        url: "https://example.com/study1"
+      },
+      {
+        id: 2,
+        title: "Le zinc comme modulateur immunitaire",
+        authors: "Chen et al.",
+        journal: "Immunology Research",
+        year: "2021",
+        url: "https://example.com/study2"
+      }
+    ],
+    tableOfContents: [
+      {
+        id: "section-1",
+        title: "La vitamine D : le nutriment du soleil",
+        level: 1
+      },
+      {
+        id: "section-2",
+        title: "La vitamine C : plus qu'un remède contre le rhume",
+        level: 1
+      },
+      {
+        id: "section-3",
+        title: "Le zinc : minéral essentiel pour l'immunité",
+        level: 1
+      }
+    ],
+    scientificTerms: {
+      "immunomodulateur": "Substance qui modifie la réponse du système immunitaire",
+      "antioxydant": "Molécule qui combat les radicaux libres dans l'organisme"
+    },
+    excerpt: "Avec la pandémie mondiale et les saisons qui changent, maintenir un système immunitaire fort n'a jamais été aussi important. Découvrez quels compléments peuvent vraiment faire la différence.",
     content: `
       <p class="lead">Avec la pandémie mondiale et les saisons qui changent, maintenir un système immunitaire fort n'a jamais été aussi important. Bien que rien ne remplace une alimentation équilibrée, certains compléments peuvent offrir un soutien supplémentaire à votre système immunitaire.</p>
 

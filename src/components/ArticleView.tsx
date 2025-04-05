@@ -97,7 +97,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const [readingProgress, setReadingProgress] = useState(0);
   const [isTOCExpanded, setIsTOCExpanded] = useState(true);
   const [visibleSection, setVisibleSection] = useState("");
-  const [referencesOpen, setReferencesOpen] = useState(Array(article.references.length).fill(false));
+  // Ensure article.references exists before accessing its length
+  const [referencesOpen, setReferencesOpen] = useState(
+    Array((article.references || []).length).fill(false)
+  );
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
@@ -112,14 +115,16 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         setReadingProgress(Math.min(progress, 100));
         
         // Déterminer la section visible
-        const sections = article.tableOfContents.map(item => item.id);
-        for (const sectionId of sections) {
-          const sectionElement = sectionRefs.current[sectionId];
-          if (sectionElement) {
-            const rect = sectionElement.getBoundingClientRect();
-            if (rect.top <= 150 && rect.bottom >= 150) {
-              setVisibleSection(sectionId);
-              break;
+        if (article.tableOfContents && article.tableOfContents.length > 0) {
+          const sections = article.tableOfContents.map(item => item.id);
+          for (const sectionId of sections) {
+            const sectionElement = sectionRefs.current[sectionId];
+            if (sectionElement) {
+              const rect = sectionElement.getBoundingClientRect();
+              if (rect.top <= 150 && rect.bottom >= 150) {
+                setVisibleSection(sectionId);
+                break;
+              }
             }
           }
         }
@@ -135,12 +140,14 @@ const ArticleView: React.FC<ArticleViewProps> = ({
 
   // Initialiser les références aux sections
   useEffect(() => {
-    article.tableOfContents.forEach(item => {
-      const element = document.getElementById(item.id);
-      if (element) {
-        sectionRefs.current[item.id] = element;
-      }
-    });
+    if (article.tableOfContents && article.tableOfContents.length > 0) {
+      article.tableOfContents.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+          sectionRefs.current[item.id] = element;
+        }
+      });
+    }
   }, [article.tableOfContents]);
 
   const handleBookmark = () => {
@@ -327,7 +334,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                   }
                 </div>
                 
-                {isTOCExpanded && (
+                {isTOCExpanded && article.tableOfContents && article.tableOfContents.length > 0 && (
                   <div className="space-y-2">
                     {article.tableOfContents.map((item) => (
                       <div 
@@ -340,6 +347,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                         {item.title}
                       </div>
                     ))}
+                  </div>
+                )}
+                {isTOCExpanded && (!article.tableOfContents || article.tableOfContents.length === 0) && (
+                  <div className="text-sm text-gray-500">
+                    Pas de sections disponibles pour cet article
                   </div>
                 )}
               </Card>
@@ -450,14 +462,15 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             </TooltipProvider>
             
             {/* Section des références */}
-            <div id="references" className="mt-12 pt-6 border-t border-gray-200">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <FileCheck className="h-6 w-6 mr-2 text-indigo-600" />
-                Références scientifiques ({article.references.length})
-              </h2>
-              
-              <div className="space-y-3">
-                {article.references.map((reference, index) => (
+            {article.references && article.references.length > 0 && (
+              <div id="references" className="mt-12 pt-6 border-t border-gray-200">
+                <h2 className="text-2xl font-bold mb-6 flex items-center">
+                  <FileCheck className="h-6 w-6 mr-2 text-indigo-600" />
+                  Références scientifiques ({article.references.length})
+                </h2>
+                
+                <div className="space-y-3">
+                  {article.references.map((reference, index) => (
                   <div 
                     key={index}
                     className="border border-gray-200 rounded-md overflow-hidden"
@@ -637,6 +650,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                   ))}
                 </div>
               </div>
+            )}
             )}
           </div>
         </div>
