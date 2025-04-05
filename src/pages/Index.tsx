@@ -9,13 +9,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ScientificMethodology from "../components/ScientificMethodology"; // Added import
 
 const Index = () => {
   const [animatedCounter, setAnimatedCounter] = useState(963);
   const [analysesLeft, setAnalysesLeft] = useState(87);
   const [activeHeroProblem, setActiveHeroProblem] = useState(0);
   const isMobile = useIsMobile();
-  
+
   const heroProblemsCycle = [
     {
       title: "Stress et Fatigue",
@@ -33,70 +34,70 @@ const Index = () => {
       bgGradient: "from-emerald-600 via-teal-600 to-emerald-700"
     }
   ];
-  
+
   useEffect(() => {
     // Automatically cycle through hero problems
     const problemInterval = setInterval(() => {
       setActiveHeroProblem(prev => (prev + 1) % heroProblemsCycle.length);
     }, 5000);
-    
+
     const counterInterval = setInterval(() => {
       setAnimatedCounter(prev => {
         const increment = Math.floor(Math.random() * 3) + 1;
         return prev + increment;
       });
-      
+
       setAnalysesLeft(prev => Math.max(12, prev - 1));
     }, 10000);
-    
+
     const toastTimeout = setTimeout(() => {
       toast("Nouvelle étude scientifique disponible", {
         description: "72% des personnes testées ont vu une amélioration en 16 semaines",
         icon: <Microscope className="h-5 w-5" />,
       });
     }, 5000);
-    
+
     return () => {
       clearInterval(counterInterval);
       clearInterval(problemInterval);
       clearTimeout(toastTimeout);
     };
   }, [heroProblemsCycle.length]);
-  
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      
+
       <section className={`bg-gradient-to-r ${heroProblemsCycle[activeHeroProblem].bgGradient} text-white py-16 md:py-24 relative overflow-hidden transition-colors duration-1000`}>
         {/* Effet de particules pour un aspect laboratoire */}
         <div className="absolute inset-0 opacity-20" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M36 34h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4zm0-6h-2v-4h2v4z'/%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: '16px 16px'
         }}></div>
-        
+
         {/* Cercles lumineux animés */}
         <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-white/20 rounded-full blur-3xl animate-pulse delay-300"></div>
         <div className="absolute bottom-40 right-1/4 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse delay-700"></div>
-        
+
         {/* Bulles de laboratoire qui flottent */}
         <div className="hidden md:block absolute top-40 left-10 w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float"></div>
         <div className="hidden md:block absolute bottom-20 right-10 w-12 h-12 rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm animate-float-delayed"></div>
-        
+
         {/* Animation de molécules */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-6 h-6 bg-white/10 backdrop-blur-md rounded-full top-1/4 left-1/3 animate-molecule-1"></div>
           <div className="absolute w-4 h-4 bg-white/20 backdrop-blur-md rounded-full top-2/3 left-1/5 animate-molecule-2"></div>
           <div className="absolute w-8 h-8 bg-white/15 backdrop-blur-md rounded-full bottom-1/4 right-1/4 animate-molecule-3"></div>
         </div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 animate-fadeIn shadow-xl">
               <Beaker className="h-5 w-5 text-white mr-2" />
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
-            
+
             <div className="h-auto mb-6 relative">
               {heroProblemsCycle.map((problem, index) => (
                 <div 
@@ -112,7 +113,7 @@ const Index = () => {
                       {problem.title}
                     </span>
                   </h1>
-                  
+
                   <div className="mt-6 mb-8">
                     <h2 className="text-2xl md:text-3xl text-white/90 font-semibold mb-3">
                       {problem.description}
@@ -121,12 +122,12 @@ const Index = () => {
                 </div>
               ))}
             </div>
-            
+
             <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fadeIn delay-200 max-w-3xl mx-auto">
               <span className="block mb-2">Basé sur une étude exclusive menée sur 243 participants.</span>
               <span className="block">Identifiez vos besoins réels en micronutriments.</span>
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10 animate-fadeIn delay-300">
               <Button 
                 asChild
@@ -138,7 +139,7 @@ const Index = () => {
                   <MoveRight className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              
+
               <Button 
                 asChild
                 size="jumbo"
@@ -159,12 +160,12 @@ const Index = () => {
                   <span className="text-sm ml-1">profils analysés</span>
                 </div>
               </div>
-              
+
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Award className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">72% d'efficacité prouvée</span>
               </div>
-              
+
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Microscope className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">3 universités partenaires</span>
@@ -181,11 +182,11 @@ const Index = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Effet de motif scientifique en bas */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/10 to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-white/0 via-white/20 to-white/0"></div>
-        
+
         {/* Tubes à essai animés sur les côtés (visible uniquement sur desktop) */}
         <div className="hidden lg:block absolute bottom-10 left-5 w-24 h-96">
           <div className="absolute bottom-0 w-8 h-48 rounded-b-full rounded-t-lg overflow-hidden border-2 border-white/30 backdrop-blur-sm transform -rotate-12">
@@ -198,7 +199,10 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
+      {/* Notre méthodologie scientifique */}
+      <ScientificMethodology />
+
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -211,7 +215,7 @@ const Index = () => {
               Nous avons identifié les solutions scientifiques à vos problèmes les plus courants grâce à notre équipe de chercheurs.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
@@ -277,7 +281,7 @@ const Index = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-12 text-center">
             <Button 
               asChild
@@ -293,7 +297,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -306,7 +310,7 @@ const Index = () => {
               Notre approche scientifique a déjà aidé des milliers de personnes à identifier leurs besoins réels.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -345,7 +349,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       <FeaturedArticle 
         id="featured-article-1"
         title="Les Micronutriments Essentiels pour Combattre le Stress Chronique"
@@ -358,7 +362,7 @@ const Index = () => {
       />
       <InstagramCTA />
       <Footer />
-      
+
       <style>
 {`
 @keyframes pulse-animation {

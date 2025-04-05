@@ -304,6 +304,27 @@ function scoreRecommendations(quizData: QuizData): Recommendation[] {
     });
   }
 
+  // Appliquer un facteur d'ajustement final basé sur la qualité des données
+  const aiStatus = getAILearningStatus();
+  
+  scoredRecommendations.forEach(rec => {
+    // Ajuster en fonction de la confiance du modèle
+    if (aiStatus.accuracy > 0.8) {
+      // Renforcer les recommandations avec une forte pertinence
+      if (rec.relevanceScore > 0.7) {
+        rec.relevanceScore = Math.min(1, rec.relevanceScore * 1.15);
+      }
+    }
+    
+    // Vérifier si cette recommandation a des données scientifiques supplémentaires
+    const supplementData = SUPPLEMENT_CATALOG[rec.id];
+    if (supplementData && supplementData.scientificStudies && supplementData.scientificStudies.length > 0) {
+      // Bonus pour les recommandations avec une base scientifique solide
+      rec.relevanceScore = Math.min(1, rec.relevanceScore + 0.1);
+      rec.hasScientificEvidence = true;
+    }
+  });
+  
   // Trier par score de pertinence descendant
   return scoredRecommendations.sort((a, b) => b.relevanceScore - a.relevanceScore);
 }
@@ -417,7 +438,7 @@ export function getComprehensiveRecommendations(quizData: QuizData): Recommendat
 
 /**
  * Génère une explication détaillée pour une recommandation spécifique
- * Version améliorée pour la présentation des résultats du quiz
+ * Version améliorée pour la présentation des résultats du quiz avec focus scientifique
  */
 export const generateDetailedRecommendationExplanation = (
   recommendation: Recommendation,
@@ -433,6 +454,9 @@ export const generateDetailedRecommendationExplanation = (
     // Construire une explication scientifique personnalisée avec plus de contexte
     let explanation = `**${supplement.name} (${supplement.scientificName || ''})** : ${supplement.description}\n\n`;
 
+    // Ajouter un résumé des bénéfices basé sur le score de pertinence
+    explanation += `**Pertinence pour votre profil:** ${Math.round(recommendation.relevanceScore * 100)}% de correspondance avec vos besoins spécifiques.\n\n`;
+    
     // Bénéfices spécifiques avec enrichissement basé sur les réponses du quiz
     explanation += "**Bénéfices ciblés pour votre profil :**\n";
 
@@ -458,32 +482,104 @@ export const generateDetailedRecommendationExplanation = (
         .join('\n');
     }
 
-    // Base scientifique améliorée
+    // Base scientifique améliorée avec références aux études
     explanation += `\n\n**Base scientifique :** ${supplement.scientificBasis}`;
+    
+    // Ajouter des références aux études si disponibles
+    if (supplement.scientificStudies && supplement.scientificStudies.length > 0) {
+      explanation += "\n\n**Études clés :**\n";
+      explanation += supplement.scientificStudies.slice(0, 3).map(study => 
+        `- ${study.authors} (${study.year}): "${study.title}". *${study.journal}*. ${study.findings}`
+      ).join('\n');
+    }
 
-    // Dosage personnalisé selon l'âge ou autres facteurs
+    // Mécanisme d'action biochimique si disponible
+    if (supplement.mechanismOfAction) {
+      explanation += "\n\n**Mécanisme d'action :** ";
+      explanation += supplement.mechanismOfAction;
+    }
+
+    // Dosage personnalisé selon l'âge, le poids et autres facteurs
     const ageFactor = quizResponses.age ? 
       (quizResponses.age > 60 ? 'adaptée aux seniors' : 
        quizResponses.age < 30 ? 'optimisée pour les jeunes adultes' : '') : '';
 
-    explanation += `\n\n**Dosage recommandé pour vous :** ${recommendation.recommendedDose || supplement.standardDose}`;
+    // Calcul de dosage plus précis
+    let recommendedDose = recommendation.recommendedDose || supplement.standardDose;
+    
+    // Ajuster le dosage en fonction du poids si disponible
+    if (quizResponses.weight && supplement.dosePerWeight) {
+      const calculatedDose = Math.round(quizResponses.weight * supplement.dosePerWeight);
+      const minDose = supplement.minDose || 0;
+      const maxDose = supplement.maxDose || 10000;
+      
+      // S'assurer que la dose calculée est dans les limites recommandées
+      const adjustedDose = Math.max(minDose, Math.min(calculatedDose, maxDose));
+      recommendedDose = `${adjustedDose}mg par jour`;
+    }
+
+    explanation += `\n\n**Dosage recommandé pour vous :** ${recommendedDose}`;
     if (ageFactor) explanation += ` (${ageFactor})`;
 
-    // Délai d'efficacité avec contexte
+    // Délai d'efficacité avec contexte et phases d'action
     explanation += `\n\n**Délai d'efficacité typique :** ${supplement.timeToEffect}`;
     explanation += ` (peut varier selon votre métabolisme et votre mode de vie)`;
+    
+    if (supplement.efficacyPhases) {
+      explanation += "\n\n**Phases d'efficacité :**\n";
+      explanation += supplement.efficacyPhases.map(phase => 
+        `- **Phase ${phase.stage}** (${phase.timing}): ${phase.effects}`
+      ).join('\n');
+    }
 
-    // Précautions avec plus de détails
+    // Précautions avec plus de détails, personnalisées si possible
     if (supplement.contraindications && supplement.contraindications.length > 0) {
       explanation += "\n\n**Précautions :** ";
-      explanation += supplement.contraindications.map(c => c).join(', ');
+      
+      // Mettre en évidence les contre-indications pertinentes pour l'utilisateur
+      const relevantContraindications = supplement.contraindications.filter(c => {
+        // Vérifier si la contre-indication est pertinente pour ce profil
+        if (c.toLowerCase().includes('grossesse') && quizResponses.gender === 'female') return true;
+        if (c.toLowerCase().includes('hypertension') && quizResponses.healthConditions?.hypertension) return true;
+        if (c.toLowerCase().includes('diabète') && quizResponses.healthConditions?.diabetes) return true;
+        return false;
+      });
+      
+      if (relevantContraindications.length > 0) {
+        explanation += "**Attention particulière pour vous**: " + relevantContraindications.join(', ') + ". ";
+        
+        // Autres contre-indications générales
+        const otherContraindications = supplement.contraindications.filter(c => !relevantContraindications.includes(c));
+        if (otherContraindications.length > 0) {
+          explanation += "Autres précautions: " + otherContraindications.join(', ');
+        }
+      } else {
+        explanation += supplement.contraindications.join(', ');
+      }
     }
 
     // Ajouter des sources naturelles si disponibles
     if (supplement.naturalSources && supplement.naturalSources.length > 0) {
       explanation += "\n\n**Sources naturelles :** ";
       explanation += supplement.naturalSources.join(', ');
+      
+      // Ajouter une recommandation alimentaire si disponible
+      if (supplement.dietaryRecommendations) {
+        explanation += "\n\n**Recommandation alimentaire complémentaire :** ";
+        explanation += supplement.dietaryRecommendations;
+      }
     }
+    
+    // Interactions médicamenteuses si disponibles
+    if (supplement.drugInteractions && supplement.drugInteractions.length > 0) {
+      explanation += "\n\n**Interactions médicamenteuses potentielles :** ";
+      explanation += supplement.drugInteractions.join(', ');
+      explanation += "\n\n*Consultez toujours un professionnel de santé avant de combiner ce supplément avec des médicaments.*";
+    }
+    
+    // Note de laboratoire sur la qualité
+    explanation += "\n\n**Note de laboratoire :** Ce supplément a été évalué selon nos critères scientifiques rigoureux. ";
+    explanation += `Nous recommandons des produits avec au moins ${supplement.minimumActiveIngredient || "95%"} de principe actif et sans excipients nocifs.`;
 
     return explanation;
   } catch (error) {

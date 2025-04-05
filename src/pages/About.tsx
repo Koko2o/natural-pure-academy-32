@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -46,10 +45,29 @@ const About = () => {
     }
   ];
 
+  const ScientificTeam = () => (
+    <section className="py-20 bg-white"> {/* Placeholder component */}
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold mb-8 text-center">Notre Équipe Scientifique</h2>
+        <p>This section will display our scientific team members.</p>
+      </div>
+    </section>
+  );
+
+  const ScientificPublications = () => (
+    <section className="py-20 bg-natural-50"> {/* Placeholder component */}
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold mb-8 text-center">Publications Scientifiques</h2>
+        <p>This section will list our scientific publications.</p>
+      </div>
+    </section>
+  );
+
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-natural-50 to-white -z-10"></div>
@@ -255,6 +273,11 @@ const About = () => {
           </div>
         </div>
       </section>
+      {/* Équipe Scientifique */}
+      <ScientificTeam />
+
+      {/* Publications Scientifiques */}
+      <ScientificPublications />
 
       {/* Future Vision */}
       <section className="py-20 bg-white">

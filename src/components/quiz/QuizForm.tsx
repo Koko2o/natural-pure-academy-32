@@ -1,6 +1,6 @@
 import React from 'react';
-import ScientificHighlightedText from './ScientificHighlightedText'; // Assuming this component exists
-import Badge from 'react-bootstrap/Badge'; // Assuming this import is correct
+import ScientificHighlightedText from './ScientificHighlightedText'; 
+import Badge from 'react-bootstrap/Badge'; 
 
 
 function QuizForm({ question, currentStep, totalSteps, currentResponse, handleResponseChange, handleSubmit }) {

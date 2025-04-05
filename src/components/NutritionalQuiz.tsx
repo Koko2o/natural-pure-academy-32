@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { QuizResponse } from "./quiz/types";
 import { quizSteps } from "./quiz/QuizSteps";
@@ -36,7 +35,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
   const [insightIndex, setInsightIndex] = useState(0);
   const moleculeCanvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number | null>(null);
-  
+
   // Déterminer le type d'utilisateur
   useEffect(() => {
     const determineUserType = () => {
@@ -47,21 +46,21 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
       ];
       setUserType(types[Math.floor(Math.random() * types.length)]);
     };
-    
+
     determineUserType();
   }, []);
-  
+
   // Initialiser l'animation des molécules
   useEffect(() => {
     const canvas = moleculeCanvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    
+
     const molecules: Array<{
       x: number;
       y: number;
@@ -70,7 +69,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
       vx: number;
       vy: number;
     }> = [];
-    
+
     // Initialiser les molécules
     for (let i = 0; i < 20; i++) {
       molecules.push({
@@ -82,31 +81,31 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         vy: (Math.random() - 0.5) * 0.3
       });
     }
-    
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Dessiner les molécules
       molecules.forEach(molecule => {
         ctx.beginPath();
         ctx.arc(molecule.x, molecule.y, molecule.radius, 0, Math.PI * 2);
         ctx.fillStyle = molecule.color;
         ctx.fill();
-        
+
         // Déplacer les molécules
         molecule.x += molecule.vx;
         molecule.y += molecule.vy;
-        
+
         // Rebondir sur les bords
         if (molecule.x < 0 || molecule.x > canvas.width) molecule.vx *= -1;
         if (molecule.y < 0 || molecule.y > canvas.height) molecule.vy *= -1;
       });
-      
+
       animFrameRef.current = requestAnimationFrame(animate);
     };
-    
+
     animate();
-    
+
     return () => {
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
@@ -120,13 +119,13 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
       // Calculer le délai stratégique basé sur le type d'utilisateur
       const strategicDelay = getStrategicDelay(userType);
       console.log(`[NeuroEngine] Délai stratégique calculé: ${strategicDelay.toFixed(2)}s pour le type ${userType}`);
-      
+
       const timer = setTimeout(() => {
         setInsightIndex(prev => (prev + 1) % insightMessages.length);
         setShowInsight(true);
         setTimeout(() => setShowInsight(false), 5000);
       }, strategicDelay * 1000);
-      
+
       // Afficher l'animation de molécule occasionnellement
       if (Math.random() > 0.6) {
         setTimeout(() => {
@@ -134,7 +133,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           setTimeout(() => setShowMoleculeAnimation(false), 4000);
         }, (strategicDelay + 1.5) * 1000);
       }
-      
+
       // Afficher un message de confiance occasionnellement
       if (currentStepIndex > 2 && Math.random() > 0.7) {
         setTimeout(() => {
@@ -142,7 +141,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           setTimeout(() => setShowConfidenceBooster(false), 4500);
         }, (strategicDelay + 3) * 1000);
       }
-      
+
       // Afficher un insight neuropsychologique
       if (currentStepIndex > 1 && Math.random() > 0.6) {
         setTimeout(() => {
@@ -150,7 +149,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           setTimeout(() => setShowNeuroInsight(false), 5000);
         }, (strategicDelay + 4.5) * 1000);
       }
-      
+
       return () => clearTimeout(timer);
     }
   }, [currentStepIndex, userType]);
@@ -171,7 +170,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
     "89% des utilisateurs trouvent les recommandations finales très utiles",
     "Votre profil présente des caractéristiques uniques qui méritent une analyse complète",
   ];
-  
+
   const neuroInsightMessages = [
     "Votre niveau de stress cognitif est 23% supérieur à la moyenne des participants",
     "Votre capacité d'attention est exceptionnellement forte sur les questions de sommeil",
@@ -190,7 +189,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
         ref={moleculeCanvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
-    
+
       <QuizProgress 
         currentStep={currentStepIndex} 
         totalSteps={quizSteps.length} 
@@ -240,7 +239,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           </div>
         </div>
       )}
-      
+
       {showNeuroInsight && (
         <div className="absolute bottom-24 right-0 z-10 max-w-xs bg-purple-50 border border-purple-100 rounded-lg p-3 shadow-md animate-fade-in">
           <div className="flex items-start gap-3">
@@ -258,12 +257,12 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
       <div className="bg-white rounded-xl shadow-md p-8 mb-6 transition-all duration-300 animate-fadeIn relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50/30 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-50/30 rounded-full blur-2xl"></div>
-        
+
         {/* Éléments de "laboratoire" en arrière-plan */}
         <div className="absolute top-4 right-4 opacity-5">
           <FlaskConical className="h-20 w-20 text-indigo-900" />
         </div>
-        
+
         <StepContent
           currentStep={quizSteps[currentStepIndex]}
           currentStepIndex={currentStepIndex}
@@ -288,26 +287,26 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
               toast.info("Analyse scientifique de vos données en cours...", {
                 icon: <TestTube className="h-5 w-5 text-indigo-700" />,
               });
-              
+
               // Succession de toasts pour montrer le "travail scientifique"
               setTimeout(() => {
                 toast.info("Calcul de votre profil nutritionnel...", {
                   icon: <Microscope className="h-5 w-5 text-blue-700" />,
                 });
               }, 1000);
-              
+
               setTimeout(() => {
                 toast.info("Comparaison avec notre base de données (n=243)...", {
                   icon: <Atom className="h-5 w-5 text-purple-700" />,
                 });
               }, 2000);
-              
+
               setTimeout(() => {
                 toast.info("Analyse neuropsychologique en cours...", {
                   icon: <Brain className="h-5 w-5 text-violet-700" />,
                 });
               }, 3000);
-              
+
               setTimeout(() => {
                 toast.success("Analyse complétée avec succès!", {
                   icon: <Sparkles className="h-5 w-5 text-amber-700" />,
@@ -324,7 +323,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
-      
+
       {/* Éléments de preuve sociale améliorés */}
       <div className="mt-8 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-100">
         <div className="flex items-center justify-between">
@@ -341,7 +340,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
             <span>Validé par 3 universités</span>
           </div>
         </div>
-        
+
         {/* Indicateur de participants récents */}
         <div className="mt-2 flex items-center justify-between">
           <div className="text-xs text-indigo-600">
@@ -355,7 +354,43 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
           </div>
         </div>
       </div>
-      
+
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-3">
+          <div className="mr-3 p-1.5 bg-purple-100 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <span className="text-sm font-semibold text-purple-800 tracking-wider uppercase">Laboratoire Indépendant</span>
+        </div>
+        <h1 className="text-3xl font-bold">Analyse Nutritionnelle Personnalisée</h1>
+        <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+          Notre algorithme scientifique analysera vos données pour déterminer les 
+          suppléments les plus adaptés à votre profil biochimique unique
+        </p>
+        <div className="flex items-center justify-center mt-4 text-xs text-gray-500 space-x-4">
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>100% sécurisé</span>
+          </div>
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>3-5 minutes</span>
+          </div>
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <span>Base scientifique</span>
+          </div>
+        </div>
+      </div>
+
       <style>
 {`
 @keyframes fade-in {
