@@ -102,6 +102,23 @@ export const Apple: React.FC<LucideProps> = (props) => (
   </svg>
 );
 
+export const Flask: React.FC<LucideProps> = (props) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M9 3h6M5 3h1M19 3h-1M9 3v3M15 6v1M10 10L8 9M14 10l2-1M2 19h20M5.5 19a4.5 4.5 0 0 1-.42-9M18.5 19a4.5 4.5 0 0 0 .42-9M4 9c.96 0 1.75.75 1.75 1.67 0 .93-.79 1.67-1.75 1.67s-1.75.74-1.75 1.66c0 .93.79 1.67 1.75 1.67M20 9c.96 0 1.75.75 1.75 1.67 0 .93-.79 1.67-1.75 1.67s-1.75.74-1.75 1.66c0 .93.79 1.67 1.75 1.67M12 9a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1 1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z" />
+  </svg>
+);
+
 export const PuzzlePiece: React.FC<LucideProps> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 

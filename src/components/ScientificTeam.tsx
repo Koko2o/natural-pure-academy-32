@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import {
   GraduationCap,
   FileText
 } from "lucide-react";
+import { Flask } from '@/components/ui/icons'; // Added import for Flask icon
 
 const ScientificTeam = () => {
   const coreTeam = [
@@ -131,7 +131,7 @@ const ScientificTeam = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="p-5">
                   <div className="mb-4">
                     <div className="flex items-center mb-2">
@@ -151,7 +151,7 @@ const ScientificTeam = () => {
                     <p className="text-slate-600 text-sm mb-4">
                       {member.bio}
                     </p>
-                    
+
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="bg-slate-50 p-3 rounded-lg text-center">
                         <div className="text-indigo-700 font-bold text-xl">{member.publications}</div>
@@ -163,7 +163,7 @@ const ScientificTeam = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     {member.profiles.map((profile, i) => (
                       <Button 
@@ -198,7 +198,7 @@ const ScientificTeam = () => {
             <h3 className="text-2xl font-semibold text-slate-800 mb-6 text-center">
               Notre Comité Consultatif
             </h3>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {scientificAdvisors.map((advisor, index) => (
                 <div key={index} className="bg-white rounded-lg p-5 shadow-sm border border-slate-200 hover:border-indigo-200 transition-all text-center">
@@ -230,7 +230,7 @@ const ScientificTeam = () => {
                 Nous collaborons avec plusieurs institutions académiques et centres de recherche internationaux.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
               {[
                 { name: "Université de Lyon", logo: "https://via.placeholder.com/150x80?text=Lyon+University" },
@@ -247,7 +247,7 @@ const ScientificTeam = () => {
                 </div>
               ))}
             </div>
-            
+
             <div className="text-center">
               <Button 
                 variant="outline"
@@ -279,7 +279,7 @@ const ScientificTeam = () => {
                 </Link>
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               {[
                 {
@@ -311,7 +311,7 @@ const ScientificTeam = () => {
                   <div className="flex-shrink-0 bg-indigo-100 w-12 h-12 rounded-lg flex items-center justify-center">
                     <FileText className="h-6 w-6 text-indigo-600" />
                   </div>
-                  
+
                   <div className="flex-grow">
                     <h4 className="font-medium text-slate-800 mb-1">{publication.title}</h4>
                     <p className="text-slate-600 text-sm mb-1">{publication.authors}</p>
@@ -319,7 +319,7 @@ const ScientificTeam = () => {
                       {publication.journal} ({publication.year}) • DOI: {publication.doi}
                     </p>
                   </div>
-                  
+
                   <div className="flex-shrink-0">
                     <Button 
                       size="sm"
@@ -349,7 +349,7 @@ const ScientificTeam = () => {
                 pour vous aider à identifier vos besoins spécifiques en micronutriments.
               </p>
             </div>
-            
+
             <Button 
               size="lg"
               className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"

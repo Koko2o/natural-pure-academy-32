@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,8 @@ import {
   BookOpen,
   LineChart
 } from "lucide-react";
+import { Flask } from '@/components/ui/icons'; // Import Flask from custom icons
+
 
 const ScientificMethodology = () => {
   const researchSteps = [
@@ -133,11 +134,11 @@ const ScientificMethodology = () => {
             <h3 className="text-2xl font-semibold text-slate-800 mb-6 text-center">
               Notre processus de recherche en 6 étapes
             </h3>
-            
+
             <div className="relative">
               {/* Ligne de progression verticale */}
               <div className="absolute left-[50%] top-0 bottom-0 w-1 bg-indigo-100 hidden md:block"></div>
-              
+
               <div className="space-y-10">
                 {researchSteps.map((step, index) => (
                   <div key={index} className="relative">
@@ -145,7 +146,7 @@ const ScientificMethodology = () => {
                     <div className="absolute left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-indigo-500 z-10 hidden md:block">
                       <div className="absolute inset-0 rounded-full bg-indigo-200 animate-ping opacity-30"></div>
                     </div>
-                    
+
                     <div className={`md:grid md:grid-cols-2 items-center gap-8 ${
                       index % 2 === 0 ? 'md:text-right' : 'flex flex-row-reverse'
                     }`}>
@@ -175,13 +176,13 @@ const ScientificMethodology = () => {
                           Durée : {step.time}
                         </div>
                       </div>
-                      
+
                       {/* Espace pour la timeline sur mobile */}
                       <div className="md:hidden h-8 relative">
                         <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-indigo-100"></div>
                         <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-indigo-500"></div>
                       </div>
-                      
+
                       {/* Espace vide pour l'alternance desktop */}
                       <div className="hidden md:block"></div>
                     </div>
@@ -201,7 +202,7 @@ const ScientificMethodology = () => {
                 Chaque étude et recommandation est validée par un comité indépendant composé d'experts du domaine.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <div className="flex items-center mb-4">
@@ -212,7 +213,7 @@ const ScientificMethodology = () => {
                   Chaque protocole d'étude est examiné et validé par au moins trois experts indépendants avant sa mise en œuvre.
                 </p>
               </div>
-              
+
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <div className="flex items-center mb-4">
                   <Award className="h-6 w-6 text-indigo-600 mr-3" />
@@ -222,7 +223,7 @@ const ScientificMethodology = () => {
                   Nos méthodes suivent les directives CONSORT pour les essais cliniques et PRISMA pour les revues systématiques.
                 </p>
               </div>
-              
+
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <div className="flex items-center mb-4">
                   <BarChart className="h-6 w-6 text-indigo-600 mr-3" />
@@ -240,7 +241,7 @@ const ScientificMethodology = () => {
             <h3 className="text-2xl font-semibold text-slate-800 mb-6 text-center">
               Nos principes éthiques
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {ethicalPrinciples.map((principle, index) => (
                 <div key={index} className="bg-white border border-slate-200 rounded-lg p-5 hover:border-indigo-200 transition-colors shadow-sm">
@@ -268,7 +269,7 @@ const ScientificMethodology = () => {
                 Découvrez les recherches actuellement menées dans notre laboratoire.
               </p>
             </div>
-            
+
             <div className="space-y-5">
               {[
                 {

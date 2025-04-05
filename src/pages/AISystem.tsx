@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { getAIModelDetailedStatus } from '@/utils/recommenderSystem';
+import { Flask } from "@/components/ui/icons"; //Import moved here
 
 const AISystem = () => {
   const [aiStatus, setAiStatus] = useState(getAIModelDetailedStatus());
