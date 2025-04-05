@@ -1,132 +1,109 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { MicroscopeIcon, BookOpenIcon, BeakerIcon, LineChartIcon, UsersIcon } from 'lucide-react';
-import { getAIModelDetailedStatus } from '@/utils/recommenderSystem';
+import React from "react";
+import { CheckCircle, Flask, Microscope, BookOpen, BarChart4, Dna } from "lucide-react";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 const ScientificMethodology = () => {
-  const aiStatus = getAIModelDetailedStatus();
+  const methodologySteps = [
+    {
+      icon: <Flask className="h-12 w-12 text-indigo-600" />,
+      title: "Formulation d'Hypothèses",
+      description: "Nos chercheurs formulent des hypothèses basées sur la littérature scientifique existante et les données cliniques.",
+      color: "bg-indigo-100 text-indigo-800"
+    },
+    {
+      icon: <Microscope className="h-12 w-12 text-teal-600" />,
+      title: "Expérimentations Contrôlées",
+      description: "Nous conduisons des tests rigoureux avec des groupes contrôles pour valider l'efficacité des solutions proposées.",
+      color: "bg-teal-100 text-teal-800"
+    },
+    {
+      icon: <BarChart4 className="h-12 w-12 text-purple-600" />,
+      title: "Analyse de Données",
+      description: "Nos statisticiens analysent les résultats à l'aide de méthodes avancées pour garantir leur validité scientifique.",
+      color: "bg-purple-100 text-purple-800"
+    },
+    {
+      icon: <Dna className="h-12 w-12 text-blue-600" />,
+      title: "Validation Biologique",
+      description: "Nous vérifions les mécanismes d'action au niveau cellulaire et moléculaire pour comprendre les effets observés.",
+      color: "bg-blue-100 text-blue-800"
+    },
+    {
+      icon: <BookOpen className="h-12 w-12 text-emerald-600" />,
+      title: "Revue par les Pairs",
+      description: "Nos résultats sont soumis à la critique d'experts indépendants pour garantir leur qualité scientifique.",
+      color: "bg-emerald-100 text-emerald-800"
+    }
+  ];
 
   return (
-    <section className="py-16 bg-gradient-to-br from-white to-purple-50">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Notre Méthodologie Scientifique</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Découvrez comment notre laboratoire développe des recommandations basées sur les dernières 
-            avancées scientifiques et l'analyse de données.
+          <Badge variant="outline" className="mb-2">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Processus Scientifique Rigoureux
+          </Badge>
+          <h2 className="text-3xl font-bold text-slate-800 mb-4">Notre Méthodologie Scientifique</h2>
+          <p className="text-slate-600 max-w-2xl mx-auto">
+            Notre laboratoire suit une approche scientifique rigoureuse pour valider chaque recommandation et solution proposée.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <MethodologyCard 
-            icon={<BeakerIcon className="h-10 w-10 text-purple-600" />}
-            title="Recherche Rigoureuse"
-            description="Nos recommandations nutritionnelles sont basées sur des études scientifiques publiées et revues par des pairs."
-          />
-          
-          <MethodologyCard 
-            icon={<LineChartIcon className="h-10 w-10 text-purple-600" />}
-            title="Analyse de Données"
-            description={`Nous analysons les données de ${aiStatus.dataPointsAnalyzed || "1000+"}+ profils pour identifier des corrélations significatives.`}
-          />
-          
-          <MethodologyCard 
-            icon={<UsersIcon className="h-10 w-10 text-purple-600" />}
-            title="Études Cliniques"
-            description="Nous conduisons des études pour valider l'efficacité de nos recommandations avec des participants volontaires."
-            stats={`${aiStatus.uniqueProfiles || 1150}+ profils analysés`}
-          />
-          
-          <MethodologyCard 
-            icon={<BookOpenIcon className="h-10 w-10 text-purple-600" />}
-            title="Publications Scientifiques"
-            description="Notre équipe publie régulièrement ses découvertes dans des revues scientifiques renommées."
-          />
-          
-          <MethodologyCard 
-            icon={<MicroscopeIcon className="h-10 w-10 text-purple-600" />}
-            title="Vérification Biochimique"
-            description="Chaque recommandation est validée par notre équipe de biochimistes pour garantir leur fiabilité."
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold">Intelligence Artificielle</h3>
-              <div className="h-10 w-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-white text-opacity-90 mb-4">
-              Notre système d'IA analyse continuellement les données pour améliorer la précision de nos recommandations personnalisées.
-            </p>
-            <div className="flex flex-col space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Précision du modèle</span>
-                <span className="text-sm font-medium">{Math.round((aiStatus.accuracy || 0.89) * 100)}%</span>
-              </div>
-              <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
-                <div className="bg-white h-2 rounded-full" style={{ width: `${Math.round((aiStatus.accuracy || 0.89) * 100)}%` }}></div>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-sm">Base de connaissances</span>
-                <span className="text-sm font-medium">{aiStatus.knowledgeBase || 2500}+ études</span>
-              </div>
-            </div>
-          </motion.div>
+        <div className="relative">
+          {/* Ligne de connexion */}
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-indigo-100 hidden md:block"></div>
+
+          <div className="grid md:grid-cols-5 gap-6">
+            {methodologySteps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative z-10"
+              >
+                <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all h-full flex flex-col">
+                  <div className="flex justify-center mb-4">
+                    <div className={`p-3 rounded-full ${step.color.split(' ')[0]} mb-4`}>
+                      {step.icon}
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 text-center text-gray-800">{step.title}</h3>
+                  <p className="text-gray-600 text-center text-sm flex-grow">{step.description}</p>
+                  <div className="flex justify-center mt-4">
+                    <span className={`text-xs font-semibold inline-block py-1 px-2 rounded-full ${step.color}`}>
+                      Étape {index + 1}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        
+
         <div className="mt-12 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl max-w-3xl mx-auto border border-indigo-100"
           >
-            <button className="bg-purple-600 hover:bg-purple-700 text-white py-3 px-8 rounded-full font-medium transition duration-300 shadow-md hover:shadow-lg">
-              Découvrir mon profil nutritionnel
-            </button>
-            <p className="text-sm text-gray-500 mt-3">
-              Analyse basée sur {aiStatus.dataPointsAnalyzed || 1750}+ profils • Mise à jour le {aiStatus.lastUpdate || new Date().toLocaleDateString()}
+            <p className="text-gray-700 italic">
+              "Notre engagement envers la rigueur scientifique garantit que chacune de nos recommandations est basée sur des preuves solides, et non sur des tendances passagères ou des anecdotes."
             </p>
+            <p className="mt-2 font-semibold text-indigo-700">Dr. Martine Laurent, Directrice de Recherche</p>
           </motion.div>
         </div>
       </div>
     </section>
   );
 };
-
-const MethodologyCard = ({ icon, title, description, stats }) => (
-  <motion.div 
-    initial={{ opacity: 0, scale: 0.9 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.5 }}
-    className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
-  >
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-      <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-        {icon}
-      </div>
-    </div>
-    <p className="text-gray-600 mb-4">{description}</p>
-    {stats && (
-      <div className="p-3 bg-purple-50 rounded-lg">
-        <p className="text-sm font-medium text-purple-700">{stats}</p>
-      </div>
-    )}
-  </motion.div>
-);
 
 export default ScientificMethodology;

@@ -9,7 +9,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ScientificMethodology from "../components/ScientificMethodology"; // Added import
+import ScientificMethodology from "../components/ScientificMethodology";
+import ScientificTeam from "../components/ScientificTeam";
+import ScientificPublications from "../components/ScientificPublications";
 
 const Index = () => {
   const [animatedCounter, setAnimatedCounter] = useState(963);
@@ -202,6 +204,12 @@ const Index = () => {
 
       {/* Notre méthodologie scientifique */}
       <ScientificMethodology />
+      
+      {/* Notre équipe scientifique */}
+      <ScientificTeam />
+      
+      {/* Publications scientifiques */}
+      <ScientificPublications />
 
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">

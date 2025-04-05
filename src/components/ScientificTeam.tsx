@@ -67,12 +67,36 @@ const teamMembers: TeamMember[] = [
       "Certification en Communication Médicale",
       "Ancien rédacteur pour Science & Vie"
     ]
+  },
+  {
+    name: "Dr. Élodie Mercier",
+    title: "Spécialiste en Biochimie Nutritionnelle",
+    imgSrc: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
+    credentials: "Ph.D. en Biochimie, Université de Montpellier",
+    bio: "Spécialiste des interactions entre micronutriments et métabolisme cellulaire, avec plus de 15 ans d'expérience dans l'étude des voies métaboliques.",
+    publications: [
+      "Effets des flavonoïdes sur la signalisation cellulaire",
+      "Biodisponibilité des composés polyphénoliques",
+      "Mécanismes moléculaires de l'inflammation nutritionnelle"
+    ]
+  },
+  {
+    name: "Prof. Antoine Martin",
+    title: "Expert en Chronobiologie Nutritionnelle",
+    imgSrc: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
+    credentials: "Professeur en Physiologie, École Normale Supérieure",
+    bio: "Pionnier dans l'étude des rythmes circadiens et leur influence sur le métabolisme et l'absorption des nutriments.",
+    publications: [
+      "Impact du timing nutritionnel sur l'expression génique",
+      "Chrononutrition et prévention des maladies métaboliques",
+      "Optimisation des fenêtres temporelles d'alimentation"
+    ]
   }
 ];
 
 const ScientificTeam = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-gradient-to-r from-slate-50 to-white">
       <div className="container mx-auto px-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -80,10 +104,14 @@ const ScientificTeam = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
+          <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
+            <Microscope className="h-5 w-5 text-indigo-600 mr-2" />
+            <span className="text-indigo-700 text-sm font-medium">Équipe de Recherche</span>
+          </div>
           <h2 className="text-3xl font-bold mb-4 text-gray-800">Notre Équipe Scientifique</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Découvrez les experts qui développent nos protocoles nutritionnels et conduisent 
-            nos recherches pour des recommandations basées sur les preuves scientifiques.
+            nos recherches pour des recommandations basées sur les preuves scientifiquess.
           </p>
         </motion.div>
 

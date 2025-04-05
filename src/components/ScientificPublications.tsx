@@ -143,3 +143,144 @@ const PublicationCard = ({ publication, index }: { publication: Publication, ind
 );
 
 export default ScientificPublications;
+import React from "react";
+import { motion } from "framer-motion";
+import { BookOpen, ExternalLink, Download, ChevronRight, Award, Users, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const publications = [
+  {
+    title: "Effets des micronutriments spécifiques sur les marqueurs de stress oxydatif chez les adultes souffrant de fatigue chronique",
+    journal: "Journal of Nutritional Biochemistry",
+    authors: "Martin L, Dupont C, Bernard S, et al.",
+    date: "Juin 2023",
+    abstract: "Cette étude clinique randomisée en double aveugle démontre que la combinaison spécifique de magnésium, zinc et vitamine B6 réduit significativement les marqueurs de stress oxydatif chez les participants souffrant de fatigue chronique.",
+    doi: "10.1016/j.jnutbio.2023.04.012",
+    impactFactor: 4.8,
+    participants: 243,
+    tags: ["micronutriments", "fatigue", "étude clinique"]
+  },
+  {
+    title: "Évaluation de la biodisponibilité comparative des différentes formes chimiques de magnésium dans un modèle humain",
+    journal: "European Journal of Nutrition",
+    authors: "Mercier E, Lefevre F, Rousseau D, et al.",
+    date: "Mars 2023",
+    abstract: "Cette recherche établit une hiérarchie scientifique de biodisponibilité entre les différentes formes de magnésium, avec des implications significatives pour l'efficacité des suppléments.",
+    doi: "10.1007/s00394-023-02957-9",
+    impactFactor: 5.2,
+    participants: 178,
+    tags: ["biodisponibilité", "magnésium", "métabolisme"]
+  },
+  {
+    title: "Approche chronobiologique de la supplémentation en mélatonine et précurseurs: impact sur les troubles du sommeil légères à modérées",
+    journal: "Sleep Medicine Reviews",
+    authors: "Martin A, Leblanc C, Fournier P, et al.",
+    date: "Janvier 2023",
+    abstract: "Notre étude démontre que la synchronisation de la supplémentation en précurseurs de mélatonine avec les rythmes circadiens individuels améliore significativement la qualité du sommeil.",
+    doi: "10.1016/j.smrv.2022.12.005",
+    impactFactor: 6.7,
+    participants: 157,
+    tags: ["chronobiologie", "sommeil", "mélatonine"]
+  }
+];
+
+const ScientificPublications = () => {
+  return (
+    <section className="py-16 bg-white">
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center justify-center p-2 bg-blue-100 rounded-full mb-4">
+            <BookOpen className="h-5 w-5 text-blue-600 mr-2" />
+            <span className="text-blue-700 text-sm font-medium">Publications Scientifiques</span>
+          </div>
+          <h2 className="text-3xl font-bold mb-4 text-gray-800">Nos Dernières Publications</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Découvrez les études scientifiques récentes menées par notre laboratoire de recherche
+            et publiées dans des revues internationales à comité de lecture.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {publications.map((pub, index) => (
+            <motion.div 
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-6 shadow-md border border-slate-100 hover:shadow-lg transition-all"
+            >
+              <div className="flex flex-col">
+                <div className="flex items-start justify-between mb-3">
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
+                    {pub.journal}
+                  </Badge>
+                  <div className="flex items-center">
+                    <Award className="h-4 w-4 text-amber-500 mr-1" />
+                    <span className="text-xs text-gray-600">IF: {pub.impactFactor}</span>
+                  </div>
+                </div>
+                
+                <h3 className="text-lg font-semibold mb-2 text-gray-800 leading-tight">{pub.title}</h3>
+                
+                <div className="flex items-center text-sm text-gray-500 mb-3">
+                  <span className="mr-4">{pub.authors}</span>
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    <span>{pub.date}</span>
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 text-sm mb-4">{pub.abstract}</p>
+                
+                <div className="flex flex-wrap items-center mt-auto pt-2 border-t border-gray-100">
+                  <div className="flex items-center mr-4 mb-2">
+                    <Users className="h-4 w-4 text-indigo-500 mr-1" />
+                    <span className="text-xs text-gray-600">{pub.participants} participants</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {pub.tags.map((tag, idx) => (
+                      <span key={idx} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex ml-auto items-center">
+                    <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800">
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      <span className="text-xs">DOI: {pub.doi}</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-12 text-center"
+        >
+          <Button 
+            variant="outline" 
+            className="bg-white hover:bg-slate-50 border-slate-200"
+          >
+            Voir toutes nos publications
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export default ScientificPublications;
