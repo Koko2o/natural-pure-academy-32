@@ -33,24 +33,43 @@ interface Reference {
   url: string;
 }
 
-interface ArticleViewProps {
-  article: {
+interface ArticleData {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  tags: string[];
+  image: string;
+  date: string;
+  updatedDate?: string;
+  readTime: string;
+  author: Author;
+  peerReviewed: boolean;
+  studyDuration: string;
+  participants: number;
+  keyInsight: string;
+  references: Reference[];
+  relatedArticles?: {
     id: string;
     title: string;
-    content: string;
-    author: string;
-    date: string;
-    category: string;
-    readTime: string;
-    studyDuration: string;
-    participants: number;
-    keyInsight: string;
     image: string;
-    labVerified?: boolean;
-    year?: number;
+    excerpt: string;
+  }[];
+  tableOfContents: {
+    id: string;
+    title: string;
+    level: number;
+  }[];
+  scientificTerms?: {
+    [key: string]: string;
   };
+}
+
+interface ArticleViewProps {
+  article: ArticleData;
   onNavigateToQuiz: () => void;
-  relatedArticles: Array<{
+  relatedArticles?: Array<{
     id: string;
     title: string;
     excerpt: string;
@@ -59,28 +78,21 @@ interface ArticleViewProps {
     date: string;
     readTime: string;
   }>;
-  studyHighlights: Array<{
+  studyHighlights?: Array<{
     icon: React.ReactNode;
     title: string;
     description: string;
   }>;
-  renderEnhancedContent: (content: string) => string;
+  renderEnhancedContent?: (content: string) => string;
 }
 
 const ArticleView: React.FC<ArticleViewProps> = ({ 
   article, 
-  onNavigateToQuiz, 
-  relatedArticles, 
-  studyHighlights, 
-  renderEnhancedContent 
+  onNavigateToQuiz,
+  relatedArticles = article.relatedArticles || [],
+  studyHighlights = [],
+  renderEnhancedContent = (content) => content
 }) => {
-
-interface ArticleViewProps {
-  article: ArticleData;
-  onNavigateToQuiz: () => void;
-}
-
-const ArticleView: React.FC<ArticleViewProps> = ({ article, onNavigateToQuiz }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [isTOCExpanded, setIsTOCExpanded] = useState(true);
@@ -592,7 +604,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article, onNavigateToQuiz }) 
                   {relatedArticles.map((relatedArticle) => (
                     <Link
                       key={relatedArticle.id}
-                      to={`/article/${relatedArticle.id}`}le.id}`}
+                      to={`/article/${relatedArticle.id}`}
                       className="group"
                     >
                       <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-natural-200 h-full flex flex-col">

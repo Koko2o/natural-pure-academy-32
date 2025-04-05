@@ -222,7 +222,7 @@ const Article = () => {
         <ArticleView 
           article={article} 
           onNavigateToQuiz={handleNavigateToQuiz} 
-          relatedArticles={relatedArticles}
+          relatedArticles={article.relatedArticles}latedArticles}
           studyHighlights={studyHighlights}
           renderEnhancedContent={renderEnhancedContent}
         />
