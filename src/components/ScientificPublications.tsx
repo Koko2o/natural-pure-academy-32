@@ -1,162 +1,89 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, 
-  FileText, 
-  GraduationCap,
-  Users as UsersIcon 
-} from "lucide-react";
+import { Link } from 'react-router-dom';
+import { Microscope, FileText, Users as UsersIcon, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-interface Publication {
-  title: string;
-  authors: string;
-  journal: string;
-  year: number;
-  citationCount: number;
-  impactFactor: number;
-  type: 'etude' | 'revue' | 'meta-analyse';
-}
-
-interface ScientificPublicationsProps {
-  limit?: number;
-  showCta?: boolean;
-}
-
-const publications: Publication[] = [
+const publications = [
   {
-    title: "Impact of micronutrient supplementation on cognitive function in adults",
-    authors: "Dubois, M., Martin, S., et al.",
+    id: "1",
+    title: "Impact des Polyphénols sur l'Inflammation Systémique",
     journal: "Journal of Nutritional Biochemistry",
-    year: 2023,
-    citationCount: 42,
-    impactFactor: 4.2,
-    type: 'etude'
+    date: "Mars 2023",
+    authors: 3,
+    excerpt: "Cette étude examine comment certains polyphénols peuvent moduler les voies inflammatoires...",
+    link: "/article/1"
   },
   {
-    title: "Effects of magnesium supplementation on stress and sleep quality: a randomized clinical trial",
-    authors: "Lefèvre, C., Bertrand, P., et al.",
+    id: "2",
+    title: "Biodisponibilité des Compléments de Magnésium: Analyse Comparative",
     journal: "European Journal of Nutrition",
-    year: 2022,
-    citationCount: 56,
-    impactFactor: 3.9,
-    type: 'etude'
+    date: "Janvier 2023",
+    authors: 5,
+    excerpt: "Comparaison de l'absorption et de l'efficacité de différentes formes de magnésium...",
+    link: "/article/2"
   },
   {
-    title: "The role of adaptogenic herbs in stress management: a systematic review",
-    authors: "Chen, L., Moreau, R., et al.",
-    journal: "Phytomedicine",
-    year: 2023,
-    citationCount: 31,
-    impactFactor: 5.3,
-    type: 'revue'
-  },
-  {
-    title: "Meta-analysis of vitamin D supplementation effects on inflammatory markers",
-    authors: "Garcia, J., Blanc, T., et al.",
-    journal: "American Journal of Clinical Nutrition",
-    year: 2021,
-    citationCount: 79,
-    impactFactor: 7.0,
-    type: 'meta-analyse'
-  },
-  {
-    title: "Bioavailability of different magnesium formulations: a comparative study",
-    authors: "Rousseau, A., Petit, V., et al.",
-    journal: "Nutrients",
-    year: 2023,
-    citationCount: 24,
-    impactFactor: 5.6,
-    type: 'etude'
-  },
-  {
-    title: "Nutritional approaches for cognitive enhancement: evidence from clinical trials",
-    authors: "Wang, H., Dupont, S., et al.",
-    journal: "Frontiers in Nutrition",
-    year: 2022,
-    citationCount: 38,
-    impactFactor: 6.2,
-    type: 'revue'
+    id: "3",
+    title: "Les Adaptogènes et leur Impact sur le Cortisol",
+    journal: "Journal of Ethnopharmacology",
+    date: "Novembre 2022",
+    authors: 4,
+    excerpt: "Évaluation clinique des effets de certaines plantes adaptogènes sur les niveaux de cortisol...",
+    link: "/article/3"
   }
 ];
 
-const ScientificPublications: React.FC<ScientificPublicationsProps> = ({ 
-  limit = 3,
-  showCta = true 
-}) => {
-  // Afficher seulement le nombre demandé de publications
-  const displayedPublications = publications.slice(0, limit);
-
-  const getTypeIcon = (type: Publication['type']) => {
-    switch (type) {
-      case 'etude':
-        return <FileText className="h-4 w-4 text-blue-500" />;
-      case 'revue':
-        return <BookOpen className="h-4 w-4 text-purple-500" />;
-      case 'meta-analyse':
-        return <GraduationCap className="h-4 w-4 text-indigo-500" />;
-      default:
-        return <FileText className="h-4 w-4 text-blue-500" />;
-    }
-  };
-
-  const getTypeBadge = (type: Publication['type']) => {
-    switch (type) {
-      case 'etude':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Étude clinique</Badge>;
-      case 'revue':
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Revue systématique</Badge>;
-      case 'meta-analyse':
-        return <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">Méta-analyse</Badge>;
-      default:
-        return <Badge variant="outline">Publication</Badge>;
-    }
-  };
-
+const ScientificPublications = () => {
   return (
-    <div className="space-y-4">
-      {displayedPublications.map((publication, index) => (
-        <Card key={index} className="overflow-hidden transition-all hover:shadow-md">
-          <CardContent className="p-5">
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between items-start">
-                {getTypeBadge(publication.type)}
-                <div className="flex items-center text-sm text-gray-500">
-                  <UsersIcon className="h-3.5 w-3.5 mr-1" />
-                  <span>{publication.citationCount} citations</span>
-                </div>
-              </div>
-
-              <h3 className="font-semibold text-lg">{publication.title}</h3>
-
-              <div className="flex flex-col gap-2 text-sm">
-                <div className="text-gray-700">
-                  {publication.authors}
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="text-indigo-700 font-medium">
-                    {publication.journal} ({publication.year})
-                  </div>
-                  <div className="text-gray-600">
-                    Impact: {publication.impactFactor.toFixed(1)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {showCta && (
-        <div className="text-center mt-6">
-          <a href="/nos-recherches" className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
-            Voir toutes nos publications scientifiques
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
+    <div className="py-12">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+          <FileText className="h-6 w-6 text-indigo-600" />
         </div>
-      )}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Nos Publications Scientifiques</h2>
+          <p className="text-gray-600">Recherches validées par nos pairs</p>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6 mt-8">
+        {publications.map((pub, index) => (
+          <motion.div 
+            key={pub.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+          >
+            <Link to={pub.link}>
+              <Card className="h-full hover:shadow-md transition-shadow border-natural-200 hover:border-indigo-200">
+                <CardContent className="p-5">
+                  <Badge variant="outline" className="mb-3 bg-indigo-50 border-indigo-100 text-indigo-700">
+                    {pub.journal}
+                  </Badge>
+                  <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-natural-800">
+                    {pub.title}
+                  </h3>
+                  <p className="text-sm text-natural-600 mb-4 line-clamp-2">
+                    {pub.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-natural-500">
+                    <span className="flex items-center">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {pub.date}
+                    </span>
+                    <span className="flex items-center">
+                      <UsersIcon className="h-3 w-3 mr-1" />
+                      {pub.authors} chercheurs
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
