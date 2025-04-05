@@ -12,7 +12,7 @@ import {
   ChevronDown, 
   ChevronUp, 
   Database, 
-  FlaskConical, 
+  Beaker, 
   LineChart, 
   Microscope, 
   Sparkles,
@@ -149,7 +149,7 @@ const AILearningInsights: React.FC<AILearningInsightsProps> = ({ recommendations
               className="bg-white rounded-lg border p-3 hover:shadow-md transition-shadow"
             >
               <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <FlaskConical className="h-3.5 w-3.5 mr-1 text-purple-500" />
+                <Beaker className="h-3.5 w-3.5 mr-1 text-purple-500" />
                 Efficacité des recommandations
               </div>
               <div className="flex items-end gap-2">

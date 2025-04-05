@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -6,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Flask } from '@/components/ui/icons';
 import { 
   Microscope, 
   Beaker, 
@@ -15,7 +15,6 @@ import {
   FileText, 
   ChevronRight,
   GraduationCap,
-  Flask,
   Dna
 } from "lucide-react";
 import ScientificMethodology from "@/components/ScientificMethodology";
@@ -38,22 +37,22 @@ const NosRecherches = () => {
         {/* Effets visuels scientifiques */}
         <div className="absolute top-20 right-20 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-white/20 rounded-full blur-3xl animate-pulse delay-300"></div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center justify-center p-2 bg-white/20 rounded-full backdrop-blur-sm mb-6 shadow-xl">
               <Microscope className="h-5 w-5 text-white mr-2" />
               <span className="text-white text-sm font-medium">Laboratoire Indépendant</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
               Notre Expertise Scientifique
             </h1>
-            
+
             <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
               Découvrez les recherches, les méthodes et l'équipe derrière nos recommandations nutritionnelles validées scientifiquement.
             </p>
-            
+
             <div className="flex flex-wrap justify-center gap-4 mb-10">
               <Button 
                 size="lg"
@@ -64,7 +63,7 @@ const NosRecherches = () => {
                   Découvrir notre méthodologie
                 </a>
               </Button>
-              
+
               <Button 
                 size="lg"
                 variant="outline"
@@ -76,18 +75,18 @@ const NosRecherches = () => {
                 </Link>
               </Button>
             </div>
-            
+
             <div className="flex flex-wrap justify-center gap-3">
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Award className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">3 brevets déposés</span>
               </div>
-              
+
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <FileText className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">12 publications scientifiques</span>
               </div>
-              
+
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-white flex items-center shadow-lg">
                 <Users className="h-5 w-5 mr-2 text-amber-300" />
                 <span className="text-sm">1200+ participants aux études</span>
@@ -115,7 +114,7 @@ const NosRecherches = () => {
                 <span>Équipe Scientifique</span>
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="laboratoire" className="pt-8">
               <div id="laboratoire" className="max-w-6xl mx-auto">
                 <div className="text-center mb-12">
@@ -128,7 +127,7 @@ const NosRecherches = () => {
                     Un environnement de recherche de pointe dédié à l'analyse des solutions naturelles pour la santé.
                   </p>
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
                   <div className="space-y-6">
                     <h3 className="text-2xl font-medium text-slate-800">Installations de haute technologie</h3>
@@ -163,7 +162,7 @@ const NosRecherches = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid md:grid-cols-3 gap-8 mb-16">
                   <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-md p-6 border border-indigo-100">
                     <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
@@ -189,7 +188,7 @@ const NosRecherches = () => {
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-md p-6 border border-indigo-100">
                     <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
                       <GraduationCap className="h-6 w-6 text-indigo-600" />
@@ -214,7 +213,7 @@ const NosRecherches = () => {
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-md p-6 border border-indigo-100">
                     <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
                       <Dna className="h-6 w-6 text-indigo-600" />
@@ -240,7 +239,7 @@ const NosRecherches = () => {
                     </ul>
                   </div>
                 </div>
-                
+
                 <div className="bg-indigo-50 rounded-2xl p-8 mb-12">
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-medium text-slate-800 mb-2">Notre histoire</h3>
@@ -249,11 +248,11 @@ const NosRecherches = () => {
                       s'est développé pour devenir une référence en nutrition scientifique.
                     </p>
                   </div>
-                  
+
                   <div className="relative">
                     {/* Timeline */}
                     <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-indigo-200"></div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
                       {/* 2015 */}
                       <div className="md:text-right md:pr-8">
@@ -266,7 +265,7 @@ const NosRecherches = () => {
                         </div>
                       </div>
                       <div className="md:pl-8 hidden md:block"></div>
-                      
+
                       {/* 2017 */}
                       <div className="md:text-right md:pr-8 hidden md:block"></div>
                       <div className="md:pl-8">
@@ -278,7 +277,7 @@ const NosRecherches = () => {
                           </p>
                         </div>
                       </div>
-                      
+
                       {/* 2019 */}
                       <div className="md:text-right md:pr-8">
                         <div className="bg-white p-5 rounded-lg shadow-md inline-block">
@@ -290,7 +289,7 @@ const NosRecherches = () => {
                         </div>
                       </div>
                       <div className="md:pl-8 hidden md:block"></div>
-                      
+
                       {/* 2021 */}
                       <div className="md:text-right md:pr-8 hidden md:block"></div>
                       <div className="md:pl-8">
@@ -302,7 +301,7 @@ const NosRecherches = () => {
                           </p>
                         </div>
                       </div>
-                      
+
                       {/* 2023 */}
                       <div className="md:text-right md:pr-8">
                         <div className="bg-white p-5 rounded-lg shadow-md inline-block">
@@ -317,7 +316,7 @@ const NosRecherches = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   <Button 
                     size="lg"
@@ -332,13 +331,13 @@ const NosRecherches = () => {
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="methodologie" className="pt-8">
               <div id="methodologie">
                 <ScientificMethodology />
               </div>
             </TabsContent>
-            
+
             <TabsContent value="equipe" className="pt-8">
               <div id="equipe">
                 <ScientificTeam />
@@ -347,14 +346,14 @@ const NosRecherches = () => {
           </Tabs>
         </div>
       </section>
-      
+
       {/* Publications récentes */}
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <ScientificPublications limit={3} showCta={true} />
         </div>
       </section>
-      
+
       {/* CTA Quiz */}
       <section className="py-16 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -363,7 +362,7 @@ const NosRecherches = () => {
             backgroundSize: '16px 16px'
           }}></div>
         </div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
@@ -417,7 +416,7 @@ const NosRecherches = () => {
             box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
           }
         }
-        
+
         .pulse-animation {
           animation: pulse-animation 2s infinite;
         }

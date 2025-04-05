@@ -4,7 +4,7 @@ import { quizSteps } from "./quiz/QuizSteps";
 import { useQuizNavigation } from "./quiz/useQuizNavigation";
 import QuizProgress from "./quiz/QuizProgress";
 import StepContent from "./quiz/StepContent";
-import { ArrowLeft, ArrowRight, TestTube, Microscope, FlaskConical, Atom, CheckCircle, Sparkles, Brain, Beaker } from "lucide-react";
+import { ArrowLeft, ArrowRight, TestTube, Microscope, Atom, CheckCircle, Sparkles, Brain, Beaker } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { getStrategicDelay } from "./quiz/NeuroEngine";
@@ -260,7 +260,7 @@ const NutritionalQuiz = ({ onComplete, onUserInfoUpdate }: NutritionalQuizProps)
 
         {/* Éléments de "laboratoire" en arrière-plan */}
         <div className="absolute top-4 right-4 opacity-5">
-          <FlaskConical className="h-20 w-20 text-indigo-900" />
+          <Beaker className="h-20 w-20 text-indigo-900" />
         </div>
 
         <StepContent
