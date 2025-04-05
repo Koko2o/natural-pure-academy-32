@@ -651,8 +651,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                 </div>
               </div>
             )}
-            )}
-          </div>
+            </div>
         </div>
       </div>
     </div>
