@@ -33,38 +33,47 @@ interface Reference {
   url: string;
 }
 
-interface ArticleData {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  tags: string[];
-  image: string;
-  date: string;
-  updatedDate?: string;
-  readTime: string;
-  author: Author;
-  peerReviewed: boolean;
-  studyDuration: string;
-  participants: number;
-  keyInsight: string;
-  references: Reference[];
-  relatedArticles?: {
+interface ArticleViewProps {
+  article: {
     id: string;
     title: string;
+    content: string;
+    author: string;
+    date: string;
+    category: string;
+    readTime: string;
+    studyDuration: string;
+    participants: number;
+    keyInsight: string;
     image: string;
-    excerpt: string;
-  }[];
-  tableOfContents: {
+    labVerified?: boolean;
+    year?: number;
+  };
+  onNavigateToQuiz: () => void;
+  relatedArticles: Array<{
     id: string;
     title: string;
-    level: number;
-  }[];
-  scientificTerms?: {
-    [key: string]: string;
-  };
+    excerpt: string;
+    category: string;
+    image: string;
+    date: string;
+    readTime: string;
+  }>;
+  studyHighlights: Array<{
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+  }>;
+  renderEnhancedContent: (content: string) => string;
 }
+
+const ArticleView: React.FC<ArticleViewProps> = ({ 
+  article, 
+  onNavigateToQuiz, 
+  relatedArticles, 
+  studyHighlights, 
+  renderEnhancedContent 
+}) => {
 
 interface ArticleViewProps {
   article: ArticleData;
@@ -576,14 +585,14 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article, onNavigateToQuiz }) 
             </div>
             
             {/* Articles connexes */}
-            {article.relatedArticles && article.relatedArticles.length > 0 && (
+            {relatedArticles && relatedArticles.length > 0 && (
               <div className="mt-16">
                 <h2 className="text-2xl font-bold mb-6">Articles connexes</h2>
                 <div className="grid sm:grid-cols-2 gap-6">
-                  {article.relatedArticles.map((relatedArticle) => (
+                  {relatedArticles.map((relatedArticle) => (
                     <Link
                       key={relatedArticle.id}
-                      to={`/article/${relatedArticle.id}`}
+                      to={`/article/${relatedArticle.id}`}le.id}`}
                       className="group"
                     >
                       <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-natural-200 h-full flex flex-col">
@@ -607,7 +616,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article, onNavigateToQuiz }) 
                             <span>{article.date}</span>
                             <span className="flex items-center">
                               <Clock className="h-3.5 w-3.5 mr-1" />
-                              {article.readTime}
+                              {relatedArticle.readTime}
                             </span>
                           </div>
                         </div>
