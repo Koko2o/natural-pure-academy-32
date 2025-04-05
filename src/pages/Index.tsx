@@ -211,6 +211,120 @@ const Index = () => {
       {/* Publications scientifiques */}
       <ScientificPublications />
 
+      {/* Nouvelle section laboratoire scientifique */}
+      <section className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-slate-50 to-transparent"></div>
+        
+        {/* Éléments décoratifs laboratoire */}
+        <div className="absolute -left-16 top-1/3 w-32 h-32 rounded-full bg-indigo-50 opacity-70"></div>
+        <div className="absolute -right-20 bottom-1/4 w-40 h-40 rounded-full bg-indigo-50 opacity-70"></div>
+        <div className="absolute right-1/4 top-1/4 w-16 h-16 rounded-full bg-indigo-100 opacity-30"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="mb-12 text-center">
+            <Badge variant="indigo" className="mb-2">
+              <Beaker className="h-3 w-3 mr-1" /> 
+              Laboratoire Scientifique
+            </Badge>
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">
+              Un Laboratoire Dédié à la Science Nutritionnelle
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Découvrez notre laboratoire de recherche où nos scientifiques analysent l'impact des micronutriments sur la santé.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+            <div className="space-y-5 order-2 md:order-1">
+              <div className="bg-indigo-50 rounded-lg p-6 border border-indigo-100 shadow-sm">
+                <h3 className="flex items-center text-xl font-medium text-slate-800 mb-3">
+                  <Microscope className="h-6 w-6 text-indigo-600 mr-3" />
+                  Analyses rigoureuses
+                </h3>
+                <p className="text-slate-600">
+                  Notre laboratoire utilise des technologies avancées pour analyser avec précision la biodisponibilité et l'efficacité des micronutriments.
+                </p>
+              </div>
+              
+              <div className="bg-indigo-50 rounded-lg p-6 border border-indigo-100 shadow-sm">
+                <h3 className="flex items-center text-xl font-medium text-slate-800 mb-3">
+                  <Users className="h-6 w-6 text-indigo-600 mr-3" />
+                  Études cliniques
+                </h3>
+                <p className="text-slate-600">
+                  Nos recherches incluent des études cliniques à double aveugle avec des groupes de contrôle pour valider l'efficacité de nos recommandations.
+                </p>
+              </div>
+              
+              <div className="bg-indigo-50 rounded-lg p-6 border border-indigo-100 shadow-sm">
+                <h3 className="flex items-center text-xl font-medium text-slate-800 mb-3">
+                  <Award className="h-6 w-6 text-indigo-600 mr-3" />
+                  Publications scientifiques
+                </h3>
+                <p className="text-slate-600">
+                  Nos chercheurs publient régulièrement dans des revues scientifiques à comité de lecture, garantissant la validité de nos découvertes.
+                </p>
+              </div>
+              
+              <div className="text-center md:text-left mt-8">
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md"
+                  asChild
+                >
+                  <Link to="/nos-recherches">
+                    Découvrir notre laboratoire
+                    <MoveRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            <div className="relative order-1 md:order-2">
+              <div className="rounded-xl overflow-hidden shadow-xl">
+                <img 
+                  src="https://images.unsplash.com/photo-1581093450021-a7360e9a6b5?auto=format&fit=crop&q=80&w=600&h=400" 
+                  alt="Notre laboratoire scientifique" 
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              
+              <div className="absolute -bottom-6 -right-6 bg-white p-3 rounded-lg shadow-lg hidden md:block">
+                <img 
+                  src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=200&h=150" 
+                  alt="Analyse en laboratoire" 
+                  className="rounded"
+                />
+              </div>
+              
+              <div className="absolute -top-6 -left-6 bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-4 rounded-lg shadow-lg hidden md:flex flex-col items-center">
+                <span className="text-2xl font-bold">98%</span>
+                <span className="text-xs">de précision analytique</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-center mb-8">
+            <div className="grid grid-cols-3 gap-8 max-w-3xl">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-700">12+</div>
+                <div className="text-sm text-slate-600">Publications scientifiques</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-700">1200+</div>
+                <div className="text-sm text-slate-600">Participants aux études</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-700">3</div>
+                <div className="text-sm text-slate-600">Partenariats universitaires</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">

@@ -18,6 +18,7 @@ import SocialRedirect from "./pages/SocialRedirect";
 import AISystem from './pages/AISystem';
 import AILearningDashboard from './pages/AILearningDashboard';
 import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
+import NosRecherches from "@/pages/NosRecherches";
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
 
 const queryClient = new QueryClient({
@@ -149,6 +150,7 @@ const App = () => {
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/profil-sante" element={<ProfileSante />} />
             <Route path="/labo-solutions" element={<LaboSolutions />} />
+            <Route path="/nos-recherches" element={<NosRecherches />} />
             <Route path="/redirect/social" element={<SocialRedirect />} />
             <Route path="/ai-system" element={<AISystem />} />
             <Route path="/ai-learning" element={<AILearningDashboard />} />

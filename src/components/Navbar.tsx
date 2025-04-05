@@ -23,6 +23,7 @@ const Navbar = () => {
     { name: "Articles", path: "/articles" },
     { name: "Quiz Nutrition", path: "/quiz" },
     { name: "Profil Santé", path: "/profil-sante" },
+    { name: "Nos Recherches", path: "/nos-recherches" },
     { name: "Labo Solutions", path: "/labo-solutions" },
     { name: "Nutrition", path: "/nutrition" },
     { name: "À propos", path: "/about" },

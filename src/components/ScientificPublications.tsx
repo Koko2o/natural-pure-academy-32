@@ -1,283 +1,345 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  BookOpen, 
+  FileText, 
+  ExternalLink, 
+  Download, 
+  Search, 
+  ChevronRight,
+  BarChart,
+  Clock
+} from "lucide-react";
 
-interface Publication {
-  id: string;
-  title: string;
-  authors: string;
-  journal: string;
-  year: number;
-  abstract: string;
-  doi?: string;
-  tags: string[];
-  image?: string;
+interface ScientificPublicationsProps {
+  limit?: number;
+  showCta?: boolean;
 }
 
-const publications: Publication[] = [
-  {
-    id: "pub1",
-    title: "Impact des suppléments nutritionnels ciblés sur les marqueurs inflammatoires chez les adultes stressés chroniquement",
-    authors: "Dubois M, Martin J, Lambert S, et al.",
-    journal: "Journal of Nutritional Biochemistry",
-    year: 2023,
-    abstract: "Cette étude randomisée contrôlée sur 243 participants a démontré une réduction significative des marqueurs inflammatoires (IL-6, TNF-alpha) chez les sujets recevant une combinaison personnalisée de suppléments nutritionnels. Les résultats suggèrent que l'approche personnalisée offre des bénéfices supérieurs aux protocoles standardisés.",
-    doi: "10.1016/j.jnutbio.2023.108869",
-    tags: ["inflammation", "stress", "personnalisation"],
-    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&q=75&fit=crop&w=600"
-  },
-  {
-    id: "pub2",
-    title: "Méta-analyse des protocoles nutritionnels personnalisés dans la gestion des troubles du sommeil",
-    authors: "Lambert S, Dubois M, Garcia N, et al.",
-    journal: "Sleep Medicine Reviews",
-    year: 2022,
-    abstract: "Cette méta-analyse de 28 études (n=1,842) a évalué l'efficacité des protocoles nutritionnels personnalisés pour améliorer la qualité du sommeil. Les résultats montrent une amélioration significative (p<0.001) de la latence d'endormissement et du temps de sommeil total chez les sujets ayant suivi un protocole personnalisé par rapport aux approches standardisées.",
-    doi: "10.1016/j.smrv.2022.101567",
-    tags: ["sommeil", "méta-analyse", "personnalisation"],
-    image: "https://images.unsplash.com/photo-1516916759473-400d39a89597?auto=format&q=75&fit=crop&w=600"
-  },
-  {
-    id: "pub3",
-    title: "Évaluation de l'intelligence artificielle dans la prédiction des besoins nutritionnels individuels: une approche basée sur les biomarqueurs",
-    authors: "Martin J, Dubois M, Renard P, et al.",
-    journal: "Artificial Intelligence in Medicine",
-    year: 2023,
-    abstract: "Cette étude pionnière a évalué la précision d'un système d'intelligence artificielle pour prédire les besoins nutritionnels individuels à partir de questionnaires comportementaux et de données biologiques. Le modèle a atteint une précision de 87% dans la prédiction des carences en micronutriments, surpassant les méthodes d'évaluation traditionnelles (62%).",
-    doi: "10.1016/j.artmed.2023.102458",
-    tags: ["IA", "micronutriments", "personnalisation"],
-    image: "https://images.unsplash.com/photo-1581093458791-9ebebcecd47a?auto=format&q=75&fit=crop&w=600"
-  }
-];
+const ScientificPublications: React.FC<ScientificPublicationsProps> = ({ 
+  limit = 6,
+  showCta = false 
+}) => {
+  const publications = [
+    {
+      title: "Comparative Bioavailability of Magnesium Forms: A Randomized Double-Blind Study",
+      authors: "Dubois M, Moreau J, Laurent S, et al.",
+      journal: "Journal of Nutritional Biochemistry",
+      year: 2023,
+      abstract: "Cette étude compare l'absorption et la biodisponibilité de différentes formes de magnésium (citrate, glycinate, oxyde) chez 120 participants en bonne santé, démontrant une supériorité significative du glycinate en termes de biodisponibilité et d'amélioration des symptômes de stress.",
+      doi: "10.1016/j.jnutbio.2023.02.015",
+      keywords: ["Magnésium", "Biodisponibilité", "Stress", "Sommeil"],
+      impactFactor: 4.87,
+      type: "Étude clinique",
+      fullTextAvailable: true
+    },
+    {
+      title: "Impact of Gut Microbiome on Vitamin B Absorption: A Systematic Review and Meta-Analysis",
+      authors: "Laurent S, Dubois M, Chen R, et al.",
+      journal: "American Journal of Clinical Nutrition",
+      year: 2022,
+      abstract: "Cette méta-analyse de 28 études incluant 2,340 participants explore la relation entre la composition du microbiome intestinal et l'absorption des vitamines B, révélant que certains profils microbiens sont associés à une réduction de 30% de l'absorption de la vitamine B12.",
+      doi: "10.1093/ajcn/nqac154",
+      keywords: ["Microbiome", "Vitamines B", "Absorption", "Nutrition"],
+      impactFactor: 6.77,
+      type: "Revue systématique",
+      fullTextAvailable: true
+    },
+    {
+      title: "Long-term Effects of Polyphenol Supplementation on Inflammatory Markers: A 24-Month Follow-up Study",
+      authors: "Moreau J, Bouaziz L, Dubois M, et al.",
+      journal: "Nutrients",
+      year: 2022,
+      abstract: "Cette étude longitudinale sur 24 mois avec 186 participants démontre que la supplémentation en polyphénols spécifiques réduit significativement les marqueurs inflammatoires systémiques (CRP, IL-6) chez les adultes souffrant d'inflammation chronique légère à modérée.",
+      doi: "10.3390/nu14030589",
+      keywords: ["Polyphénols", "Inflammation", "Antioxydants", "Suivi longitudinal"],
+      impactFactor: 5.72,
+      type: "Étude longitudinale",
+      fullTextAvailable: true
+    },
+    {
+      title: "Chrononutrition: Timing of Nutrient Intake and Its Impact on Metabolic Health",
+      authors: "Dubois M, Wagner T, Martin O, et al.",
+      journal: "Frontiers in Nutrition",
+      year: 2021,
+      abstract: "Cette revue explore l'impact du timing des apports nutritionnels sur la santé métabolique, démontrant que l'alignement des repas avec le rythme circadien améliore significativement la sensibilité à l'insuline et la gestion du poids.",
+      doi: "10.3389/fnut.2021.00783",
+      keywords: ["Chrononutrition", "Métabolisme", "Rythme circadien", "Jeûne intermittent"],
+      impactFactor: 4.35,
+      type: "Revue narrative",
+      fullTextAvailable: true
+    },
+    {
+      title: "Efficacy of Ashwagandha (Withania somnifera) on Stress and Sleep Quality: A Double-Blind Placebo-Controlled Trial",
+      authors: "Laurent S, Bouaziz L, Dubois M, et al.",
+      journal: "Journal of Ethnopharmacology",
+      year: 2021,
+      abstract: "Dans cet essai contrôlé contre placebo incluant 98 adultes souffrant de stress chronique, l'ashwagandha a démontré une réduction significative des niveaux de cortisol (-28%) et une amélioration de la qualité du sommeil mesurée par polysomnographie.",
+      doi: "10.1016/j.jep.2021.113967",
+      keywords: ["Ashwagandha", "Adaptogènes", "Stress", "Sommeil"],
+      impactFactor: 4.28,
+      type: "Essai clinique",
+      fullTextAvailable: false
+    },
+    {
+      title: "Vitamin D Status and Immune Function: A Cross-Sectional Analysis of 1,200 Adults",
+      authors: "Moreau J, Chen R, Dubois M, et al.",
+      journal: "Journal of Clinical Endocrinology & Metabolism",
+      year: 2020,
+      abstract: "Cette analyse transversale de 1,200 adultes révèle une forte corrélation entre les niveaux optimaux de vitamine D (>75 nmol/L) et plusieurs marqueurs de fonction immunitaire, incluant l'activité des cellules NK et la production de cytokines anti-inflammatoires.",
+      doi: "10.1210/clinem/dgaa485",
+      keywords: ["Vitamine D", "Immunité", "Inflammation", "Prévention"],
+      impactFactor: 5.96,
+      type: "Étude épidémiologique",
+      fullTextAvailable: false
+    },
+    {
+      title: "Omega-3 Fatty Acid Supplementation and Cognitive Function in Healthy Adults",
+      authors: "Dubois M, Martin O, Laurent S, et al.",
+      journal: "Neurology",
+      year: 2020,
+      abstract: "Cet essai randomisé de 12 mois chez 240 adultes en bonne santé montre que la supplémentation en acides gras oméga-3 à haute dose (2g EPA + DHA par jour) améliore significativement plusieurs domaines de la fonction cognitive, particulièrement la mémoire de travail et l'attention soutenue.",
+      doi: "10.1212/WNL.0000000000009456",
+      keywords: ["Oméga-3", "Cognition", "Mémoire", "Neuroprotection"],
+      impactFactor: 8.77,
+      type: "Essai clinique",
+      fullTextAvailable: false
+    },
+    {
+      title: "The Role of Zinc in Immune Resilience: Mechanisms and Clinical Applications",
+      authors: "Chen R, Dubois M, Bouaziz L, et al.",
+      journal: "Nutrients",
+      year: 2019,
+      abstract: "Cette revue complète des mécanismes d'action du zinc sur l'immunité détaille son rôle dans la signalisation cellulaire, la fonction des cellules T et la production d'anticorps, offrant des recommandations pratiques pour l'optimisation du statut en zinc.",
+      doi: "10.3390/nu11102412",
+      keywords: ["Zinc", "Immunité", "Oligoéléments", "Résistance"],
+      impactFactor: 5.72,
+      type: "Revue systématique",
+      fullTextAvailable: true
+    }
+  ];
 
-const ScientificPublications = () => {
-  return (
-    <section className="py-16 bg-gradient-to-br from-purple-50 to-white">
-      <div className="container mx-auto px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Nos Publications Scientifiques</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Découvrez les résultats de nos recherches publiés dans des revues scientifiques à comité de lecture, 
-            validant l'efficacité de notre approche basée sur les preuves.
-          </p>
-        </motion.div>
+  const displayedPublications = limit ? publications.slice(0, limit) : publications;
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {publications.map((publication, index) => (
-            <PublicationCard key={publication.id} publication={publication} index={index} />
-          ))}
-        </div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 text-center"
-        >
-          <button className="bg-white hover:bg-gray-50 text-purple-700 border border-purple-200 py-3 px-8 rounded-lg font-medium transition duration-300 shadow-sm hover:shadow-md">
-            Voir toutes nos publications
-          </button>
-        </motion.div>
-      </div>
-    </section>
-  );
-};
+  const publicationTypes = [
+    { type: "Essai clinique", icon: <Users className="h-4 w-4" />, color: "bg-green-100 text-green-800" },
+    { type: "Revue systématique", icon: <BookOpen className="h-4 w-4" />, color: "bg-blue-100 text-blue-800" },
+    { type: "Étude longitudinale", icon: <Clock className="h-4 w-4" />, color: "bg-purple-100 text-purple-800" },
+    { type: "Étude épidémiologique", icon: <BarChart className="h-4 w-4" />, color: "bg-orange-100 text-orange-800" },
+    { type: "Revue narrative", icon: <FileText className="h-4 w-4" />, color: "bg-indigo-100 text-indigo-800" },
+  ];
 
-const PublicationCard = ({ publication, index }: { publication: Publication, index: number }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-  >
-    {publication.image && (
-      <div className="h-48 overflow-hidden">
-        <img 
-          src={publication.image} 
-          alt={publication.title} 
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-        />
-      </div>
-    )}
-    
-    <div className="p-5">
-      <div className="flex items-center mb-3">
-        <div className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-          {publication.year}
-        </div>
-        <div className="ml-2 text-xs text-gray-500">
-          {publication.journal}
-        </div>
-      </div>
-      
-      <h3 className="text-lg font-bold mb-2 text-gray-800 line-clamp-2">{publication.title}</h3>
-      <p className="text-sm text-gray-600 mb-3">{publication.authors}</p>
-      
-      <p className="text-sm text-gray-600 line-clamp-4 mb-4">{publication.abstract}</p>
-      
-      <div className="flex flex-wrap gap-2 mb-4">
-        {publication.tags.map(tag => (
-          <span key={tag} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-            {tag}
-          </span>
-        ))}
-      </div>
-      
-      {publication.doi && (
-        <a 
-          href={`https://doi.org/${publication.doi}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors"
-        >
-          Voir la publication complète →
-        </a>
-      )}
-    </div>
-  </motion.div>
-);
+  const getTypeStyle = (type: string) => {
+    const found = publicationTypes.find(t => t.type === type);
+    return found ? found.color : "bg-slate-100 text-slate-800";
+  };
 
-export default ScientificPublications;
-import React from "react";
-import { motion } from "framer-motion";
-import { BookOpen, ExternalLink, Download, ChevronRight, Award, Users, Calendar } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+  const getTypeIcon = (type: string) => {
+    const found = publicationTypes.find(t => t.type === type);
+    return found ? found.icon : <FileText className="h-4 w-4" />;
+  };
 
-const publications = [
-  {
-    title: "Effets des micronutriments spécifiques sur les marqueurs de stress oxydatif chez les adultes souffrant de fatigue chronique",
-    journal: "Journal of Nutritional Biochemistry",
-    authors: "Martin L, Dupont C, Bernard S, et al.",
-    date: "Juin 2023",
-    abstract: "Cette étude clinique randomisée en double aveugle démontre que la combinaison spécifique de magnésium, zinc et vitamine B6 réduit significativement les marqueurs de stress oxydatif chez les participants souffrant de fatigue chronique.",
-    doi: "10.1016/j.jnutbio.2023.04.012",
-    impactFactor: 4.8,
-    participants: 243,
-    tags: ["micronutriments", "fatigue", "étude clinique"]
-  },
-  {
-    title: "Évaluation de la biodisponibilité comparative des différentes formes chimiques de magnésium dans un modèle humain",
-    journal: "European Journal of Nutrition",
-    authors: "Mercier E, Lefevre F, Rousseau D, et al.",
-    date: "Mars 2023",
-    abstract: "Cette recherche établit une hiérarchie scientifique de biodisponibilité entre les différentes formes de magnésium, avec des implications significatives pour l'efficacité des suppléments.",
-    doi: "10.1007/s00394-023-02957-9",
-    impactFactor: 5.2,
-    participants: 178,
-    tags: ["biodisponibilité", "magnésium", "métabolisme"]
-  },
-  {
-    title: "Approche chronobiologique de la supplémentation en mélatonine et précurseurs: impact sur les troubles du sommeil légères à modérées",
-    journal: "Sleep Medicine Reviews",
-    authors: "Martin A, Leblanc C, Fournier P, et al.",
-    date: "Janvier 2023",
-    abstract: "Notre étude démontre que la synchronisation de la supplémentation en précurseurs de mélatonine avec les rythmes circadiens individuels améliore significativement la qualité du sommeil.",
-    doi: "10.1016/j.smrv.2022.12.005",
-    impactFactor: 6.7,
-    participants: 157,
-    tags: ["chronobiologie", "sommeil", "mélatonine"]
-  }
-];
-
-const ScientificPublications = () => {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center justify-center p-2 bg-blue-100 rounded-full mb-4">
-            <BookOpen className="h-5 w-5 text-blue-600 mr-2" />
-            <span className="text-blue-700 text-sm font-medium">Publications Scientifiques</span>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge variant="indigo" className="mb-2">
+              <BookOpen className="h-3 w-3 mr-1" />
+              Recherche
+            </Badge>
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">
+              Nos Publications Scientifiques
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Découvrez les études et publications réalisées par notre équipe scientifique dans les revues 
+              internationales à comité de lecture.
+            </p>
           </div>
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Nos Dernières Publications</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Découvrez les études scientifiques récentes menées par notre laboratoire de recherche
-            et publiées dans des revues internationales à comité de lecture.
-          </p>
-        </motion.div>
 
-        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {publications.map((pub, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-6 shadow-md border border-slate-100 hover:shadow-lg transition-all"
-            >
-              <div className="flex flex-col">
-                <div className="flex items-start justify-between mb-3">
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
-                    {pub.journal}
-                  </Badge>
-                  <div className="flex items-center">
-                    <Award className="h-4 w-4 text-amber-500 mr-1" />
-                    <span className="text-xs text-gray-600">IF: {pub.impactFactor}</span>
-                  </div>
-                </div>
-                
-                <h3 className="text-lg font-semibold mb-2 text-gray-800 leading-tight">{pub.title}</h3>
-                
-                <div className="flex items-center text-sm text-gray-500 mb-3">
-                  <span className="mr-4">{pub.authors}</span>
-                  <div className="flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    <span>{pub.date}</span>
-                  </div>
-                </div>
-                
-                <p className="text-gray-600 text-sm mb-4">{pub.abstract}</p>
-                
-                <div className="flex flex-wrap items-center mt-auto pt-2 border-t border-gray-100">
-                  <div className="flex items-center mr-4 mb-2">
-                    <Users className="h-4 w-4 text-indigo-500 mr-1" />
-                    <span className="text-xs text-gray-600">{pub.participants} participants</span>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {pub.tags.map((tag, idx) => (
-                      <span key={idx} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                        {tag}
-                      </span>
+          {/* Filtres */}
+          {!limit && (
+            <div className="mb-10 bg-slate-50 p-6 rounded-xl">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Type d'étude</label>
+                  <div className="flex flex-wrap gap-2">
+                    {publicationTypes.map((type, index) => (
+                      <Badge key={index} variant="outline" className="flex items-center gap-1 cursor-pointer hover:bg-slate-100">
+                        {type.icon}
+                        <span>{type.type}</span>
+                      </Badge>
                     ))}
                   </div>
-                  
-                  <div className="flex ml-auto items-center">
-                    <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800">
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      <span className="text-xs">DOI: {pub.doi}</span>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Année</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[2023, 2022, 2021, 2020, 2019].map((year) => (
+                      <Badge key={year} variant="outline" className="cursor-pointer hover:bg-slate-100">
+                        {year}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Mot-clé</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Rechercher un sujet..."
+                      className="w-full pl-10 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Options</label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" className="rounded text-indigo-600 focus:ring-indigo-500" />
+                      Texte intégral disponible
+                    </label>
+                    <Button size="sm" variant="outline" className="ml-auto">
+                      Réinitialiser
                     </Button>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          )}
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-12 text-center"
-        >
-          <Button 
-            variant="outline" 
-            className="bg-white hover:bg-slate-50 border-slate-200"
-          >
-            Voir toutes nos publications
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </motion.div>
+          {/* Publications */}
+          <div className="grid grid-cols-1 gap-6 mb-12">
+            {displayedPublications.map((publication, index) => (
+              <div 
+                key={index} 
+                className="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-all overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    <Badge className={`flex items-center gap-1 ${getTypeStyle(publication.type)}`}>
+                      {getTypeIcon(publication.type)}
+                      <span>{publication.type}</span>
+                    </Badge>
+                    
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <FileText className="h-3 w-3" />
+                      <span>{publication.journal}</span>
+                    </Badge>
+                    
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <span>{publication.year}</span>
+                    </Badge>
+                    
+                    {publication.fullTextAvailable && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Texte intégral disponible
+                      </Badge>
+                    )}
+                    
+                    <div className="ml-auto flex items-center">
+                      <span className="text-xs text-slate-500 mr-2">Impact Factor:</span>
+                      <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
+                        {publication.impactFactor}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2 hover:text-indigo-700 transition-colors">
+                    <a href={`https://doi.org/${publication.doi}`} target="_blank" rel="noopener noreferrer">
+                      {publication.title}
+                    </a>
+                  </h3>
+                  
+                  <p className="text-slate-600 text-sm mb-2">
+                    <span className="font-medium">Auteurs:</span> {publication.authors}
+                  </p>
+                  
+                  <p className="text-slate-600 mb-4">
+                    {publication.abstract}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {publication.keywords.map((keyword, i) => (
+                      <Badge key={i} variant="outline" className="cursor-pointer hover:bg-slate-100">
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <Button size="sm" variant="outline" className="text-indigo-700" asChild>
+                      <a href={`https://doi.org/${publication.doi}`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Voir sur l'éditeur
+                      </a>
+                    </Button>
+                    
+                    {publication.fullTextAvailable && (
+                      <Button size="sm" variant="outline" className="text-indigo-700">
+                        <Download className="h-4 w-4 mr-1" />
+                        Télécharger PDF
+                      </Button>
+                    )}
+                    
+                    <Button size="sm" variant="ghost" className="text-slate-700">
+                      Citer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {showCta && (
+            <div className="text-center">
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                asChild
+              >
+                <Link to="/publications">
+                  Voir toutes nos publications
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          )}
+          
+          {!limit && (
+            <div className="flex justify-center mt-12">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled>
+                  Précédent
+                </Button>
+                <Button variant="outline" size="sm" className="bg-indigo-50 text-indigo-700">
+                  1
+                </Button>
+                <Button variant="outline" size="sm">
+                  2
+                </Button>
+                <Button variant="outline" size="sm">
+                  3
+                </Button>
+                <span>...</span>
+                <Button variant="outline" size="sm">
+                  8
+                </Button>
+                <Button variant="outline" size="sm">
+                  Suivant
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
