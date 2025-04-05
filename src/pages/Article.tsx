@@ -5,9 +5,9 @@ import Footer from '@/components/Footer';
 import ArticleView from '@/components/ArticleView';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 import { useQuery } from "@tanstack/react-query";
-import {  ArrowLeft, ArrowRight, Calendar, User, Tag, Instagram, 
+import { 
+  ArrowLeft, ArrowRight, Calendar, User, Tag, Instagram, 
   Beaker, Clock, Users, Award, Microscope, PieChart, BookOpen, X, ChevronRight,
   Sparkles, Brain, Heart, MessageCircle, Share2, Bookmark, ThumbsUp, Download,
   ScrollText, ExternalLink, Leaf, FileCheck, BadgeCheck, LightbulbIcon,

@@ -6,13 +6,22 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { scientificTerms } from '@/data/scientificTerms';
+import { cn } from '@/lib/utils';
 
-interface ScientificHighlightedTextProps {
+// Interface for term highlighting with tooltips
+interface ScientificTermHighlightProps {
   text: string;
   scientificLevel: number;
 }
 
-const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
+// Interface for block highlighting with left border
+interface ScientificBlockHighlightProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+// Component for term highlighting with tooltips
+export const ScientificTermHighlight: React.FC<ScientificTermHighlightProps> = ({ 
   text, 
   scientificLevel = 1 
 }) => {
@@ -114,16 +123,8 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({
   );
 };
 
-export default ScientificHighlightedText;
-import React from 'react';
-import { cn } from '@/lib/utils';
-
-interface ScientificHighlightedTextProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
+// Component for block highlighting with left border
+export const ScientificBlockHighlight: React.FC<ScientificBlockHighlightProps> = ({ 
   children, 
   className 
 }) => {
@@ -135,4 +136,6 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({
   );
 };
 
+// Default export for backward compatibility
+const ScientificHighlightedText = ScientificTermHighlight;
 export default ScientificHighlightedText;

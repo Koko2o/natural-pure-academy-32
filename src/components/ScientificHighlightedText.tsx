@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { getTermById } from '@/data/scientificTerms';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { cn } from '@/lib/utils';
 
 interface ScientificHighlightedTextProps {
   text: string;
   className?: string;
 }
+
+const ScientificBlockHighlight: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
+  return (
+    <div className={cn("relative py-2", className)}>
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-natural-600 rounded-full"></div>
+      <div className="pl-4">{children}</div>
+    </div>
+  );
+};
+
 
 /**
  * Composant intelligent qui identifie et met en évidence les termes scientifiques
@@ -97,7 +108,7 @@ const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ t
     }
   }
 
-  return <span className={className}>{parts}</span>;
+  return <ScientificBlockHighlight className={className}>{parts}</ScientificBlockHighlight>;
 };
 
 export default ScientificHighlightedText;
