@@ -202,11 +202,19 @@ const ArticleView = ({
   return (
     <div className="min-h-screen flex flex-col bg-natural-50/30">
       {/* Barre de progression de lecture */}
-      <div className="fixed top-0 left-0 right-0 h-1 z-50">
+      <div className="fixed top-0 left-0 right-0 h-1.5 z-50 bg-gray-100">
         <div 
-          className="h-full bg-gradient-to-r from-indigo-500 to-natural-600 transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-indigo-500 to-natural-600 transition-all duration-300 ease-out rounded-r-full"
           style={{ width: `${readingProgress}%` }}
         ></div>
+      </div>
+      
+      {/* Indicateur flottant de progression de lecture */}
+      <div className="fixed bottom-6 right-6 z-40 bg-white shadow-lg rounded-full p-1.5 flex items-center gap-2 border border-gray-100">
+        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
+          <span className="text-xs font-medium text-indigo-700">{Math.round(readingProgress)}%</span>
+        </div>
+        <span className="text-xs font-medium text-gray-600 pr-2">Lu</span>
       </div>
       
       {/* En-tête de l'article */}
@@ -321,39 +329,48 @@ const ArticleView = ({
               </Card>
               
               {/* Table des matières */}
-              <Card className="p-5 shadow-md bg-white">
+              <Card className="p-0 shadow-md bg-white overflow-hidden">
                 <div 
-                  className="flex justify-between items-center cursor-pointer mb-3"
+                  className="flex justify-between items-center cursor-pointer p-5 border-b border-gray-100 hover:bg-indigo-50 transition-colors"
                   onClick={() => setIsTOCExpanded(!isTOCExpanded)}
                 >
                   <div className="text-lg font-bold flex items-center">
                     <BookOpen className="h-5 w-5 mr-2 text-indigo-500" />
                     Table des matières
                   </div>
-                  {isTOCExpanded ? 
-                    <ChevronUp className="h-5 w-5" /> : 
-                    <ChevronDown className="h-5 w-5" />
-                  }
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-600 font-medium">
+                    {isTOCExpanded ? 
+                      <ChevronUp className="h-4 w-4 mr-1" /> : 
+                      <ChevronDown className="h-4 w-4 mr-1" />
+                    }
+                    {isTOCExpanded ? "Réduire" : "Afficher"}
+                  </Badge>
                 </div>
                 
                 {isTOCExpanded && article.tableOfContents && article.tableOfContents.length > 0 && (
-                  <div className="space-y-2">
-                    {article.tableOfContents.map((item) => (
+                  <div className="max-h-[400px] overflow-y-auto p-2">
+                    {article.tableOfContents.map((item, index) => (
                       <div 
                         key={item.id}
-                        className={`flex items-center py-1 px-2 rounded-md cursor-pointer transition-colors
-                          ${visibleSection === item.id ? 'bg-indigo-100 text-indigo-700' : 'hover:bg-gray-100'}
-                          ${item.level === 1 ? 'font-medium' : 'pl-4 text-sm'}`}
+                        className={`flex items-center py-2 px-3 my-1 rounded-md cursor-pointer transition-all
+                          ${visibleSection === item.id ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'hover:bg-gray-50'}
+                          ${item.level === 1 ? 'font-medium' : 'pl-6 text-sm'}`}
                         onClick={() => scrollToSection(item.id)}
                       >
-                        {item.title}
+                        <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mr-2 flex-shrink-0 text-xs font-medium">
+                          {index + 1}
+                        </div>
+                        <span className="line-clamp-1">{item.title}</span>
                       </div>
                     ))}
                   </div>
                 )}
                 {isTOCExpanded && (!article.tableOfContents || article.tableOfContents.length === 0) && (
-                  <div className="text-sm text-gray-500">
-                    Pas de sections disponibles pour cet article
+                  <div className="p-5 text-sm text-gray-500 bg-gray-50">
+                    <div className="flex items-center">
+                      <Info className="h-4 w-4 mr-2 text-indigo-500" />
+                      Pas de sections disponibles pour cet article
+                    </div>
                   </div>
                 )}
               </Card>
@@ -419,47 +436,90 @@ const ArticleView = ({
             {/* Contenu principal avec tooltips pour les termes scientifiques */}
             <TooltipProvider>
               <div className="prose prose-lg max-w-none mb-12">
-                {article.content.split('\n\n').map((paragraph, index) => {
-                  // Recherche des termes scientifiques
-                  if (article.scientificTerms) {
-                    const terms = Object.keys(article.scientificTerms);
-                    for (const term of terms) {
-                      if (paragraph.toLowerCase().includes(term.toLowerCase())) {
-                        // Remplacer chaque occurrence du terme par un tooltip
-                        const regex = new RegExp(`\\b${term}\\b`, 'gi');
-                        const parts = paragraph.split(regex);
-                        
-                        if (parts.length > 1) {
-                          return (
-                            <p key={index}>
-                              {parts.map((part, partIndex) => (
-                                <span key={partIndex}>
-                                  {part}
-                                  {partIndex < parts.length - 1 && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
-                                          {term}
-                                        </span>
-                                      </TooltipTrigger>
-                                      <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
-                                        <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
-                                        <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </span>
-                              ))}
-                            </p>
-                          );
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+                  {article.content.split('\n\n').map((paragraph, index) => {
+                    // Déterminer si c'est un titre (pour améliorer la structure)
+                    const isHeading = paragraph.length < 80 && 
+                                     (paragraph.endsWith('?') || 
+                                      paragraph.endsWith(':') || 
+                                      paragraph.startsWith('Les ') || 
+                                      paragraph.startsWith('Le ') ||
+                                      paragraph.startsWith('La ') ||
+                                      paragraph.startsWith('Comment '));
+                    
+                    // Recherche des termes scientifiques
+                    if (article.scientificTerms) {
+                      const terms = Object.keys(article.scientificTerms);
+                      for (const term of terms) {
+                        if (paragraph.toLowerCase().includes(term.toLowerCase())) {
+                          // Remplacer chaque occurrence du terme par un tooltip
+                          const regex = new RegExp(`\\b${term}\\b`, 'gi');
+                          const parts = paragraph.split(regex);
+                          
+                          if (parts.length > 1) {
+                            return isHeading ? (
+                              <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
+                                {parts.map((part, partIndex) => (
+                                  <span key={partIndex}>
+                                    {part}
+                                    {partIndex < parts.length - 1 && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
+                                            {term}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
+                                          <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
+                                          <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </span>
+                                ))}
+                              </h3>
+                            ) : (
+                              <p key={index} className="mb-5 leading-relaxed">
+                                {parts.map((part, partIndex) => (
+                                  <span key={partIndex}>
+                                    {part}
+                                    {partIndex < parts.length - 1 && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
+                                            {term}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
+                                          <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
+                                          <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </span>
+                                ))}
+                              </p>
+                            );
+                          }
                         }
                       }
                     }
-                  }
+                    
+                    // S'il n'y a pas de terme à remplacer, renvoyer le paragraphe stylisé comme titre ou texte normal
+                    return isHeading ? (
+                      <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
+                        {paragraph}
+                      </h3>
+                    ) : (
+                      <p key={index} className="mb-5 leading-relaxed">
+                        {paragraph}
+                      </p>
+                    );
+                  })}
                   
-                  // S'il n'y a pas de terme à remplacer, renvoyer le paragraphe tel quel
-                  return <p key={index}>{paragraph}</p>;
-                })}
+                  {/* Ajout d'une ligne de séparation visuelle */}
+                  <div className="my-10 border-t border-gray-100"></div>
+                </div>
               </div>
             </TooltipProvider>
             
