@@ -505,7 +505,15 @@ const ArticleView = ({
                       }
                     }
                     
-                    // S'il n'y a pas de terme à remplacer, renvoyer le paragraphe stylisé comme titre ou texte normal
+                    // Détecter si le paragraphe contient des balises HTML
+                    if (paragraph.includes('<h2>') || paragraph.includes('<p>')) {
+                      // Créer un élément div pour parser le HTML correctement
+                      return (
+                        <div key={index} dangerouslySetInnerHTML={{ __html: paragraph }} className="mb-5" />
+                      );
+                    }
+                    
+                    // S'il n'y a pas de terme à remplacer et pas de balises HTML, renvoyer le paragraphe stylisé comme titre ou texte normal
                     return isHeading ? (
                       <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
                         {paragraph}
