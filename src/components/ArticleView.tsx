@@ -415,7 +415,7 @@ const ArticleView = ({
           </div>
           
           {/* Contenu de l'article */}
-          <div className="lg:col-span-3" ref={contentRef} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+          <div className="lg:col-span-3" ref={contentRef} style={{ maxHeight: '80vh', overflowY: 'auto' }} className="article-content text-gray-800">
             {/* Badge de mise à jour */}
             {article.updatedDate && (
               <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-6 flex items-center">
@@ -436,7 +436,8 @@ const ArticleView = ({
             {/* Contenu principal avec tooltips pour les termes scientifiques */}
             <TooltipProvider>
               <div className="prose prose-lg max-w-none mb-12">
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+                <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 mb-8 leading-relaxed">
+                  <div className="max-w-4xl mx-auto">
                   {article.content.split('\n\n').map((paragraph, index) => {
                     // Déterminer si c'est un titre (pour améliorer la structure)
                     const isHeading = paragraph.length < 80 && 
@@ -446,6 +447,12 @@ const ArticleView = ({
                                       paragraph.startsWith('Le ') ||
                                       paragraph.startsWith('La ') ||
                                       paragraph.startsWith('Comment '));
+                    
+                    // Divise les longs paragraphes pour améliorer la lisibilité
+                    const shouldSplitParagraph = !isHeading && paragraph.length > 300;
+                    const paragraphStyle = shouldSplitParagraph 
+                      ? "mb-6 leading-relaxed text-gray-700 max-w-3xl mx-auto"
+                      : "mb-5 leading-relaxed";
                     
                     // Recherche des termes scientifiques
                     if (article.scientificTerms) {
@@ -458,7 +465,7 @@ const ArticleView = ({
                           
                           if (parts.length > 1) {
                             return isHeading ? (
-                              <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
+                              <h3 key={index} className="text-xl font-bold text-natural-800 mt-10 mb-6 border-l-4 border-indigo-500 pl-4">
                                 {parts.map((part, partIndex) => (
                                   <span key={partIndex}>
                                     {part}
@@ -479,26 +486,29 @@ const ArticleView = ({
                                 ))}
                               </h3>
                             ) : (
-                              <p key={index} className="mb-5 leading-relaxed">
-                                {parts.map((part, partIndex) => (
-                                  <span key={partIndex}>
-                                    {part}
-                                    {partIndex < parts.length - 1 && (
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
-                                            {term}
-                                          </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
-                                          <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
-                                          <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    )}
-                                  </span>
-                                ))}
-                              </p>
+                              <div key={index} className="mb-7">
+                                <p className={paragraphStyle}>
+                                  {parts.map((part, partIndex) => (
+                                    <span key={partIndex}>
+                                      {part}
+                                      {partIndex < parts.length - 1 && (
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
+                                              {term}
+                                            </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
+                                            <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
+                                            <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                    </span>
+                                  ))}
+                                </p>
+                                {shouldSplitParagraph && <div className="h-2"></div>}
+                              </div>
                             );
                           }
                         }
@@ -507,18 +517,22 @@ const ArticleView = ({
                     
                     // S'il n'y a pas de terme à remplacer, renvoyer le paragraphe stylisé comme titre ou texte normal
                     return isHeading ? (
-                      <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
+                      <h3 key={index} className="text-xl font-bold text-natural-800 mt-10 mb-6 border-l-4 border-indigo-500 pl-4">
                         {paragraph}
                       </h3>
                     ) : (
-                      <p key={index} className="mb-5 leading-relaxed">
-                        {paragraph}
-                      </p>
+                      <div key={index} className="mb-7">
+                        <p className={paragraphStyle}>
+                          {paragraph}
+                        </p>
+                        {shouldSplitParagraph && <div className="h-2"></div>}
+                      </div>
                     );
                   })}
                   
                   {/* Ajout d'une ligne de séparation visuelle */}
                   <div className="my-10 border-t border-gray-100"></div>
+                  </div>
                 </div>
               </div>
             </TooltipProvider>
