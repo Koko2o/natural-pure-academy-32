@@ -9,10 +9,10 @@ interface ScientificHighlightedTextProps {
 /**
  * Component to highlight scientific terms in text
  */
-const ScientificHighlightedText: React.FC<ScientificHighlightedTextProps> = ({ 
+const ScientificHighlightedText = ({ 
   children, 
   className 
-}) => {
+}: ScientificHighlightedTextProps) => {
   // Handle case when children is not a string
   if (typeof children !== 'string') {
     return <div className={cn('scientific-highlighted-text', className)}>{children}</div>;

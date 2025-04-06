@@ -86,13 +86,13 @@ interface ArticleViewProps {
   renderEnhancedContent?: (content: string) => string;
 }
 
-const ArticleView: React.FC<ArticleViewProps> = ({ 
+const ArticleView = ({ 
   article, 
   onNavigateToQuiz,
   relatedArticles = [],
   studyHighlights = [],
   renderEnhancedContent = (content) => content
-}) => {
+}: ArticleViewProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [isTOCExpanded, setIsTOCExpanded] = useState(true);
