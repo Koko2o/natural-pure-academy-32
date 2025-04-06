@@ -433,7 +433,7 @@ const ArticleView = ({
                           return (
                             <p key={index}>
                               {parts.map((part, partIndex) => (
-                                <React.Fragment key={partIndex}>
+                                <span key={partIndex}>
                                   {part}
                                   {partIndex < parts.length - 1 && (
                                     <Tooltip>
@@ -448,7 +448,7 @@ const ArticleView = ({
                                       </TooltipContent>
                                     </Tooltip>
                                   )}
-                                </React.Fragment>
+                                </span>
                               ))}
                             </p>
                           );
