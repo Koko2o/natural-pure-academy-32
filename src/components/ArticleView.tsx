@@ -443,8 +443,8 @@ const ArticleView = ({
                                         </span>
                                       </TooltipTrigger>
                                       <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
-                                        <p className="text-sm font-medium text-gray-900 mb-1">{term}</p>
-                                        <p className="text-xs text-gray-700">{article.scientificTerms[term]}</p>
+                                        <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
+                                        <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
                                       </TooltipContent>
                                     </Tooltip>
                                   )}
