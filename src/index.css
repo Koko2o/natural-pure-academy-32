@@ -231,7 +231,7 @@
   }
 
   .article-content {
-    @apply prose prose-natural-700 max-w-none prose-headings:text-natural-800 prose-headings:font-display prose-p:text-natural-700 prose-a:text-indigo-600 hover:prose-a:text-indigo-700 prose-a:no-underline hover:prose-a:underline;
+    @apply prose max-w-none text-natural-700 prose-headings:text-natural-800 prose-headings:font-display prose-p:text-natural-700 prose-a:text-indigo-600 hover:prose-a:text-indigo-700 prose-a:no-underline hover:prose-a:underline;
   }
 
   .scientific-highlight {
