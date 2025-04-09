@@ -19,6 +19,7 @@ import AISystem from './pages/AISystem';
 import AILearningDashboard from './pages/AILearningDashboard';
 import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
 import NosRecherches from "@/pages/NosRecherches";
+import BibliothequeScientifique from './pages/BibliothequeScientifique'; // Added import
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
 
 const queryClient = new QueryClient({
@@ -156,6 +157,7 @@ const App = () => {
             <Route path="/ai-learning" element={<AILearningDashboard />} />
             <Route path="/ai-config" element={<AIConfigurationDashboard />} />
             <Route path="/ai-dashboard" element={<AILearningDashboard />} /> {/* Added AI Dashboard route */}
+            <Route path="/bibliotheque-scientifique" element={<BibliothequeScientifique />} /> {/* Added Bibliotheque Scientifique route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
