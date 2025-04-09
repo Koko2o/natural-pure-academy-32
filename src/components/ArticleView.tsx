@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -97,7 +96,7 @@ const ArticleView = ({
   const [readingProgress, setReadingProgress] = useState(0);
   const [isTOCExpanded, setIsTOCExpanded] = useState(true);
   const [visibleSection, setVisibleSection] = useState("");
-  
+
   // Safe handling of references
   const safeReferences = article?.references || [];
   const [referencesOpen, setReferencesOpen] = useState(
@@ -115,7 +114,7 @@ const ArticleView = ({
         const scrollPosition = element.scrollTop;
         const progress = (scrollPosition / totalHeight) * 100;
         setReadingProgress(Math.min(progress, 100));
-        
+
         // Déterminer la section visible
         if (article.tableOfContents && article.tableOfContents.length > 0) {
           const sections = article.tableOfContents.map(item => item.id);
@@ -189,13 +188,13 @@ const ArticleView = ({
   // Fonction pour remplacer les termes scientifiques par des tooltips
   const renderContentWithTooltips = (content: string) => {
     if (!article.scientificTerms) return content;
-    
+
     let processedContent = content;
     Object.entries(article.scientificTerms).forEach(([term, definition]) => {
       const regex = new RegExp(`\\b${term}\\b`, 'gi');
       processedContent = processedContent.replace(regex, `<span class="scientific-term" data-term="${term}" data-definition="${definition}">${term}</span>`);
     });
-    
+
     return <div dangerouslySetInnerHTML={{ __html: processedContent }} />;
   };
 
@@ -208,7 +207,7 @@ const ArticleView = ({
           style={{ width: `${readingProgress}%` }}
         ></div>
       </div>
-      
+
       {/* Indicateur flottant de progression de lecture */}
       <div className="fixed bottom-6 right-6 z-40 bg-white shadow-lg rounded-full p-1.5 flex items-center gap-2 border border-gray-100">
         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
@@ -216,7 +215,7 @@ const ArticleView = ({
         </div>
         <span className="text-xs font-medium text-gray-600 pr-2">Lu</span>
       </div>
-      
+
       {/* En-tête de l'article */}
       <div className="w-full h-[55vh] md:h-[75vh] relative">
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40 z-10"></div>
@@ -235,7 +234,7 @@ const ArticleView = ({
             </div>
             <span>42 personnes lisent cet article</span>
           </div>
-          
+
           <div className="flex flex-wrap gap-3 mb-5 animate-fadeIn">
             <Badge variant="indigo" className="flex items-center gap-1 text-sm font-medium py-1.5">
               <BadgeCheck className="h-3.5 w-3.5" />
@@ -254,18 +253,18 @@ const ArticleView = ({
               <span>{article.keyInsight}</span>
             </Badge>
           </div>
-          
+
           <Button variant="outline" size="sm" className="bg-white/90 w-fit mb-5 hover:bg-white shadow-sm" asChild>
             <Link to="/articles">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour aux articles
             </Link>
           </Button>
-          
+
           <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white max-w-4xl drop-shadow-md animate-slideUp leading-tight font-display tracking-tight">
             {article.title}
           </h1>
-          
+
           <div className="flex flex-wrap mt-5 gap-5 text-white/90">
             <div className="flex items-center bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
               <User className="h-4 w-4 mr-2 text-indigo-300" />
@@ -292,7 +291,7 @@ const ArticleView = ({
           </div>
         </div>
       </div>
-      
+
       {/* Corps de l'article avec table des matières */}
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -327,7 +326,7 @@ const ArticleView = ({
                   </div>
                 </div>
               </Card>
-              
+
               {/* Table des matières */}
               <Card className="p-0 shadow-md bg-white overflow-hidden">
                 <div 
@@ -346,7 +345,7 @@ const ArticleView = ({
                     {isTOCExpanded ? "Réduire" : "Afficher"}
                   </Badge>
                 </div>
-                
+
                 {isTOCExpanded && article.tableOfContents && article.tableOfContents.length > 0 && (
                   <div className="max-h-[400px] overflow-y-auto p-2">
                     {article.tableOfContents.map((item, index) => (
@@ -374,7 +373,7 @@ const ArticleView = ({
                   </div>
                 )}
               </Card>
-              
+
               {/* Actions */}
               <Card className="p-5 shadow-md bg-white">
                 <div className="text-lg font-bold mb-3">Actions</div>
@@ -413,7 +412,7 @@ const ArticleView = ({
               </Card>
             </div>
           </div>
-          
+
           {/* Contenu de l'article */}
           <div className="lg:col-span-3" ref={contentRef} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             {/* Badge de mise à jour */}
@@ -425,112 +424,43 @@ const ArticleView = ({
                 </span>
               </div>
             )}
-            
+
             {/* Introduction */}
             <div className="prose prose-lg max-w-none mb-10">
               <ScientificHighlightedText className="lead">
                 {article?.excerpt || ''}
               </ScientificHighlightedText>
             </div>
-            
+
             {/* Contenu principal avec tooltips pour les termes scientifiques */}
             <TooltipProvider>
               <div className="prose prose-lg max-w-none mb-12">
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-                  {article.content.split('\n\n').map((paragraph, index) => {
-                    // Déterminer si c'est un titre (pour améliorer la structure)
-                    const isHeading = paragraph.length < 80 && 
-                                     (paragraph.endsWith('?') || 
-                                      paragraph.endsWith(':') || 
-                                      paragraph.startsWith('Les ') || 
-                                      paragraph.startsWith('Le ') ||
-                                      paragraph.startsWith('La ') ||
-                                      paragraph.startsWith('Comment '));
-                    
-                    // Recherche des termes scientifiques
-                    if (article.scientificTerms) {
-                      const terms = Object.keys(article.scientificTerms);
-                      for (const term of terms) {
-                        if (paragraph.toLowerCase().includes(term.toLowerCase())) {
-                          // Remplacer chaque occurrence du terme par un tooltip
-                          const regex = new RegExp(`\\b${term}\\b`, 'gi');
-                          const parts = paragraph.split(regex);
-                          
-                          if (parts.length > 1) {
-                            return isHeading ? (
-                              <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
-                                {parts.map((part, partIndex) => (
-                                  <span key={partIndex}>
-                                    {part}
-                                    {partIndex < parts.length - 1 && (
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
-                                            {term}
-                                          </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
-                                          <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
-                                          <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    )}
-                                  </span>
-                                ))}
-                              </h3>
-                            ) : (
-                              <p key={index} className="mb-5 leading-relaxed">
-                                {parts.map((part, partIndex) => (
-                                  <span key={partIndex}>
-                                    {part}
-                                    {partIndex < parts.length - 1 && (
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <span className="text-indigo-700 font-medium underline decoration-dotted cursor-help">
-                                            {term}
-                                          </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent className="max-w-md bg-white p-3 shadow-lg rounded-md border border-gray-200">
-                                          <div className="text-sm font-medium text-gray-900 mb-1">{term}</div>
-                                          <div className="text-xs text-gray-700">{article.scientificTerms[term]}</div>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    )}
-                                  </span>
-                                ))}
-                              </p>
-                            );
-                          }
-                        }
-                      }
-                    }
-                    
-                    // Détecter si le paragraphe contient des balises HTML
-                    if (paragraph.includes('<h2>') || paragraph.includes('<p>')) {
-                      // Créer un élément div pour parser le HTML correctement
-                      return (
-                        <div key={index} dangerouslySetInnerHTML={{ __html: paragraph }} className="mb-5" />
-                      );
-                    }
-                    
-                    // S'il n'y a pas de terme à remplacer et pas de balises HTML, renvoyer le paragraphe stylisé comme titre ou texte normal
-                    return isHeading ? (
-                      <h3 key={index} className="text-xl font-bold text-natural-800 mt-8 mb-4">
-                        {paragraph}
-                      </h3>
-                    ) : (
-                      <p key={index} className="mb-5 leading-relaxed">
-                        {paragraph}
-                      </p>
-                    );
-                  })}
-                  
-                  {/* Ajout d'une ligne de séparation visuelle */}
-                  <div className="my-10 border-t border-gray-100"></div>
+                <div className="article-content prose">
+                  <p className="lead">Avec la pandémie mondiale et les saisons qui changent, maintenir un système immunitaire fort n'a jamais été aussi important. Bien que rien ne remplace une alimentation équilibrée, certains compléments peuvent offrir un soutien supplémentaire à votre système immunitaire.</p>
+
+                  <h2>1. La vitamine D : le nutriment du soleil</h2> 
+                  <p>La vitamine D joue un rôle crucial dans la régulation de la réponse immunitaire. Une carence en vitamine D a été associée à un risque accru d'infections respiratoires. Pendant les mois d'hiver où l'exposition au soleil est limitée, une supplémentation peut être particulièrement bénéfique.</p> 
+                  <p>Des études montrent qu'une supplémentation quotidienne en vitamine D peut réduire le risque d'infections respiratoires, en particulier chez les personnes présentant une carence.</p>
+
+                  <h2>2. La vitamine C : plus qu'un remède contre le rhume</h2> 
+                  <p>La vitamine C est un puissant <a href="/bibliotheque-scientifique?term=antioxydant">antioxydant</a> qui peut renforcer les défenses naturelles de votre corps. Elle soutient diverses fonctions cellulaires du système immunitaire inné et adaptatif. Contrairement aux idées reçues, la vitamine C ne prévient pas le rhume mais peut réduire sa durée et sa gravité.</p> 
+                  <p>Pour une efficacité optimale, une dose quotidienne de 200 mg est généralement recommandée. Les agrumes, les poivrons et les baies sont d'excellentes sources naturelles.</p>
+
+                  <h2>3. Le zinc : minéral essentiel pour l'immunité</h2> 
+                  <p>Le zinc est impliqué dans de nombreuses réactions enzymatiques liées à la fonction immunitaire. Une supplémentation en zinc peut réduire la durée des rhumes et diminuer la gravité des symptômes lorsqu'elle est prise dans les 24 heures suivant l'apparition des symptômes.</p> 
+                  <p>Les huîtres, la viande rouge et les légumineuses sont riches en zinc, mais une supplémentation de 15-30 mg par jour peut être bénéfique pendant les périodes à risque.</p>
+
+                  <h2>4. Les probiotiques : pour un microbiome équilibré</h2> 
+                  <p>Un système digestif sain est étroitement lié à une immunité forte. Les probiotiques aident à maintenir l'équilibre des bactéries intestinales bénéfiques qui soutiennent votre système immunitaire.</p> 
+                  <p>Des souches comme Lactobacillus et Bifidobacterium ont démontré des effets positifs sur la réduction des infections respiratoires et gastro-intestinales. Les yaourts fermentés, le kéfir et la choucroute sont d'excellentes sources naturelles.</p>
+
+                  <h2>5. Les adaptogènes : modulateurs du stress</h2> 
+                  <p>Le stress chronique affaiblit votre système immunitaire. Les adaptogènes comme l'ashwagandha, le ginseng et le rhodiola aident l'organisme à mieux gérer le stress, contribuant indirectement à une meilleure réponse immunitaire.</p> 
+                  <p>Des études suggèrent que certains adaptogènes peuvent également avoir des effets immunostimulants directs.</p>
                 </div>
               </div>
             </TooltipProvider>
-            
+
             {/* Section des références */}
             {article.references && article.references.length > 0 && (
               <div id="references" className="mt-12 pt-6 border-t border-gray-200">
@@ -538,7 +468,7 @@ const ArticleView = ({
                   <FileCheck className="h-6 w-6 mr-2 text-indigo-600" />
                   Références scientifiques ({article.references.length})
                 </h2>
-                
+
                 <div className="space-y-3">
                   {article.references.map((reference, index) => (
                     <div 
@@ -560,7 +490,7 @@ const ArticleView = ({
                           <ChevronDown className="h-5 w-5 text-gray-500" />
                         }
                       </div>
-                      
+
                       {referencesOpen[index] && (
                         <div className="p-4 bg-white border-t border-gray-200">
                           <p className="text-sm text-gray-600 mb-2">{reference.authors}</p>
@@ -585,7 +515,7 @@ const ArticleView = ({
                 </div>
               </div>
             )}
-            
+
             {/* Section de validation scientifique */}
             <div className="mt-12 bg-green-50 border border-green-200 rounded-lg p-5">
               <div className="flex items-start gap-4">
@@ -610,18 +540,18 @@ const ArticleView = ({
                 </div>
               </div>
             </div>
-            
+
             {/* Transition vers le quiz personnalisé */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <div className="bg-gradient-to-r from-indigo-50 to-natural-50 rounded-xl p-6 relative overflow-hidden">
                 <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-indigo-100 rounded-full opacity-50"></div>
                 <div className="absolute -top-8 -left-8 w-24 h-24 bg-natural-100 rounded-full opacity-30"></div>
-                
+
                 <div className="relative z-10">
                   <h3 className="text-2xl font-bold mb-4 text-indigo-800">
                     Découvrez vos besoins personnels
                   </h3>
-                  
+
                   <div className="flex items-start gap-4 mb-6">
                     <div className="bg-white rounded-full p-2 shadow-md flex-shrink-0">
                       <BrainCircuit className="h-6 w-6 text-indigo-600" />
@@ -635,7 +565,7 @@ const ArticleView = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="grid gap-4 sm:grid-cols-2 mb-6">
                     <div className="bg-white rounded-lg p-4 shadow-sm border border-indigo-100">
                       <div className="flex items-center gap-2 mb-2">
@@ -647,7 +577,7 @@ const ArticleView = ({
                         limitant significativement leur efficacité.
                       </p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4 shadow-sm border border-indigo-100">
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle className="h-5 w-5 text-green-500" />
@@ -659,7 +589,7 @@ const ArticleView = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button 
                       onClick={onNavigateToQuiz}
@@ -670,7 +600,7 @@ const ArticleView = ({
                       Faire mon test personnalisé gratuit
                       <ArrowRight className="h-5 w-5 ml-2" />
                     </Button>
-                    
+
                     <div className="flex items-center justify-center text-sm text-indigo-600 font-medium">
                       <Users className="h-4 w-4 mr-1" />
                       <span>10,742 personnes ont déjà fait le test</span>
@@ -679,7 +609,7 @@ const ArticleView = ({
                 </div>
               </div>
             </div>
-            
+
             {/* Articles connexes */}
             {relatedArticles && relatedArticles.length > 0 && (
               <div className="mt-16">

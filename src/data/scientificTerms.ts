@@ -85,3 +85,76 @@ export const scientificTerms: ScientificTerm[] = [
 ];
 
 export default scientificTerms;
+export interface ScientificTerm {
+  term: string;
+  definition: string;
+  category?: string;
+  source?: string;
+}
+
+const scientificTerms: ScientificTerm[] = [
+  {
+    term: "adaptogène",
+    definition: "Substance naturelle qui aide l'organisme à s'adapter au stress et à normaliser les fonctions physiologiques.",
+    category: "phytothérapie",
+  },
+  {
+    term: "antioxydant",
+    definition: "Molécule qui neutralise les radicaux libres, protégeant ainsi les cellules contre les dommages oxydatifs.",
+    category: "biochimie",
+  },
+  {
+    term: "biodisponibilité",
+    definition: "Fraction d'une substance administrée qui atteint la circulation sanguine et peut exercer son effet biologique.",
+    category: "pharmacologie",
+  },
+  {
+    term: "double aveugle",
+    definition: "Méthode d'étude où ni les participants ni les chercheurs ne savent qui reçoit le traitement actif ou le placebo.",
+    category: "méthodologie",
+  },
+  {
+    term: "immunomodulateur",
+    definition: "Substance qui modifie (stimule ou supprime) l'activité du système immunitaire.",
+    category: "immunologie",
+  },
+  {
+    term: "microbiome",
+    definition: "Ensemble des micro-organismes (bactéries, virus, champignons) et de leurs gènes qui vivent dans un environnement spécifique comme l'intestin.",
+    category: "microbiologie",
+  },
+  {
+    term: "étude randomisée contrôlée",
+    definition: "Type d'étude scientifique où les participants sont répartis au hasard entre différents groupes de traitement pour minimiser les biais.",
+    category: "méthodologie",
+    source: "PubMed",
+  },
+  {
+    term: "placebo",
+    definition: "Substance sans effet thérapeutique mais présentée comme un médicament actif pour évaluer les effets psychologiques du traitement.",
+    category: "méthodologie",
+  },
+  {
+    term: "synergie",
+    definition: "Interaction de plusieurs éléments qui, ensemble, produisent un effet total supérieur à la somme des effets individuels.",
+    category: "pharmacologie",
+  },
+  {
+    term: "phytonutriment",
+    definition: "Composé bioactif présent dans les plantes qui a des effets bénéfiques sur la santé sans être essentiel à la vie.",
+    category: "nutrition",
+  },
+  {
+    term: "biomarqueur",
+    definition: "Caractéristique biologique mesurable liée à un processus normal ou pathologique, utilisée pour évaluer l'état de santé.",
+    category: "diagnostic",
+  },
+  {
+    term: "méta-analyse",
+    definition: "Méthode statistique combinant les résultats de plusieurs études indépendantes pour obtenir une estimation plus précise d'un effet.",
+    category: "méthodologie",
+    source: "Cochrane Library",
+  },
+];
+
+export default scientificTerms;

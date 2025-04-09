@@ -252,3 +252,26 @@ const MobileOptimizer = ({
 };
 
 export default MobileOptimizer;
+import React, { ReactNode } from 'react';
+import { useMediaQuery } from '@/hooks/use-mobile';
+
+interface MobileOptimizerProps {
+  children: ReactNode;
+  className?: string;
+}
+
+/**
+ * Composant qui optimise l'affichage sur mobile en ajustant automatiquement
+ * certains éléments comme la taille des textes, marges et padding
+ */
+const MobileOptimizer: React.FC<MobileOptimizerProps> = ({ children, className }) => {
+  const isMobile = useMediaQuery('(max-width: 640px)');
+  
+  return (
+    <div className={`${isMobile ? 'px-4 text-sm' : 'px-6'} ${className || ''}`}>
+      {children}
+    </div>
+  );
+};
+
+export default MobileOptimizer;
