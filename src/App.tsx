@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import Articles from "./pages/Articles";
@@ -108,28 +108,8 @@ const App = () => {
       <TooltipProvider>
         <div className="min-h-screen bg-background">
           <Toaster position="top-right" />
-          <Sonner /> {/* Kept Sonner */}
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/articles" element={<Articles />} />
-              <Route path="/article/:id" element={<Article />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/nutrition" element={<Nutrition />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/profil-sante" element={<ProfileSante />} />
-              <Route path="/labo-solutions" element={<LaboSolutions />} />
-              <Route path="/nos-recherches" element={<NosRecherches />} />
-              <Route path="/redirect/social" element={<SocialRedirect />} />
-              <Route path="/ai-system" element={<AISystem />} />
-              <Route path="/ai-learning" element={<AILearningDashboard />} />
-              <Route path="/ai-config" element={<AIConfigurationDashboard />} />
-              <Route path="/ai-dashboard" element={<AILearningDashboard />} />
-              <Route path="/bibliotheque-scientifique" element={<BibliothequeScientifique />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <Sonner />
+          <Outlet />
         </div>
       </TooltipProvider>
     </QueryClientProvider>
