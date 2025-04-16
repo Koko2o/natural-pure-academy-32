@@ -168,6 +168,7 @@ export const validateRedirectUrl = (url: string): boolean => {
 };
 
 // URL compliance check for Google Ad Grant
+// URL compliance check for Google Ad Grant
 export const isUrlCompliant = (url: string): boolean => {
   // Check for prohibited URL patterns
   const prohibitedPatterns = [

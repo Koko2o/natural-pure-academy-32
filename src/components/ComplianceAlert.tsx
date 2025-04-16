@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 const ComplianceAlert: React.FC = () => {
   const [show, setShow] = useState(false);
   const [issues, setIssues] = useState<Array<{
@@ -42,6 +46,10 @@ const ComplianceAlert: React.FC = () => {
     return null;
   }
 
+  if (!show || issues.length === 0) {
+    return null;
+  }
+  
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-4">
       <div className="flex items-start">
@@ -79,6 +87,17 @@ const ComplianceAlert: React.FC = () => {
         <button 
           type="button"
           className="flex-shrink-0 ml-2 text-amber-400 hover:text-amber-500"
+          onClick={() => setShow(false)}
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ComplianceAlert;
           onClick={() => setShow(false)}
         >
           <X className="h-4 w-4" />
