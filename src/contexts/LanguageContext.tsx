@@ -45,28 +45,52 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (langParam === 'fr' || langParam === 'en') {
         console.log(`[LanguageContext] Using language from URL parameter: ${langParam}`);
         localStorage.setItem('preferredLanguage', langParam);
+
+        // Appliquer immédiatement au HTML
+        document.documentElement.lang = langParam;
+        document.documentElement.setAttribute('data-language', langParam);
+
+        if (langParam === 'fr') {
+          document.body.classList.add('lang-fr');
+          document.body.classList.remove('lang-en');
+        } else {
+          document.body.classList.add('lang-en');
+          document.body.classList.remove('lang-fr');
+        }
+
         return langParam as Language;
       }
-      
+
       // PRIORITÉ 2: Vérifier localStorage pour la persistance
       const savedLanguage = localStorage.getItem('preferredLanguage');
       if (savedLanguage === 'fr' || savedLanguage === 'en') {
         console.log(`[LanguageContext] Using saved language preference from localStorage: ${savedLanguage}`);
+
+        // Appliquer immédiatement au HTML
+        document.documentElement.lang = savedLanguage;
+        document.documentElement.setAttribute('data-language', savedLanguage);
+
+        if (savedLanguage === 'fr') {
+          document.body.classList.add('lang-fr');
+          document.body.classList.remove('lang-en');
+        } else {
+          document.body.classList.add('lang-en');
+          document.body.classList.remove('lang-fr');
+        }
+
         return savedLanguage as Language;
       }
-      
-      // PRIORITÉ 3: Vérifier si le HTML a déjà un attribut de langue
-      const htmlLang = document.documentElement.lang;
-      if (htmlLang === 'fr' || htmlLang === 'en') {
-        console.log(`[LanguageContext] Detected HTML lang attribute: ${htmlLang}`);
-        // Persistons cette valeur dans localStorage pour garantir la cohérence
-        localStorage.setItem('preferredLanguage', htmlLang);
-        return htmlLang as Language;
-      }
-      
+
       // Default to English if nothing is set
       console.log(`[LanguageContext] No language preference found, defaulting to English`);
       localStorage.setItem('preferredLanguage', 'en');
+
+      // Appliquer immédiatement au HTML
+      document.documentElement.lang = 'en';
+      document.documentElement.setAttribute('data-language', 'en');
+      document.body.classList.add('lang-en');
+      document.body.classList.remove('lang-fr');
+
       return 'en';
     } catch (error) {
       console.error('[LanguageContext] Error during language initialization:', error);
@@ -77,24 +101,24 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Set language with persistence
   const setLanguage = (lang: Language) => {
     console.log(`[LanguageContext] Setting language to: ${lang}`);
-    
+
     // VALIDATION: s'assurer que la langue est valide
     if (lang !== 'en' && lang !== 'fr') {
       console.error(`[LanguageContext] Invalid language value: ${lang}, defaulting to 'en'`);
       lang = 'en';
     }
-    
+
     // 1. Mettre à jour l'état local React
     setLanguageState(lang);
-    
+
     try {
       // 2. Persister la langue dans localStorage
       localStorage.setItem('preferredLanguage', lang);
-      
+
       // 3. Mettre à jour les attributs HTML
       document.documentElement.lang = lang;
       document.documentElement.setAttribute('data-language', lang);
-      
+
       // 4. Appliquer des classes CSS pour le ciblage
       if (lang === 'fr') {
         document.body.classList.add('lang-fr');
@@ -103,26 +127,26 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         document.body.classList.add('lang-en');
         document.body.classList.remove('lang-fr');
       }
-      
+
       // 5. Déclencher les événements pour forcer les composants à se mettre à jour
       window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
       console.log(`[LanguageContext] Language set to ${lang}, dispatched event`);
-      
+
       // 6. Forcer une mise à jour globale de l'application
       const appRoot = document.getElementById('root');
       if (appRoot) {
         appRoot.classList.add('language-changed');
         setTimeout(() => appRoot.classList.remove('language-changed'), 100);
       }
-      
+
       // 7. Informer toute l'application du changement
       document.dispatchEvent(new CustomEvent('app-language-changed', { 
         detail: { language: lang, timestamp: Date.now() }
       }));
-      
+
       // 8. Forcer une mise à jour globale supplémentaire
       console.log(`[LanguageContext] Forcing global re-render for language: ${lang}`);
-      
+
       // 9. Important: Réappliquer les classes CSS après un court délai pour s'assurer qu'elles persistent
       setTimeout(() => {
         if (lang === 'fr') {
@@ -135,7 +159,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-language', lang);
       }, 50);
-      
+
     } catch (error) {
       console.error('[LanguageContext] Error during language update:', error);
     }
@@ -145,7 +169,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     document.documentElement.lang = language;
     console.log(`[LanguageContext] Document language attribute set to: ${language}`);
-    
+
     // Apply language-specific classes to body for CSS targeting
     if (language === 'fr') {
       document.body.classList.add('lang-fr');
@@ -159,7 +183,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Translation function
   const t = (key: string): string => {
     if (!key) return '';
-    
+
     // If key starts with 'nav.', handle special case for navbar items
     if (key.startsWith('nav.')) {
       const navKey = key.replace('nav.', '');
@@ -201,7 +225,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       };
       return navTranslations[language]?.[navKey as keyof typeof navTranslations.en] || navKey;
     }
-    
+
     // Regular translations
     const langTranslations = translations[language] || translations.en;
     return langTranslations[key as keyof typeof langTranslations] || key;
