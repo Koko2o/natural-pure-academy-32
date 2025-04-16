@@ -155,6 +155,24 @@ export const getRiskColor = (score: number): string => {
   return `rgb(${Math.max(0, Math.min(255, red))}, ${Math.max(0, Math.min(255, green))}, 68)`;
 };
 
+// Safe contexts for scientific or educational purposes
+const SAFE_CONTEXTS = [
+  'étude scientifique',
+  'recherche montre',
+  'selon les études',
+  'à titre informatif',
+  'but éducatif',
+  'contexte pédagogique',
+  'recherche médicale',
+  'publication scientifique'
+];
+
+// Fonction pour vérifier si un contexte est "sûr" (contexte scientifique ou éducatif)
+const isContextSafe = (context: string): boolean => {
+  const lowerContext = context.toLowerCase();
+  return SAFE_CONTEXTS.some(safeContext => lowerContext.includes(safeContext));
+};
+
 // Fonction pour vérifier la conformité d'une page complète
 export const auditPageContent = (content: string): {
   isCompliant: boolean;
@@ -171,17 +189,28 @@ export const auditPageContent = (content: string): {
       const contextEnd = Math.min(pageContent.length, index + term.length + 30);
       const context = content.substring(contextStart, contextEnd);
       
-      // Ajouter l'occurrence à la liste des problèmes
-      issues.push({
-        term,
-        context: context.replace(
-          new RegExp(`(${term})`, 'gi'),
-          '<mark style="background-color: #FFAAAA">$1</mark>'
-        )
-      });
+      // Vérifier si le contexte est sûr (scientifique/éducatif)
+      if (!isContextSafe(context)) {
+        // Ajouter l'occurrence à la liste des problèmes
+        issues.push({
+          term,
+          context: context.replace(
+            new RegExp(`(${term})`, 'gi'),
+            '<mark style="background-color: #FFAAAA">$1</mark>'
+          )
+        });
+      }
       
       // Chercher la prochaine occurrence
-      index = pageContent.indexOf(term.toLowerCase(), index + 1);
+      index = pageContent.indexOf(term.toLowerCase(), index + term.length);
+    }
+  }
+  
+  return {
+    isCompliant: issues.length === 0,
+    issues
+  };
+};LowerCase(), index + 1);
     }
   }
   

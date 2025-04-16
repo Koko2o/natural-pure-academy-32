@@ -304,7 +304,11 @@ const SAFE_CONTEXTS = [
   'but éducatif',
   'contexte pédagogique',
   'recherche médicale',
-  'publication scientifique'
+  'publication scientifique',
+  'quality du sommeil',
+  'réduction des symptômes',
+  'améliorations constatées',
+  'résultats d\'analyses'
 ];
 
 // Fonctionnalité NLP simplifiée pour analyser le contexte

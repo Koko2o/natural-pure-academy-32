@@ -1,4 +1,41 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+
+// Define available languages
+export type Language = 'fr' | 'en';
+
+// Define context type
+type LanguageContextType = {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+};
+
+// Create context with default values
+export const LanguageContext = createContext<LanguageContextType>({
+  language: 'fr',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
+
+// Hook for using the language context
+export const useLanguage = () => useContext(LanguageContext);
+
+// Context provider component
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+
+  // Translation function
+  const t = (key: string): string => {
+    const langTranslations = translations[language] || translations.en;
+    return langTranslations[key as keyof typeof langTranslations] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
 
 // Define translations for both languages
 const translations = {
@@ -86,37 +123,6 @@ const translations = {
     'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.': 'En tant qu\'organisation à but non lucratif, nous comptons sur les partenariats et le soutien communautaire pour poursuivre nos programmes de recherche et d\'éducation.',
     'Our research and educational resources are available in multiple languages to support a global audience.': 'Nos recherches et ressources éducatives sont disponibles en plusieurs langues pour soutenir un public mondial.',
   }
-};
-
-// Create context type
-type LanguageContextType = {
-  language: 'en' | 'fr';
-  setLanguage: (lang: 'en' | 'fr') => void;
-  t: (key: string) => string;
-};
-
-// Create the context with default values
-export const LanguageContext = createContext<LanguageContextType>({
-  language: 'en',
-  setLanguage: () => {},
-  t: (key) => key,
-});
-
-// Create a provider component
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<'en' | 'fr'>('en');
-
-  // Translation function
-  const t = (key: string): string => {
-    const langTranslations = translations[language] || translations.en;
-    return langTranslations[key as keyof typeof langTranslations] || key;
-  };
-
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
 };
 
 // Custom hook to use the language context
