@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ArticleEngagementOptions {
   articleId: string;
@@ -161,121 +161,10 @@ export const useArticleEngagement = ({
   };
 };
 
-export default useArticleEngagement;
-import { useState, useEffect } from 'react';
-
-interface ArticleEngagementMetrics {
-  readingProgression: number;     // Pourcentage de l'article lu (0-100)
-  engagementLevel: number;        // Score d'engagement (0-10)
-  timeSpent: number;              // Temps passé sur l'article en secondes
-  interactionPoints: number;      // Nombre d'interactions (clics, survols, etc.)
-  highlightCount: number;         // Nombre de surbrillances de texte
-}
-
-export function useArticleEngagement() {
-  const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
-    readingProgression: 0,
-    engagementLevel: 0,
-    timeSpent: 0,
-    interactionPoints: 0,
-    highlightCount: 0
-  });
-
-  useEffect(() => {
-    let startTime = Date.now();
-    let timer: NodeJS.Timeout;
-    let scrollDepth = 0;
-    let interactions = 0;
-
-    // Mise à jour du temps passé
-    timer = setInterval(() => {
-      const timeInSeconds = Math.floor((Date.now() - startTime) / 1000);
-      setMetrics(prev => ({ ...prev, timeSpent: timeInSeconds }));
-
-      // Calcul du niveau d'engagement
-      const engagementScore = Math.min(
-        10,
-        (scrollDepth / 10) +                   // Jusqu'à 5 points pour la lecture
-        (timeInSeconds > 120 ? 2 : timeInSeconds / 60) +  // Jusqu'à 2 points pour le temps
-        (interactions / 5) +                    // Jusqu'à 2 points pour les interactions
-        (prev.highlightCount / 2)               // Jusqu'à 1 point pour les surlignages
-      );
-
-      setMetrics(prev => ({ ...prev, engagementLevel: engagementScore }));
-    }, 1000);
-
-    // Suivi de la profondeur de défilement
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = Math.max(
-        document.body.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.clientHeight,
-        document.documentElement.scrollHeight,
-        document.documentElement.offsetHeight
-      );
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-      // Calcul du pourcentage de défilement
-      const scrollPercentage = Math.min(
-        100,
-        (scrollTop / (documentHeight - windowHeight)) * 100
-      );
-
-      // Mise à jour du score de progression
-      scrollDepth = Math.max(scrollDepth, Math.floor(scrollPercentage / 10));
-
-      setMetrics(prev => ({ 
-        ...prev, 
-        readingProgression: Math.round(scrollPercentage) 
-      }));
-    };
-
-    // Suivi des interactions
-    const handleInteraction = () => {
-      interactions++;
-      setMetrics(prev => ({ 
-        ...prev, 
-        interactionPoints: interactions 
-      }));
-    };
-
-    // Suivi des surlignages de texte
-    const handleTextSelection = () => {
-      const selection = window.getSelection();
-      if (selection && selection.toString().length > 10) {
-        setMetrics(prev => ({ 
-          ...prev, 
-          highlightCount: prev.highlightCount + 1 
-        }));
-      }
-    };
-
-    // Ajout des écouteurs d'événements
-    window.addEventListener('scroll', handleScroll);
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('mouseup', handleTextSelection);
-
-    // Déclenchement initial
-    handleScroll();
-
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('mouseup', handleTextSelection);
-    };
-  }, []);
-
-  return metrics;
-}
-
-import { useCallback } from 'react';
-
 /**
- * Hook pour suivre l'engagement des utilisateurs entre les articles et le quiz
+ * Hook for tracking article bridge impressions and clicks (simple version)
  */
-export const useArticleEngagement = () => {
+export const useArticleBridgeTracking = () => {
   // Enregistre l'impression du pont article vers quiz
   const trackBridgeImpression = useCallback((articleId: string) => {
     try {
@@ -345,3 +234,5 @@ export const useArticleEngagement = () => {
     trackBridgeClick
   };
 };
+
+export default useArticleEngagement;

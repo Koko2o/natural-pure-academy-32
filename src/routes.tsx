@@ -40,7 +40,7 @@ const router = createBrowserRouter([
       { path: 'nutrition', element: <Nutrition /> },
       { path: 'impact', element: <Impact /> },
       { path: 'privacy-policy', element: <PrivacyPolicy /> },
-      { path: 'sitemap', element: <SiteMap /> },
+      { path: 'site-map', element: <SiteMap /> },
       { path: 'scientific-methodology', element: <ScientificMethodology /> },
       { path: 'terms-of-use', element: <TermsOfUse /> },
       { path: 'accessibility', element: <Accessibility /> },

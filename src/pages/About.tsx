@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container } from "@/components/ui/container";
+import { Container } from '@/components/ui/container';
+import { Badge } from '@/components/ui/badge';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScientificTeam from '@/components/ScientificTeam';

@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Index from "./pages/Index";
 import Articles from "./pages/Articles";
 import MetricTracker from "./components/MetricTracker";
@@ -23,15 +23,15 @@ import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
 import NosRecherches from "@/pages/NosRecherches";
 import BibliothequeScientifique from './pages/BibliothequeScientifique';
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
-import { LanguageProvider } from "./components/LanguageProvider"; // Assuming this is where LanguageProvider is defined
-import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; // Assuming this component exists
+import { LanguageProvider } from "./components/LanguageProvider"; 
+import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
 
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 60 * 2, // 2 heures exactement (ISR)
+      staleTime: 1000 * 60 * 60 * 2, 
     },
   },
 });
@@ -85,7 +85,26 @@ const getElementPath = (element: HTMLElement) => {
   return path.join(' > ');
 };
 
+const LanguageContext = React.createContext<{
+  language: 'en' | 'fr';
+  setLanguage: (lang: 'en' | 'fr') => void;
+  t: (key: string) => string;
+} | null>(null);
+
 const App = () => {
+  const [activeAIModel, setActiveAIModel] = useState("optimized");
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+
+  useEffect(() => {
+    console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
+  }, [activeAIModel]);
+
+  const languageValue = useMemo(() => ({
+    language,
+    setLanguage,
+    t: (key: string) => key, // Simple translation - replace with actual i18n
+  }), [language]);
+
   useEffect(() => {
     const startTime = performance.now();
     if ('requestIdleCallback' in window) {
@@ -112,14 +131,16 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
-          <div className="min-h-screen bg-background">
-            <Toaster position="top-right" />
-            <Sonner />
-            <Outlet />
-            <MetricTracker />
-            <ConversionTracker />
-            <ArticleEngagementTracker />
-          </div>
+          <LanguageContext.Provider value={languageValue}>
+            <div className="min-h-screen bg-background" lang={language}>
+              <Toaster position="top-right" />
+              <Sonner />
+              <Outlet />
+              <MetricTracker />
+              <ConversionTracker />
+              <ArticleEngagementTracker />
+            </div>
+          </LanguageContext.Provider>
         </TooltipProvider>
       </LanguageProvider>
     </QueryClientProvider>
