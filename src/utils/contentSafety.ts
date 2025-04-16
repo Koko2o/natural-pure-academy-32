@@ -1,212 +1,196 @@
+
 /**
- * Utilitaires pour la sécurité du contenu et la conformité Google Ad Grants
+ * Content Safety Module for Google Ad Grant Compliance
+ * 
+ * This module contains functionality to scan content for terms and patterns
+ * that might violate Google Ad Grant policies and trigger account suspension.
  */
 
-// Liste des termes interdits par Google Ad Grants
+// Banned or prohibited terms according to Google Ad Grant policies
 export const bannedTerms = [
-  'achat', 'promo', 'commander', 'prix', 'offre', 'rabais', 
-  'boutique', 'vente', 'acheter', 'soldes', 'discount', 'bon marché',
-  'économies', 'réduction', 'promotion', 'meilleur prix', 'tarif', '€'
+  // Commercial intent terms (selling products)
+  "achat", "acheter", "vente", "commander", "promo", "promotion", "offre spéciale",
+  "prix", "tarif", "réduction", "soldes", "gratuit", "livraison",
+  "purchase", "buy", "order", "sale", "discount", "special offer", "price",
+  
+  // Prohibited content categories
+  "gambling", "casino", "jeu d'argent", "paris sportifs", "betting",
+  "alcohol", "alcool", "vin", "wine", "spirits", "beer", "bière",
+  "prescription", "drug", "pharmacy", "pharmacie", "médicament",
+  "adult", "adulte", "dating", "rencontre", "escort",
+  
+  // Other policy violations
+  "counterfeit", "contrefaçon", "weapons", "armes", "tobacco", "tabac"
 ];
 
-// Fonction pour détecter les termes interdits avec détection améliorée
+// Terms that may indicate problematic content (warning level)
+export const warningTerms = [
+  "supplement", "supplément", "complément alimentaire",
+  "miracle", "cure", "guérison", "healing", "remedy", "remède",
+  "guaranteed", "garanti", "promise", "promesse",
+  "best", "meilleur", "top", "ultimate", "ultime"
+];
+
+/**
+ * Scans content for banned terms
+ * @param content The text content to scan
+ * @returns Array of found banned terms
+ */
 export const detectBannedTerms = (content: string): string[] => {
-  if (!content) return [];
+  const contentLower = content.toLowerCase();
+  return bannedTerms.filter(term => contentLower.includes(term.toLowerCase()));
+};
 
-  const pageContent = content.toLowerCase();
+/**
+ * Scans content for warning terms
+ * @param content The text content to scan
+ * @returns Array of found warning terms
+ */
+export const detectWarningTerms = (content: string): string[] => {
+  const contentLower = content.toLowerCase();
+  return warningTerms.filter(term => contentLower.includes(term.toLowerCase()));
+};
 
-  // Détection plus sophistiquée avec contexte
-  const detectedTerms: string[] = [];
-
-  // Première passe : détection simple
-  const simpleDetectedTerms = bannedTerms.filter(term => pageContent.includes(term.toLowerCase()));
-
-  // Deuxième passe : analyse contextuelle (exclure les contextes éducatifs)
-  const safeContextPhrases = [
-    'étude scientifique', 'recherche montre', 'selon les études',
-    'à titre informatif', 'à but éducatif', 'contenu éducatif',
-    'aucune vente', 'sans vente', 'ne commercialise', 
-    'non commercial', 'scientifique uniquement'
-  ];
-
-  for (const term of simpleDetectedTerms) {
-    // Si le terme est "vente" et le contexte contient des phrases de non-vente,
-    // considérer le contexte comme sûr automatiquement
-    if (term === 'vente' && safeContextPhrases.some(phrase => 
-        pageContent.includes('aucune vente') || 
-        pageContent.includes('sans vente') || 
-        pageContent.includes('ne commercialise'))) {
-      continue;
+/**
+ * Gets the DOM path for an element (for reporting purposes)
+ * @param element HTML element
+ * @returns String representation of the element's path
+ */
+export const getElementPath = (element: HTMLElement): string => {
+  const path: string[] = [];
+  let currentNode: HTMLElement | null = element;
+  
+  while (currentNode) {
+    let selector = currentNode.nodeName.toLowerCase();
+    
+    if (currentNode.id) {
+      selector += `#${currentNode.id}`;
+    } else if (currentNode.className) {
+      selector += `.${currentNode.className.split(' ').join('.')}`;
     }
-
-    // Recherche des occurrences du terme
-    const termIndex = pageContent.indexOf(term);
-    if (termIndex > -1) {
-      // Extraire une fenêtre de contexte autour du terme (100 caractères)
-      const contextStart = Math.max(0, termIndex - 50);
-      const contextEnd = Math.min(pageContent.length, termIndex + term.length + 50);
-      const context = pageContent.substring(contextStart, contextEnd);
-
-      // Vérifier si le contexte contient une phrase de contexte sûr
-      const isSafeContext = safeContextPhrases.some(phrase => context.includes(phrase));
-
-      if (!isSafeContext) {
-        detectedTerms.push(term);
-      }
-    }
+    
+    path.unshift(selector);
+    currentNode = currentNode.parentElement;
   }
-
-  return [...new Set(detectedTerms)]; // Éliminer les doublons
+  
+  return path.join(' > ');
 };
 
-// Rotateur sémantique pour les CTA et messages
-export const semanticRotator = {
-  // CTA pour les redirections sociales
-  socialCta: [
-    "Voir l'analyse complète",
-    "Accéder aux données brutes", 
-    "Découvrir les graphiques détaillés",
-    "Explorer les résultats de l'étude",
-    "Consulter nos publications scientifiques",
-    "Examiner les protocoles de l'étude"
-  ],
-
-  // Messages pour le quiz
-  quizCta: [
-    "Valider mon profil nutritionnel",
-    "Comparer mes résultats à l'étude",
-    "Évaluer mes besoins spécifiques",
-    "Obtenir mon analyse personnalisée",
-    "Découvrir mon bilan complet"
-  ],
-
-  // Messages scientifiques
-  scientificInsights: [
-    "87% des participants à l'étude ont constaté une amélioration",
-    "L'étude montre une corrélation de 72% avec les apports en magnésium",
-    "Les résultats indiquent une efficacité accrue de 64% après 3 semaines",
-    "93% des sujets présentant ce profil ont vu une réduction des symptômes",
-    "L'analyse statistique révèle un seuil d'efficacité après 14 jours"
-  ],
-
-  // Badges de crédibilité scientifique
-  scientificBadges: [
-    "Étude validée par 3 universités",
-    "Recherche indépendante",
-    "Protocole double-aveugle",
-    "Étude sur 16 semaines",
-    "243 participants"
-  ],
-
-  // Fonction pour obtenir un élément aléatoire mais stable d'un tableau
-  getRotatedItem: (items: string[], seedModifier: string = ''): string => {
-    // Créer un seed basé sur le jour pour une rotation quotidienne stable
-    const today = new Date();
-    const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-
-    // Ajouter un modificateur optionnel pour diversifier les rotations
-    const seedValue = seedModifier 
-      ? daySeed + seedModifier.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-      : daySeed;
-
-    // Sélectionner un élément basé sur le seed
-    const index = seedValue % items.length;
-    return items[index];
-  },
-
-  // Fonction pour obtenir un élément aléatoire lors de chaque appel (pour variation)
-  getRandomItem: (items: string[]): string => {
-    const index = Math.floor(Math.random() * items.length);
-    return items[index];
+/**
+ * Performs comprehensive audit of page content for Google Ad Grant compliance
+ * @param content HTML content to audit
+ * @returns Audit results with compliance status and issues list
+ */
+export const auditPageContent = (content: string) => {
+  const issues: Array<{
+    type: 'error' | 'warning';
+    message: string;
+    details?: string;
+  }> = [];
+  
+  // Check for banned terms
+  const foundBannedTerms = detectBannedTerms(content);
+  if (foundBannedTerms.length > 0) {
+    issues.push({
+      type: 'error',
+      message: `Content contains banned terms: ${foundBannedTerms.join(', ')}`,
+      details: 'These terms may violate Google Ad Grant policies related to commercial intent or prohibited content'
+    });
   }
-};
-
-// Fonction pour calculer le score de risque dynamique améliorée
-export const calculateRiskScore = (
-  timeSpentSeconds: number = 0,
-  questionsAnswered: number = 0,
-  criticalResponses: number = 0
-): number => {
-  // Base score influenced by time spent (ajusté pour un meilleur équilibre)
-  const timeWeight = Math.min(timeSpentSeconds / 60, 5) * 6; // Max 30 points pour 5 minutes
-
-  // Questions answered contribute to the score (pondération augmentée)
-  const questionWeight = questionsAnswered * 8; // 8 points par question
-
-  // Critical responses have higher impact
-  const criticalWeight = criticalResponses * 12; // 12 points par réponse critique
-
-  // Facteur aléatoire pour éviter des scores trop prévisibles (±5 points)
-  const randomFactor = Math.floor(Math.random() * 10) - 5;
-
-  // Calculate total score, normalize between 0-100
-  const rawScore = timeWeight + questionWeight + criticalWeight + randomFactor;
-  const normalizedScore = Math.min(Math.max(Math.round(rawScore), 0), 100);
-
-  return normalizedScore;
-};
-
-// Fonction pour générer une couleur dans un gradient rouge-vert basé sur un score
-export const getRiskColor = (score: number): string => {
-  // Rouge (#FF4444) pour score bas, vert (#4CAF50) pour score élevé
-  const red = Math.round(255 - (score * 2.11));
-  const green = Math.round(score * 1.67);
-  return `rgb(${Math.max(0, Math.min(255, red))}, ${Math.max(0, Math.min(255, green))}, 68)`;
-};
-
-// Safe contexts for scientific or educational purposes
-const SAFE_CONTEXTS = [
-  'étude scientifique',
-  'recherche montre',
-  'selon les études',
-  'à titre informatif',
-  'but éducatif',
-  'contexte pédagogique',
-  'recherche médicale',
-  'publication scientifique'
-];
-
-// Fonction pour vérifier si un contexte est "sûr" (contexte scientifique ou éducatif)
-const isContextSafe = (context: string): boolean => {
-  const lowerContext = context.toLowerCase();
-  return SAFE_CONTEXTS.some(safeContext => lowerContext.includes(safeContext));
-};
-
-// Fonction pour vérifier la conformité d'une page complète
-export const auditPageContent = (content: string): {
-  isCompliant: boolean;
-  issues: Array<{term: string, context: string}>;
-} => {
-  const pageContent = content.toLowerCase();
-  const issues: Array<{term: string, context: string}> = [];
-
-  for (const term of bannedTerms) {
-    let index = pageContent.indexOf(term.toLowerCase());
-    while (index !== -1) {
-      // Extraire le contexte autour du terme
-      const contextStart = Math.max(0, index - 30);
-      const contextEnd = Math.min(pageContent.length, index + term.length + 30);
-      const context = content.substring(contextStart, contextEnd);
-
-      // Vérifier si le contexte est sûr (scientifique/éducatif)
-      if (!isContextSafe(context)) {
-        // Ajouter l'occurrence à la liste des problèmes
-        issues.push({
-          term,
-          context: context.replace(
-            new RegExp(`(${term})`, 'gi'),
-            '<mark style="background-color: #FFAAAA">$1</mark>'
-          )
-        });
-      }
-
-      // Chercher la prochaine occurrence
-      index = pageContent.indexOf(term.toLowerCase(), index + 1);
-    }
+  
+  // Check for warning terms
+  const foundWarningTerms = detectWarningTerms(content);
+  if (foundWarningTerms.length > 0) {
+    issues.push({
+      type: 'warning',
+      message: `Content contains potentially problematic terms: ${foundWarningTerms.join(', ')}`,
+      details: 'These terms may trigger policy reviews or affect account quality'
+    });
   }
-
+  
+  // Check for prohibited patterns (like pricing or payment structures)
+  if (/\$\d+|\d+\s?\$|€\d+|\d+\s?€|\d+\s?USD|\d+\s?EUR/gi.test(content)) {
+    issues.push({
+      type: 'error',
+      message: 'Content contains pricing information',
+      details: 'Displaying prices may violate Google Ad Grant policies against commercial content'
+    });
+  }
+  
+  // Check for "Buy Now" or "Purchase" type calls-to-action
+  if (/buy now|add to cart|purchase|commander maintenant|ajouter au panier|acheter|panier d'achat|shopping cart/gi.test(content)) {
+    issues.push({
+      type: 'error',
+      message: 'Content contains commercial calls-to-action',
+      details: 'These CTAs may violate Google Ad Grant policies regarding commercial intent'
+    });
+  }
+  
   return {
-    isCompliant: issues.length === 0,
+    isCompliant: issues.filter(issue => issue.type === 'error').length === 0,
+    hasWarnings: issues.filter(issue => issue.type === 'warning').length > 0,
+    issues
+  };
+};
+
+/**
+ * Checks if a URL is compliant with Google Ad Grant policies
+ * @param url The URL to check
+ * @returns Boolean indicating compliance status
+ */
+export const isUrlCompliant = (url: string): boolean => {
+  // Check for prohibited URL patterns
+  const prohibitedPatterns = [
+    /\/shop\//i, 
+    /\/store\//i, 
+    /\/boutique\//i, 
+    /\/achat\//i,
+    /\/pricing\//i, 
+    /\/tarifs\//i,
+    /\/checkout\//i,
+    /\/panier\//i,
+    /\/cart\//i
+  ];
+  
+  return !prohibitedPatterns.some(pattern => pattern.test(url));
+};
+
+/**
+ * Checks if a landing page meets the Google Ad Grant quality criteria
+ */
+export const assessLandingPageQuality = () => {
+  // This would be called on page load
+  const issues: string[] = [];
+  
+  // Check for clear nonprofit mission
+  const missionElements = document.querySelectorAll('h1, h2, h3, [class*="mission"], [id*="mission"]');
+  let hasClearMission = false;
+  
+  missionElements.forEach(el => {
+    if (el.textContent && 
+        (/non-?profit|association|501\(c\)\(3\)|charity|organisation/i.test(el.textContent) ||
+         /mission|vision|purpose|objectif|but/i.test(el.textContent))) {
+      hasClearMission = true;
+    }
+  });
+  
+  if (!hasClearMission) {
+    issues.push('Landing page does not clearly state nonprofit mission');
+  }
+  
+  // Check for valuable and relevant content
+  const contentLength = document.body.textContent?.length || 0;
+  if (contentLength < 500) {
+    issues.push('Page content may be too thin for Google Ad Grant requirements');
+  }
+  
+  // Check for mobile-friendliness (simple check)
+  if (window.innerWidth < 768 && document.documentElement.scrollWidth > window.innerWidth) {
+    issues.push('Page may not be fully mobile-friendly');
+  }
+  
+  return {
+    isQualityPage: issues.length === 0,
     issues
   };
 };

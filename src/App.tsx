@@ -1,5 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
@@ -25,6 +24,9 @@ import BibliothequeScientifique from './pages/BibliothequeScientifique';
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
 import { LanguageProvider } from "./components/LanguageProvider"; 
 import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
+import ComplianceAlert from '@/components/ComplianceAlert'; // Imported ComplianceAlert
+import { autoCheckCompliance } from '@/utils/adGrantCompliance'; // Imported autoCheckCompliance
+import { useEffect } from 'react';
 
 
 const queryClient = new QueryClient({
@@ -94,7 +96,7 @@ const LanguageContext = React.createContext<{
 const App = () => {
   const [activeAIModel, setActiveAIModel] = useState("optimized");
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
-  
+
   // Translation function for i18n
   const t = (key: string): string => {
     const translations: Record<string, Record<string, string>> = {
@@ -111,7 +113,7 @@ const App = () => {
         // Add more translations as needed
       }
     };
-    
+
     return translations[language]?.[key] || key;
   };
 
@@ -147,6 +149,15 @@ const App = () => {
     }, { once: true });
   }, []);
 
+  // Run automatic compliance check when the app loads
+  useEffect(() => {
+    const runCheck = setTimeout(() => {
+      autoCheckCompliance();
+    }, 2000); // Wait for 2 seconds
+
+    return () => clearTimeout(runCheck);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
@@ -154,11 +165,11 @@ const App = () => {
           <LanguageContext.Provider value={languageValue}>
             <div className="min-h-screen bg-background" lang={language}>
               <Toaster position="top-right" />
-              <Sonner />
               <Outlet />
               <MetricTracker />
               <ConversionTracker />
               <ArticleEngagementTracker />
+              <ComplianceAlert /> {/* Added ComplianceAlert component */}
             </div>
           </LanguageContext.Provider>
         </TooltipProvider>

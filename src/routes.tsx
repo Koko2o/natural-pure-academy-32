@@ -20,6 +20,7 @@ import ScientificMethodology from './pages/ScientificMethodology';
 import TermsOfUse from "./pages/TermsOfUse";
 import Accessibility from "./pages/Accessibility";
 import Support from "./pages/Support";
+import AdGrantCompliance from './pages/AdGrantCompliance'; // Added import
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
       { path: 'terms-of-use', element: <TermsOfUse /> },
       { path: 'accessibility', element: <Accessibility /> },
       { path: 'support', element: <Support /> },
+      { path: 'compliance-audit', element: <AdGrantCompliance />}  // Added route
     ],
   },
 ]);
