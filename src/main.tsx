@@ -23,6 +23,7 @@ const setupLanguageMonitoring = () => {
     } 
     // Sinon, appliquer la langue stockée
     else if (storedLanguage === 'fr' || storedLanguage === 'en') {
+      // Application forcée des attributs HTML et des classes CSS
       document.documentElement.lang = storedLanguage;
       document.documentElement.setAttribute('data-language', storedLanguage);
       
@@ -34,6 +35,18 @@ const setupLanguageMonitoring = () => {
         document.body.classList.add('lang-en');
         document.body.classList.remove('lang-fr');
       }
+      
+      // Réappliquer après un court délai pour s'assurer que les styles persistent
+      setTimeout(() => {
+        document.documentElement.lang = storedLanguage;
+        if (storedLanguage === 'fr') {
+          document.body.classList.add('lang-fr');
+          document.body.classList.remove('lang-en');
+        } else {
+          document.body.classList.add('lang-en');
+          document.body.classList.remove('lang-fr');
+        }
+      }, 100);
       
       console.log(`[LanguageMonitor] Applied stored language to document: ${storedLanguage}`);
     }

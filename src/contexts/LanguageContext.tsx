@@ -97,7 +97,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       // 5. Déclencher les événements pour forcer les composants à se mettre à jour
       window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
-      console.log(`[LanguageContext] Language set to ${lang}, updated DOM and dispatched event`);
+      console.log(`[LanguageContext] Language set to ${lang}, dispatched event`);
       
       // 6. Forcer une mise à jour globale de l'application
       const appRoot = document.getElementById('root');
@@ -110,6 +110,22 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       document.dispatchEvent(new CustomEvent('app-language-changed', { 
         detail: { language: lang, timestamp: Date.now() }
       }));
+      
+      // 8. Forcer une mise à jour globale supplémentaire
+      console.log(`[LanguageContext] Forcing global re-render for language: ${lang}`);
+      
+      // 9. Important: Réappliquer les classes CSS après un court délai pour s'assurer qu'elles persistent
+      setTimeout(() => {
+        if (lang === 'fr') {
+          document.body.classList.add('lang-fr');
+          document.body.classList.remove('lang-en');
+        } else {
+          document.body.classList.add('lang-en');
+          document.body.classList.remove('lang-fr');
+        }
+        document.documentElement.lang = lang;
+        document.documentElement.setAttribute('data-language', lang);
+      }, 50);
       
     } catch (error) {
       console.error('[LanguageContext] Error during language update:', error);

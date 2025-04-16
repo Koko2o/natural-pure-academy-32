@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useLanguage } from '@/contexts/LanguageContext';
 import Index from "./pages/Index";
 import Articles from "./pages/Articles";
 import MetricTracker from "./components/MetricTracker";
@@ -81,34 +81,31 @@ const getElementPath = (element: HTMLElement) => {
 };
 
 const App = () => {
+  const { language, setLanguage } = useLanguage();
   const [activeAIModel] = useState("optimized");
 
-  // Monitorer le changement de langue pour toute l'application
   useEffect(() => {
-    console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
-    
-    // Écouter les changements de langue
-    const handleLanguageChange = (event: CustomEvent) => {
-      console.log(`[App] Language changed to: ${event.detail}. Updating application...`);
-    };
-    
-    window.addEventListener('languageChange', handleLanguageChange as EventListener);
-    return () => {
-      window.removeEventListener('languageChange', handleLanguageChange as EventListener);
-    };
-  }, [activeAIModel]);
-
-  // Synchroniser la langue au montage du composant
-  useEffect(() => {
-    // Synchroniser avec localStorage au démarrage
-    const storedLanguage = localStorage.getItem('preferredLanguage');
-    if (storedLanguage === 'en' || storedLanguage === 'fr') {
-      document.documentElement.lang = storedLanguage;
-      document.documentElement.setAttribute('data-language', storedLanguage);
-      console.log(`[App] Applied stored language on mount: ${storedLanguage}`);
+    const storedLang = localStorage.getItem('preferredLanguage');
+    if (storedLang && (storedLang === 'en' || storedLang === 'fr') && storedLang !== language) {
+      console.log(`[App] Applied stored language on mount: ${storedLang}`);
+      setLanguage(storedLang as 'en' | 'fr');
     }
   }, []);
-  
+
+  useEffect(() => {
+    const handleLanguageChange = (e: CustomEvent) => {
+      console.log(`[App] Language changed to: ${e.detail}. Updating application...`);
+      setLanguage(e.detail as 'en' | 'fr'); // Apply the changed language
+    };
+    window.addEventListener('languageChange', handleLanguageChange as EventListener);
+    return () => window.removeEventListener('languageChange', handleLanguageChange as EventListener);
+  }, []);
+
+
+  useEffect(() => {
+    console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
+  }, [activeAIModel]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
@@ -121,8 +118,7 @@ const App = () => {
               <ConversionTracker />
               <ArticleEngagementTracker />
               <ComplianceAlert />
-              {/* Débogueur de langue - à supprimer une fois le problème résolu */}
-              {import.meta.env.DEV && <LanguageDebugger />}
+              <LanguageDebugger /> {/* Moved LanguageDebugger here for better visibility */}
             </div>
           </div>
         </TooltipProvider>

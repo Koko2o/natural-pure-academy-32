@@ -25,38 +25,44 @@ const LanguageSwitcher: React.FC = () => {
     
     console.log(`[Language] Switching from ${language} to ${newLanguage}`);
     
-    // 1. Mettre à jour localStorage en premier (crucial pour le rechargement)
-    localStorage.setItem('preferredLanguage', newLanguage);
-    console.log(`[Language] Updated localStorage with new language: ${newLanguage}`);
-    
-    // 2. Mettre à jour les attributs HTML immédiatement
-    document.documentElement.lang = newLanguage;
-    document.documentElement.setAttribute('data-language', newLanguage);
-    
-    // 3. Appliquer les classes CSS pour le ciblage
-    if (newLanguage === 'fr') {
-      document.body.classList.add('lang-fr');
-      document.body.classList.remove('lang-en');
-    } else {
-      document.body.classList.add('lang-en');
-      document.body.classList.remove('lang-fr');
-    }
-    
-    // 4. Déclencher les événements de changement de langue
-    window.dispatchEvent(new CustomEvent('languageChange', { detail: newLanguage }));
-    document.dispatchEvent(new CustomEvent('app-language-changed', { 
-      detail: { language: newLanguage, timestamp: Date.now() } 
-    }));
-    
-    // 5. Mettre à jour le contexte React
-    setLanguage(newLanguage);
-    
-    // 6. Forcer une actualisation après un court délai
-    setTimeout(() => {
-      console.log(`[Language] Reloading page to fully apply language: ${newLanguage}`);
-      window.location.href = window.location.pathname; // Méthode plus propre que reload()
+    // Approche complète pour assurer le changement de langue
+    try {
+      // 1. Mettre à jour localStorage en premier (crucial pour le rechargement)
+      localStorage.setItem('preferredLanguage', newLanguage);
+      
+      // 2. Mettre à jour les attributs HTML immédiatement
+      document.documentElement.lang = newLanguage;
+      document.documentElement.setAttribute('data-language', newLanguage);
+      
+      // 3. Appliquer les classes CSS pour le ciblage
+      if (newLanguage === 'fr') {
+        document.body.classList.add('lang-fr');
+        document.body.classList.remove('lang-en');
+      } else {
+        document.body.classList.add('lang-en');
+        document.body.classList.remove('lang-fr');
+      }
+      
+      // 4. Mettre à jour le contexte React AVANT de déclencher les événements
+      setLanguage(newLanguage);
+      
+      // 5. Déclencher les événements de changement de langue
+      window.dispatchEvent(new CustomEvent('languageChange', { detail: newLanguage }));
+      document.dispatchEvent(new CustomEvent('app-language-changed', { 
+        detail: { language: newLanguage, timestamp: Date.now() } 
+      }));
+      
+      // Confirmer que le changement a été appliqué
+      console.log(`[Language] Applied language change: ${newLanguage}`);
+      
+      // 6. Forcer un rechargement complet de la page pour garantir que tous les composants sont mis à jour
+      setTimeout(() => {
+        window.location.reload(); // Utiliser reload() plutôt que changer l'URL pour forcer un rechargement complet
+      }, 100);
+    } catch (error) {
+      console.error('[Language] Error during language switch:', error);
       setIsChanging(false);
-    }, 200);
+    }
   };
 
   return (
