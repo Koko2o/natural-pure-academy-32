@@ -23,6 +23,9 @@ export const useLanguage = () => useContext(LanguageContext);
 // Hook for using translations
 export const useTranslation = () => useContext(LanguageContext);
 
+// Re-export useLanguage to ensure it's properly exported
+export { useLanguage as default };
+
 // Context provider component
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
