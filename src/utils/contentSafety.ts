@@ -1,4 +1,3 @@
-
 // Lists of terms to check for Google Ad Grants compliance
 export const bannedTerms = [
   "achat", "promotion", "promo", "prix", "soldes", "remise", "discount",
@@ -41,7 +40,7 @@ export const detectBannedTermsWithContext = (content: string): string[] => {
 export const detectBannedTermsWithNLP = (content: string): Array<{term: string, context: string}> => {
   const results: Array<{term: string, context: string}> = [];
   const sentences = content.split(/[.!?]+/);
-  
+
   for (const term of bannedTerms) {
     for (const sentence of sentences) {
       if (sentence.toLowerCase().includes(term.toLowerCase())) {
@@ -55,7 +54,7 @@ export const detectBannedTermsWithNLP = (content: string): Array<{term: string, 
       }
     }
   }
-  
+
   return results;
 };
 
@@ -66,7 +65,7 @@ export const isEducationalContext = (context: string): boolean => {
     "learn", "learning", "recherche", "étude", "science", "scientifique", 
     "éducation", "éducatif", "apprendre", "apprentissage"
   ];
-  
+
   const lowercaseContext = context.toLowerCase();
   return educationalMarkers.some(marker => 
     lowercaseContext.includes(marker)
@@ -85,9 +84,9 @@ export const semanticRotator = (originalText: string): string => {
     "offer": ["provide", "present", "share"],
     "offre": ["propose", "présente", "partage"]
   };
-  
+
   let result = originalText;
-  
+
   Object.entries(replacements).forEach(([term, alternatives]) => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
     result = result.replace(regex, () => {
@@ -95,7 +94,7 @@ export const semanticRotator = (originalText: string): string => {
       return alternatives[randomIndex];
     });
   });
-  
+
   return result;
 };
 
@@ -110,7 +109,7 @@ export const auditPageContent = (content: string) => {
     message: string;
     details?: string;
   }> = [];
-  
+
   // Check for banned terms
   const foundBannedTerms = detectBannedTerms(content);
   if (foundBannedTerms.length > 0) {
@@ -120,7 +119,7 @@ export const auditPageContent = (content: string) => {
       details: 'These terms may violate Google Ad Grant policies related to commercial intent or prohibited content'
     });
   }
-  
+
   // Check for warning terms
   const foundWarningTerms = detectWarningTerms(content);
   if (foundWarningTerms.length > 0) {
@@ -130,7 +129,7 @@ export const auditPageContent = (content: string) => {
       details: 'These terms may trigger policy reviews or affect account quality'
     });
   }
-  
+
   // Check for prohibited patterns (like pricing or payment structures)
   if (/\$\d+|\d+\s?\$|€\d+|\d+\s?€|\d+\s?USD|\d+\s?EUR/gi.test(content)) {
     issues.push({
@@ -139,7 +138,7 @@ export const auditPageContent = (content: string) => {
       details: 'Displaying prices may violate Google Ad Grant policies against commercial content'
     });
   }
-  
+
   // Check for "Buy Now" or "Purchase" type call-to-action
   if (/buy now|add to cart|purchase|commander maintenant|ajouter au panier|acheter|panier d'achat|shopping cart/gi.test(content)) {
     issues.push({
@@ -148,7 +147,7 @@ export const auditPageContent = (content: string) => {
       details: 'These CTAs may violate Google Ad Grant policies regarding commercial intent'
     });
   }
-  
+
   return {
     isCompliant: issues.filter(issue => issue.type === 'error').length === 0,
     hasWarnings: issues.filter(issue => issue.type === 'warning').length > 0,
@@ -163,7 +162,7 @@ export const validateRedirectUrl = (url: string): boolean => {
     'amazon.com', 'amazon.fr', 'ebay.com', 'shopify.com', 
     'etsy.com', 'aliexpress.com'
   ];
-  
+
   return !prohibitedDomains.some(domain => url.includes(domain));
 };
 
@@ -219,15 +218,53 @@ export const isUrlCompliant = (url: string): boolean => {
 export const generateCompliantTitle = (originalTitle: string): string => {
   // Replace commercial terms with educational alternatives
   let compliantTitle = semanticRotator(originalTitle);
-  
+
   // Add educational qualifier if not present
   const educationalQualifiers = ['Guide to', 'Understanding', 'Learning About', 'The Science of'];
   const hasQualifier = educationalQualifiers.some(q => compliantTitle.includes(q));
-  
+
   if (!hasQualifier && compliantTitle.length < 50) {
     const randomQualifier = educationalQualifiers[Math.floor(Math.random() * educationalQualifiers.length)];
     compliantTitle = `${randomQualifier} ${compliantTitle}`;
   }
-  
+
   return compliantTitle;
+};
+
+// Scan content for banned terms with context awareness
+export const scanForBannedTerms = (content: string, bannedTerms: string): string[] => {
+  const terms = bannedTerms.split(',').map(term => term.trim().toLowerCase());
+  const detectedTerms: string[] = [];
+
+  // Allowed contexts for terms like "free" in educational/scientific context
+  const allowedContexts = [
+    'test gratuit', 
+    'evaluation gratuite',
+    'ressources gratuites',
+    'documentation gratuite',
+    'articles gratuits',
+    'education gratuite',
+    'formation gratuite',
+    'outils gratuits'
+  ];
+
+  terms.forEach(term => {
+    // Skip checking if this is "gratuit" in a scientific/educational context
+    if (term === 'gratuit' || term === 'free') {
+      // Check if term appears in allowed context
+      const termIsInAllowedContext = allowedContexts.some(context => 
+        content.toLowerCase().includes(context)
+      );
+
+      if (!termIsInAllowedContext && content.toLowerCase().includes(term)) {
+        detectedTerms.push(term);
+      }
+    } 
+    // For all other commercial terms, check directly
+    else if (content.toLowerCase().includes(term)) {
+      detectedTerms.push(term);
+    }
+  });
+
+  return detectedTerms;
 };

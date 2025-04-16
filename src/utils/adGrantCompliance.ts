@@ -669,23 +669,35 @@ export const autoCheckCompliance = (): ComplianceCheckResult => {
 
   // Check for commercial content
   const bodyText = document.body.textContent?.toLowerCase() || '';
-  const commercialPatterns = [
-    /buy now|acheter maintenant|add to cart|ajouter au panier|purchase|achat|shopping cart|panier d'achat/gi,
-    /\$\d+|\d+\s?\$|€\d+|\d+\s?€|\d+\s?USD|\d+\s?EUR/gi
+  const commercialTerms = [
+    'achat', 'vente', 'prix', 'remise', 'solde', 'promotion', 
+    'économisez', 'reduction', 'offer', 'offre'
   ];
 
-  commercialPatterns.forEach((pattern, index) => {
-    const matches = bodyText.match(pattern);
-    if (matches && matches.length > 0) {
-      issues.push({
-        issue: `Commercial content detected: ${matches.slice(0, 3).join(', ')}${matches.length > 3 ? '...' : ''}`,
-        severity: 'critical',
-        affectedElement: 'body:content',
-        recommendation: index === 0 ? 'Remove commercial calls-to-action to comply with Google Ad Grant policy.' : 'Remove pricing information to comply with Google Ad Grant policy.',
-        detectedAt: new Date().toISOString()
-      });
+  // Commercial terms that require context checking
+  const contextualTerms = {
+    'gratuit': ['test gratuit', 'evaluation gratuite', 'ressources gratuites'],
+    'free': ['free assessment', 'free resources', 'free educational']
+  };
+
+  commercialTerms.forEach(term => {
+    if (bodyText.includes(term)) {
+      let isContextual = false;
+      if (contextualTerms[term]) {
+        isContextual = contextualTerms[term].some(context => bodyText.includes(context));
+      }
+      if (!isContextual) {
+        issues.push({
+          issue: `Commercial term detected: "${term}"`,
+          severity: 'critical',
+          affectedElement: 'body:content',
+          recommendation: 'Remove commercial terms to comply with Google Ad Grant policy.',
+          detectedAt: new Date().toISOString()
+        });
+      }
     }
   });
+
 
   // Check for non-profit status verification
   const hasNonprofitMeta = document.querySelector('meta[name="organization-type"][content="nonprofit"]');
