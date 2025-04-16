@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -18,6 +17,9 @@ import Impact from './pages/Impact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import SiteMap from './pages/SiteMap';
 import ScientificMethodology from './pages/ScientificMethodology';
+import TermsOfUse from "./pages/TermsOfUse";
+import Accessibility from "./pages/Accessibility";
+import Support from "./pages/Support";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,9 @@ const router = createBrowserRouter([
       { path: 'privacy-policy', element: <PrivacyPolicy /> },
       { path: 'sitemap', element: <SiteMap /> },
       { path: 'scientific-methodology', element: <ScientificMethodology /> },
+      { path: 'terms-of-use', element: <TermsOfUse /> },
+      { path: 'accessibility', element: <Accessibility /> },
+      { path: 'support', element: <Support /> },
     ],
   },
 ]);

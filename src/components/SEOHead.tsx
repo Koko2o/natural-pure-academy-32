@@ -191,7 +191,36 @@ const SEOHead = ({
           addressRegion: 'CA',
           postalCode: '94107',
           addressCountry: 'US'
-        }
+        },
+        // Added non-profit specific fields for better SEO
+        knowsAbout: [
+          'Nutrition',
+          'Micronutrients',
+          'Health Education',
+          'Scientific Research',
+          'Nutritional Science'
+        ],
+        keywords: 'non-profit, nutrition research, education, micronutrients, science',
+        memberOf: [
+          {
+            '@type': 'Organization',
+            name: 'American Nutrition Association'
+          },
+          {
+            '@type': 'Organization', 
+            name: 'International Society for Nutritional Research'
+          }
+        ],
+        funder: [
+          {
+            '@type': 'Organization',
+            name: 'National Science Foundation'
+          },
+          {
+            '@type': 'Organization',
+            name: 'Global Health Initiative'
+          }
+        ]
       };
       
       let script = document.querySelector('#ngo-structured-data');

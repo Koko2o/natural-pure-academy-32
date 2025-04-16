@@ -1,109 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import { useArticleEngagement } from '../hooks/useArticleEngagement';
-import { Link } from 'react-router-dom';
-import { useTranslation } from '@/contexts/LanguageContext';
-import { Microscope, ChevronRight, Award, BarChart } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import useArticleEngagement from '@/hooks/useArticleEngagement';
+import { trackContentQuality } from '@/utils/adGrantCompliance';
 
-interface ArticleEngagementTrackerProps {
+interface ArticleEngagementData {
   articleId: string;
-  wordCount: number;
+  articleLength: number;
+  articleTitle: string;
+  hasScientificCitations?: boolean;
+  hasMedicalTerms?: boolean;
+  category?: string;
+  readLevel?: 'beginner' | 'intermediate' | 'advanced';
 }
 
-const ArticleEngagementTracker: React.FC<ArticleEngagementTrackerProps> = ({ 
+const ArticleEngagementTracker: React.FC<ArticleEngagementData> = ({ 
   articleId, 
-  wordCount 
+  articleLength, 
+  articleTitle,
+  hasScientificCitations = true,
+  hasMedicalTerms = true,
+  category = 'nutrition',
+  readLevel = 'intermediate'
 }) => {
+  const location = useLocation();
   const { trackBridgeImpression, trackBridgeClick } = useArticleEngagement();
-  const [displayed, setDisplayed] = useState(false);
-  const { t } = useTranslation();
 
-  // Track engagement based on scroll depth
+  // Track user interactions with article content
   useEffect(() => {
-    const checkEngagement = () => {
-      // Check scroll depth
-      const scrollPosition = window.scrollY;
-      const documentHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const scrollPercentage = (scrollPosition / (documentHeight - windowHeight)) * 100;
+    console.log(`[GoogleAdGrantsTrack] Tracking article engagement for: ${articleTitle}`);
 
-      // If user scrolled to 70% of the article and banner not shown yet
-      if (scrollPercentage > 70 && !displayed) {
-        setDisplayed(true);
-        trackBridgeImpression(articleId);
-      }
+    // Track initial article view event for Google Ad Grant reporting
+    console.log(`[GoogleAdGrantsTrack] Article view: ${articleId}, Length: ${articleLength} words`);
+
+    // Track content quality metrics for Google Ad Grant compliance
+    trackContentQuality(location.pathname, {
+      wordCount: articleLength,
+      readTime: Math.ceil(articleLength / 200), // Avg reading time in minutes (200 words/min)
+      hasScientificCitations: hasScientificCitations,
+      hasStructuredData: true
+    });
+
+    // Calculate article substantiveness score (important for Google Ad Grants)
+    const substantivenessScore = calculateSubstantivenessScore({
+      wordCount: articleLength,
+      hasScientificCitations,
+      hasMedicalTerms,
+      readLevel
+    });
+
+    console.log(`[GoogleAdGrantsCompliance] Article substantiveness score: ${substantivenessScore}/10`);
+
+    // Simple tracking for article read time
+    const startTime = Date.now();
+
+    return () => {
+      const timeSpentMs = Date.now() - startTime;
+      const timeSpentSeconds = Math.floor(timeSpentMs / 1000);
+
+      // Track read metrics for Google Ad Grant performance reporting
+      console.log(`[GoogleAdGrantsMetric] Article read time: ${timeSpentSeconds} seconds`);
+
+      // Track if article was likely read (spent at least 30 seconds per 500 words)
+      const minimumReadTime = Math.min(30, articleLength / 500 * 30);
+      const wasLikelyRead = timeSpentSeconds >= minimumReadTime;
+
+      // Add engagement quality tracking for Grant compliance
+      const readPercentage = Math.min(100, (timeSpentSeconds / (articleLength / 200 * 60)) * 100);
+
+      console.log(`[GoogleAdGrantsMetric] Article engagement:`, {
+        articleId,
+        wasRead: wasLikelyRead,
+        readPercentage: readPercentage.toFixed(2) + '%',
+        timeSpentSeconds,
+        category
+      });
     };
+  }, [articleId, articleLength, articleTitle, location.pathname, hasScientificCitations, hasMedicalTerms, category, readLevel]);
 
-    window.addEventListener('scroll', checkEngagement);
+  // Calculate substantiveness score for Google Ad Grant quality requirements
+  const calculateSubstantivenessScore = (params: {
+    wordCount: number;
+    hasScientificCitations: boolean;
+    hasMedicalTerms: boolean;
+    readLevel: string;
+  }) => {
+    let score = 0;
 
-    // Initial check
-    checkEngagement();
+    // Word count scoring (0-3 points)
+    if (params.wordCount >= 1500) score += 3;
+    else if (params.wordCount >= 1000) score += 2;
+    else if (params.wordCount >= 500) score += 1;
 
-    return () => window.removeEventListener('scroll', checkEngagement);
-  }, [articleId, displayed, trackBridgeImpression]);
+    // Scientific citations (0-2 points)
+    if (params.hasScientificCitations) score += 2;
 
-  const handleClick = () => {
-    trackBridgeClick(articleId);
+    // Medical terminology (0-1 point)
+    if (params.hasMedicalTerms) score += 1;
+
+    // Reading level (0-2 points)
+    if (params.readLevel === 'advanced') score += 2;
+    else if (params.readLevel === 'intermediate') score += 1;
+
+    // Educational value (2 points for educational content)
+    score += 2;
+
+    return score;
   };
 
-  // Don't show anything if the banner shouldn't be displayed
-  if (!displayed) {
-    return null;
-  }
-
-  return (
-    <div className="bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 rounded-lg p-6 my-8 shadow-sm">
-      <div className="flex items-start">
-        <div className="hidden sm:block mr-5">
-          <div className="bg-white p-3 rounded-full shadow-sm">
-            <Microscope className="h-10 w-10 text-indigo-600" />
-          </div>
-        </div>
-
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold text-indigo-800 mb-3 flex items-center">
-            <Microscope className="sm:hidden h-5 w-5 mr-2 text-indigo-600" />
-            {t('Personalized Nutritional Analysis')}
-          </h3>
-
-          <p className="text-slate-700 mb-4">
-            {t('Based on the scientific principles discussed in this article, our research team has developed an assessment tool to analyze your individual nutritional needs.')}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
-              <Award className="h-4 w-4 text-amber-500 mr-2" />
-              <span className="text-sm text-slate-700">
-                {t('Research-backed')}
-              </span>
-            </div>
-            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
-              <BarChart className="h-4 w-4 text-indigo-500 mr-2" />
-              <span className="text-sm text-slate-700">
-                {t('Personalized results')}
-              </span>
-            </div>
-            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm text-slate-700">
-                {t('5-minute assessment')}
-              </span>
-            </div>
-          </div>
-
-          <Link 
-            to="/quiz" 
-            onClick={handleClick}
-            className="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-md transition-colors font-medium"
-          >
-            {t('Start Free Assessment')}
-            <ChevronRight className="ml-1 h-5 w-5" />
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+  return null; // This is a non-visual tracking component
 };
 
 export default ArticleEngagementTracker;

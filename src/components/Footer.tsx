@@ -72,6 +72,11 @@ const Footer = () => {
                   Impact
                 </Link>
               </li>
+              <li>
+                <Link to="/support" className="text-sm text-muted-foreground hover:text-natural-700 transition-colors">
+                  Support Our Mission
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -121,9 +126,14 @@ const Footer = () => {
 
         <div className="mt-12 pt-6 border-t border-natural-100">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Natural&Pure. {t('footer.rights')}
-            </p>
+            <div className="bg-natural-800 p-4 rounded-lg mb-8 text-center">
+              <p className="text-base text-white font-medium mb-1">
+                Natural&Pure is a 501(c)(3) non-profit organization (EIN:  REPLACE_WITH_ACTUAL_EIN)
+              </p>
+              <p className="text-sm text-natural-300">
+                {t('All content and activities are for educational and research purposes only, not for commercial gain.')}
+              </p>
+            </div>
             <div className="flex space-x-4 mt-4 md:mt-0">
               <Link to="/privacy" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
                 {t('footer.privacy')}
@@ -131,8 +141,11 @@ const Footer = () => {
               <Link to="/terms" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
                 {t('footer.terms')}
               </Link>
+              <Link to="/accessibility" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
+                {t('Accessibility')}
+              </Link>
               <Link to="/sitemap" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
-                {t('Site Map')} {/* Added Sitemap Link */}
+                {t('Site Map')}
               </Link>
             </div>
           </div>

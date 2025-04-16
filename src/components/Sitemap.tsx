@@ -3,7 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Container } from '@/components/ui/container';
 import { Badge } from '@/components/ui/badge';
-import { Microscope, BookOpen, Heart, PieChart, Brain, Users, Award, FileText } from "lucide-react";
+import { 
+  Microscope, BookOpen, Heart, PieChart, Brain, 
+  Users, Award, FileText, Shield, Scale, Handshake, 
+  Globe, LifeBuoy, Leaf, Check, Lightbulb
+} from "lucide-react";
 import { useTranslation } from '@/contexts/LanguageContext';
 
 const Sitemap = () => {
@@ -18,7 +22,7 @@ const Sitemap = () => {
         { name: t('About Us'), path: '/about' },
         { name: t('Our Impact'), path: '/impact' },
         { name: t('Contact'), path: '/contact' },
-        { name: t('Privacy Policy'), path: '/privacy-policy' },
+        { name: t('Site Map'), path: '/site-map' },
       ]
     },
     {
@@ -37,7 +41,7 @@ const Sitemap = () => {
       links: [
         { name: t('Articles'), path: '/articles' },
         { name: t('Nutrition'), path: '/nutrition' },
-        { name: t('Health Profile'), path: '/profile-sante' },
+        { name: t('Health Profile'), path: '/profil-sante' },
         { name: t('Interactive Quiz'), path: '/quiz' },
       ]
     },
@@ -50,12 +54,32 @@ const Sitemap = () => {
         { name: t('Scientific Advisory Board'), path: '/about#advisory-board' },
       ]
     },
+    {
+      title: t('Mission & Impact'),
+      icon: <Lightbulb className="h-4 w-4 text-indigo-600" />,
+      links: [
+        { name: t('Our Mission'), path: '/about#mission' },
+        { name: t('Impact Programs'), path: '/impact#programs' },
+        { name: t('Success Stories'), path: '/impact#stories' },
+        { name: t('Support Our Research'), path: '/support' },
+      ]
+    },
+    {
+      title: t('Legal & Compliance'),
+      icon: <Shield className="h-4 w-4 text-indigo-600" />,
+      links: [
+        { name: t('Non-Profit Status'), path: '/about#non-profit' },
+        { name: t('Privacy Policy'), path: '/privacy-policy' },
+        { name: t('Terms of Use'), path: '/terms-of-use' },
+        { name: t('Accessibility'), path: '/accessibility' },
+      ]
+    },
   ];
 
   return (
     <section className="py-12 bg-white">
       <Container>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <Badge variant="indigo" className="mb-2">
               <BookOpen className="h-3 w-3 mr-1" />
@@ -67,9 +91,9 @@ const Sitemap = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {siteStructure.map((section, idx) => (
-              <div key={idx} className="bg-slate-50 rounded-lg p-6 shadow-sm border border-slate-200">
+              <div key={idx} className="bg-slate-50 rounded-lg p-6 shadow-sm border border-slate-200 hover:border-indigo-200 transition-all">
                 <div className="flex items-center mb-4">
                   <div className="p-2 bg-white rounded-full shadow-sm mr-3">{section.icon}</div>
                   <h2 className="text-xl font-semibold text-slate-800">{section.title}</h2>
@@ -108,6 +132,52 @@ const Sitemap = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+          </div>
+
+          <div className="mt-8 grid md:grid-cols-2 gap-6">
+            <div className="bg-natural-50 p-6 rounded-lg border border-natural-100">
+              <div className="flex items-center mb-4">
+                <div className="p-2 bg-white rounded-full shadow-sm mr-3">
+                  <Handshake className="h-4 w-4 text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-slate-800">{t('Support Our Mission')}</h2>
+              </div>
+              <p className="text-slate-700 mb-4">
+                {t('As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.')}
+              </p>
+              <Link 
+                to="/support" 
+                className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
+              >
+                {t('Learn how you can support our research')}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+              <div className="flex items-center mb-4">
+                <div className="p-2 bg-white rounded-full shadow-sm mr-3">
+                  <Globe className="h-4 w-4 text-blue-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-slate-800">{t('International Resources')}</h2>
+              </div>
+              <p className="text-slate-700 mb-4">
+                {t('Our research and educational resources are available in multiple languages to support a global audience.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link to="?lang=en" className="px-3 py-1 bg-white rounded-full text-sm text-blue-700 border border-blue-200 hover:bg-blue-100">
+                  English
+                </Link>
+                <Link to="?lang=fr" className="px-3 py-1 bg-white rounded-full text-sm text-blue-700 border border-blue-200 hover:bg-blue-100">
+                  Français
+                </Link>
+                <Link to="?lang=es" className="px-3 py-1 bg-white rounded-full text-sm text-blue-700 border border-blue-200 hover:bg-blue-100">
+                  Español
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </Container>
