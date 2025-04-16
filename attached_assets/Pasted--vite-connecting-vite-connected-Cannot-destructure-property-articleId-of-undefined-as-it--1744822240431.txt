@@ -1,0 +1,52 @@
+[vite] connecting...
+[vite] connected.
+Cannot destructure property 'articleId' of 'undefined' as it is undefined.
+Cannot destructure property 'articleId' of 'undefined' as it is undefined.
+The above error occurred in the <ArticleEngagementTracker> component:
+
+    at ArticleEngagementTracker (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/components/ArticleEngagementTracker.tsx:25:37)
+    at div
+    at Provider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/chunk-ZD7ADHDP.js?v=b87df7b4:38:15)
+    at TooltipProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b87df7b4:62:5)
+    at div
+    at LanguageProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/components/LanguageProvider.tsx:24:36)
+    at QueryClientProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=b87df7b4:2875:3)
+    at App (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/App.tsx:92:47)
+    at RenderedRoute (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4089:5)
+    at RenderErrorBoundary (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4049:5)
+    at DataRoutes (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:5240:5)
+    at Router (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4502:15)
+    at RouterProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:5054:5)
+    at _a (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-helmet-async.js?v=b87df7b4:624:5)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary.
+
+at ArticleEngagementTracker (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/components/ArticleEngagementTracker.tsx:25:37)
+at div
+at Provider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/chunk-ZD7ADHDP.js?v=b87df7b4:38:15)
+at TooltipProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b87df7b4:62:5)
+at div
+at LanguageProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/components/LanguageProvider.tsx:24:36)
+at QueryClientProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=b87df7b4:2875:3)
+at App (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/src/App.tsx:92:47)
+at RenderedRoute (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4089:5)
+at RenderErrorBoundary (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4049:5)
+at DataRoutes (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:5240:5)
+at Router (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:4502:15)
+at RouterProvider (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=b87df7b4:5054:5)
+at _a (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/node_modules/.vite/deps/react-helmet-async.js?v=b87df7b4:624:5)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary.
+at t.value (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://abb27bb7-9c93-442b-97c8-a9e40686c327-00-1scncadzfhh7r.kirk.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+React Router caught the following error during render 
+TypeError {}
+ 
+Object {componentStack: "↵    at ArticleEngagementTracker…"}
+
+404 Error: User attempted to access non-existent route: /
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+404 Error: User attempted to access non-existent route: /
