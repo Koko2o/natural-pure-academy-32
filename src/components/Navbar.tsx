@@ -56,7 +56,7 @@ const Navbar = () => {
       window.removeEventListener('languageChange', handleLanguageChange);
       document.removeEventListener('app-language-changed', handleAppLangChange);
     };
-  }, [languagee]);
+  }, [language]); // Correction de la faute de frappe "languagee" -> "language"
 
   // Use translation function directly for navigation items
   const labels = {
