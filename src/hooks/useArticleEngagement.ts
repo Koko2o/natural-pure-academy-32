@@ -27,7 +27,7 @@ export const useArticleEngagement = ({
   articleLength,
   averageReadingTime = 3
 }: ArticleEngagementOptions) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
     readPercentage: 0,
     readTime: 0,
@@ -139,7 +139,7 @@ export const useArticleEngagement = ({
     readingInterval.current = setInterval(checkEngagement, 5000);
 
     // Log initial view
-    console.log(`[ArticleEngagement] Article ${articleId} view started`);
+    console.log(t('Article engagement tracking started'), articleId);
 
     return () => {
       // Remove event listeners
@@ -153,7 +153,8 @@ export const useArticleEngagement = ({
       }
 
       // Log final metrics
-      console.log(`[ArticleEngagement] Article ${articleId} view ended:`, {
+      console.log(t('Article engagement tracking ended'), {
+        articleId,
         readTime: (Date.now() - startTime.current) / 1000,
         scrollDepth: maxScrollDepth.current,
         interactions: interactionCount.current

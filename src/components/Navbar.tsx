@@ -20,22 +20,22 @@ const Navbar = () => {
   };
 
   const { language, t } = useLanguage();
-  
+
   // Force component to re-render when language changes
   const [, forceUpdate] = useState({});
   const [currentLang, setCurrentLang] = useState(language);
-  
+
   useEffect(() => {
     // Mettre à jour la langue locale quand le contexte change
     setCurrentLang(language);
-    
+
     const handleLanguageChange = (event: Event) => {
       const customEvent = event as CustomEvent;
       console.log(`[Navbar] Detected language change to: ${customEvent.detail}, updating component`);
       setCurrentLang(customEvent.detail);
       forceUpdate({});
     };
-    
+
     const handleAppLangChange = (event: Event) => {
       const customEvent = event as CustomEvent;
       console.log(`[Navbar] Detected app-language-changed event:`, customEvent.detail);
@@ -44,19 +44,19 @@ const Navbar = () => {
         forceUpdate({});
       }
     };
-    
+
     // Écouter les deux types d'événements de changement de langue
     window.addEventListener('languageChange', handleLanguageChange);
     document.addEventListener('app-language-changed', handleAppLangChange);
-    
+
     // Log pour le débogage
     console.log(`[Navbar] Current language set to: ${language}`);
-    
+
     return () => {
       window.removeEventListener('languageChange', handleLanguageChange);
       document.removeEventListener('app-language-changed', handleAppLangChange);
     };
-  }, [language]); // Correction de la faute de frappe "languagee" -> "language"
+  }, [language]); // Utiliser la variable correcte "language"
 
   // Use translation function directly for navigation items
   const labels = {
