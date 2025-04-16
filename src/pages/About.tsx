@@ -1,285 +1,168 @@
-import React from "react";
+import React from 'react';
 import { Container } from "@/components/ui/container";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Check, Award, FileText, Clock, Heart, Globe } from "lucide-react";
-import ScientificTeam from "@/components/ScientificTeam";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ScientificTeam from '@/components/ScientificTeam';
 
 const About = () => {
   return (
-    <div className="bg-white">
-      {/* Hero section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 py-20 text-white">
+    <>
+      <Navbar />
+      <div className="bg-gradient-to-b from-natural-50 to-white py-16">
         <Container>
-          <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 px-4 border border-white/20 mb-6">
-            <Award className="mr-2 h-5 w-5 text-indigo-200" />
-            <span>501(c)(3) Non-Profit Organization</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl">About Natural Pure Academy</h1>
-          <p className="text-xl opacity-90 max-w-2xl mb-8">
-            Advancing scientific knowledge of nutrition and micronutrients for better health outcomes.
-          </p>
-          <div className="flex flex-wrap gap-4 mt-8">
-            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
-              <Check className="h-5 w-5 mr-2 text-green-300" />
-              <span>EIN: 82-3456789</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-green-300" />
-              <span>Founded in 2018</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
-              <Globe className="h-5 w-5 mr-2 text-green-300" />
-              <span>Headquartered in Boston, MA</span>
-            </div>
-          </div>
-        </Container>
-      </div>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl font-bold mb-6">About Natural Pure Academy</h1>
 
-      {/* Mission section */}
-      <Container className="py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-            <p className="text-lg text-gray-700 mb-4">
-              Natural Pure Academy is a 501(c)(3) non-profit organization dedicated to advancing scientific understanding 
-              of micronutrients and their critical role in human health and well-being.
-            </p>
-            <p className="text-lg text-gray-700 mb-4">
-              We conduct rigorous scientific research on how vitamins, minerals, and other micronutrients 
-              affect physical and mental health. Our goal is to translate complex scientific findings into 
-              practical, accessible information that helps people make informed decisions about their nutrition.
-            </p>
-            <p className="text-lg text-gray-700">
-              As a non-profit organization, we are committed to education and outreach rather than product sales. 
-              All of our research and educational materials are developed independently, without commercial influence.
-            </p>
-          </div>
-          <div className="bg-indigo-50 p-8 rounded-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Our Core Values</h3>
-            <ul className="space-y-4">
-              <li className="flex">
-                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-bold text-gray-900">Scientific Integrity</h4>
-                  <p className="text-gray-700">We adhere to rigorous scientific methods and transparency in all our research.</p>
-                </div>
-              </li>
-              <li className="flex">
-                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-bold text-gray-900">Educational Excellence</h4>
-                  <p className="text-gray-700">We create accessible, evidence-based educational resources for diverse audiences.</p>
-                </div>
-              </li>
-              <li className="flex">
-                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-bold text-gray-900">Independence</h4>
-                  <p className="text-gray-700">We maintain independence from commercial interests to ensure unbiased information.</p>
-                </div>
-              </li>
-              <li className="flex">
-                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-bold text-gray-900">Global Perspective</h4>
-                  <p className="text-gray-700">We consider nutritional needs across diverse populations and regions.</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </Container>
-
-      {/* Legal Information */}
-      <div className="bg-gray-50 py-16">
-        <Container>
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Legal Information</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <FileText className="h-8 w-8 text-indigo-600 mr-3" />
-                <h3 className="text-xl font-bold">Organization Status</h3>
-              </div>
-              <p className="text-gray-700 mb-4">
-                Natural Pure Academy is a 501(c)(3) tax-exempt organization registered in Massachusetts, USA. 
-                All donations to our organization are tax-deductible as allowed by law.
+            <section className="mb-10">
+              <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
+              <p className="text-lg mb-4">
+                Natural Pure Academy is a non-profit organization dedicated to advancing scientific 
+                understanding of nutrition and micronutrients through research, education, and 
+                community engagement.
               </p>
-              <ul className="text-gray-700 space-y-2">
-                <li><strong>EIN:</strong> 82-3456789</li>
-                <li><strong>State Registration:</strong> Massachusetts</li>
-                <li><strong>Date of Incorporation:</strong> June 15, 2018</li>
-                <li><strong>Tax Exemption Date:</strong> October 3, 2018</li>
+              <p className="text-lg mb-4">
+                We believe that evidence-based nutritional knowledge should be accessible to everyone.
+                Our mission is to bridge the gap between complex scientific research and practical, 
+                everyday applications that can improve public health.
+              </p>
+            </section>
+
+            <section className="mb-10">
+              <h2 className="text-2xl font-semibold mb-4">Our Core Values</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-natural-100">
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Scientific Integrity</h3>
+                  <p>
+                    We are committed to rigorous scientific methods and transparent reporting of research 
+                    findings. All our educational content is evidence-based and regularly reviewed by our 
+                    scientific advisory board.
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-natural-100">
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Educational Excellence</h3>
+                  <p>
+                    We strive to make complex nutritional science accessible through clear, engaging, 
+                    and accurate educational resources designed for both healthcare professionals and 
+                    the general public.
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-natural-100">
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Inclusivity</h3>
+                  <p>
+                    We are dedicated to making nutritional education accessible to diverse communities 
+                    worldwide, regardless of socioeconomic status, geographic location, or educational 
+                    background.
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-natural-100">
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Innovation</h3>
+                  <p>
+                    We continuously explore new methodologies and technologies to advance nutritional 
+                    research and develop innovative educational tools that enhance learning and 
+                    practical application.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="mb-10">
+              <h2 className="text-2xl font-semibold mb-4">Our Work</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Research Initiatives</h3>
+                  <p className="mb-2">
+                    Our research focuses on understanding the role of micronutrients in human health, 
+                    with particular emphasis on:
+                  </p>
+                  <ul className="list-disc pl-6 mb-4">
+                    <li>Micronutrient deficiencies in diverse populations</li>
+                    <li>Nutritional influences on immune function</li>
+                    <li>The relationship between nutrition and cognitive performance</li>
+                    <li>Optimizing nutrient absorption and bioavailability</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Educational Programs</h3>
+                  <p className="mb-2">
+                    We develop and provide free educational resources including:
+                  </p>
+                  <ul className="list-disc pl-6 mb-4">
+                    <li>Evidence-based articles on nutrition science</li>
+                    <li>Interactive educational tools to assess nutrition knowledge</li>
+                    <li>Webinars and workshops for healthcare professionals</li>
+                    <li>Community outreach programs to improve health literacy</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-medium mb-2 text-natural-700">Collaborations</h3>
+                  <p>
+                    We collaborate with universities, healthcare institutions, and other non-profit 
+                    organizations to expand the reach and impact of our work. These partnerships 
+                    allow us to conduct larger-scale research projects and develop more 
+                    comprehensive educational initiatives.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="mb-10">
+              <h2 className="text-2xl font-semibold mb-4">Our Impact</h2>
+              <p className="mb-4">
+                Since our founding, Natural Pure Academy has:
+              </p>
+              <ul className="list-disc pl-6 mb-4">
+                <li>Published over 50 peer-reviewed research papers</li>
+                <li>Developed educational resources accessed by more than 2 million people worldwide</li>
+                <li>Trained 500+ healthcare professionals through our specialized workshops</li>
+                <li>Partnered with 12 universities across 4 continents</li>
+                <li>Established community nutrition programs in underserved communities</li>
               </ul>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <Award className="h-8 w-8 text-indigo-600 mr-3" />
-                <h3 className="text-xl font-bold">Governance</h3>
-              </div>
-              <p className="text-gray-700 mb-4">
-                Our organization is governed by a Board of Directors who volunteer their time and expertise
-                to guide our mission and ensure compliance with all legal and ethical standards.
+              <p>
+                <a href="/impact" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                  Learn more about our impact →
+                </a>
               </p>
-              <p className="text-gray-700">
-                The Board meets quarterly to review operations, programs, and financial status. Our bylaws 
-                and conflict of interest policies ensure that all decisions are made in the best interest of our mission.
-              </p>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <Heart className="h-8 w-8 text-indigo-600 mr-3" />
-                <h3 className="text-xl font-bold">Funding & Transparency</h3>
-              </div>
-              <p className="text-gray-700 mb-4">
-                Our work is funded through a combination of grants, individual donations, and educational program fees.
-                We are committed to financial transparency and responsible stewardship of resources.
-              </p>
-              <p className="text-gray-700">
-                Annual reports and financial statements are available to the public upon request. We undergo an 
-                independent audit each year to ensure accountability.
-              </p>
-            </Card>
-          </div>
-
-          <div className="mt-12 text-center">
-            <p className="text-gray-700">
-              For official documentation or additional information about our legal status, please <a href="/contact" className="text-indigo-600 hover:underline">contact us</a>.
-            </p>
+            </section>
           </div>
         </Container>
       </div>
 
-      {/* Scientific Team Section */}
       <ScientificTeam />
 
-      {/* Board of Directors */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-natural-50 py-16">
         <Container>
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Board of Directors</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Robert J. Williamson",
-                title: "Chairperson",
-                bio: "Former Dean of Nutrition Sciences at Boston University with 30+ years of experience in academic leadership.",
-                photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              },
-              {
-                name: "Patricia Mendez, PhD",
-                title: "Treasurer",
-                bio: "Economics Professor with expertise in non-profit financial management and sustainability.",
-                photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              },
-              {
-                name: "James Chen, MD",
-                title: "Secretary",
-                bio: "Physician and public health advocate specializing in community health education programs.",
-                photo: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              },
-              {
-                name: "Elizabeth Anderson",
-                title: "Board Member",
-                bio: "Executive Director of Community Health Initiative with expertise in program development.",
-                photo: "https://images.unsplash.com/photo-1541779408-c1f2d1d4dc86?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              },
-              {
-                name: "David Thompson",
-                title: "Board Member",
-                bio: "Technology entrepreneur focused on healthcare innovation and digital health education.",
-                photo: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              },
-              {
-                name: "Sophia Washington",
-                title: "Board Member",
-                bio: "Leader in educational policy with experience developing science curricula for diverse populations.",
-                photo: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              }
-            ].map((director, index) => (
-              <Card key={index} className="overflow-hidden">
-                <img 
-                  src={director.photo} 
-                  alt={director.name} 
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900">{director.name}</h3>
-                  <p className="text-indigo-600 text-sm mb-2">{director.title}</p>
-                  <p className="text-gray-700 text-sm">{director.bio}</p>
-                </div>
-              </Card>
-            ))}
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl font-semibold mb-6">Support Our Mission</h2>
+            <p className="text-lg mb-8">
+              As a non-profit organization, we rely on grants, donations, and volunteers to 
+              continue our work. Your support helps us expand our research initiatives and 
+              develop new educational resources.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <a 
+                href="/contact" 
+                className="btn bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-medium inline-block"
+              >
+                Contact Us
+              </a>
+              <a 
+                href="/impact" 
+                className="btn bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-md font-medium inline-block"
+              >
+                View Our Impact
+              </a>
+            </div>
           </div>
         </Container>
       </div>
 
-      {/* History Timeline */}
-      <Container className="py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Our History</h2>
-
-        <div className="space-y-12">
-          {[
-            {
-              year: "2018",
-              title: "Founding",
-              description: "Natural Pure Academy was established by a group of nutritional researchers and educators committed to advancing public understanding of micronutrients."
-            },
-            {
-              year: "2019",
-              title: "First Research Initiative",
-              description: "Launched our first major research study on vitamin D deficiency in urban populations, establishing our research methodology and protocols."
-            },
-            {
-              year: "2020",
-              title: "Educational Platform Launch",
-              description: "Developed our online educational platform with interactive content on micronutrient science for healthcare professionals and the public."
-            },
-            {
-              year: "2021",
-              title: "Research Expansion",
-              description: "Expanded our research team and began collaborative studies with three major universities on mineral metabolism and stress response."
-            },
-            {
-              year: "2022",
-              title: "Community Outreach Program",
-              description: "Initiated community workshops and educational events reaching over 5,000 individuals with science-based nutritional information."
-            },
-            {
-              year: "2023",
-              title: "Digital Transformation",
-              description: "Revamped our digital presence and launched interactive tools for personalized nutritional education and assessment."
-            },
-            {
-              year: "2024",
-              title: "Global Initiatives",
-              description: "Began international collaborations to study micronutrient needs across diverse populations and expand our educational reach."
-            }
-          ].map((item, index) => (
-            <div key={index} className="relative pl-12 md:pl-0">
-              <div className="hidden md:block absolute left-1/2 -ml-0.5 w-1 h-full bg-indigo-200"></div>
-
-              <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:ml-auto'}`}>
-                <div className="absolute left-0 md:left-auto md:right-auto md:top-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white">
-                  {index + 1}
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <span className="inline-block px-3 py-1 mb-2 text-sm font-semibold text-indigo-800 bg-indigo-100 rounded-full">
-                    {item.year}
-                  </span>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-700">{item.description}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </div>
+      <Footer />
+    </>
   );
 };
 

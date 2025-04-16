@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import Articles from "./pages/Articles";
 import MetricTracker from "./components/MetricTracker";
+import ConversionTracker from "./components/ConversionTracker";
 import Article from "./pages/Article";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -111,6 +112,7 @@ const App = () => {
           <Toaster position="top-right" />
           <Sonner />
           <MetricTracker />
+          <ConversionTracker />
           <Outlet />
         </div>
       </TooltipProvider>

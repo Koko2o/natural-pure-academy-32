@@ -472,7 +472,7 @@ const ScientificTeam: React.FC = () => {
                 <p className="text-indigo-600 font-medium mb-1">{member.title}</p>
                 <p className="text-sm text-gray-500 mb-4">{member.credentials}</p>
                 <p className="text-gray-700 mb-4">{member.bio}</p>
-                
+
                 {member.publications && member.publications.length > 0 && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-900 mb-2">Selected Publications:</h4>
