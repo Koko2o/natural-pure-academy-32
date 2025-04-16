@@ -1,5 +1,5 @@
 
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import React from 'react';
 
 interface SEOHeadProps {
@@ -50,3 +50,5 @@ export function SEOHead({
     </Helmet>
   );
 }
+
+export default SEOHead;
