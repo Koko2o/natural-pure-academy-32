@@ -138,7 +138,7 @@ export const useArticleEngagement = ({
     // Set up interval to check engagement
     readingInterval.current = setInterval(checkEngagement, 5000);
 
-    // Log initial view
+    // Log initial view with proper translation
     console.log(t('Article engagement tracking started'), articleId);
 
     return () => {
@@ -152,12 +152,13 @@ export const useArticleEngagement = ({
         clearInterval(readingInterval.current);
       }
 
-      // Log final metrics
+      // Log final metrics with proper translation
       console.log(t('Article engagement tracking ended'), {
         articleId,
         readTime: (Date.now() - startTime.current) / 1000,
         scrollDepth: maxScrollDepth.current,
-        interactions: interactionCount.current
+        interactions: interactionCount.current,
+        language
       });
     };
   }, [articleId]);

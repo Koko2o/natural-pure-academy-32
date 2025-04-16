@@ -3,11 +3,18 @@
 @tailwind utilities;
 
 /* Styles pour la gestion des langues */
-html[data-language="en"] .fr-only {
+html[data-language="en"] .fr-only,
+html[data-language="en"] .es-only {
   display: none !important;
 }
 
-html[data-language="fr"] .en-only {
+html[data-language="fr"] .en-only,
+html[data-language="fr"] .es-only {
+  display: none !important;
+}
+
+html[data-language="es"] .en-only,
+html[data-language="es"] .fr-only {
   display: none !important;
 }
 
@@ -30,27 +37,30 @@ html[data-language="fr"] .language-indicator {
   color: #0055ff;
 }
 
+html[data-language="es"] .language-indicator {
+  color: #0055ff;
+}
+
 /* Classes spécifiques par langue pour le site */
 html[lang="fr"] .lang-specific-en,
-html[data-language="fr"] .lang-specific-en {
-  display: none !important;
+html[lang="fr"] .lang-specific-es {
+  display: none;
 }
 
 html[lang="en"] .lang-specific-fr,
-html[data-language="en"] .lang-specific-fr {
-  display: none !important;
+html[lang="en"] .lang-specific-es {
+  display: none;
 }
 
-body.lang-fr .lang-specific-en {
-  display: none !important;
+html[lang="es"] .lang-specific-fr,
+html[lang="es"] .lang-specific-en {
+  display: none;
 }
 
-body.lang-en .lang-specific-fr {
-  display: none !important;
+/* Affichage conditionnel par langue */
+.fr-only, .en-only, .es-only {
+  transition: opacity 0.3s ease;
 }
-
-/* Ajoutez cette classe à n'importe quel élément qui devrait être visible 
-   uniquement en français avec <div className="lang-specific-fr">Contenu</div> */
 
 /* Classes pour le contexte de langue */
 .language-changed {
@@ -60,15 +70,31 @@ body.lang-en .lang-specific-fr {
 /* Sélecteurs pour afficher/masquer du contenu selon la langue */
 html[lang="fr"] .en-only,
 body.lang-fr .en-only,
-html[data-language="fr"] .en-only {
+html[data-language="fr"] .en-only,
+html[lang="fr"] .es-only,
+body.lang-fr .es-only,
+html[data-language="fr"] .es-only {
   display: none !important;
 }
 
 html[lang="en"] .fr-only,
 body.lang-en .fr-only,
-html[data-language="en"] .fr-only {
+html[data-language="en"] .fr-only,
+html[lang="en"] .es-only,
+body.lang-en .es-only,
+html[data-language="en"] .es-only {
   display: none !important;
 }
+
+html[lang="es"] .fr-only,
+body.lang-es .fr-only,
+html[data-language="es"] .fr-only,
+html[lang="es"] .en-only,
+body.lang-es .en-only,
+html[data-language="es"] .en-only {
+  display: none !important;
+}
+
 
 /* Sélecteurs spécifiques par langue pour aider au débogage */
 .lang-specific-fr {
@@ -76,6 +102,10 @@ html[data-language="en"] .fr-only {
 }
 
 .lang-specific-en {
+  display: none;
+}
+
+.lang-specific-es {
   display: none;
 }
 
@@ -88,6 +118,12 @@ html[data-language="fr"] .lang-specific-fr {
 html[lang="en"] .lang-specific-en,
 body.lang-en .lang-specific-en,
 html[data-language="en"] .lang-specific-en {
+  display: block !important;
+}
+
+html[lang="es"] .lang-specific-es,
+body.lang-es .lang-specific-es,
+html[data-language="es"] .lang-specific-es {
   display: block !important;
 }
 
@@ -105,6 +141,10 @@ html[data-language="en"] .lang-specific-en {
   display: none !important;
 }
 
+[data-lang="es"] {
+  display: none !important;
+}
+
 html[lang="fr"] [data-lang="fr"],
 body.lang-fr [data-lang="fr"] {
   display: block !important;
@@ -112,6 +152,11 @@ body.lang-fr [data-lang="fr"] {
 
 html[lang="en"] [data-lang="en"],
 body.lang-en [data-lang="en"] {
+  display: block !important;
+}
+
+html[lang="es"] [data-lang="es"],
+body.lang-es [data-lang="es"] {
   display: block !important;
 }
 

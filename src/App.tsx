@@ -3,10 +3,9 @@ import { Outlet, BrowserRouter as Router } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/Navbar'; // Assumed to be corrected for typo here
 import Footer from '@/components/Footer';
-// Added import for TranslationDebugger
-import { TranslationDebugger } from '@/components/TranslationHelper';
+import TranslationDebugger from './components/TranslationDebugger';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext"; 
@@ -37,7 +36,7 @@ const App: React.FC = () => {
               <ConversionTracker />
               <ArticleEngagementTracker />
               <ComplianceAlert />
-              {isTranslationDebugEnabled && <TranslationDebugger />} {/* Added TranslationDebugger conditionally */}
+              {process.env.NODE_ENV !== 'production' && isTranslationDebugEnabled && <TranslationDebugger />} 
             </div>
           </TooltipProvider>
         </LanguageProvider>
@@ -47,8 +46,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-// Placeholder for TranslationDebugger component (needs to be implemented separately)
-export const TranslationDebugger = () => {
-  return <div>Translation Debugger</div>;
-}

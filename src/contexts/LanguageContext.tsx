@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 // Define available languages
-export type Language = 'fr' | 'en';
+export type Language = 'fr' | 'en' | 'es';
 
 // Define context type
 type LanguageContextType = {
@@ -42,7 +42,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       // PRIORITÉ 1: Vérifier le paramètre d'URL (priorité maximale)
       const urlParams = new URLSearchParams(window.location.search);
       const langParam = urlParams.get('lang');
-      if (langParam === 'fr' || langParam === 'en') {
+      if (langParam === 'fr' || langParam === 'en' || langParam === 'es') {
         console.log(`[LanguageContext] Using language from URL parameter: ${langParam}`);
         localStorage.setItem('preferredLanguage', langParam);
 
@@ -63,7 +63,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       // PRIORITÉ 2: Vérifier localStorage pour la persistance
       const savedLanguage = localStorage.getItem('preferredLanguage');
-      if (savedLanguage === 'fr' || savedLanguage === 'en') {
+      if (savedLanguage === 'fr' || savedLanguage === 'en' || savedLanguage === 'es') {
         console.log(`[LanguageContext] Using saved language preference from localStorage: ${savedLanguage}`);
 
         // Appliquer immédiatement au HTML
@@ -103,7 +103,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     console.log(`[LanguageContext] Setting language to: ${lang}`);
 
     // VALIDATION: s'assurer que la langue est valide
-    if (lang !== 'en' && lang !== 'fr') {
+    if (lang !== 'en' && lang !== 'fr' && lang !== 'es') {
       console.error(`[LanguageContext] Invalid language value: ${lang}, defaulting to 'en'`);
       lang = 'en';
     }
@@ -120,13 +120,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       document.documentElement.setAttribute('data-language', lang);
 
       // 4. Appliquer des classes CSS pour le ciblage
-      if (lang === 'fr') {
-        document.body.classList.add('lang-fr');
-        document.body.classList.remove('lang-en');
-      } else {
-        document.body.classList.add('lang-en');
-        document.body.classList.remove('lang-fr');
-      }
+      // Supprimer toutes les classes de langue d'abord
+      document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
+      
+      // Ajouter la classe pour la langue active
+      document.body.classList.add(`lang-${lang}`);
 
       // 5. Déclencher les événements pour forcer les composants à se mettre à jour
       window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
@@ -149,13 +147,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       // 9. Important: Réappliquer les classes CSS après un court délai pour s'assurer qu'elles persistent
       setTimeout(() => {
-        if (lang === 'fr') {
-          document.body.classList.add('lang-fr');
-          document.body.classList.remove('lang-en');
-        } else {
-          document.body.classList.add('lang-en');
-          document.body.classList.remove('lang-fr');
-        }
+        // Supprimer toutes les classes de langue d'abord
+        document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
+        
+        // Ajouter la classe pour la langue active
+        document.body.classList.add(`lang-${lang}`);
+        
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-language', lang);
       }, 50);
@@ -171,13 +168,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     console.log(`[LanguageContext] Document language attribute set to: ${language}`);
 
     // Apply language-specific classes to body for CSS targeting
-    if (language === 'fr') {
-      document.body.classList.add('lang-fr');
-      document.body.classList.remove('lang-en');
-    } else {
-      document.body.classList.add('lang-en');
-      document.body.classList.remove('lang-fr');
-    }
+    // Supprimer toutes les classes de langue d'abord
+    document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
+    
+    // Ajouter la classe pour la langue active
+    document.body.classList.add(`lang-${language}`);
   }, [language]);
 
   // Translation function
@@ -255,9 +250,19 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 };
 
-// Define translations for both languages
+// Define translations for all languages
 const translations = {
   en: {
+    // Nouvelles traductions pour le système d'engagement
+    'Article engagement tracking started': 'Article engagement tracking started',
+    'Article engagement tracking ended': 'Article engagement tracking ended',
+    'Engagement level': 'Engagement level',
+    'Read time': 'Read time',
+    'Scroll depth': 'Scroll depth',
+    'Interactions': 'Interactions',
+    'Languages': 'Languages',
+    
+    // Traductions existantes
     'Home': 'Home',
     'About Us': 'About Us',
     'Contact': 'Contact',
@@ -300,6 +305,16 @@ const translations = {
     'Our research and educational resources are available in multiple languages to support a global audience.': 'Our research and educational resources are available in multiple languages to support a global audience.',
   },
   fr: {
+    // Nouvelles traductions pour le système d'engagement
+    'Article engagement tracking started': 'Suivi d\'engagement d\'article démarré',
+    'Article engagement tracking ended': 'Suivi d\'engagement d\'article terminé',
+    'Engagement level': 'Niveau d\'engagement',
+    'Read time': 'Temps de lecture',
+    'Scroll depth': 'Profondeur de défilement',
+    'Interactions': 'Interactions',
+    'Languages': 'Langues',
+    
+    // Traductions existantes
     'Home': 'Accueil',
     'About Us': 'À propos',
     'Contact': 'Contact',
@@ -358,6 +373,16 @@ const translations = {
     'Our research and educational resources are available in multiple languages to support a global audience.': 'Nos recherches et ressources éducatives sont disponibles en plusieurs langues pour soutenir un public mondial.',
   },
   es: {
+    // Nouvelles traductions pour le système d'engagement
+    'Article engagement tracking started': 'Seguimiento de participación en artículos iniciado',
+    'Article engagement tracking ended': 'Seguimiento de participación en artículos finalizado',
+    'Engagement level': 'Nivel de compromiso',
+    'Read time': 'Tiempo de lectura',
+    'Scroll depth': 'Profundidad de desplazamiento',
+    'Interactions': 'Interacciones',
+    'Languages': 'Idiomas',
+    
+    // Traductions existantes
     'Home': 'Inicio',
     'About Us': 'Acerca de Nosotros',
     'Contact': 'Contacto',
