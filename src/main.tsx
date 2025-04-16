@@ -94,6 +94,24 @@ const setupLanguageMonitoring = () => {
 // Initialisation du moniteur de langue
 setupLanguageMonitoring();
 
+// Vérifier explicitement si l'URL contient un paramètre de langue
+const urlParams = new URLSearchParams(window.location.search);
+const langParam = urlParams.get('lang');
+if (langParam === 'en' || langParam === 'fr') {
+  console.log(`[main] URL language parameter detected: ${langParam}, applying`);
+  localStorage.setItem('preferredLanguage', langParam);
+  document.documentElement.lang = langParam;
+  document.documentElement.setAttribute('data-language', langParam);
+  
+  if (langParam === 'fr') {
+    document.body.classList.add('lang-fr');
+    document.body.classList.remove('lang-en');
+  } else {
+    document.body.classList.add('lang-en');
+    document.body.classList.remove('lang-fr');
+  }
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HelmetProvider>

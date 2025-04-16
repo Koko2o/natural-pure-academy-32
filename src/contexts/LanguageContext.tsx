@@ -39,14 +39,23 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Initialize with browser language or default to English
   const [language, setLanguageState] = useState<Language>(() => {
     try {
-      // TOUJOURS vérifier localStorage en premier pour garantir la persistance
+      // PRIORITÉ 1: Vérifier le paramètre d'URL (priorité maximale)
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam === 'fr' || langParam === 'en') {
+        console.log(`[LanguageContext] Using language from URL parameter: ${langParam}`);
+        localStorage.setItem('preferredLanguage', langParam);
+        return langParam as Language;
+      }
+      
+      // PRIORITÉ 2: Vérifier localStorage pour la persistance
       const savedLanguage = localStorage.getItem('preferredLanguage');
       if (savedLanguage === 'fr' || savedLanguage === 'en') {
         console.log(`[LanguageContext] Using saved language preference from localStorage: ${savedLanguage}`);
         return savedLanguage as Language;
       }
       
-      // Ensuite vérifier si le HTML a déjà un attribut de langue
+      // PRIORITÉ 3: Vérifier si le HTML a déjà un attribut de langue
       const htmlLang = document.documentElement.lang;
       if (htmlLang === 'fr' || htmlLang === 'en') {
         console.log(`[LanguageContext] Detected HTML lang attribute: ${htmlLang}`);

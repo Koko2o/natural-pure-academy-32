@@ -60,6 +60,9 @@ const LanguageSwitcher: React.FC = () => {
         // Ajouter un paramètre de langue à l'URL pour forcer le rechargement avec la bonne langue
         const url = new URL(window.location.href);
         url.searchParams.set('lang', newLanguage);
+        // Ajouter un timestamp pour éviter les problèmes de cache
+        url.searchParams.set('t', Date.now().toString());
+        console.log(`[LanguageSwitcher] Redirecting to: ${url.toString()}`);
         window.location.href = url.toString();
       }, 100);
     } catch (error) {

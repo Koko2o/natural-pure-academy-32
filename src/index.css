@@ -85,7 +85,6 @@ body.lang-fr [data-lang="fr"] {
 html[lang="en"] [data-lang="en"],
 body.lang-en [data-lang="en"] {
   display: block !important;
-}ty: 1; }
 }
 
 /* Styles améliorés pour l'interface du quiz */
