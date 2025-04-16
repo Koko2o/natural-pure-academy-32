@@ -1,0 +1,27 @@
+[GoogleAdGrantsSafety] Storage check: Using secured session storage instead of localStorage
+[GoogleAdGrantsSafety] First scan completed in 238.30ms
+[GoogleAdGrantsSafety] Scanning for banned terms: achat, promotion, promo, prix, soldes, remise, discount, offre, exclusif, limité, gratuit, free, buy, purchase, shopping, shop, deal, coupon, avantage, profitez
+[GoogleAdGrantsSafety] Detected potentially problematic terms: 
+Array ["gratuit"]
+[GoogleAdGrantsSafety] Compliance audit: 
+Object {isCompliant: false, issuesCount: 2, details: Array(2)}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "NaturalPureENnav.homenav.articlesnav.quiznav.profilenav.researchnav.labnav.nutritionnav.librarynav.…", element: "DIV", path: "div#root"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "NaturalPureENnav.homenav.articlesnav.quiznav.profilenav.researchnav.labnav.nutritionnav.librarynav.…", element: "DIV", path: "div#root > div.antialiased"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "NaturalPureENnav.homenav.articlesnav.quiznav.profilenav.researchnav.labnav.nutritionnav.librarynav.…", element: "DIV", path: "div#root > div.antialiased > div.min-h-screen.bg-background"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "NaturalPureENnav.homenav.articlesnav.quiznav.profilenav.researchnav.labnav.nutritionnav.librarynav.…", element: "DIV", path: "div#root > div.antialiased > div.min-h-screen.bg-background > div.min-h-screen.bg-white"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "Laboratoire IndépendantStress et FatigueIdentifiez les micronutriments qui vous manquent…", element: "DIV", path: "div#root > div.antialiased > div.min-h-screen.bg-background > div.min-h-screen.bg-white >…"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "Laboratoire IndépendantStress et FatigueIdentifiez les micronutriments qui vous manquent…", element: "DIV", path: "div#root > div.antialiased > div.min-h-screen.bg-background > div.min-h-screen.bg-white >…"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "🧪 Démarrer Mon Test GratuitVoir les Études Scientifiques", element: "DIV", path: "div#root > div.antialiased > div.min-h-screen.bg-background > div.min-h-screen.bg-white >…"}
+[GoogleAdGrantsSafety] Problematic section: 
+Object {content: "🧪 Démarrer Mon Test Gratuit", element: "A", path: "div#root > div.antialiased > div.min-h-screen.bg-background > div.min-h-screen.bg-white >…"}
+[GoogleAdGrantsSafety] Storage check: Using secured session storage instead of localStorage
+[GoogleAdGrantsSafety] First scan completed in 263.20ms
+[GoogleAdGrantsSafety] Running automatic compliance check...
+[GoogleAdGrantsSafety] Compliance check complete. Found 1 issues.
