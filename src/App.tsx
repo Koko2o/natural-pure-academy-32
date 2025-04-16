@@ -26,7 +26,6 @@ import { LanguageProvider } from "./components/LanguageProvider";
 import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
 import ComplianceAlert from '@/components/ComplianceAlert'; // Imported ComplianceAlert
 import { autoCheckCompliance } from '@/utils/adGrantCompliance'; // Imported autoCheckCompliance
-import { useEffect } from 'react';
 
 
 const queryClient = new QueryClient({

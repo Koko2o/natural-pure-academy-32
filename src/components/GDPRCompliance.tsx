@@ -1,162 +1,98 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { secureStorage } from '@/utils/secureStorage';
-import { AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
-interface GDPRComplianceProps {
-  services?: string[];
-  lang?: "fr" | "en";
-  policyLink?: string;
-}
+export const GDPRCompliance: React.FC = () => {
+  const [showDialog, setShowDialog] = useState(false);
+  const [analyticsConsent, setAnalyticsConsent] = useState(false);
+  const [personalizationConsent, setPersonalizationConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
-const GDPRCompliance: React.FC<GDPRComplianceProps> = ({
-  services = ["basic_analytics"],
-  lang = "en",
-  policyLink = "/privacy-policy"
-}: GDPRComplianceProps) => {
-  const [showBanner, setShowBanner] = useState(false);
-  const [consented, setConsented] = useState<boolean | null>(null);
-  
   useEffect(() => {
-    // Check if user has already given consent
-    const checkConsent = async () => {
-      const userConsent = await secureStorage.get<{ consented: boolean }>("gdpr_consent", { consented: false });
-      setConsented(userConsent.consented);
-      
-      // Show banner if user hasn't consented yet
-      if (!userConsent.consented) {
-        setShowBanner(true);
-      }
-    };
-    
-    checkConsent();
-  }, []);
-  
-  const handleAccept = async () => {
-    await secureStorage.set("gdpr_consent", { 
-      consented: true, 
-      date: new Date().toISOString(),
-      services: services
-    });
-    setConsented(true);
-    setShowBanner(false);
-  };
-  
-  const handleReject = async () => {
-    await secureStorage.set("gdpr_consent", { 
-      consented: false, 
-      date: new Date().toISOString()
-    });
-    setConsented(false);
-    setShowBanner(false);
-  };
-  
-  const translations = {
-    fr: {
-      title: "Votre confidentialité",
-      description: "Nous utilisons des cookies pour améliorer votre expérience et analyser l'utilisation du site.",
-      services: "Services utilisés:",
-      analytics: "Analyse d'audience",
-      heatmaps: "Cartographies de clics",
-      marketing: "Marketing (uniquement pour les études)",
-      accept: "Accepter",
-      reject: "Refuser",
-      settings: "Paramètres",
-      policy: "Politique de confidentialité",
-      nonprofit: "Organisation à but non lucratif"
-    },
-    en: {
-      title: "Your Privacy",
-      description: "We use cookies to improve your experience and analyze site usage.",
-      services: "Services used:",
-      analytics: "Audience analytics",
-      heatmaps: "Click heatmaps",
-      marketing: "Marketing (for studies only)",
-      accept: "Accept",
-      reject: "Decline",
-      settings: "Settings",
-      policy: "Privacy Policy",
-      nonprofit: "Non-profit organization"
+    const consentGiven = localStorage.getItem('gdpr_consent');
+    if (!consentGiven) {
+      setShowDialog(true);
     }
+  }, []);
+
+  const handleSaveConsent = () => {
+    const consentData = {
+      analytics: analyticsConsent,
+      personalization: personalizationConsent,
+      marketing: marketingConsent,
+      timestamp: new Date().toISOString(),
+    };
+
+    localStorage.setItem('gdpr_consent', JSON.stringify(consentData));
+    setShowDialog(false);
+
+    // Track consent for Google Ad Grant compliance
+    console.log("[GoogleAdGrantsSafety] GDPR consent recorded:", consentData);
   };
-  
-  const t = translations[lang];
-  
-  if (!showBanner) return null;
-  
-  const serviceLabels: Record<string, string> = {
-    basic_analytics: t.analytics,
-    heatmaps: t.heatmaps,
-    marketing: t.marketing
-  };
-  
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg">
-      <div className="container max-w-7xl mx-auto">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-primary" />
-                {t.title}
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setShowBanner(false)}
-                aria-label="Close privacy notice"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-4">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="md:w-2/3">
-                <p className="mb-4 text-muted-foreground">{t.description}</p>
-                
-                <div className="mb-4">
-                  <p className="font-medium mb-2">{t.services}</p>
-                  <ul className="space-y-1">
-                    {services.map((service) => (
-                      <li key={service} className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>{serviceLabels[service] || service}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                  <span>{t.nonprofit}</span>
-                  <span>•</span>
-                  <a href={policyLink} className="underline hover:text-primary transition-colors">
-                    {t.policy}
-                  </a>
-                </div>
-              </div>
-              
-              <div className="md:w-1/3 flex flex-col justify-end">
-                <div className="space-y-2">
-                  <Button className="w-full" onClick={handleAccept}>
-                    {t.accept}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={handleReject}
-                  >
-                    {t.reject}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Consentement aux cookies et à la protection des données</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <p className="text-sm text-muted-foreground">
+            Natural Pure Academy, en tant qu'organisation à but non lucratif, collecte certaines données pour améliorer 
+            votre expérience sur notre site. Veuillez sélectionner les options pour lesquelles vous donnez votre consentement:
+          </p>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="analytics" 
+              checked={analyticsConsent} 
+              onCheckedChange={(checked) => setAnalyticsConsent(checked === true)}
+            />
+            <label htmlFor="analytics" className="text-sm font-medium">
+              Analytiques: Pour comprendre comment notre site est utilisé et améliorer notre contenu éducatif
+            </label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="personalization" 
+              checked={personalizationConsent} 
+              onCheckedChange={(checked) => setPersonalizationConsent(checked === true)}
+            />
+            <label htmlFor="personalization" className="text-sm font-medium">
+              Personnalisation: Pour adapter notre contenu éducatif à vos besoins
+            </label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="marketing" 
+              checked={marketingConsent} 
+              onCheckedChange={(checked) => setMarketingConsent(checked === true)}
+            />
+            <label htmlFor="marketing" className="text-sm font-medium">
+              Communication: Pour recevoir des mises à jour sur nos recherches et activités éducatives
+            </label>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => handleSaveConsent()}>
+            Enregistrer les préférences
+          </Button>
+          <Button onClick={() => {
+            setAnalyticsConsent(true);
+            setPersonalizationConsent(true);
+            setMarketingConsent(true);
+            handleSaveConsent();
+          }}>
+            Accepter tout
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

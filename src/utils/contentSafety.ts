@@ -1,79 +1,102 @@
 
-/**
- * Content Safety Module for Google Ad Grant Compliance
- * 
- * This module contains functionality to scan content for terms and patterns
- * that might violate Google Ad Grant policies and trigger account suspension.
- */
-
-// Banned or prohibited terms according to Google Ad Grant policies
+// Lists of terms to check for Google Ad Grants compliance
 export const bannedTerms = [
-  // Commercial intent terms (selling products)
-  "achat", "acheter", "vente", "commander", "promo", "promotion", "offre spéciale",
-  "prix", "tarif", "réduction", "soldes", "gratuit", "livraison",
-  "purchase", "buy", "order", "sale", "discount", "special offer", "price",
-  
-  // Prohibited content categories
-  "gambling", "casino", "jeu d'argent", "paris sportifs", "betting",
-  "alcohol", "alcool", "vin", "wine", "spirits", "beer", "bière",
-  "prescription", "drug", "pharmacy", "pharmacie", "médicament",
-  "adult", "adulte", "dating", "rencontre", "escort",
-  
-  // Other policy violations
-  "counterfeit", "contrefaçon", "weapons", "armes", "tobacco", "tabac"
+  "achat", "promotion", "promo", "prix", "soldes", "remise", "discount",
+  "offre", "exclusif", "limité", "gratuit", "free", "buy", "purchase", 
+  "shopping", "shop", "deal", "coupon", "avantage", "profitez"
 ];
 
-// Terms that may indicate problematic content (warning level)
 export const warningTerms = [
-  "supplement", "supplément", "complément alimentaire",
-  "miracle", "cure", "guérison", "healing", "remedy", "remède",
-  "guaranteed", "garanti", "promise", "promesse",
-  "best", "meilleur", "top", "ultimate", "ultime"
+  "cure", "traitement", "guérison", "solution", "thérapie", "therapy",
+  "miracle", "résout", "soulage", "améliore", "improves", "resolves",
+  "drogues", "drugs", "narcotiques", "narcotic", "toxicomanie", "addiction"
 ];
 
-/**
- * Scans content for banned terms
- * @param content The text content to scan
- * @returns Array of found banned terms
- */
+// Detect banned terms in content
 export const detectBannedTerms = (content: string): string[] => {
-  const contentLower = content.toLowerCase();
-  return bannedTerms.filter(term => contentLower.includes(term.toLowerCase()));
+  const lowercaseContent = content.toLowerCase();
+  return bannedTerms.filter(term => 
+    lowercaseContent.includes(term.toLowerCase())
+  );
 };
 
-/**
- * Scans content for warning terms
- * @param content The text content to scan
- * @returns Array of found warning terms
- */
+// Detect warning terms that may cause issues
 export const detectWarningTerms = (content: string): string[] => {
-  const contentLower = content.toLowerCase();
-  return warningTerms.filter(term => contentLower.includes(term.toLowerCase()));
+  const lowercaseContent = content.toLowerCase();
+  return warningTerms.filter(term => 
+    lowercaseContent.includes(term.toLowerCase())
+  );
 };
 
-/**
- * Gets the DOM path for an element (for reporting purposes)
- * @param element HTML element
- * @returns String representation of the element's path
- */
-export const getElementPath = (element: HTMLElement): string => {
-  const path: string[] = [];
-  let currentNode: HTMLElement | null = element;
+// More advanced detection with word boundary check
+export const detectBannedTermsWithContext = (content: string): string[] => {
+  const lowercaseContent = content.toLowerCase();
+  return bannedTerms.filter(term => {
+    const regex = new RegExp(`\\b${term.toLowerCase()}\\b`, 'i');
+    return regex.test(lowercaseContent);
+  });
+};
+
+// NLP-based detection to consider context (simplified)
+export const detectBannedTermsWithNLP = (content: string): Array<{term: string, context: string}> => {
+  const results: Array<{term: string, context: string}> = [];
+  const sentences = content.split(/[.!?]+/);
   
-  while (currentNode) {
-    let selector = currentNode.nodeName.toLowerCase();
-    
-    if (currentNode.id) {
-      selector += `#${currentNode.id}`;
-    } else if (currentNode.className) {
-      selector += `.${currentNode.className.split(' ').join('.')}`;
+  for (const term of bannedTerms) {
+    for (const sentence of sentences) {
+      if (sentence.toLowerCase().includes(term.toLowerCase())) {
+        // Get surrounding context (the whole sentence)
+        results.push({
+          term,
+          context: sentence.trim()
+        });
+        // Only get first occurrence per sentence
+        break;
+      }
     }
-    
-    path.unshift(selector);
-    currentNode = currentNode.parentElement;
   }
   
-  return path.join(' > ');
+  return results;
+};
+
+// Check if term appears in educational context
+export const isEducationalContext = (context: string): boolean => {
+  const educationalMarkers = [
+    "research", "study", "science", "scientific", "education", "educational",
+    "learn", "learning", "recherche", "étude", "science", "scientifique", 
+    "éducation", "éducatif", "apprendre", "apprentissage"
+  ];
+  
+  const lowercaseContext = context.toLowerCase();
+  return educationalMarkers.some(marker => 
+    lowercaseContext.includes(marker)
+  );
+};
+
+// Add semantic variety to content while keeping educational intent
+export const semanticRotator = (originalText: string): string => {
+  const replacements: Record<string, string[]> = {
+    "buy": ["explore", "discover", "learn about"],
+    "achat": ["découverte", "exploration", "apprentissage sur"],
+    "price": ["value", "benefit", "advantage"],
+    "prix": ["valeur", "bénéfice", "avantage"],
+    "shop": ["browse", "view", "explore"],
+    "shopping": ["browsing", "exploring", "learning"],
+    "offer": ["provide", "present", "share"],
+    "offre": ["propose", "présente", "partage"]
+  };
+  
+  let result = originalText;
+  
+  Object.entries(replacements).forEach(([term, alternatives]) => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    result = result.replace(regex, () => {
+      const randomIndex = Math.floor(Math.random() * alternatives.length);
+      return alternatives[randomIndex];
+    });
+  });
+  
+  return result;
 };
 
 /**
@@ -117,7 +140,7 @@ export const auditPageContent = (content: string) => {
     });
   }
   
-  // Check for "Buy Now" or "Purchase" type calls-to-action
+  // Check for "Buy Now" or "Purchase" type call-to-action
   if (/buy now|add to cart|purchase|commander maintenant|ajouter au panier|acheter|panier d'achat|shopping cart/gi.test(content)) {
     issues.push({
       type: 'error',
@@ -133,64 +156,30 @@ export const auditPageContent = (content: string) => {
   };
 };
 
-/**
- * Checks if a URL is compliant with Google Ad Grant policies
- * @param url The URL to check
- * @returns Boolean indicating compliance status
- */
-export const isUrlCompliant = (url: string): boolean => {
-  // Check for prohibited URL patterns
-  const prohibitedPatterns = [
-    /\/shop\//i, 
-    /\/store\//i, 
-    /\/boutique\//i, 
-    /\/achat\//i,
-    /\/pricing\//i, 
-    /\/tarifs\//i,
-    /\/checkout\//i,
-    /\/panier\//i,
-    /\/cart\//i
+// Validate redirect URLs for policy compliance
+export const validateRedirectUrl = (url: string): boolean => {
+  // Check for common e-commerce platforms that would violate policy
+  const prohibitedDomains = [
+    'amazon.com', 'amazon.fr', 'ebay.com', 'shopify.com', 
+    'etsy.com', 'aliexpress.com'
   ];
   
-  return !prohibitedPatterns.some(pattern => pattern.test(url));
+  return !prohibitedDomains.some(domain => url.includes(domain));
 };
 
-/**
- * Checks if a landing page meets the Google Ad Grant quality criteria
- */
-export const assessLandingPageQuality = () => {
-  // This would be called on page load
-  const issues: string[] = [];
+// Generate a compliant page title for Google Ad Grant
+export const generateCompliantTitle = (originalTitle: string): string => {
+  // Replace commercial terms with educational alternatives
+  let compliantTitle = semanticRotator(originalTitle);
   
-  // Check for clear nonprofit mission
-  const missionElements = document.querySelectorAll('h1, h2, h3, [class*="mission"], [id*="mission"]');
-  let hasClearMission = false;
+  // Add educational qualifier if not present
+  const educationalQualifiers = ['Guide to', 'Understanding', 'Learning About', 'The Science of'];
+  const hasQualifier = educationalQualifiers.some(q => compliantTitle.includes(q));
   
-  missionElements.forEach(el => {
-    if (el.textContent && 
-        (/non-?profit|association|501\(c\)\(3\)|charity|organisation/i.test(el.textContent) ||
-         /mission|vision|purpose|objectif|but/i.test(el.textContent))) {
-      hasClearMission = true;
-    }
-  });
-  
-  if (!hasClearMission) {
-    issues.push('Landing page does not clearly state nonprofit mission');
+  if (!hasQualifier && compliantTitle.length < 50) {
+    const randomQualifier = educationalQualifiers[Math.floor(Math.random() * educationalQualifiers.length)];
+    compliantTitle = `${randomQualifier} ${compliantTitle}`;
   }
   
-  // Check for valuable and relevant content
-  const contentLength = document.body.textContent?.length || 0;
-  if (contentLength < 500) {
-    issues.push('Page content may be too thin for Google Ad Grant requirements');
-  }
-  
-  // Check for mobile-friendliness (simple check)
-  if (window.innerWidth < 768 && document.documentElement.scrollWidth > window.innerWidth) {
-    issues.push('Page may not be fully mobile-friendly');
-  }
-  
-  return {
-    isQualityPage: issues.length === 0,
-    issues
-  };
+  return compliantTitle;
 };

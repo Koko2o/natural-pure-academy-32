@@ -1,60 +1,87 @@
 
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, X } from 'lucide-react';
-import { auditPageContent, detectBannedTerms } from '@/utils/contentSafety';
+import { AlertTriangle, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ComplianceAlert: React.FC = () => {
-  const [showAlert, setShowAlert] = useState(false);
-  const [bannedTerms, setBannedTerms] = useState<string[]>([]);
-  
+  const [show, setShow] = useState(false);
+  const [issues, setIssues] = useState<Array<{
+    issue: string;
+    severity: string;
+  }>>([]);
+
   useEffect(() => {
-    // Check for banned terms on the current page
-    const pageContent = document.body.textContent?.toLowerCase() || '';
-    const terms = detectBannedTerms(pageContent);
+    // Check for compliance issues
+    const checkForIssues = () => {
+      const complianceData = localStorage.getItem('ad_grant_compliance_results');
+      if (complianceData) {
+        try {
+          const parsedData = JSON.parse(complianceData);
+          const criticalIssues = parsedData.issues.filter((issue: any) => 
+            issue.severity === 'critical' || issue.severity === 'high'
+          );
+          
+          if (criticalIssues.length > 0) {
+            setIssues(criticalIssues);
+            setShow(true);
+          }
+        } catch (error) {
+          console.error('Error parsing compliance data:', error);
+        }
+      }
+    };
     
-    if (terms.length > 0) {
-      setBannedTerms(terms);
-      setShowAlert(true);
-      
-      // Log detailed audit results
-      const auditResults = auditPageContent(document.body.innerHTML);
-      console.warn("[GoogleAdGrantsSafety] Content audit results:", auditResults);
-    }
+    // Check on mount and periodically
+    checkForIssues();
+    const interval = setInterval(checkForIssues, 300000); // Check every 5 minutes
+    
+    return () => clearInterval(interval);
   }, []);
-  
-  if (!showAlert) return null;
-  
+
+  if (!show || issues.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="fixed bottom-4 right-4 max-w-md bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg z-50">
+    <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-4">
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <AlertCircle className="h-5 w-5 text-red-600" />
+          <AlertTriangle className="h-5 w-5 text-amber-500" />
         </div>
         <div className="ml-3 flex-1">
-          <h3 className="text-sm font-medium text-red-800">Google Ad Grant Compliance Alert</h3>
-          <div className="mt-2 text-sm text-red-700">
-            <p>This page contains terms that may violate Google Ad Grant policies:</p>
+          <h3 className="text-sm font-medium text-amber-800">
+            Google Ad Grant Compliance Alert
+          </h3>
+          <div className="mt-2 text-xs text-amber-700">
+            <p>
+              {issues.length > 1 
+                ? `${issues.length} compliance issues detected that could affect your Google Ad Grant.` 
+                : 'A compliance issue was detected that could affect your Google Ad Grant.'}
+            </p>
             <ul className="mt-1 list-disc list-inside">
-              {bannedTerms.map((term, index) => (
-                <li key={index}>{term}</li>
+              {issues.slice(0, 2).map((issue, index) => (
+                <li key={index}>{issue.issue}</li>
               ))}
+              {issues.length > 2 && (
+                <li>...and {issues.length - 2} more issues</li>
+              )}
             </ul>
           </div>
           <div className="mt-3">
-            <a
-              href="/compliance-audit"
-              className="text-sm font-medium text-red-800 hover:text-red-600 underline"
+            <Link 
+              to="/ad-grant-compliance" 
+              className="text-xs font-medium text-amber-800 hover:text-amber-600 underline"
             >
-              View Compliance Audit
-            </a>
+              View Compliance Dashboard
+            </Link>
           </div>
         </div>
-        <button
+        <button 
           type="button"
-          className="ml-auto flex-shrink-0 text-red-500 hover:text-red-700"
-          onClick={() => setShowAlert(false)}
+          className="flex-shrink-0 ml-2 text-amber-400 hover:text-amber-500"
+          onClick={() => setShow(false)}
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
       </div>
     </div>
