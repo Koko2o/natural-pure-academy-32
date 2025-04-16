@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Progress } from "@/components/ui/progress";
@@ -43,7 +42,7 @@ export const TranslationDebugger: React.FC = () => {
     };
 
     updateLanguageInfo();
-    
+
     const interval = setInterval(() => {
       setElapsedTime(Math.floor((Date.now() - lastLangChange) / 1000));
     }, 1000);
@@ -92,7 +91,7 @@ export const TranslationDebugger: React.FC = () => {
             <span className="ml-2 text-muted-foreground">{elapsedTime}s ago</span>
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="pt-0 pb-2">
           <Tabs defaultValue="status" className="w-full">
             <TabsList className="w-full">
@@ -100,28 +99,28 @@ export const TranslationDebugger: React.FC = () => {
               <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
               <TabsTrigger value="test" className="text-xs">Test</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="status" className="mt-2 space-y-3">
               <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
                 <span className="text-muted-foreground">Context:</span>
                 <span className="font-mono">{language}</span>
-                
+
                 <span className="text-muted-foreground">HTML lang:</span>
                 <span className="font-mono">{htmlLang}</span>
-                
+
                 <span className="text-muted-foreground">localStorage:</span>
                 <span className="font-mono">{storedLang}</span>
-                
+
                 <span className="text-muted-foreground">URL lang:</span>
                 <span className="font-mono">{urlLang || '(none)'}</span>
-                
+
                 <span className="text-muted-foreground">Body classes:</span>
                 <span className="font-mono truncate" title={bodyClasses}>
                   {bodyClasses.split(' ').filter(c => c.startsWith('lang-')).join(' ')}
                 </span>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="details" className="mt-2 space-y-3">
               <div className="space-y-2">
                 {(['fr', 'en', 'es'] as Language[]).map(lang => (
@@ -137,7 +136,7 @@ export const TranslationDebugger: React.FC = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="pt-1 text-xs">
                 <p className="text-muted-foreground text-xs">
                   {coverage.es < 90 && 'Spanish translation needs more work'}
@@ -147,7 +146,7 @@ export const TranslationDebugger: React.FC = () => {
                 </p>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="test" className="mt-2">
               <div className="space-y-2 text-xs">
                 <p>{t('Test the translation of:')}</p>
@@ -176,7 +175,7 @@ export const TranslationDebugger: React.FC = () => {
             </TabsContent>
           </Tabs>
         </CardContent>
-        
+
         <CardFooter className="pt-0 pb-2 flex justify-between text-xs">
           <div className="text-muted-foreground">
             {t('Debug mode')}

@@ -160,7 +160,7 @@ export const useArticleEngagement = ({
         language
       });
     };
-  }, [language]);
+  }, [language, articleId, t]);
 
   return { metrics };
 };

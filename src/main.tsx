@@ -4,6 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import router from './routes.tsx';
 import './index.css';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+
 
 // Fonction pour détecter les changements de langue et assurer la cohérence
 const setupLanguageMonitoring = () => {
@@ -115,8 +118,12 @@ if (langParam === 'en' || langParam === 'fr') {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HelmetProvider>
-      <RouterProvider router={router} />
+      <TooltipProvider>
+        <LanguageProvider>
+          <RouterProvider router={router} />
+        </LanguageProvider>
+      </TooltipProvider>
     </HelmetProvider>
-    {import.meta.env.DEV && <TranslationDebugger />}
+    {/*import.meta.env.DEV && <TranslationDebugger />*/}
   </React.StrictMode>,
 )

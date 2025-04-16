@@ -122,7 +122,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       // 4. Appliquer des classes CSS pour le ciblage
       // Supprimer toutes les classes de langue d'abord
       document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
-      
+
       // Ajouter la classe pour la langue active
       document.body.classList.add(`lang-${lang}`);
 
@@ -149,10 +149,10 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       setTimeout(() => {
         // Supprimer toutes les classes de langue d'abord
         document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
-        
+
         // Ajouter la classe pour la langue active
         document.body.classList.add(`lang-${lang}`);
-        
+
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-language', lang);
       }, 50);
@@ -170,7 +170,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     // Apply language-specific classes to body for CSS targeting
     // Supprimer toutes les classes de langue d'abord
     document.body.classList.remove('lang-fr', 'lang-en', 'lang-es');
-    
+
     // Ajouter la classe pour la langue active
     document.body.classList.add(`lang-${language}`);
   }, [language]);
@@ -265,7 +265,7 @@ const translations = {
     'Debug mode': 'Debug mode',
     'Run Audit': 'Run Audit',
     'Test the translation of:': 'Test the translation of:',
-    
+
     // Traductions existantes
     'Home': 'Home',
     'About Us': 'About Us',
@@ -321,7 +321,7 @@ const translations = {
     'Debug mode': 'Mode débogage',
     'Run Audit': 'Lancer l\'audit',
     'Test the translation of:': 'Tester la traduction de :',
-    
+
     // Traductions existantes
     'Home': 'Accueil',
     'About Us': 'À propos',
@@ -393,7 +393,7 @@ const translations = {
     'Debug mode': 'Modo de depuración',
     'Run Audit': 'Ejecutar auditoría',
     'Test the translation of:': 'Probar la traducción de:',
-    
+
     // Traductions existantes
     'Home': 'Inicio',
     'About Us': 'Acerca de Nosotros',
@@ -437,3 +437,5 @@ const translations = {
     'Our research and educational resources are available in multiple languages to support a global audience.': 'Nuestra investigación y recursos educativos están disponibles en varios idiomas para apoyar a una audiencia global.',
   }
 };
+
+const supportedLanguages = ['fr', 'en', 'es'];

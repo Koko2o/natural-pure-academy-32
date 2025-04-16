@@ -1,77 +1,96 @@
 
+import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 /**
- * Utilitaires pour faciliter la gestion des traductions
+ * Transforme le texte en clé de traduction valide
+ * @param text Texte à transformer en clé
+ * @returns Clé de traduction normalisée
  */
+export const textToTranslationKey = (text: string): string => {
+  // Convertir en minuscules, remplacer les espaces par des points
+  // et supprimer les caractères spéciaux
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/gi, '')
+    .trim()
+    .replace(/\s+/g, '.');
+};
 
-import { Language } from '@/contexts/LanguageContext';
-
-// Format de sortie pour l'audit de traduction
-interface TranslationAuditResult {
-  missingKeys: Record<Language, string[]>;
-  totalKeys: number;
-  completionPercentage: Record<Language, number>;
-}
-
-// Extraction des clés de traduction des objets de traduction
-export function extractTranslationKeys(
-  translations: Record<Language, Record<string, string>>
-): TranslationAuditResult {
-  // Récupérer toutes les clés uniques
-  const allKeys = new Set<string>();
-  Object.values(translations).forEach(langObj => {
-    Object.keys(langObj).forEach(key => allKeys.add(key));
-  });
-  
-  // Vérifier les clés manquantes par langue
-  const missingKeys: Record<Language, string[]> = {} as Record<Language, string[]>;
-  const totalKeys = allKeys.size;
-  const completionPercentage: Record<Language, number> = {} as Record<Language, number>;
-  
-  Object.keys(translations).forEach(lang => {
-    const langKeys = Object.keys(translations[lang as Language]);
-    const missing = Array.from(allKeys).filter(key => !langKeys.includes(key));
+/**
+ * Enveloppe un composant pour traduire automatiquement ses textes
+ * @param Component Composant à traduire
+ * @returns Composant avec traductions automatiques
+ */
+export function withTranslation<P extends object>(
+  Component: React.ComponentType<P>
+): React.FC<P> {
+  return (props: P) => {
+    const { t } = useLanguage();
     
-    missingKeys[lang as Language] = missing;
-    completionPercentage[lang as Language] = 
-      ((totalKeys - missing.length) / totalKeys) * 100;
-  });
-  
-  return { missingKeys, totalKeys, completionPercentage };
-}
+    // Fonction récursive pour traduire les props
+    const translateProps = (obj: any): any => {
+      if (typeof obj === 'string') {
+        // Si c'est une chaîne de caractères, essayer de la traduire
+        // via une clé générée automatiquement
+        const key = textToTranslationKey(obj);
+        const translated = t(key);
+        // Si la traduction existe (différente de la clé), utiliser la traduction
+        return translated !== key ? translated : obj;
+      } else if (Array.isArray(obj)) {
+        // Si c'est un tableau, traduire chaque élément
+        return obj.map(item => translateProps(item));
+      } else if (obj !== null && typeof obj === 'object' && !React.isValidElement(obj)) {
+        // Si c'est un objet, traduire chaque propriété
+        const result: Record<string, any> = {};
+        for (const key in obj) {
+          result[key] = translateProps(obj[key]);
+        }
+        return result;
+      }
+      return obj;
+    };
 
-// Générer un fichier JSON de traduction par langue
-export function generateTranslationFile(
-  translations: Record<Language, Record<string, string>>,
-  language: Language
-): string {
-  // Obtenir toutes les clés disponibles
-  const allKeys = new Set<string>();
-  Object.values(translations).forEach(langObj => {
-    Object.keys(langObj).forEach(key => allKeys.add(key));
-  });
-  
-  // Créer l'objet de traduction pour la langue spécifiée
-  const langTranslations: Record<string, string> = {};
-  
-  Array.from(allKeys).sort().forEach(key => {
-    // Si la traduction existe, l'utiliser, sinon mettre un marqueur
-    langTranslations[key] = translations[language]?.[key] || `[UNTRANSLATED: ${key}]`;
-  });
-  
-  // Convertir en JSON avec indentation pour la lisibilité
-  return JSON.stringify(langTranslations, null, 2);
-}
-
-// Fonctions pour aider à migrer vers un système basé sur des fichiers
-export function migrateToFileBasedTranslations(
-  translations: Record<Language, Record<string, string>>
-): void {
-  // Pour chaque langue, générer un fichier
-  Object.keys(translations).forEach(lang => {
-    const langFile = generateTranslationFile(translations, lang as Language);
-    console.log(`Fichier de traduction pour ${lang}:`, langFile);
+    // Traduire toutes les props
+    const translatedProps = translateProps(props) as P;
     
-    // Cette fonction serait généralement utilisée pour écrire le fichier
-    // via Node.js dans un contexte de script, pas dans le navigateur
-  });
+    return <Component {...translatedProps} />;
+  };
 }
+
+/**
+ * Hook pour détecter les textes non traduits
+ * @returns Fonctions utilitaires pour la traduction
+ */
+export const useTranslationHelper = () => {
+  const { language, t, translations } = useLanguage();
+  
+  // Vérifier si une clé existe dans les traductions
+  const keyExists = (key: string): boolean => {
+    return !!translations[language]?.[key];
+  };
+  
+  // Obtenir les clés manquantes
+  const getMissingKeys = (): string[] => {
+    const allKeys = new Set<string>();
+    
+    // Collecter toutes les clés de toutes les langues
+    Object.values(translations).forEach(langTranslations => {
+      Object.keys(langTranslations).forEach(key => {
+        allKeys.add(key);
+      });
+    });
+    
+    // Filtrer les clés qui n'existent pas dans la langue actuelle
+    return Array.from(allKeys).filter(key => !translations[language]?.[key]);
+  };
+  
+  return {
+    t,
+    keyExists,
+    getMissingKeys,
+    currentLanguage: language
+  };
+};
+
+export default useTranslationHelper;
