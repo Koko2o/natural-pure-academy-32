@@ -111,20 +111,27 @@ export const trackAdPerformance = (data: {
 // Check for Ad Grant compliance issues
 export const checkAdGrantCompliance = (performanceData: any) => {
   try {
+    if (!performanceData || typeof performanceData !== 'object') {
+      console.error('Invalid performance data provided to checkAdGrantCompliance');
+      return;
+    }
+    
     const issues: string[] = [];
     
     // Check CTR across campaigns (Google requires 5% CTR)
     Object.entries(performanceData).forEach(([campaignId, campaign]: [string, any]) => {
-      if (campaign.impressions > 100 && campaign.ctr < 5) {
+      if (campaign && campaign.impressions > 100 && campaign.ctr < 5) {
         issues.push(`Campaign ${campaignId} has CTR below 5% (${campaign.ctr.toFixed(2)}%)`);
       }
       
       // Check for keywords with Quality Score < 3
-      Object.entries(campaign.adGroups).forEach(([adGroupId, adGroup]: [string, any]) => {
-        if (adGroup.qualityScore && adGroup.qualityScore < 3) {
-          issues.push(`Ad Group ${adGroupId} in Campaign ${campaignId} has low Quality Score (${adGroup.qualityScore})`);
-        }
-      });
+      if (campaign && campaign.adGroups) {
+        Object.entries(campaign.adGroups).forEach(([adGroupId, adGroup]: [string, any]) => {
+          if (adGroup && adGroup.qualityScore && adGroup.qualityScore < 3) {
+            issues.push(`Ad Group ${adGroupId} in Campaign ${campaignId} has low Quality Score (${adGroup.qualityScore})`);
+          }
+        });
+      }
     });
     
     // Store compliance issues for reporting

@@ -160,4 +160,4 @@ const GDPRCompliance: React.FC<GDPRComplianceProps> = ({
   );
 };
 
-export default GDPRCompliance;
+export default GDPRCompliance;ompliance;

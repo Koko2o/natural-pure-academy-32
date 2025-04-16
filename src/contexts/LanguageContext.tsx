@@ -17,14 +17,22 @@ export const LanguageContext = createContext<LanguageContextType>({
   t: (key: string) => key,
 });
 
-// Hook for using the language context
-export const useLanguage = () => useContext(LanguageContext);
+// Hook for using language context
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+
+  return context;
+};
 
 // Hook for using translations
 export const useTranslation = () => useContext(LanguageContext);
 
-// Re-export useLanguage to ensure it's properly exported
-export { useLanguage as default };
+// Make useLanguage the default export for backward compatibility
+export default useLanguage;
 
 // Context provider component
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
