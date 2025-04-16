@@ -94,6 +94,26 @@ const LanguageContext = React.createContext<{
 const App = () => {
   const [activeAIModel, setActiveAIModel] = useState("optimized");
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
+  
+  // Translation function for i18n
+  const t = (key: string): string => {
+    const translations: Record<string, Record<string, string>> = {
+      en: {
+        "welcome": "Welcome to Natural Pure Academy",
+        "nonprofit": "Non-profit nutrition research organization",
+        "Organisation à but non lucratif": "Non-profit organization"
+        // Add more translations as needed
+      },
+      fr: {
+        "welcome": "Bienvenue à Natural Pure Academy",
+        "nonprofit": "Organisation à but non lucratif de recherche en nutrition",
+        "Organisation à but non lucratif": "Organisation à but non lucratif"
+        // Add more translations as needed
+      }
+    };
+    
+    return translations[language]?.[key] || key;
+  };
 
   useEffect(() => {
     console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
@@ -102,7 +122,7 @@ const App = () => {
   const languageValue = useMemo(() => ({
     language,
     setLanguage,
-    t: (key: string) => key, // Simple translation - replace with actual i18n
+    t
   }), [language]);
 
   useEffect(() => {

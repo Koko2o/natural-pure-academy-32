@@ -1,30 +1,31 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Shield, CheckCircle, X } from "lucide-react";
-import { secureStorage } from "@/utils/complianceFilter";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { secureStorage } from '@/utils/secureStorage';
+import { AlertCircle, CheckCircle, X } from 'lucide-react';
 
 interface GDPRComplianceProps {
-  services: string[];
+  services?: string[];
   lang?: "fr" | "en";
   policyLink?: string;
 }
 
-const GDPRCompliance = ({
+const GDPRCompliance: React.FC<GDPRComplianceProps> = ({
   services = ["basic_analytics"],
-  lang = "fr",
-  policyLink = "/politique-confidentialite"
+  lang = "en",
+  policyLink = "/privacy-policy"
 }: GDPRComplianceProps) => {
   const [showBanner, setShowBanner] = useState(false);
   const [consented, setConsented] = useState<boolean | null>(null);
   
   useEffect(() => {
-    // Vérifier si l'utilisateur a déjà donné son consentement
+    // Check if user has already given consent
     const checkConsent = async () => {
       const userConsent = await secureStorage.get<{ consented: boolean }>("gdpr_consent", { consented: false });
       setConsented(userConsent.consented);
       
-      // Afficher la bannière si l'utilisateur n'a pas encore consenti
+      // Show banner if user hasn't consented yet
       if (!userConsent.consented) {
         setShowBanner(true);
       }
@@ -58,22 +59,26 @@ const GDPRCompliance = ({
       description: "Nous utilisons des cookies pour améliorer votre expérience et analyser l'utilisation du site.",
       services: "Services utilisés:",
       analytics: "Analyse d'audience",
-      heatmaps: "Cartographies de chaleur",
-      basic_analytics: "Statistiques de base",
+      heatmaps: "Cartographies de clics",
+      marketing: "Marketing (uniquement pour les études)",
       accept: "Accepter",
       reject: "Refuser",
-      policy: "Politique de confidentialité"
+      settings: "Paramètres",
+      policy: "Politique de confidentialité",
+      nonprofit: "Organisation à but non lucratif"
     },
     en: {
       title: "Your Privacy",
-      description: "We use cookies to enhance your experience and analyze site usage.",
+      description: "We use cookies to improve your experience and analyze site usage.",
       services: "Services used:",
       analytics: "Audience analytics",
-      heatmaps: "Heat maps",
-      basic_analytics: "Basic statistics",
+      heatmaps: "Click heatmaps",
+      marketing: "Marketing (for studies only)",
       accept: "Accept",
       reject: "Decline",
-      policy: "Privacy Policy"
+      settings: "Settings",
+      policy: "Privacy Policy",
+      nonprofit: "Non-profit organization"
     }
   };
   
@@ -81,78 +86,75 @@ const GDPRCompliance = ({
   
   if (!showBanner) return null;
   
+  const serviceLabels: Record<string, string> = {
+    basic_analytics: t.analytics,
+    heatmaps: t.heatmaps,
+    marketing: t.marketing
+  };
+  
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="gdpr-title"
-    >
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg border border-indigo-100 overflow-hidden">
-        <div className="p-4 md:p-6">
-          <div className="flex items-start">
-            <div className="flex-shrink-0 mr-4">
-              <div className="bg-indigo-100 p-2 rounded-full" aria-hidden="true">
-                <Shield className="h-6 w-6 text-indigo-600" />
-              </div>
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg">
+      <div className="container max-w-7xl mx-auto">
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-primary" />
+                {t.title}
+              </CardTitle>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setShowBanner(false)}
+                aria-label="Close privacy notice"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="flex-1">
-              <h3 id="gdpr-title" className="text-lg font-semibold text-gray-900 mb-1">{t.title}</h3>
-              <p className="text-gray-600 mb-3">{t.description}</p>
-              
-              {services.length > 0 && (
+          </CardHeader>
+          <CardContent className="pb-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-2/3">
+                <p className="mb-4 text-muted-foreground">{t.description}</p>
+                
                 <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">{t.services}</p>
-                  <div className="flex flex-wrap gap-2" role="list">
+                  <p className="font-medium mb-2">{t.services}</p>
+                  <ul className="space-y-1">
                     {services.map((service) => (
-                      <div 
-                        key={service} 
-                        className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs flex items-center"
-                        role="listitem"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" aria-hidden="true" />
-                        {t[service as keyof typeof t] || service}
-                      </div>
+                      <li key={service} className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span>{serviceLabels[service] || service}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-              )}
-              
-              <div className="flex flex-col sm:flex-row-reverse sm:items-center gap-3">
-                <Button 
-                  onClick={handleAccept}
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                  aria-label={t.accept}
-                >
-                  {t.accept}
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={handleReject}
-                  aria-label={t.reject}
-                >
-                  {t.reject}
-                </Button>
-                {policyLink && (
-                  <a 
-                    href={policyLink} 
-                    className="text-indigo-600 text-sm hover:underline sm:mr-auto"
-                    aria-label={t.policy}
-                  >
+                
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span>{t.nonprofit}</span>
+                  <span>•</span>
+                  <a href={policyLink} className="underline hover:text-primary transition-colors">
                     {t.policy}
                   </a>
-                )}
+                </div>
+              </div>
+              
+              <div className="md:w-1/3 flex flex-col justify-end">
+                <div className="space-y-2">
+                  <Button className="w-full" onClick={handleAccept}>
+                    {t.accept}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={handleReject}
+                  >
+                    {t.reject}
+                  </Button>
+                </div>
               </div>
             </div>
-            <button 
-              onClick={() => setShowBanner(false)} 
-              className="flex-shrink-0 ml-2 p-1 rounded-full hover:bg-gray-100"
-              aria-label="Fermer"
-            >
-              <X className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

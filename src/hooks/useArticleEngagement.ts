@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
+// Types
 interface ArticleEngagementOptions {
   articleId: string;
-  articleLength: number; // nombre approximatif de mots
-  averageReadingTime?: number; // en minutes
+  articleLength: number; // in words
+  averageReadingTime?: number; // in minutes per 1000 words
 }
 
 interface ArticleEngagementMetrics {
   readPercentage: number;
-  readTime: number; // en secondes
+  readTime: number; // in seconds
   scrollDepth: number;
   interactionPoints: string[];
   isEngaged: boolean;
@@ -16,8 +17,8 @@ interface ArticleEngagementMetrics {
 }
 
 /**
- * Hook qui mesure l'engagement de l'utilisateur sur un article
- * et détermine les meilleurs moments pour suggérer le quiz
+ * Hook that measures user engagement on an article
+ * and determines the best moments to suggest a quiz
  */
 export const useArticleEngagement = ({
   articleId,
@@ -33,206 +34,136 @@ export const useArticleEngagement = ({
     isPrimeForConversion: false
   });
 
-  // Références pour suivre l'état
+  // References to track state
   const startTime = useRef<number>(Date.now());
   const isReading = useRef<boolean>(true);
   const maxScrollDepth = useRef<number>(0);
   const interactionCount = useRef<number>(0);
   const readingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Gestionnaire de défilement
+  // Scroll handler
   const handleScroll = () => {
     const scrollPosition = window.scrollY;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
 
-    // Calculer la profondeur de défilement (0-100%)
+    // Calculate scroll depth (0-100%)
     const scrollPercentage = (scrollPosition / (documentHeight - windowHeight)) * 100;
 
-    // Mettre à jour la profondeur maximale atteinte
+    // Update max scroll depth
     if (scrollPercentage > maxScrollDepth.current) {
       maxScrollDepth.current = scrollPercentage;
-
-      // Ajouter un point d'interaction à chaque 25% de défilement
-      if (Math.floor(scrollPercentage / 25) > Math.floor((maxScrollDepth.current - scrollPercentage) / 25)) {
-        const milestone = `scroll-${Math.floor(scrollPercentage / 25) * 25}`;
-
-        if (!metrics.interactionPoints.includes(milestone)) {
-          setMetrics(prev => ({
-            ...prev,
-            interactionPoints: [...prev.interactionPoints, milestone]
-          }));
-        }
-      }
     }
 
-    // Mettre à jour les métriques
+    // Update metrics
     setMetrics(prev => ({
       ...prev,
-      scrollDepth: scrollPercentage
+      scrollDepth: maxScrollDepth.current
     }));
+
+    // Record interaction
+    interactionCount.current += 1;
   };
 
-  // Gestionnaire de clic
-  const handleInteraction = (e: MouseEvent) => {
-    // Ignorer les clics sur la navigation ou le footer
+  // Click handler 
+  const handleClick = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    const isNavOrFooter = target.closest('nav') || target.closest('footer');
+    const targetId = target.id || target.tagName || 'unknown';
 
-    if (!isNavOrFooter) {
-      interactionCount.current += 1;
+    setMetrics(prev => ({
+      ...prev,
+      interactionPoints: [...prev.interactionPoints, targetId]
+    }));
 
-      // Enregistrer le type d'élément cliqué
-      const elementType = target.tagName.toLowerCase();
-      const interactionPoint = `click-${elementType}-${interactionCount.current}`;
-
-      setMetrics(prev => ({
-        ...prev,
-        interactionPoints: [...prev.interactionPoints, interactionPoint]
-      }));
-    }
+    interactionCount.current += 1;
   };
 
-  // Gestionnaire de changement de focus
+  // Visibility handler
   const handleVisibilityChange = () => {
-    if (document.hidden) {
-      isReading.current = false;
-    } else {
-      isReading.current = true;
-    }
+    isReading.current = document.visibilityState === 'visible';
   };
 
-  // Initialisation des écouteurs d'événements
-  useEffect(() => {
-    // Réinitialiser le temps de début
-    startTime.current = Date.now();
-    isReading.current = true;
+  // Check engagement periodically
+  const checkEngagement = () => {
+    if (!isReading.current) return;
 
-    // Ajouter les écouteurs d'événements
-    window.addEventListener('scroll', handleScroll);
-    document.addEventListener('click', handleInteraction);
+    const now = Date.now();
+    const elapsedSeconds = (now - startTime.current) / 1000;
+
+    // Estimate read percentage based on time and content length
+    // Average reading speed: 250 words per minute
+    const wordsPerSecond = 250 / 60; 
+    const estimatedWordsRead = elapsedSeconds * wordsPerSecond;
+    const readPercentage = Math.min((estimatedWordsRead / articleLength) * 100, 100);
+
+    // Determine if user is engaged
+    const isEngaged = (
+      maxScrollDepth.current > 30 || // Scrolled more than 30%
+      interactionCount.current > 2 || // Had at least 3 interactions
+      elapsedSeconds > 30 // Spent at least 30 seconds on page
+    );
+
+    // Determine if this is a good moment for conversion
+    const isPrimeForConversion = (
+      (readPercentage > 70 || maxScrollDepth.current > 80) && // Read most of content
+      isEngaged && // Is engaged
+      interactionCount.current > 5 // Had multiple interactions
+    );
+
+    setMetrics({
+      readPercentage,
+      readTime: elapsedSeconds,
+      scrollDepth: maxScrollDepth.current,
+      interactionPoints: metrics.interactionPoints,
+      isEngaged,
+      isPrimeForConversion
+    });
+  };
+
+  // Track engagement
+  useEffect(() => {
+    // Initialize
+    startTime.current = Date.now();
+    maxScrollDepth.current = 0;
+    interactionCount.current = 0;
+
+    // Set up event listeners
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('click', handleClick);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Intervalle pour mettre à jour le temps de lecture
-    readingInterval.current = setInterval(() => {
-      if (isReading.current) {
-        const currentTime = Date.now();
-        const readTime = (currentTime - startTime.current) / 1000; // en secondes
+    // Set up interval to check engagement
+    readingInterval.current = setInterval(checkEngagement, 5000);
 
-        // Calculer le pourcentage lu basé sur le temps et la longueur de l'article
-        const avgReadTimeSeconds = averageReadingTime * 60;
-        const expectedReadTimeSeconds = (articleLength / 250) * 60; // 250 mots par minute
-        const readTimeTarget = Math.min(avgReadTimeSeconds, expectedReadTimeSeconds);
-        const readPercentage = Math.min(100, (readTime / readTimeTarget) * 100);
+    // Log initial view
+    console.log(`[ArticleEngagement] Article ${articleId} view started`);
 
-        // Déterminer si l'utilisateur est engagé (a lu au moins 30% ou a passé du temps significatif)
-        const isEngaged = readPercentage > 30 || readTime > 60; // 1 minute
-
-        // Déterminer si l'utilisateur est prêt pour la conversion
-        // (a lu plus de 60% ou a défilé jusqu'à 70% de l'article)
-        const isPrimeForConversion = 
-          (readPercentage > 60 || maxScrollDepth.current > 70) && 
-          (interactionCount.current > 0 || readTime > 90); // 1.5 minutes
-
-        setMetrics(prev => ({
-          ...prev,
-          readTime,
-          readPercentage,
-          isEngaged,
-          isPrimeForConversion
-        }));
-      }
-    }, 1000); // Mettre à jour chaque seconde
-
-    // Nettoyage
     return () => {
+      // Remove event listeners
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('click', handleInteraction);
+      window.removeEventListener('click', handleClick);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
 
+      // Clear interval
       if (readingInterval.current) {
         clearInterval(readingInterval.current);
       }
+
+      // Log final metrics
+      console.log(`[ArticleEngagement] Article ${articleId} view ended:`, {
+        readTime: (Date.now() - startTime.current) / 1000,
+        scrollDepth: maxScrollDepth.current,
+        interactions: interactionCount.current
+      });
     };
-  }, [articleId, articleLength, averageReadingTime]);
+  }, [articleId]);
 
-  return {
-    metrics
+  // This bridge function makes it easy to use in other components
+  const useArticleEngagementBridge = () => {
+    return { metrics };
   };
-};
 
-/**
- * Hook for tracking article bridge impressions and clicks (simple version)
- */
-export const useArticleBridgeTracking = () => {
-  // Enregistre l'impression du pont article vers quiz
-  const trackBridgeImpression = useCallback((articleId: string) => {
-    try {
-      // Récupérer les statistiques existantes
-      const metricsKey = `article_to_quiz_metrics_${articleId}`;
-      const existingMetricsStr = localStorage.getItem(metricsKey);
-
-      const metrics = existingMetricsStr ? JSON.parse(existingMetricsStr) : {
-        impressions: 0,
-        clicks: 0,
-        lastImpression: null,
-        lastClick: null
-      };
-
-      // Mettre à jour les impressions
-      metrics.impressions += 1;
-      metrics.lastImpression = new Date().toISOString();
-
-      // Sauvegarder les statistiques mises à jour
-      localStorage.setItem(metricsKey, JSON.stringify(metrics));
-
-      // Envoi des données à l'API d'analyse (simulé)
-      console.log(`[Analytics] Article bridge impression: ${articleId}`);
-    } catch (error) {
-      console.error('Erreur lors du suivi de l\'impression:', error);
-    }
-  }, []);
-
-  // Enregistre le clic sur le pont article vers quiz
-  const trackBridgeClick = useCallback((articleId: string) => {
-    try {
-      // Récupérer les statistiques existantes
-      const metricsKey = `article_to_quiz_metrics_${articleId}`;
-      const existingMetricsStr = localStorage.getItem(metricsKey);
-
-      const metrics = existingMetricsStr ? JSON.parse(existingMetricsStr) : {
-        impressions: 0,
-        clicks: 0,
-        lastImpression: null,
-        lastClick: null
-      };
-
-      // Mettre à jour les clics
-      metrics.clicks += 1;
-      metrics.lastClick = new Date().toISOString();
-
-      // Calculer le taux de conversion
-      metrics.conversionRate = metrics.impressions > 0 
-        ? (metrics.clicks / metrics.impressions) 
-        : 0;
-
-      // Sauvegarder les statistiques mises à jour
-      localStorage.setItem(metricsKey, JSON.stringify(metrics));
-
-      // Enregistrer l'ID de l'article pour le contexte du quiz
-      localStorage.setItem('last_article_context', articleId);
-
-      // Envoi des données à l'API d'analyse (simulé)
-      console.log(`[Analytics] Article bridge click: ${articleId}, Rate: ${metrics.conversionRate}`);
-    } catch (error) {
-      console.error('Erreur lors du suivi du clic:', error);
-    }
-  }, []);
-
-  return {
-    trackBridgeImpression,
-    trackBridgeClick
-  };
+  return { metrics, useArticleEngagementBridge };
 };
 
 export default useArticleEngagement;
