@@ -10,7 +10,7 @@ export const BANNED_PHRASES = new RegExp(
 /**
  * Assainit le contenu en remplaçant les termes non conformes
  */
-export const sanitizeContent = (text: string): string => 
+export const sanitizeContent = (text: string): string =>
   text.replace(BANNED_PHRASES, match => '*'.repeat(match.length));
 
 /**
@@ -333,9 +333,9 @@ export const analyzeContext = (text: string, term: string): boolean => {
 };
 
 // Fonction améliorée pour détecter les termes interdits avec NLP
-export const detectBannedTermsWithNLP = (content: string): { 
-  terms: string[], 
-  contexts: { term: string, context: string, isSafe: boolean }[] 
+export const detectBannedTermsWithNLP = (content: string): {
+  terms: string[],
+  contexts: { term: string, context: string, isSafe: boolean }[]
 } => {
   if (!content) return { terms: [], contexts: [] };
 
@@ -405,8 +405,8 @@ export const semanticAnalysis = (text: string): {
   riskPatterns.forEach(({ pattern, weight, safe }) => {
     if (pattern.test(lowerText)) {
       // Vérifier si le contexte est sécurisé
-      const isSafeContext = safe.test(lowerText) || 
-                           SAFE_CONTEXTS.some(ctx => lowerText.includes(ctx));
+      const isSafeContext = safe.test(lowerText) ||
+        SAFE_CONTEXTS.some(ctx => lowerText.includes(ctx));
 
       if (!isSafeContext) {
         // Trouver l'occurrence réelle pour l'ajouter aux termes à risque
@@ -428,7 +428,7 @@ export const semanticAnalysis = (text: string): {
 
 export const detectBannedTerms = (content: string): string[] => {
     const bannedTerms = [
-      'achat', 'promo', 'commander', 'prix', 'offre', 'rabais', 'boutique', 
+      'achat', 'promo', 'commander', 'prix', 'offre', 'rabais', 'boutique',
       'acheter', 'soldes', 'discount', 'bon marché', 'économies',
       'réduction', 'promotion', 'meilleur prix', 'tarif', '€'
     ];
@@ -439,17 +439,42 @@ export const detectBannedTerms = (content: string): string[] => {
       'but éducatif', 'à titre éducatif', 'contenu éducatif',
       'scientifique uniquement'
     ];
-    
+
     // Vérifier si le terme "vente" est utilisé dans un contexte éducatif
-    const hasEducationalContext = educationalContextPhrases.some(phrase => 
+    const hasEducationalContext = educationalContextPhrases.some(phrase =>
       content.toLowerCase().includes(phrase.toLowerCase())
     );
 
     // Exclure "vente" si utilisé dans un contexte éducatif
-    let termsToCheck = hasEducationalContext ? 
+    let termsToCheck = hasEducationalContext ?
       bannedTerms : [...bannedTerms, 'vente'];
 
-    return termsToCheck.filter(term => 
+    return termsToCheck.filter(term =>
       new RegExp(`\\b${term}\\b`, 'i').test(content)
     );
   };
+
+
+// Re-export functions from contentSafety to maintain compatibility
+import {
+  validateRedirectUrl,
+  isUrlCompliant,
+  detectBannedTerms as detectBannedTermsContentSafety,
+  detectWarningTerms,
+  auditPageContent
+} from './contentSafety';
+
+export {
+  validateRedirectUrl,
+  isUrlCompliant,
+  detectBannedTermsContentSafety as detectBannedTerms,
+  detectWarningTerms,
+  auditPageContent,
+  sanitizeContent,
+  safeRedirect,
+  analyzeContext,
+  detectBannedTermsWithNLP,
+  semanticAnalysis,
+  SecureUserData,
+  secureStorage
+};

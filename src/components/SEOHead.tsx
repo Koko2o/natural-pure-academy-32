@@ -8,45 +8,38 @@ interface SEOHeadProps {
   keywords?: string;
   canonicalUrl?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article';
-  twitterCard?: 'summary' | 'summary_large_image';
+  ogType?: string;
+  twitterCard?: string;
 }
 
-export function SEOHead({
-  title,
-  description,
-  keywords,
-  canonicalUrl,
-  ogImage,
-  ogType = 'website',
-  twitterCard = 'summary_large_image'
+export function SEOHead({ 
+  title, 
+  description, 
+  keywords, 
+  canonicalUrl, 
+  ogImage, 
+  ogType = 'website', 
+  twitterCard = 'summary_large_image' 
 }: SEOHeadProps) {
-  const siteUrl = window.location.origin;
-  const fullCanonicalUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : window.location.href;
-  
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <link rel="canonical" href={fullCanonicalUrl} />
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       
-      {/* Open Graph tags */}
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={ogType} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:url" content={fullCanonicalUrl} />
-      <meta property="og:type" content={ogType} />
+      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
       {ogImage && <meta property="og:image" content={ogImage} />}
       
-      {/* Twitter Card tags */}
+      {/* Twitter */}
       <meta name="twitter:card" content={twitterCard} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       {ogImage && <meta name="twitter:image" content={ogImage} />}
-      
-      {/* Nonprofit metadata for Google Ad Grant compliance */}
-      <meta name="organization-type" content="nonprofit" />
-      <meta name="organization-purpose" content="education" />
     </Helmet>
   );
 }

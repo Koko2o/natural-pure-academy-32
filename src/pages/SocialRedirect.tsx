@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { validateRedirectUrl } from "@/utils/complianceFilter";
+import { validateRedirectUrl } from "@/utils/contentSafety";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ShieldCheck, AlertTriangle, Clock } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
