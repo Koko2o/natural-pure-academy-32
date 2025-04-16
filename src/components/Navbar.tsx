@@ -49,11 +49,14 @@ const Navbar = () => {
     window.addEventListener('languageChange', handleLanguageChange);
     document.addEventListener('app-language-changed', handleAppLangChange);
     
+    // Log pour le débogage
+    console.log(`[Navbar] Current language set to: ${language}`);
+    
     return () => {
       window.removeEventListener('languageChange', handleLanguageChange);
       document.removeEventListener('app-language-changed', handleAppLangChange);
     };
-  }, [language]);
+  }, [languagee]);
 
   // Use translation function directly for navigation items
   const labels = {

@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Styles pour la gestion des langues */
+html[data-language="en"] .fr-only {
+  display: none !important;
+}
+
+html[data-language="fr"] .en-only {
+  display: none !important;
+}
+
+/* Animation pour le changement de langue */
+.language-changed {
+  animation: fade-update 0.3s ease-in-out;
+}
+
+@keyframes fade-update {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* Styles spécifiques à chaque langue */
+html[data-language="en"] .language-indicator {
+  color: #0055ff;
+}
+
+html[data-language="fr"] .language-indicator {
+  color: #0055ff;
+}
+
 /* Classes spécifiques par langue pour le site */
 html[lang="fr"] .lang-specific-en,
 html[data-language="fr"] .lang-specific-en {

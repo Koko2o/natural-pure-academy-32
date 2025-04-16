@@ -17,27 +17,10 @@ const LanguageSwitcher: React.FC = () => {
     console.log(`[Language] Switching from ${language} to ${newLanguage}`);
     
     try {
-      // 1. Mettre à jour localStorage
-      localStorage.setItem('preferredLanguage', newLanguage);
+      // Méthode plus directe qui force le reload avec le paramètre lang
+      window.location.href = `/?lang=${newLanguage}&force=true&t=${Date.now()}`;
       
-      // 2. Mettre à jour les attributs HTML
-      document.documentElement.lang = newLanguage;
-      document.documentElement.setAttribute('data-language', newLanguage);
-      
-      // 3. Appliquer les classes CSS
-      if (newLanguage === 'fr') {
-        document.body.classList.add('lang-fr');
-        document.body.classList.remove('lang-en');
-      } else {
-        document.body.classList.add('lang-en');
-        document.body.classList.remove('lang-fr');
-      }
-      
-      // 4. Mettre à jour le contexte React
-      setLanguage(newLanguage);
-      
-      // 5. Forcer un rechargement de la page
-      window.location.href = `/?lang=${newLanguage}&t=${Date.now()}`;
+      // Le reste du traitement se fait au chargement de la page dans LanguageContext
       
     } catch (error) {
       console.error('[Language] Error during language switch:', error);
@@ -45,6 +28,7 @@ const LanguageSwitcher: React.FC = () => {
     }
   };
 
+  // Affiche le bouton pour alterner vers l'autre langue
   return (
     <Button 
       variant="ghost" 
@@ -55,7 +39,10 @@ const LanguageSwitcher: React.FC = () => {
       title={language === 'en' ? 'Passer au français' : 'Switch to English'}
     >
       <Globe className="h-3.5 w-3.5" />
-      <span>{language === 'en' ? 'FR' : 'EN'}</span>
+      <span className="language-indicator">
+        {/* Afficher la langue vers laquelle on va basculer */}
+        {language === 'en' ? 'FR' : 'EN'}
+      </span>
     </Button>
   );
 };
