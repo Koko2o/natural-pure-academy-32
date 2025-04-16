@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, useTranslation } from '@/contexts/LanguageContext';
 
 interface SEOProps {
   title?: string;
@@ -131,3 +131,4 @@ export const SEOHead: React.FC<SEOProps> = ({
 };
 
 export default SEOHead;
+export { SEOHead };

@@ -202,15 +202,7 @@ export const auditPageContent = (content: string): {
       }
       
       // Chercher la prochaine occurrence
-      index = pageContent.indexOf(term.toLowerCase(), index + term.length);
-    }
-  }
-  
-  return {
-    isCompliant: issues.length === 0,
-    issues
-  };
-};LowerCase(), index + 1);
+      index = pageContent.indexOf(term.toLowerCase(), index + 1);
     }
   }
   

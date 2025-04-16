@@ -13,7 +13,7 @@ from = "/*"
 to = "/index.html"
 
 [workflows]
-runButton = "Run on Port 5000"
+runButton = "Run"
 
 [[workflows.workflow]]
 name = "Run"
@@ -22,7 +22,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev -- --port 3000 --host 0.0.0.0"
+args = "npm run dev -- --port 5000 --host 0.0.0.0"
 
 [[workflows.workflow]]
 name = "Deploy"
