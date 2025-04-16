@@ -1,4 +1,3 @@
-
 /**
  * Utilitaires pour la sécurité du contenu et la conformité Google Ad Grants
  */
@@ -13,15 +12,15 @@ export const bannedTerms = [
 // Fonction pour détecter les termes interdits avec détection améliorée
 export const detectBannedTerms = (content: string): string[] => {
   if (!content) return [];
-  
+
   const pageContent = content.toLowerCase();
-  
+
   // Détection plus sophistiquée avec contexte
   const detectedTerms: string[] = [];
-  
+
   // Première passe : détection simple
   const simpleDetectedTerms = bannedTerms.filter(term => pageContent.includes(term.toLowerCase()));
-  
+
   // Deuxième passe : analyse contextuelle (exclure les contextes éducatifs)
   const safeContextPhrases = [
     'étude scientifique', 'recherche montre', 'selon les études',
@@ -29,7 +28,7 @@ export const detectBannedTerms = (content: string): string[] => {
     'aucune vente', 'sans vente', 'ne commercialise', 
     'non commercial', 'scientifique uniquement'
   ];
-  
+
   for (const term of simpleDetectedTerms) {
     // Si le terme est "vente" et le contexte contient des phrases de non-vente,
     // considérer le contexte comme sûr automatiquement
@@ -39,7 +38,7 @@ export const detectBannedTerms = (content: string): string[] => {
         pageContent.includes('ne commercialise'))) {
       continue;
     }
-    
+
     // Recherche des occurrences du terme
     const termIndex = pageContent.indexOf(term);
     if (termIndex > -1) {
@@ -47,16 +46,16 @@ export const detectBannedTerms = (content: string): string[] => {
       const contextStart = Math.max(0, termIndex - 50);
       const contextEnd = Math.min(pageContent.length, termIndex + term.length + 50);
       const context = pageContent.substring(contextStart, contextEnd);
-      
+
       // Vérifier si le contexte contient une phrase de contexte sûr
       const isSafeContext = safeContextPhrases.some(phrase => context.includes(phrase));
-      
+
       if (!isSafeContext) {
         detectedTerms.push(term);
       }
     }
   }
-  
+
   return [...new Set(detectedTerms)]; // Éliminer les doublons
 };
 
@@ -71,7 +70,7 @@ export const semanticRotator = {
     "Consulter nos publications scientifiques",
     "Examiner les protocoles de l'étude"
   ],
-  
+
   // Messages pour le quiz
   quizCta: [
     "Valider mon profil nutritionnel",
@@ -80,7 +79,7 @@ export const semanticRotator = {
     "Obtenir mon analyse personnalisée",
     "Découvrir mon bilan complet"
   ],
-  
+
   // Messages scientifiques
   scientificInsights: [
     "87% des participants à l'étude ont constaté une amélioration",
@@ -89,7 +88,7 @@ export const semanticRotator = {
     "93% des sujets présentant ce profil ont vu une réduction des symptômes",
     "L'analyse statistique révèle un seuil d'efficacité après 14 jours"
   ],
-  
+
   // Badges de crédibilité scientifique
   scientificBadges: [
     "Étude validée par 3 universités",
@@ -98,23 +97,23 @@ export const semanticRotator = {
     "Étude sur 16 semaines",
     "243 participants"
   ],
-  
+
   // Fonction pour obtenir un élément aléatoire mais stable d'un tableau
   getRotatedItem: (items: string[], seedModifier: string = ''): string => {
     // Créer un seed basé sur le jour pour une rotation quotidienne stable
     const today = new Date();
     const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    
+
     // Ajouter un modificateur optionnel pour diversifier les rotations
     const seedValue = seedModifier 
       ? daySeed + seedModifier.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
       : daySeed;
-    
+
     // Sélectionner un élément basé sur le seed
     const index = seedValue % items.length;
     return items[index];
   },
-  
+
   // Fonction pour obtenir un élément aléatoire lors de chaque appel (pour variation)
   getRandomItem: (items: string[]): string => {
     const index = Math.floor(Math.random() * items.length);
@@ -130,20 +129,20 @@ export const calculateRiskScore = (
 ): number => {
   // Base score influenced by time spent (ajusté pour un meilleur équilibre)
   const timeWeight = Math.min(timeSpentSeconds / 60, 5) * 6; // Max 30 points pour 5 minutes
-  
+
   // Questions answered contribute to the score (pondération augmentée)
   const questionWeight = questionsAnswered * 8; // 8 points par question
-  
+
   // Critical responses have higher impact
   const criticalWeight = criticalResponses * 12; // 12 points par réponse critique
-  
+
   // Facteur aléatoire pour éviter des scores trop prévisibles (±5 points)
   const randomFactor = Math.floor(Math.random() * 10) - 5;
-  
+
   // Calculate total score, normalize between 0-100
   const rawScore = timeWeight + questionWeight + criticalWeight + randomFactor;
   const normalizedScore = Math.min(Math.max(Math.round(rawScore), 0), 100);
-  
+
   return normalizedScore;
 };
 
@@ -180,7 +179,7 @@ export const auditPageContent = (content: string): {
 } => {
   const pageContent = content.toLowerCase();
   const issues: Array<{term: string, context: string}> = [];
-  
+
   for (const term of bannedTerms) {
     let index = pageContent.indexOf(term.toLowerCase());
     while (index !== -1) {
@@ -188,7 +187,7 @@ export const auditPageContent = (content: string): {
       const contextStart = Math.max(0, index - 30);
       const contextEnd = Math.min(pageContent.length, index + term.length + 30);
       const context = content.substring(contextStart, contextEnd);
-      
+
       // Vérifier si le contexte est sûr (scientifique/éducatif)
       if (!isContextSafe(context)) {
         // Ajouter l'occurrence à la liste des problèmes
@@ -200,12 +199,12 @@ export const auditPageContent = (content: string): {
           )
         });
       }
-      
+
       // Chercher la prochaine occurrence
       index = pageContent.indexOf(term.toLowerCase(), index + 1);
     }
   }
-  
+
   return {
     isCompliant: issues.length === 0,
     issues

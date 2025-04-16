@@ -20,6 +20,9 @@ export const LanguageContext = createContext<LanguageContextType>({
 // Hook for using the language context
 export const useLanguage = () => useContext(LanguageContext);
 
+// Hook for using translations
+export const useTranslation = () => useContext(LanguageContext);
+
 // Context provider component
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
@@ -124,6 +127,3 @@ const translations = {
     'Our research and educational resources are available in multiple languages to support a global audience.': 'Nos recherches et ressources éducatives sont disponibles en plusieurs langues pour soutenir un public mondial.',
   }
 };
-
-// Custom hook to use the language context
-export const useTranslation = () => useContext(LanguageContext);
