@@ -68,6 +68,26 @@ html[data-language="en"] .lang-specific-en {
   100% { opacity: 1; }
 }
 
+/* Règles globales pour assurer que tout le contenu respecte la langue sélectionnée */
+[data-lang="fr"] {
+  display: none !important;
+}
+
+[data-lang="en"] {
+  display: none !important;
+}
+
+html[lang="fr"] [data-lang="fr"],
+body.lang-fr [data-lang="fr"] {
+  display: block !important;
+}
+
+html[lang="en"] [data-lang="en"],
+body.lang-en [data-lang="en"] {
+  display: block !important;
+}ty: 1; }
+}
+
 /* Styles améliorés pour l'interface du quiz */
 .text-gradient {
   background: linear-gradient(90deg, #1a365d 0%, #2563eb 100%);

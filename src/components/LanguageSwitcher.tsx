@@ -57,7 +57,10 @@ const LanguageSwitcher: React.FC = () => {
       
       // 6. Forcer un rechargement complet de la page pour garantir que tous les composants sont mis à jour
       setTimeout(() => {
-        window.location.reload(); // Utiliser reload() plutôt que changer l'URL pour forcer un rechargement complet
+        // Ajouter un paramètre de langue à l'URL pour forcer le rechargement avec la bonne langue
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', newLanguage);
+        window.location.href = url.toString();
       }, 100);
     } catch (error) {
       console.error('[Language] Error during language switch:', error);
