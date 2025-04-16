@@ -7,6 +7,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,18 +19,20 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const { t } = useLanguage();
+  
   const links = [
-    { name: "Accueil", path: "/" },
-    { name: "Articles", path: "/articles" },
-    { name: "Quiz Nutrition", path: "/quiz" },
-    { name: "Profil Santé", path: "/profil-sante" },
-    { name: "Nos Recherches", path: "/nos-recherches" },
-    { name: "Labo Solutions", path: "/labo-solutions" },
-    { name: "Nutrition", path: "/nutrition" },
-    { name: "Bibliothèque Scientifique", path: "/bibliotheque-scientifique" }, 
-    { name: "Notre Impact", path: "/impact" }, // Added Impact page link
-    { name: "À propos", path: "/about" },
-    { name: "Contact", path: "/contact" },
+    { name: t('nav.home'), path: "/" },
+    { name: t('nav.articles'), path: "/articles" },
+    { name: t('nav.quiz'), path: "/quiz" },
+    { name: t('nav.profile'), path: "/profil-sante" },
+    { name: t('nav.research'), path: "/nos-recherches" },
+    { name: t('nav.lab'), path: "/labo-solutions" },
+    { name: t('nav.nutrition'), path: "/nutrition" },
+    { name: t('nav.library'), path: "/bibliotheque-scientifique" }, 
+    { name: t('nav.impact'), path: "/impact" },
+    { name: t('nav.about'), path: "/about" },
+    { name: t('nav.contact'), path: "/contact" },
   ];
 
   const isActive = (path: string) => {
@@ -55,9 +59,12 @@ const Navbar = () => {
   return (
     <nav className="border-b border-natural-200 bg-white sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-natural-700 to-natural-500">
-          NaturalPure
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-natural-700 to-natural-500">
+            NaturalPure
+          </Link>
+          <LanguageSwitcher />
+        </div>
 
         {isMobile ? (
           <Sheet open={isOpen} onOpenChange={setIsOpen}>

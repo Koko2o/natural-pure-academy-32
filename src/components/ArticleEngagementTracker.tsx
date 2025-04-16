@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { trackContentQuality } from '@/utils/adGrantCompliance';
 
 interface ArticleEngagementMetrics {
   readingTime: number;
@@ -91,6 +92,22 @@ const ArticleEngagementTracker = () => {
     
     if (article) {
       articleRef.current = article as HTMLElement;
+      
+      // Track content quality metrics for Google Ad Grant compliance
+      const text = article.textContent || '';
+      const wordCount = text.split(/\s+/).length;
+      const readTime = Math.ceil(wordCount / 250); // Avg reading speed
+      const hasCitations = Boolean(article.querySelector('cite') || 
+                                  article.textContent?.includes('et al.') ||
+                                  article.textContent?.includes('référence'));
+      const hasStructuredData = Boolean(document.querySelector('script[type="application/ld+json"]'));
+      
+      trackContentQuality(location.pathname, {
+        wordCount,
+        readTime,
+        hasScientificCitations: hasCitations,
+        hasStructuredData
+      });
     }
     
     const handleScroll = () => {

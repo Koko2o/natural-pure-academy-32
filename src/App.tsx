@@ -23,6 +23,9 @@ import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
 import NosRecherches from "@/pages/NosRecherches";
 import BibliothequeScientifique from './pages/BibliothequeScientifique';
 import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
+import { LanguageProvider } from "./components/LanguageProvider"; // Assuming this is where LanguageProvider is defined
+import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; // Assuming this component exists
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,15 +110,18 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="min-h-screen bg-background">
-          <Toaster position="top-right" />
-          <Sonner />
-          <MetricTracker />
-          <ConversionTracker />
-          <Outlet />
-        </div>
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <div className="min-h-screen bg-background">
+            <Toaster position="top-right" />
+            <Sonner />
+            <Outlet />
+            <MetricTracker />
+            <ConversionTracker />
+            <ArticleEngagementTracker />
+          </div>
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 };
