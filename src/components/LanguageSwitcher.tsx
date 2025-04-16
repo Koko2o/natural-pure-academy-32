@@ -23,8 +23,8 @@ const LanguageSwitcher: React.FC = () => {
     // Log confirmation
     console.log(`[Language] Applied language change: ${newLanguage}`);
     
-    // Force re-render by reloading the page (uncomment if needed)
-    // window.location.reload();
+    // Force re-render by reloading la page pour appliquer à tout le site
+    window.location.reload();
   };
 
   return (
