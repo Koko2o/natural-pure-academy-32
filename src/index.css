@@ -7,12 +7,38 @@
   animation: flash-update 0.5s;
 }
 
-html[lang="fr"] .en-only {
+/* Sélecteurs pour afficher/masquer du contenu selon la langue */
+html[lang="fr"] .en-only,
+body.lang-fr .en-only,
+html[data-language="fr"] .en-only {
   display: none !important;
 }
 
-html[lang="en"] .fr-only {
+html[lang="en"] .fr-only,
+body.lang-en .fr-only,
+html[data-language="en"] .fr-only {
   display: none !important;
+}
+
+/* Sélecteurs spécifiques par langue pour aider au débogage */
+.lang-specific-fr {
+  display: none;
+}
+
+.lang-specific-en {
+  display: none;
+}
+
+html[lang="fr"] .lang-specific-fr,
+body.lang-fr .lang-specific-fr,
+html[data-language="fr"] .lang-specific-fr {
+  display: block !important;
+}
+
+html[lang="en"] .lang-specific-en,
+body.lang-en .lang-specific-en,
+html[data-language="en"] .lang-specific-en {
+  display: block !important;
 }
 
 @keyframes flash-update {

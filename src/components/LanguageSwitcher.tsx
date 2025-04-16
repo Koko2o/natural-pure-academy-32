@@ -14,20 +14,38 @@ const LanguageSwitcher: React.FC = () => {
     // Log language change for debugging
     console.log(`[Language] Switching from ${language} to ${newLanguage}`);
     
-    // Force language refresh with localStorage
+    // Définir HTML lang attribute immédiatement
+    document.documentElement.lang = newLanguage;
+    document.documentElement.setAttribute('data-language', newLanguage);
+    
+    // Force language refresh with localStorage - AVANT le reload
     localStorage.setItem('preferredLanguage', newLanguage);
     
-    // Update the language using the context
-    setLanguage(newLanguage);
-    
-    // Log confirmation
-    console.log(`[Language] Applied language change: ${newLanguage}`);
+    // Envoyer un signal fort au navigateur pour le changement de langue
+    if (newLanguage === 'fr') {
+      document.body.classList.add('lang-fr');
+      document.body.classList.remove('lang-en');
+    } else {
+      document.body.classList.add('lang-en');
+      document.body.classList.remove('lang-fr');
+    }
     
     // Déclencher un événement pour informer tous les composants du changement de langue
+    window.dispatchEvent(new CustomEvent('languageChange', { detail: newLanguage }));
     document.dispatchEvent(new CustomEvent('app-language-changed', { detail: { language: newLanguage } }));
     
-    // Force re-render by reloading la page pour appliquer à tout le site
-    window.location.reload();
+    // Log confirmation
+    console.log(`[Language] Applied language change: ${newLanguage} and updated DOM`);
+    
+    // Update the language using the context - APRÈS avoir mis à jour le DOM
+    setLanguage(newLanguage);
+    
+    // Ajouter un délai court pour s'assurer que tout est enregistré
+    setTimeout(() => {
+      console.log(`[Language] Reloading page to apply language: ${newLanguage}`);
+      // Force re-render by reloading la page pour appliquer à tout le site
+      window.location.reload();
+    }, 100);
   };
 
   return (

@@ -27,6 +27,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
 import ComplianceAlert from '@/components/ComplianceAlert'; 
 import { autoCheckCompliance } from '@/utils/adGrantCompliance'; 
+import LanguageDebugger from '@/components/LanguageDebugger'; 
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,17 @@ const App = () => {
     };
   }, [activeAIModel]);
 
+  // Synchroniser la langue au montage du composant
+  useEffect(() => {
+    // Synchroniser avec localStorage au démarrage
+    const storedLanguage = localStorage.getItem('preferredLanguage');
+    if (storedLanguage === 'en' || storedLanguage === 'fr') {
+      document.documentElement.lang = storedLanguage;
+      document.documentElement.setAttribute('data-language', storedLanguage);
+      console.log(`[App] Applied stored language on mount: ${storedLanguage}`);
+    }
+  }, []);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
@@ -109,6 +121,8 @@ const App = () => {
               <ConversionTracker />
               <ArticleEngagementTracker />
               <ComplianceAlert />
+              {/* Débogueur de langue - à supprimer une fois le problème résolu */}
+              {import.meta.env.DEV && <LanguageDebugger />}
             </div>
           </div>
         </TooltipProvider>
