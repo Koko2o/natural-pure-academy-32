@@ -14,6 +14,8 @@ import ProfileSante from './pages/ProfileSante';
 import NosRecherches from './pages/NosRecherches';
 import LaboSolutions from './pages/LaboSolutions';
 import Nutrition from './pages/Nutrition';
+import Impact from './pages/Impact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,8 @@ const router = createBrowserRouter([
       { path: 'nos-recherches', element: <NosRecherches /> },
       { path: 'labo-solutions', element: <LaboSolutions /> },
       { path: 'nutrition', element: <Nutrition /> },
+      { path: 'impact', element: <Impact /> },
+      { path: 'privacy-policy', element: <PrivacyPolicy /> },
     ],
   },
 ]);

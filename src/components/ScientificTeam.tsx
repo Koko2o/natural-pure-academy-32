@@ -368,3 +368,128 @@ const ScientificTeam = () => {
 };
 
 export default ScientificTeam;
+import React from 'react';
+import { Card } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
+
+interface TeamMember {
+  id: string;
+  name: string;
+  title: string;
+  credentials: string;
+  bio: string;
+  photoUrl: string;
+  publications?: string[];
+}
+
+const teamMembers: TeamMember[] = [
+  {
+    id: "marie-dubois",
+    name: "Dr. Marie Dubois, PhD",
+    title: "Director of Research",
+    credentials: "PhD in Nutritional Biochemistry, Harvard University",
+    bio: "Dr. Dubois leads our micronutrient research program with over 15 years of experience in nutritional biochemistry. Her groundbreaking work on magnesium metabolism has been published in leading scientific journals.",
+    photoUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
+    publications: [
+      "Dubois, M. et al. (2023). 'Magnesium intake and cortisol regulation'. Journal of Nutritional Biochemistry, 45(2), 112-120.",
+      "Dubois, M. & Johnson, R. (2022). 'Micronutrient deficiencies in urban populations'. American Journal of Clinical Nutrition, 78(3), 502-511."
+    ]
+  },
+  {
+    id: "thomas-legrand",
+    name: "Thomas Legrand, MSc",
+    title: "Senior Researcher",
+    credentials: "MSc in Human Nutrition, University of California",
+    bio: "Thomas specializes in clinical applications of nutritional research. His focus on translating complex scientific findings into practical dietary recommendations has helped thousands improve their nutritional intake.",
+    photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
+    publications: [
+      "Legrand, T. & Smith, A. (2024). 'B-vitamin supplementation in cognitive health'. Frontiers in Nutrition, 12(1), 45-59.",
+      "Legrand, T. (2023). 'Dietary patterns and micronutrient adequacy'. Journal of Nutrition Education, 41(4), 301-312."
+    ]
+  },
+  {
+    id: "jennifer-chen",
+    name: "Dr. Jennifer Chen, MD, PhD",
+    title: "Medical Director",
+    credentials: "MD, Yale University; PhD in Nutritional Sciences, MIT",
+    bio: "Dr. Chen bridges the gap between clinical medicine and nutritional science. Her dual training allows her to design research protocols that address real-world health challenges through nutritional interventions.",
+    photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
+    publications: [
+      "Chen, J. et al. (2023). 'Clinical outcomes of targeted micronutrient therapy in fatigue patients'. Journal of Clinical Nutrition, 38(2), 112-125.",
+      "Chen, J. & Wong, P. (2022). 'Zinc status and immune function: A meta-analysis'. Advances in Nutrition, 13(5), 780-792."
+    ]
+  },
+  {
+    id: "michael-rodriguez",
+    name: "Dr. Michael Rodriguez, PhD",
+    title: "Lead Biochemist",
+    credentials: "PhD in Biochemistry, Stanford University",
+    bio: "Dr. Rodriguez specializes in the molecular mechanisms of micronutrient metabolism. His laboratory research has uncovered novel pathways through which vitamins and minerals influence cellular function.",
+    photoUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
+    publications: [
+      "Rodriguez, M. & Johnson, K. (2024). 'Cellular uptake mechanisms of mineral compounds'. Journal of Biological Chemistry, 299(3), 4501-4512.",
+      "Rodriguez, M. et al. (2023). 'Structural changes in enzymes with varied mineral cofactors'. Biochemistry, 62(5), 641-653."
+    ]
+  },
+  {
+    id: "sarah-washington",
+    name: "Sarah Washington, RD, MPH",
+    title: "Director of Education",
+    credentials: "Registered Dietitian; Master of Public Health, Johns Hopkins University",
+    bio: "Sarah leads our educational initiatives, translating research findings into accessible content for healthcare professionals and the public. Her background in public health informs our community outreach programs.",
+    photoUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
+    publications: [
+      "Washington, S. & Miller, J. (2023). 'Effectiveness of digital nutrition education platforms'. Journal of Nutrition Education and Behavior, 55(4), 410-418.",
+      "Washington, S. (2022). 'Health literacy and nutrient adequacy in diverse populations'. Public Health Nutrition, 25(7), 1103-1112."
+    ]
+  }
+];
+
+const ScientificTeam: React.FC = () => {
+  return (
+    <div className="py-12 bg-white">
+      <Container>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Scientific Team</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Natural Pure Academy brings together leading experts in nutrition, biochemistry, and medicine. 
+            Our multidisciplinary team is dedicated to advancing scientific knowledge on micronutrients and human health.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {teamMembers.map((member) => (
+            <Card key={member.id} className="overflow-hidden">
+              <div className="p-1">
+                <img 
+                  src={member.photoUrl} 
+                  alt={member.name} 
+                  className="w-full h-64 object-cover rounded-t-lg"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
+                <p className="text-indigo-600 font-medium mb-1">{member.title}</p>
+                <p className="text-sm text-gray-500 mb-4">{member.credentials}</p>
+                <p className="text-gray-700 mb-4">{member.bio}</p>
+                
+                {member.publications && member.publications.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Selected Publications:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1 pl-5 list-disc">
+                      {member.publications.map((pub, index) => (
+                        <li key={index}>{pub}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Container>
+    </div>
+  );
+};
+
+export default ScientificTeam;

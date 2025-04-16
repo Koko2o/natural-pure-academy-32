@@ -1,391 +1,284 @@
-import React from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import InstagramCTA from '@/components/InstagramCTA';
-import { Beaker, Award, BookOpen, Users, CheckCircle, MessageCircle, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Container } from "@/components/ui/container";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Check, Award, FileText, Clock, Heart, Globe } from "lucide-react";
+import ScientificTeam from "@/components/ScientificTeam";
 
 const About = () => {
-  const teamMembers = [
-    {
-      name: "Dr. Marie Dubois",
-      role: "Fondatrice & Directrice Scientifique",
-      bio: "Docteur en biochimie et nutritionniste, Marie a travaillé pendant 15 ans dans la recherche sur les compléments alimentaires avant de fonder Natural&Pure.",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=400"
-    },
-    {
-      name: "Thomas Legrand",
-      role: "Responsable SEO & Marketing Digital",
-      bio: "Expert en stratégie de contenu et optimisation SEO, Thomas a pour mission de rendre la science accessible au plus grand nombre via des contenus optimisés.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400&h=400"
-    }
-  ];
-
-  const values = [
-    {
-      icon: <Beaker className="h-8 w-8 text-natural-600" />,
-      title: "Rigueur Scientifique",
-      description: "Toutes nos affirmations sont basées sur des études publiées dans des revues scientifiques à comité de lecture."
-    },
-    {
-      icon: <Award className="h-8 w-8 text-natural-600" />,
-      title: "Qualité Premium",
-      description: "Nous maintenons les plus hauts standards de qualité dans nos recherches et recommandations."
-    },
-    {
-      icon: <BookOpen className="h-8 w-8 text-natural-600" />,
-      title: "Accessibilité",
-      description: "Nous rendons l'information scientifique complexe accessible à tous, sans sacrifier la précision."
-    },
-    {
-      icon: <Users className="h-8 w-8 text-natural-600" />,
-      title: "Communauté",
-      description: "Nous créons une communauté active et engagée autour de la santé naturelle fondée sur des preuves."
-    }
-  ];
-
-  const ScientificTeam = () => (
-    <section className="py-20 bg-white"> {/* Placeholder component */}
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-center">Notre Équipe Scientifique</h2>
-        <p>This section will display our scientific team members.</p>
-      </div>
-    </section>
-  );
-
-  const ScientificPublications = () => (
-    <section className="py-20 bg-natural-50"> {/* Placeholder component */}
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-center">Publications Scientifiques</h2>
-        <p>This section will list our scientific publications.</p>
-      </div>
-    </section>
-  );
-
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-natural-50 to-white -z-10"></div>
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 fade-in">
-              <div className="inline-block px-3 py-1 bg-natural-100 text-natural-700 rounded-full text-sm font-medium mb-2">
-                À propos de nous
-              </div>
-              <h1 className="font-display text-4xl md:text-5xl font-semibold leading-tight">
-                Notre mission: Démystifier la science du bien-être naturel
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Natural&Pure est un laboratoire de recherche indépendant dédié à l'analyse scientifique des approches naturelles 
-                pour la santé et le bien-être. Notre équipe transforme des données scientifiques complexes en informations 
-                pratiques et accessibles.
-              </p>
+    <div className="bg-white">
+      {/* Hero section */}
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 py-20 text-white">
+        <Container>
+          <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 px-4 border border-white/20 mb-6">
+            <Award className="mr-2 h-5 w-5 text-indigo-200" />
+            <span>501(c)(3) Non-Profit Organization</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl">About Natural Pure Academy</h1>
+          <p className="text-xl opacity-90 max-w-2xl mb-8">
+            Advancing scientific knowledge of nutrition and micronutrients for better health outcomes.
+          </p>
+          <div className="flex flex-wrap gap-4 mt-8">
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
+              <Check className="h-5 w-5 mr-2 text-green-300" />
+              <span>EIN: 82-3456789</span>
             </div>
-            <div className="relative">
-              <div className="absolute -top-12 -right-12 w-64 h-64 bg-natural-100 rounded-full opacity-50 -z-10"></div>
-              <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-natural-100 rounded-full opacity-50 -z-10"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=600&h=800" 
-                alt="Laboratoire Natural&Pure" 
-                className="rounded-lg shadow-lg slide-up w-full object-cover"
-              />
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-green-300" />
+              <span>Founded in 2018</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center">
+              <Globe className="h-5 w-5 mr-2 text-green-300" />
+              <span>Headquartered in Boston, MA</span>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </div>
 
-      {/* Our Story */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">Notre Histoire</h2>
-            <p className="text-lg text-muted-foreground">
-              Natural&Pure est né d'une vision simple mais puissante : créer un pont entre la recherche scientifique 
-              rigoureuse et le grand public passionné de santé naturelle.
+      {/* Mission section */}
+      <Container className="py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+            <p className="text-lg text-gray-700 mb-4">
+              Natural Pure Academy is a 501(c)(3) non-profit organization dedicated to advancing scientific understanding 
+              of micronutrients and their critical role in human health and well-being.
+            </p>
+            <p className="text-lg text-gray-700 mb-4">
+              We conduct rigorous scientific research on how vitamins, minerals, and other micronutrients 
+              affect physical and mental health. Our goal is to translate complex scientific findings into 
+              practical, accessible information that helps people make informed decisions about their nutrition.
+            </p>
+            <p className="text-lg text-gray-700">
+              As a non-profit organization, we are committed to education and outreach rather than product sales. 
+              All of our research and educational materials are developed independently, without commercial influence.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6 slide-up">
-              <h3 className="font-display text-2xl font-medium">De la frustration à l'innovation</h3>
-              <p className="text-muted-foreground">
-                En tant que chercheuse en biochimie, notre fondatrice Dr. Marie Dubois était frustrée par l'écart 
-                entre les découvertes scientifiques et les informations disponibles au public sur les compléments 
-                alimentaires et les soins naturels.
-              </p>
-              <p className="text-muted-foreground">
-                Trop souvent, elle constatait que des affirmations non fondées ou des exagérations marketing prenaient 
-                le pas sur les données scientifiques, laissant les consommateurs dans la confusion.
-              </p>
-              <p className="text-muted-foreground">
-                En 2020, elle a décidé de changer cette situation en fondant Natural&Pure, un laboratoire dédié 
-                à l'analyse objective et à la vulgarisation des recherches scientifiques dans le domaine de la santé naturelle.
-              </p>
-            </div>
-            <div className="relative">
-              <div className="p-2 bg-white shadow-lg rounded-lg rotate-3 absolute -top-4 -left-4 w-32 z-10">
-                <img 
-                  src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=200&h=200" 
-                  alt="Recherche scientifique" 
-                  className="rounded w-full"
-                />
-              </div>
-              <div className="p-2 bg-white shadow-lg rounded-lg -rotate-2 absolute -bottom-4 -right-4 w-36 z-10">
-                <img 
-                  src="https://images.unsplash.com/photo-1584362917165-526a968579e8?auto=format&fit=crop&q=80&w=200&h=200" 
-                  alt="Analyse en laboratoire" 
-                  className="rounded w-full"
-                />
-              </div>
-              <img 
-                src="https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5?auto=format&fit=crop&q=80&w=600&h=700" 
-                alt="Notre fondatrice" 
-                className="rounded-lg shadow-xl slide-right w-full object-cover relative z-0"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Values */}
-      <section className="py-20 bg-natural-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">Nos Valeurs</h2>
-            <p className="text-lg text-muted-foreground">
-              Chez Natural&Pure, nos valeurs fondamentales guident chacune de nos actions et publications.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <div 
-                key={index} 
-                className={`glass rounded-lg p-8 text-center slide-up delay-${(index + 1) * 100}`}
-              >
-                <div className="inline-flex items-center justify-center mb-4">
-                  {value.icon}
+          <div className="bg-indigo-50 p-8 rounded-xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Our Core Values</h3>
+            <ul className="space-y-4">
+              <li className="flex">
+                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900">Scientific Integrity</h4>
+                  <p className="text-gray-700">We adhere to rigorous scientific methods and transparency in all our research.</p>
                 </div>
-                <h3 className="font-display text-xl font-medium mb-3">{value.title}</h3>
-                <p className="text-muted-foreground">{value.description}</p>
-              </div>
-            ))}
+              </li>
+              <li className="flex">
+                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900">Educational Excellence</h4>
+                  <p className="text-gray-700">We create accessible, evidence-based educational resources for diverse audiences.</p>
+                </div>
+              </li>
+              <li className="flex">
+                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900">Independence</h4>
+                  <p className="text-gray-700">We maintain independence from commercial interests to ensure unbiased information.</p>
+                </div>
+              </li>
+              <li className="flex">
+                <Check className="h-6 w-6 text-indigo-600 mr-3 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900">Global Perspective</h4>
+                  <p className="text-gray-700">We consider nutritional needs across diverse populations and regions.</p>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-      </section>
+      </Container>
 
-      {/* Our Approach */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="order-2 md:order-1">
-              <img 
-                src="https://images.unsplash.com/photo-1579165466741-7f35e4755183?auto=format&fit=crop&q=80&w=800&h=600" 
-                alt="Notre approche" 
-                className="rounded-lg shadow-lg slide-up"
-              />
-            </div>
-            <div className="space-y-6 order-1 md:order-2">
-              <h2 className="font-display text-3xl md:text-4xl font-medium">Notre Approche</h2>
-              <p className="text-muted-foreground">
-                Nous croyons qu'une information précise et fondée sur des preuves est essentielle pour prendre 
-                de bonnes décisions concernant sa santé. Notre méthode rigoureuse comprend :
+      {/* Legal Information */}
+      <div className="bg-gray-50 py-16">
+        <Container>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Legal Information</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="p-6">
+              <div className="flex items-center mb-4">
+                <FileText className="h-8 w-8 text-indigo-600 mr-3" />
+                <h3 className="text-xl font-bold">Organization Status</h3>
+              </div>
+              <p className="text-gray-700 mb-4">
+                Natural Pure Academy is a 501(c)(3) tax-exempt organization registered in Massachusetts, USA. 
+                All donations to our organization are tax-deductible as allowed by law.
               </p>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-natural-600 mr-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium">Analyse approfondie des études</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Nous examinons minutieusement la méthodologie, les échantillons et les résultats des études scientifiques.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-natural-600 mr-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium">Contextualisation des découvertes</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Nous plaçons les découvertes individuelles dans le contexte plus large de la recherche existante.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-natural-600 mr-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium">Vulgarisation sans simplification excessive</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Nous rendons l'information accessible sans sacrifier la nuance ou la précision scientifique.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-natural-600 mr-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium">Transparence totale</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Nous citons toujours nos sources et divulguons les limites des études présentées.
-                    </p>
-                  </div>
-                </li>
+              <ul className="text-gray-700 space-y-2">
+                <li><strong>EIN:</strong> 82-3456789</li>
+                <li><strong>State Registration:</strong> Massachusetts</li>
+                <li><strong>Date of Incorporation:</strong> June 15, 2018</li>
+                <li><strong>Tax Exemption Date:</strong> October 3, 2018</li>
               </ul>
-              <div className="pt-4">
-                <Button className="bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700" asChild>
-                  <Link to="/articles">
-                    Découvrir nos articles
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </Card>
 
-      {/* Our Team */}
-      <section className="py-20 bg-natural-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">Notre Équipe</h2>
-            <p className="text-lg text-muted-foreground">
-              Des professionnels passionnés qui transforment la science complexe en informations pratiques et accessibles.
+            <Card className="p-6">
+              <div className="flex items-center mb-4">
+                <Award className="h-8 w-8 text-indigo-600 mr-3" />
+                <h3 className="text-xl font-bold">Governance</h3>
+              </div>
+              <p className="text-gray-700 mb-4">
+                Our organization is governed by a Board of Directors who volunteer their time and expertise
+                to guide our mission and ensure compliance with all legal and ethical standards.
+              </p>
+              <p className="text-gray-700">
+                The Board meets quarterly to review operations, programs, and financial status. Our bylaws 
+                and conflict of interest policies ensure that all decisions are made in the best interest of our mission.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center mb-4">
+                <Heart className="h-8 w-8 text-indigo-600 mr-3" />
+                <h3 className="text-xl font-bold">Funding & Transparency</h3>
+              </div>
+              <p className="text-gray-700 mb-4">
+                Our work is funded through a combination of grants, individual donations, and educational program fees.
+                We are committed to financial transparency and responsible stewardship of resources.
+              </p>
+              <p className="text-gray-700">
+                Annual reports and financial statements are available to the public upon request. We undergo an 
+                independent audit each year to ensure accountability.
+              </p>
+            </Card>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-700">
+              For official documentation or additional information about our legal status, please <a href="/contact" className="text-indigo-600 hover:underline">contact us</a>.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-12">
-            {teamMembers.map((member, index) => (
-              <div key={index} className={`glass rounded-lg overflow-hidden flex flex-col md:flex-row slide-up delay-${(index + 1) * 100}`}>
-                <div className="md:w-1/3">
-                  <img 
-                    src={member.image} 
-                    alt={member.name} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6 md:w-2/3">
-                  <h3 className="font-display text-xl font-medium mb-1">{member.name}</h3>
-                  <p className="text-natural-600 text-sm mb-4">{member.role}</p>
-                  <p className="text-muted-foreground">{member.bio}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* Équipe Scientifique */}
+        </Container>
+      </div>
+
+      {/* Scientific Team Section */}
       <ScientificTeam />
 
-      {/* Publications Scientifiques */}
-      <ScientificPublications />
+      {/* Board of Directors */}
+      <div className="bg-gray-50 py-16">
+        <Container>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Board of Directors</h2>
 
-      {/* Future Vision */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">Notre Vision d'Avenir</h2>
-            <p className="text-lg text-muted-foreground">
-              Nous envisageons un monde où chacun a accès à des informations scientifiques fiables pour 
-              prendre des décisions éclairées concernant sa santé naturelle.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Robert J. Williamson",
+                title: "Chairperson",
+                bio: "Former Dean of Nutrition Sciences at Boston University with 30+ years of experience in academic leadership.",
+                photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              },
+              {
+                name: "Patricia Mendez, PhD",
+                title: "Treasurer",
+                bio: "Economics Professor with expertise in non-profit financial management and sustainability.",
+                photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              },
+              {
+                name: "James Chen, MD",
+                title: "Secretary",
+                bio: "Physician and public health advocate specializing in community health education programs.",
+                photo: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              },
+              {
+                name: "Elizabeth Anderson",
+                title: "Board Member",
+                bio: "Executive Director of Community Health Initiative with expertise in program development.",
+                photo: "https://images.unsplash.com/photo-1541779408-c1f2d1d4dc86?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              },
+              {
+                name: "David Thompson",
+                title: "Board Member",
+                bio: "Technology entrepreneur focused on healthcare innovation and digital health education.",
+                photo: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              },
+              {
+                name: "Sophia Washington",
+                title: "Board Member",
+                bio: "Leader in educational policy with experience developing science curricula for diverse populations.",
+                photo: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+              }
+            ].map((director, index) => (
+              <Card key={index} className="overflow-hidden">
+                <img 
+                  src={director.photo} 
+                  alt={director.name} 
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="font-bold text-gray-900">{director.name}</h3>
+                  <p className="text-indigo-600 text-sm mb-2">{director.title}</p>
+                  <p className="text-gray-700 text-sm">{director.bio}</p>
+                </div>
+              </Card>
+            ))}
           </div>
-          <div className="glass rounded-xl p-8 md:p-12 max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-display text-2xl font-medium mb-4">Application Mobile</h3>
-                <p className="text-muted-foreground mb-4">
-                  Nous développons une application mobile qui permettra à nos utilisateurs d'accéder à :
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Des rappels personnalisés pour leur routine bien-être</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Des conseils adaptatifs basés sur leur profil de santé</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Un "Docteur AI" pour des recommandations personnalisées</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Un accès exclusif à notre bibliothèque de ressources</span>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-display text-2xl font-medium mb-4">Expansion de la Recherche</h3>
-                <p className="text-muted-foreground mb-4">
-                  Nous prévoyons d'élargir nos domaines de recherche pour inclure :
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Les innovations en médecine fonctionnelle</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">L'impact du microbiome sur la santé globale</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Les approches intégratives pour la santé mentale</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-natural-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Les interactions entre nutrition et épigénétique</span>
-                  </li>
-                </ul>
+        </Container>
+      </div>
+
+      {/* History Timeline */}
+      <Container className="py-16">
+        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Our History</h2>
+
+        <div className="space-y-12">
+          {[
+            {
+              year: "2018",
+              title: "Founding",
+              description: "Natural Pure Academy was established by a group of nutritional researchers and educators committed to advancing public understanding of micronutrients."
+            },
+            {
+              year: "2019",
+              title: "First Research Initiative",
+              description: "Launched our first major research study on vitamin D deficiency in urban populations, establishing our research methodology and protocols."
+            },
+            {
+              year: "2020",
+              title: "Educational Platform Launch",
+              description: "Developed our online educational platform with interactive content on micronutrient science for healthcare professionals and the public."
+            },
+            {
+              year: "2021",
+              title: "Research Expansion",
+              description: "Expanded our research team and began collaborative studies with three major universities on mineral metabolism and stress response."
+            },
+            {
+              year: "2022",
+              title: "Community Outreach Program",
+              description: "Initiated community workshops and educational events reaching over 5,000 individuals with science-based nutritional information."
+            },
+            {
+              year: "2023",
+              title: "Digital Transformation",
+              description: "Revamped our digital presence and launched interactive tools for personalized nutritional education and assessment."
+            },
+            {
+              year: "2024",
+              title: "Global Initiatives",
+              description: "Began international collaborations to study micronutrient needs across diverse populations and expand our educational reach."
+            }
+          ].map((item, index) => (
+            <div key={index} className="relative pl-12 md:pl-0">
+              <div className="hidden md:block absolute left-1/2 -ml-0.5 w-1 h-full bg-indigo-200"></div>
+
+              <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:ml-auto'}`}>
+                <div className="absolute left-0 md:left-auto md:right-auto md:top-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white">
+                  {index + 1}
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <span className="inline-block px-3 py-1 mb-2 text-sm font-semibold text-indigo-800 bg-indigo-100 rounded-full">
+                    {item.year}
+                  </span>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-700">{item.description}</p>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto glass rounded-xl p-12 text-center">
-            <h2 className="font-display text-3xl font-medium mb-6">Rejoignez-nous dans cette aventure</h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Que vous soyez un professionnel de la santé, un passionné de bien-être ou simplement curieux, 
-              nous vous invitons à faire partie de notre communauté.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button 
-                className="bg-gradient-to-r from-natural-500 to-natural-600 hover:from-natural-600 hover:to-natural-700"
-                asChild
-              >
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  Nous suivre
-                </a>
-              </Button>
-              <Button 
-                variant="outline"
-                className="border-natural-200 hover:bg-natural-50"
-                asChild
-              >
-                <Link to="/contact">
-                  <Mail className="h-5 w-5 mr-2" />
-                  Nous contacter
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Instagram CTA */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <InstagramCTA />
-        </div>
-      </section>
-
-      <Footer />
+      </Container>
     </div>
   );
 };

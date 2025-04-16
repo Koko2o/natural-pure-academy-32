@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import Articles from "./pages/Articles";
+import MetricTracker from "./components/MetricTracker";
 import Article from "./pages/Article";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -109,6 +110,7 @@ const App = () => {
         <div className="min-h-screen bg-background">
           <Toaster position="top-right" />
           <Sonner />
+          <MetricTracker />
           <Outlet />
         </div>
       </TooltipProvider>

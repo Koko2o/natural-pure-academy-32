@@ -25,7 +25,8 @@ const Navbar = () => {
     { name: "Nos Recherches", path: "/nos-recherches" },
     { name: "Labo Solutions", path: "/labo-solutions" },
     { name: "Nutrition", path: "/nutrition" },
-    { name: "Bibliothèque Scientifique", path: "/bibliotheque-scientifique" }, // Added new link
+    { name: "Bibliothèque Scientifique", path: "/bibliotheque-scientifique" }, 
+    { name: "Notre Impact", path: "/impact" }, // Added Impact page link
     { name: "À propos", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
