@@ -14,8 +14,17 @@ const LanguageSwitcher: React.FC = () => {
     // Log language change for debugging
     console.log(`[Language] Switching from ${language} to ${newLanguage}`);
     
+    // Force language refresh with localStorage
+    localStorage.setItem('preferredLanguage', newLanguage);
+    
     // Update the language using the context
     setLanguage(newLanguage);
+    
+    // Log confirmation
+    console.log(`[Language] Applied language change: ${newLanguage}`);
+    
+    // Force re-render by reloading the page (uncomment if needed)
+    // window.location.reload();
   };
 
   return (

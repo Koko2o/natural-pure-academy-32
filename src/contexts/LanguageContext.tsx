@@ -53,11 +53,25 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     setLanguageState(lang);
     localStorage.setItem('preferredLanguage', lang);
     document.documentElement.lang = lang;
+    
+    // Force all components to re-render by dispatching a custom event
+    window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
+    console.log(`[LanguageContext] Language set to ${lang}, dispatched event`);
   };
 
   // Update HTML lang attribute when language changes
   useEffect(() => {
     document.documentElement.lang = language;
+    console.log(`[LanguageContext] Document language attribute set to: ${language}`);
+    
+    // Apply language-specific classes to body for CSS targeting
+    if (language === 'fr') {
+      document.body.classList.add('lang-fr');
+      document.body.classList.remove('lang-en');
+    } else {
+      document.body.classList.add('lang-en');
+      document.body.classList.remove('lang-fr');
+    }
   }, [language]);
 
   // Translation function

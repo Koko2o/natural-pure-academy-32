@@ -20,6 +20,19 @@ const Navbar = () => {
   };
 
   const { language, t } = useLanguage();
+  
+  // Force component to re-render when language changes
+  const [, forceUpdate] = useState({});
+  
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      console.log("[Navbar] Detected language change, updating component");
+      forceUpdate({});
+    };
+    
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   // Use translation function directly for navigation items
   const labels = {
