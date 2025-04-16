@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+// import { Helmet } from 'react-helmet-async'; // Removed due to installation issues
 import { useTranslation } from '@/contexts/LanguageContext';
 
 interface SEOProps {
@@ -16,7 +15,8 @@ interface SEOProps {
   isNonprofit?: boolean;
 }
 
-export const SEOHead: React.FC<SEOProps> = ({
+// Temporary fix until react-helmet-async is properly installed
+const SEOHead: React.FC<SEOProps> = ({
   title,
   description,
   keywords = [],
@@ -85,50 +85,12 @@ export const SEOHead: React.FC<SEOProps> = ({
   const finalDescription = description || defaultMeta.description;
   const finalKeywords = keywords.length ? keywords : defaultMeta.keywords;
 
-  return (
-    <Helmet>
-      <html lang={language} />
-      <title>{finalTitle}</title>
-      <meta name="description" content={finalDescription} />
-      <meta name="keywords" content={finalKeywords.join(', ')} />
+  // Update document title directly as a temporary solution
+  if (typeof document !== 'undefined') {
+    document.title = finalTitle;
+  }
 
-      {/* Canonical URL */}
-      <link rel="canonical" href={canonicalUrl} />
-
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={type} />
-      <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:title" content={finalTitle} />
-      <meta property="og:description" content={finalDescription} />
-      <meta property="og:image" content={`${baseUrl}${imageUrl}`} />
-
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={canonicalUrl} />
-      <meta name="twitter:title" content={finalTitle} />
-      <meta name="twitter:description" content={finalDescription} />
-      <meta name="twitter:image" content={`${baseUrl}${imageUrl}`} />
-
-      {/* Article specific tags */}
-      {type === 'article' && publishedTime && (
-        <meta property="article:published_time" content={publishedTime} />
-      )}
-      {type === 'article' && modifiedTime && (
-        <meta property="article:modified_time" content={modifiedTime} />
-      )}
-      {type === 'article' && author && (
-        <meta property="article:author" content={author} />
-      )}
-
-      {/* Non-profit specific tags for Google Ad Grants compliance */}
-      {isNonprofit && (
-        <>
-          <meta name="organization" content="non-profit" />
-          <meta name="classification" content="non-profit organization" />
-        </>
-      )}
-    </Helmet>
-  );
+  return null; // Return null since we can't properly set meta tags without helmet
 };
 
 export default SEOHead;
