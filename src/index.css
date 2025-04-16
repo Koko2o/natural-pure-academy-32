@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Classes pour le contexte de langue */
+.language-changed {
+  animation: flash-update 0.5s;
+}
+
+html[lang="fr"] .en-only {
+  display: none !important;
+}
+
+html[lang="en"] .fr-only {
+  display: none !important;
+}
+
+@keyframes flash-update {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
 /* Styles améliorés pour l'interface du quiz */
 .text-gradient {
   background: linear-gradient(90deg, #1a365d 0%, #2563eb 100%);

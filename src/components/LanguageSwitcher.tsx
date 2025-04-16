@@ -23,6 +23,9 @@ const LanguageSwitcher: React.FC = () => {
     // Log confirmation
     console.log(`[Language] Applied language change: ${newLanguage}`);
     
+    // Déclencher un événement pour informer tous les composants du changement de langue
+    document.dispatchEvent(new CustomEvent('app-language-changed', { detail: { language: newLanguage } }));
+    
     // Force re-render by reloading la page pour appliquer à tout le site
     window.location.reload();
   };

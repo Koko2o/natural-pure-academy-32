@@ -82,8 +82,19 @@ const getElementPath = (element: HTMLElement) => {
 const App = () => {
   const [activeAIModel] = useState("optimized");
 
+  // Monitorer le changement de langue pour toute l'application
   useEffect(() => {
     console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
+    
+    // Écouter les changements de langue
+    const handleLanguageChange = (event: CustomEvent) => {
+      console.log(`[App] Language changed to: ${event.detail}. Updating application...`);
+    };
+    
+    window.addEventListener('languageChange', handleLanguageChange as EventListener);
+    return () => {
+      window.removeEventListener('languageChange', handleLanguageChange as EventListener);
+    };
   }, [activeAIModel]);
 
   return (

@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 interface ArticleEngagementOptions {
@@ -26,6 +27,7 @@ export const useArticleEngagement = ({
   articleLength,
   averageReadingTime = 3
 }: ArticleEngagementOptions) => {
+  const { language } = useLanguage();
   const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
     readPercentage: 0,
     readTime: 0,

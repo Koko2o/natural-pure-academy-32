@@ -57,6 +57,19 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     // Force all components to re-render by dispatching a custom event
     window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
     console.log(`[LanguageContext] Language set to ${lang}, dispatched event`);
+    
+    // Use timeout to ensure the event has been dispatched and processed
+    setTimeout(() => {
+      // Force a re-render of the entire app
+      console.log(`[LanguageContext] Forcing global re-render for language: ${lang}`);
+      
+      // Force full re-render on modern React applications
+      const appRoot = document.getElementById('root');
+      if (appRoot) {
+        appRoot.classList.add('language-changed');
+        setTimeout(() => appRoot.classList.remove('language-changed'), 50);
+      }
+    }, 50);
   };
 
   // Update HTML lang attribute when language changes
