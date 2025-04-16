@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 // Define available languages
 export type Language = 'fr' | 'en';
@@ -12,7 +12,7 @@ type LanguageContextType = {
 
 // Create context with default values
 export const LanguageContext = createContext<LanguageContextType>({
-  language: 'fr',
+  language: 'en',
   setLanguage: () => {},
   t: (key: string) => key,
 });
@@ -36,10 +36,77 @@ export default useLanguage;
 
 // Context provider component
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+  // Initialize with browser language or default to English
+  const [language, setLanguageState] = useState<Language>(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    if (savedLanguage === 'fr' || savedLanguage === 'en') {
+      return savedLanguage;
+    }
+    
+    // Check browser language
+    const browserLang = navigator.language.split('-')[0].toLowerCase();
+    return browserLang === 'fr' ? 'fr' : 'en';
+  });
+
+  // Set language with persistence
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('preferredLanguage', lang);
+    document.documentElement.lang = lang;
+  };
+
+  // Update HTML lang attribute when language changes
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   // Translation function
   const t = (key: string): string => {
+    if (!key) return '';
+    
+    // If key starts with 'nav.', handle special case for navbar items
+    if (key.startsWith('nav.')) {
+      const navKey = key.replace('nav.', '');
+      const navTranslations = {
+        en: {
+          home: 'Home',
+          articles: 'Articles',
+          quiz: 'Quiz',
+          profile: 'Health Profile',
+          research: 'Our Research',
+          lab: 'Lab Solutions',
+          nutrition: 'Nutrition',
+          library: 'Scientific Library',
+          impact: 'Our Impact',
+          about: 'About Us',
+          contact: 'Contact',
+          sitemap: 'Site Map',
+          scientificMethodology: 'Scientific Methodology',
+          adGrantAudit: 'Ad Grant Audit',
+          compliance: 'Compliance'
+        },
+        fr: {
+          home: 'Accueil',
+          articles: 'Articles',
+          quiz: 'Quiz',
+          profile: 'Profil Santé',
+          research: 'Nos Recherches',
+          lab: 'Solutions Labo',
+          nutrition: 'Nutrition',
+          library: 'Bibliothèque Scientifique',
+          impact: 'Notre Impact',
+          about: 'À Propos',
+          contact: 'Contact',
+          sitemap: 'Plan du Site',
+          scientificMethodology: 'Méthodologie Scientifique',
+          adGrantAudit: 'Audit Ad Grant',
+          compliance: 'Conformité'
+        }
+      };
+      return navTranslations[language]?.[navKey as keyof typeof navTranslations.en] || navKey;
+    }
+    
+    // Regular translations
     const langTranslations = translations[language] || translations.en;
     return langTranslations[key as keyof typeof langTranslations] || key;
   };

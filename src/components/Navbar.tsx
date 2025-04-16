@@ -19,24 +19,48 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  const { t } = useLanguage();
+  const { language } = useLanguage();
 
+  // Define navigation labels directly instead of using translation keys
+  const navLabels = {
+    en: {
+      home: "Home",
+      articles: "Articles",
+      quiz: "Quiz",
+      profile: "Health Profile",
+      research: "Research",
+      nutrition: "Nutrition",
+      impact: "Our Impact",
+      about: "About Us",
+      contact: "Contact"
+    },
+    fr: {
+      home: "Accueil",
+      articles: "Articles",
+      quiz: "Quiz",
+      profile: "Profil Santé",
+      research: "Recherches",
+      nutrition: "Nutrition",
+      impact: "Impact",
+      about: "À Propos",
+      contact: "Contact"
+    }
+  };
+
+  // Use the current language to get labels
+  const labels = navLabels[language === 'fr' ? 'fr' : 'en'];
+
+  // Simplified navigation with only essential links
   const links = [
-    { name: t('nav.home'), path: "/" },
-    { name: t('nav.articles'), path: "/articles" },
-    { name: t('nav.quiz'), path: "/quiz" },
-    { name: t('nav.profile'), path: "/profil-sante" },
-    { name: t('nav.research'), path: "/nos-recherches" },
-    { name: t('nav.lab'), path: "/labo-solutions" },
-    { name: t('nav.nutrition'), path: "/nutrition" },
-    { name: t('nav.library'), path: "/bibliotheque-scientifique" },
-    { name: t('nav.impact'), path: "/impact" },
-    { name: t('nav.about'), path: "/about" },
-    { name: t('nav.contact'), path: "/contact" },
-    { name: t('nav.sitemap'), path: "/sitemap" }, 
-    { name: t('nav.scientificMethodology'), path: "/scientific-methodology" }, 
-    { name: t('nav.adGrantAudit'), path: "/compliance-audit" }, // Added Ad Grant Audit link
-    { name: t('nav.compliance'), path: "/compliance"} // Added Compliance link
+    { name: labels.home, path: "/" },
+    { name: labels.articles, path: "/articles" },
+    { name: labels.quiz, path: "/quiz" },
+    { name: labels.profile, path: "/profil-sante" },
+    { name: labels.research, path: "/nos-recherches" },
+    { name: labels.nutrition, path: "/nutrition" },
+    { name: labels.impact, path: "/impact" },
+    { name: labels.about, path: "/about" },
+    { name: labels.contact, path: "/contact" }
   ];
 
   const isActive = (path: string) => {
