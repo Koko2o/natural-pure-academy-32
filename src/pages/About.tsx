@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container } from '@/components/ui/container';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge'; // Fixed import
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScientificTeam from '@/components/ScientificTeam';

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 
 // Types
@@ -158,12 +159,7 @@ export const useArticleEngagement = ({
     };
   }, [articleId]);
 
-  // This bridge function makes it easy to use in other components
-  const useArticleEngagementBridge = () => {
-    return { metrics };
-  };
-
-  return { metrics, useArticleEngagementBridge };
+  return { metrics };
 };
 
 export default useArticleEngagement;
