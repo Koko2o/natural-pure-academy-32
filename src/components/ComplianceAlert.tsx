@@ -1,10 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ComplianceAlert: React.FC = () => {
@@ -24,7 +19,7 @@ const ComplianceAlert: React.FC = () => {
           const criticalIssues = parsedData.issues.filter((issue: any) => 
             issue.severity === 'critical' || issue.severity === 'high'
           );
-          
+
           if (criticalIssues.length > 0) {
             setIssues(criticalIssues);
             setShow(true);
@@ -34,11 +29,11 @@ const ComplianceAlert: React.FC = () => {
         }
       }
     };
-    
+
     // Check on mount and periodically
     checkForIssues();
     const interval = setInterval(checkForIssues, 300000); // Check every 5 minutes
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -46,10 +41,6 @@ const ComplianceAlert: React.FC = () => {
     return null;
   }
 
-  if (!show || issues.length === 0) {
-    return null;
-  }
-  
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-4">
       <div className="flex items-start">
@@ -89,16 +80,6 @@ const ComplianceAlert: React.FC = () => {
           className="flex-shrink-0 ml-2 text-amber-400 hover:text-amber-500"
           onClick={() => setShow(false)}
           aria-label="Dismiss"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export default ComplianceAlert;
-          onClick={() => setShow(false)}
         >
           <X className="h-4 w-4" />
         </button>
