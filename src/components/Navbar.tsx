@@ -19,36 +19,20 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
-  // Define navigation labels directly instead of using translation keys
-  const navLabels = {
-    en: {
-      home: "Home",
-      articles: "Articles",
-      quiz: "Quiz",
-      profile: "Health Profile",
-      research: "Research",
-      nutrition: "Nutrition",
-      impact: "Our Impact",
-      about: "About Us",
-      contact: "Contact"
-    },
-    fr: {
-      home: "Accueil",
-      articles: "Articles",
-      quiz: "Quiz",
-      profile: "Profil Santé",
-      research: "Recherches",
-      nutrition: "Nutrition",
-      impact: "Impact",
-      about: "À Propos",
-      contact: "Contact"
-    }
+  // Use translation function directly for navigation items
+  const labels = {
+    home: t('nav.home'),
+    articles: t('nav.articles'),
+    quiz: t('nav.quiz'),
+    profile: t('nav.profile'),
+    research: t('nav.research'),
+    nutrition: t('nav.nutrition'),
+    impact: t('nav.impact'),
+    about: t('nav.about'),
+    contact: t('nav.contact')
   };
-
-  // Use the current language to get labels
-  const labels = navLabels[language === 'fr' ? 'fr' : 'en'];
 
   // Simplified navigation with only essential links
   const links = [

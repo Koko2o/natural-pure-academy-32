@@ -1,13 +1,14 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { useTranslation } from '@/contexts/LanguageContext';
+import React, { ReactNode } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-interface LanguageProviderProps {
+interface LanguageWrapperProps {
   children: ReactNode;
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const { language } = useTranslation();
+// Renamed to LanguageWrapper to avoid confusion with the main LanguageProvider
+export const LanguageWrapper: React.FC<LanguageWrapperProps> = ({ children }) => {
+  const { language } = useLanguage();
   
   return (
     <div lang={language} className="antialiased">
@@ -16,4 +17,4 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   );
 };
 
-export default LanguageProvider;
+export default LanguageWrapper;
