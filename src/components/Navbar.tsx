@@ -20,7 +20,7 @@ const Navbar = () => {
   };
 
   const { t } = useLanguage();
-  
+
   const links = [
     { name: t('nav.home'), path: "/" },
     { name: t('nav.articles'), path: "/articles" },
@@ -29,10 +29,13 @@ const Navbar = () => {
     { name: t('nav.research'), path: "/nos-recherches" },
     { name: t('nav.lab'), path: "/labo-solutions" },
     { name: t('nav.nutrition'), path: "/nutrition" },
-    { name: t('nav.library'), path: "/bibliotheque-scientifique" }, 
+    { name: t('nav.library'), path: "/bibliotheque-scientifique" },
     { name: t('nav.impact'), path: "/impact" },
     { name: t('nav.about'), path: "/about" },
     { name: t('nav.contact'), path: "/contact" },
+    { name: t('nav.sitemap'), path: "/sitemap" }, // Added Sitemap link
+    { name: t('nav.scientificMethodology'), path: "/scientific-methodology" } // Added Scientific Methodology link
+
   ];
 
   const isActive = (path: string) => {
@@ -45,8 +48,8 @@ const Navbar = () => {
         key={link.path}
         to={link.path}
         className={`relative px-3 py-2 transition-colors hover:text-primary ${
-          isActive(link.path) 
-            ? "text-primary font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary" 
+          isActive(link.path)
+            ? "text-primary font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary"
             : "text-gray-700"
         }`}
         onClick={closeMenu}

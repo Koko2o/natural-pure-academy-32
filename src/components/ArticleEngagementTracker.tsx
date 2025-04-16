@@ -1,237 +1,109 @@
+import React, { useState, useEffect } from 'react';
+import { useArticleEngagement } from '../hooks/useArticleEngagement';
+import { Link } from 'react-router-dom';
+import { useTranslation } from '@/contexts/LanguageContext';
+import { Microscope, ChevronRight, Award, BarChart } from 'lucide-react';
 
-import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { trackContentQuality } from '@/utils/adGrantCompliance';
-
-interface ArticleEngagementMetrics {
-  readingTime: number;
-  scrollDepth: number;
-  interactions: number;
-  completionRate: number;
-  source?: string;
-  campaignId?: string;
+interface ArticleEngagementTrackerProps {
+  articleId: string;
+  wordCount: number;
 }
 
-const ArticleEngagementTracker = () => {
-  const location = useLocation();
-  const startTime = useRef(Date.now());
-  const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
-    readingTime: 0,
-    scrollDepth: 0,
-    interactions: 0,
-    completionRate: 0
-  });
-  const articleRef = useRef<HTMLElement | null>(null);
-  const timer = useRef<NodeJS.Timeout | null>(null);
-  const maxScrollDepth = useRef(0);
-  const interactionCount = useRef(0);
-  const tracked = useRef(false);
+const ArticleEngagementTracker: React.FC<ArticleEngagementTrackerProps> = ({ 
+  articleId, 
+  wordCount 
+}) => {
+  const { trackBridgeImpression, trackBridgeClick } = useArticleEngagement();
+  const [displayed, setDisplayed] = useState(false);
+  const { t } = useTranslation();
 
-  // Extract UTM parameters from URL
+  // Track engagement based on scroll depth
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const source = params.get('utm_source');
-    const campaign = params.get('utm_campaign');
-    
-    if (source || campaign) {
-      setMetrics(prev => ({
-        ...prev,
-        source: source || undefined,
-        campaignId: campaign || undefined
-      }));
-      
-      // Store campaign data for cross-page tracking
-      if (source) {
-        sessionStorage.setItem('utm_source', source);
-      }
-      if (campaign) {
-        sessionStorage.setItem('utm_campaign', campaign);
-      }
-    } else {
-      // Try to get from session storage for cross-page tracking
-      const storedSource = sessionStorage.getItem('utm_source');
-      const storedCampaign = sessionStorage.getItem('utm_campaign');
-      
-      if (storedSource || storedCampaign) {
-        setMetrics(prev => ({
-          ...prev,
-          source: storedSource || undefined,
-          campaignId: storedCampaign || undefined
-        }));
-      }
-    }
-  }, [location]);
-
-  // Track reading time
-  useEffect(() => {
-    const trackReadingTime = () => {
-      const now = Date.now();
-      const seconds = Math.round((now - startTime.current) / 1000);
-      
-      setMetrics(prev => ({
-        ...prev,
-        readingTime: seconds
-      }));
-    };
-
-    timer.current = setInterval(trackReadingTime, 1000);
-    
-    return () => {
-      if (timer.current) {
-        clearInterval(timer.current);
-      }
-    };
-  }, []);
-
-  // Find article element and track scroll depth
-  useEffect(() => {
-    // Find main article element
-    const article = document.querySelector('article') || 
-                    document.querySelector('.article-content') ||
-                    document.querySelector('main');
-    
-    if (article) {
-      articleRef.current = article as HTMLElement;
-      
-      // Track content quality metrics for Google Ad Grant compliance
-      const text = article.textContent || '';
-      const wordCount = text.split(/\s+/).length;
-      const readTime = Math.ceil(wordCount / 250); // Avg reading speed
-      const hasCitations = Boolean(article.querySelector('cite') || 
-                                  article.textContent?.includes('et al.') ||
-                                  article.textContent?.includes('référence'));
-      const hasStructuredData = Boolean(document.querySelector('script[type="application/ld+json"]'));
-      
-      trackContentQuality(location.pathname, {
-        wordCount,
-        readTime,
-        hasScientificCitations: hasCitations,
-        hasStructuredData
-      });
-    }
-    
-    const handleScroll = () => {
-      if (!articleRef.current) return;
-      
-      const articleHeight = articleRef.current.scrollHeight;
-      const articleTop = articleRef.current.offsetTop;
-      const articleBottom = articleTop + articleHeight;
-      
+    const checkEngagement = () => {
+      // Check scroll depth
+      const scrollPosition = window.scrollY;
+      const documentHeight = document.documentElement.scrollHeight;
       const windowHeight = window.innerHeight;
-      const scrollY = window.scrollY;
-      const viewportBottom = scrollY + windowHeight;
-      
-      // Calculate how much of the article is visible
-      const visibleTop = Math.max(articleTop, scrollY);
-      const visibleBottom = Math.min(articleBottom, viewportBottom);
-      
-      let visiblePercentage = 0;
-      if (visibleBottom > visibleTop) {
-        const visibleHeight = visibleBottom - visibleTop;
-        visiblePercentage = Math.min(100, (visibleHeight / articleHeight) * 100);
-      }
-      
-      // Calculate scroll depth (how far through the article the user has scrolled)
-      const scrollPercentage = Math.min(100, ((viewportBottom - articleTop) / articleHeight) * 100);
-      
-      if (scrollPercentage > maxScrollDepth.current) {
-        maxScrollDepth.current = scrollPercentage;
-      }
-      
-      setMetrics(prev => ({
-        ...prev,
-        scrollDepth: maxScrollDepth.current,
-        completionRate: maxScrollDepth.current >= 70 ? 100 : Math.round(maxScrollDepth.current * 0.8)
-      }));
-      
-      // Track conversion when user has engaged significantly
-      if (!tracked.current && 
-          (maxScrollDepth.current > 60 || metrics.readingTime > 120) && 
-          interactionCount.current > 2) {
-        trackConversion('article_engagement');
-        tracked.current = true;
-      }
-    };
-    
-    // Track interactions
-    const handleInteraction = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as HTMLElement;
-      
-      // Skip tracking for navigation elements
-      if (target.closest('nav') || target.closest('header') || target.closest('footer')) {
-        return;
-      }
-      
-      interactionCount.current += 1;
-      
-      setMetrics(prev => ({
-        ...prev,
-        interactions: interactionCount.current
-      }));
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-  }, [metrics.readingTime]);
+      const scrollPercentage = (scrollPosition / (documentHeight - windowHeight)) * 100;
 
-  // Track conversion on page unload if user engaged significantly
-  useEffect(() => {
-    const handleUnload = () => {
-      // Track article read conversion if time spent is significant
-      if (metrics.readingTime > 30 && metrics.scrollDepth > 40 && !tracked.current) {
-        trackConversion('article_partial_read');
+      // If user scrolled to 70% of the article and banner not shown yet
+      if (scrollPercentage > 70 && !displayed) {
+        setDisplayed(true);
+        trackBridgeImpression(articleId);
       }
     };
-    
-    window.addEventListener('beforeunload', handleUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-    };
-  }, [metrics]);
 
-  // Function to track conversion
-  const trackConversion = (conversionType: string) => {
-    // Get the article ID from pathname or data attribute
-    const articleId = location.pathname.split('/').pop() || 'unknown';
-    
-    // Prepare conversion data
-    const conversionData = {
-      conversionType,
-      articleId,
-      metrics: {
-        ...metrics,
-        readingTime: metrics.readingTime,
-        scrollDepth: metrics.scrollDepth,
-        interactions: interactionCount.current
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    // Log conversion for debugging
-    console.log('[GoogleAdGrantsConversion]', conversionData);
-    
-    // Store conversion in local storage for reporting
-    try {
-      const conversions = JSON.parse(localStorage.getItem('article_conversions') || '[]');
-      conversions.push(conversionData);
-      localStorage.setItem('article_conversions', JSON.stringify(conversions));
-    } catch (error) {
-      console.error('Error storing conversion:', error);
-    }
-    
-    // This would typically send data to an analytics service
-    // For now, we're just storing it locally
+    window.addEventListener('scroll', checkEngagement);
+
+    // Initial check
+    checkEngagement();
+
+    return () => window.removeEventListener('scroll', checkEngagement);
+  }, [articleId, displayed, trackBridgeImpression]);
+
+  const handleClick = () => {
+    trackBridgeClick(articleId);
   };
 
-  return null; // This is a tracking component with no UI
+  // Don't show anything if the banner shouldn't be displayed
+  if (!displayed) {
+    return null;
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 rounded-lg p-6 my-8 shadow-sm">
+      <div className="flex items-start">
+        <div className="hidden sm:block mr-5">
+          <div className="bg-white p-3 rounded-full shadow-sm">
+            <Microscope className="h-10 w-10 text-indigo-600" />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-xl font-semibold text-indigo-800 mb-3 flex items-center">
+            <Microscope className="sm:hidden h-5 w-5 mr-2 text-indigo-600" />
+            {t('Personalized Nutritional Analysis')}
+          </h3>
+
+          <p className="text-slate-700 mb-4">
+            {t('Based on the scientific principles discussed in this article, our research team has developed an assessment tool to analyze your individual nutritional needs.')}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
+              <Award className="h-4 w-4 text-amber-500 mr-2" />
+              <span className="text-sm text-slate-700">
+                {t('Research-backed')}
+              </span>
+            </div>
+            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
+              <BarChart className="h-4 w-4 text-indigo-500 mr-2" />
+              <span className="text-sm text-slate-700">
+                {t('Personalized results')}
+              </span>
+            </div>
+            <div className="bg-white rounded p-3 border border-slate-100 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm text-slate-700">
+                {t('5-minute assessment')}
+              </span>
+            </div>
+          </div>
+
+          <Link 
+            to="/quiz" 
+            onClick={handleClick}
+            className="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-md transition-colors font-medium"
+          >
+            {t('Start Free Assessment')}
+            <ChevronRight className="ml-1 h-5 w-5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ArticleEngagementTracker;

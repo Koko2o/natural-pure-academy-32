@@ -16,6 +16,8 @@ import LaboSolutions from './pages/LaboSolutions';
 import Nutrition from './pages/Nutrition';
 import Impact from './pages/Impact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import SiteMap from './pages/SiteMap';
+import ScientificMethodology from './pages/ScientificMethodology';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,8 @@ const router = createBrowserRouter([
       { path: 'nutrition', element: <Nutrition /> },
       { path: 'impact', element: <Impact /> },
       { path: 'privacy-policy', element: <PrivacyPolicy /> },
+      { path: 'sitemap', element: <SiteMap /> },
+      { path: 'scientific-methodology', element: <ScientificMethodology /> },
     ],
   },
 ]);

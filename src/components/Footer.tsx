@@ -131,6 +131,9 @@ const Footer = () => {
               <Link to="/terms" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
                 {t('footer.terms')}
               </Link>
+              <Link to="/sitemap" className="text-xs text-muted-foreground hover:text-natural-700 transition-colors">
+                {t('Site Map')} {/* Added Sitemap Link */}
+              </Link>
             </div>
           </div>
         </div>
