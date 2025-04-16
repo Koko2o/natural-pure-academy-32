@@ -1,99 +1,169 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Shield } from 'lucide-react';
 
-export const GDPRCompliance: React.FC = () => {
-  const [showDialog, setShowDialog] = useState(false);
-  const [analyticsConsent, setAnalyticsConsent] = useState(false);
-  const [personalizationConsent, setPersonalizationConsent] = useState(false);
-  const [marketingConsent, setMarketingConsent] = useState(false);
+const GDPR_CONSENT_KEY = 'gdpr_consent_status';
+const GDPR_CONSENT_VERSION = '1.0.2';
 
+export function GDPRCompliance() {
+  const [open, setOpen] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(true);
+  const [essentialChecked, setEssentialChecked] = useState(true);
+  const [analyticsChecked, setAnalyticsChecked] = useState(false);
+  const [marketingChecked, setMarketingChecked] = useState(false);
+  
   useEffect(() => {
-    const consentGiven = localStorage.getItem('gdpr_consent');
-    if (!consentGiven) {
-      setShowDialog(true);
+    const storedConsent = localStorage.getItem(GDPR_CONSENT_KEY);
+    
+    if (!storedConsent) {
+      // No consent stored, show the dialog
+      setTimeout(() => setOpen(true), 1000);
+      setConsentGiven(false);
+    } else {
+      try {
+        const { version, consented, preferences } = JSON.parse(storedConsent);
+        
+        // If the version has changed, show the dialog again
+        if (version !== GDPR_CONSENT_VERSION) {
+          setTimeout(() => setOpen(true), 1000);
+          setConsentGiven(false);
+        } else {
+          setConsentGiven(consented);
+          if (preferences) {
+            setEssentialChecked(preferences.essential);
+            setAnalyticsChecked(preferences.analytics);
+            setMarketingChecked(preferences.marketing);
+          }
+        }
+      } catch (e) {
+        // Invalid stored consent, show the dialog
+        setTimeout(() => setOpen(true), 1000);
+        setConsentGiven(false);
+      }
     }
   }, []);
-
-  const handleSaveConsent = () => {
+  
+  const handleSavePreferences = () => {
     const consentData = {
-      analytics: analyticsConsent,
-      personalization: personalizationConsent,
-      marketing: marketingConsent,
+      version: GDPR_CONSENT_VERSION,
+      consented: true,
       timestamp: new Date().toISOString(),
+      preferences: {
+        essential: essentialChecked,
+        analytics: analyticsChecked,
+        marketing: marketingChecked
+      }
     };
-
-    localStorage.setItem('gdpr_consent', JSON.stringify(consentData));
-    setShowDialog(false);
-
-    // Track consent for Google Ad Grant compliance
-    console.log("[GoogleAdGrantsSafety] GDPR consent recorded:", consentData);
+    
+    localStorage.setItem(GDPR_CONSENT_KEY, JSON.stringify(consentData));
+    setConsentGiven(true);
+    setOpen(false);
   };
-
+  
+  const handleRejectAll = () => {
+    const consentData = {
+      version: GDPR_CONSENT_VERSION,
+      consented: false,
+      timestamp: new Date().toISOString(),
+      preferences: {
+        essential: true,
+        analytics: false,
+        marketing: false
+      }
+    };
+    
+    localStorage.setItem(GDPR_CONSENT_KEY, JSON.stringify(consentData));
+    setEssentialChecked(true);
+    setAnalyticsChecked(false);
+    setMarketingChecked(false);
+    setConsentGiven(false);
+    setOpen(false);
+  };
+  
+  const openPreferences = () => {
+    setOpen(true);
+  };
+  
   return (
-    <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Consentement aux cookies et à la protection des données</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <p className="text-sm text-muted-foreground">
-            Natural Pure Academy, en tant qu'organisation à but non lucratif, collecte certaines données pour améliorer 
-            votre expérience sur notre site. Veuillez sélectionner les options pour lesquelles vous donnez votre consentement:
-          </p>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="analytics" 
-              checked={analyticsConsent} 
-              onCheckedChange={(checked) => setAnalyticsConsent(checked === true)}
-            />
-            <label htmlFor="analytics" className="text-sm font-medium">
-              Analytiques: Pour comprendre comment notre site est utilisé et améliorer notre contenu éducatif
-            </label>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Paramètres de confidentialité
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Nous utilisons des cookies et des technologies similaires pour améliorer votre expérience, 
+              analyser le trafic et personnaliser le contenu. Vous pouvez choisir quels types de cookies vous acceptez.
+            </p>
+            
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="essential" 
+                  checked={essentialChecked} 
+                  disabled 
+                />
+                <Label htmlFor="essential" className="font-medium">
+                  Cookies essentiels
+                  <p className="text-xs text-muted-foreground">Indispensables au fonctionnement du site. Ne peuvent pas être désactivés.</p>
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="analytics" 
+                  checked={analyticsChecked} 
+                  onCheckedChange={(checked) => setAnalyticsChecked(checked === true)}
+                />
+                <Label htmlFor="analytics" className="font-medium">
+                  Cookies analytiques
+                  <p className="text-xs text-muted-foreground">Nous aident à comprendre comment vous utilisez notre site.</p>
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="marketing" 
+                  checked={marketingChecked} 
+                  onCheckedChange={(checked) => setMarketingChecked(checked === true)}
+                />
+                <Label htmlFor="marketing" className="font-medium">
+                  Cookies de marketing
+                  <p className="text-xs text-muted-foreground">Utilisés pour vous montrer des contenus pertinents.</p>
+                </Label>
+              </div>
+            </div>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="personalization" 
-              checked={personalizationConsent} 
-              onCheckedChange={(checked) => setPersonalizationConsent(checked === true)}
-            />
-            <label htmlFor="personalization" className="text-sm font-medium">
-              Personnalisation: Pour adapter notre contenu éducatif à vos besoins
-            </label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="marketing" 
-              checked={marketingConsent} 
-              onCheckedChange={(checked) => setMarketingConsent(checked === true)}
-            />
-            <label htmlFor="marketing" className="text-sm font-medium">
-              Communication: Pour recevoir des mises à jour sur nos recherches et activités éducatives
-            </label>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => handleSaveConsent()}>
-            Enregistrer les préférences
-          </Button>
-          <Button onClick={() => {
-            setAnalyticsConsent(true);
-            setPersonalizationConsent(true);
-            setMarketingConsent(true);
-            handleSaveConsent();
-          }}>
-            Accepter tout
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          
+          <DialogFooter className="flex flex-col sm:flex-row sm:space-x-2">
+            <Button variant="outline" onClick={handleRejectAll}>
+              Rejeter tout
+            </Button>
+            <Button type="submit" onClick={handleSavePreferences}>
+              Enregistrer les préférences
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {!open && (
+        <button 
+          onClick={openPreferences}
+          className="fixed bottom-4 left-4 z-50 bg-primary/10 p-2 rounded-full hover:bg-primary/20 transition-colors"
+          aria-label="Paramètres de confidentialité"
+        >
+          <Shield className="h-5 w-5 text-primary" />
+        </button>
+      )}
+    </>
   );
-};
-
-export default GDPRCompliance;
+}

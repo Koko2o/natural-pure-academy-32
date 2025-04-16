@@ -167,6 +167,53 @@ export const validateRedirectUrl = (url: string): boolean => {
   return !prohibitedDomains.some(domain => url.includes(domain));
 };
 
+// URL compliance check for Google Ad Grant
+export const isUrlCompliant = (url: string): boolean => {
+  // Check for prohibited URL patterns
+  const prohibitedPatterns = [
+    /\/shop\//i,
+    /\/store\//i,
+    /\/pricing\//i,
+    /\/buy\//i,
+    /\/checkout\//i,
+    /\/cart\//i,
+    /\/purchase\//i
+  ];
+
+  // Check for prohibited parameters
+  const prohibitedParams = [
+    'product_id',
+    'sku',
+    'item',
+    'price',
+    'coupon',
+    'discount'
+  ];
+
+  // Check URL against prohibited patterns
+  const hasProhibitedPattern = prohibitedPatterns.some(pattern => pattern.test(url));
+  if (hasProhibitedPattern) {
+    return false;
+  }
+
+  // Check URL parameters
+  try {
+    const urlObj = new URL(url);
+    const hasProhibitedParam = prohibitedParams.some(param => 
+      urlObj.searchParams.has(param)
+    );
+    if (hasProhibitedParam) {
+      return false;
+    }
+  } catch (error) {
+    // Invalid URL format
+    return false;
+  }
+
+  // Check domain (reuse validateRedirectUrl logic)
+  return validateRedirectUrl(url);
+};
+
 // Generate a compliant page title for Google Ad Grant
 export const generateCompliantTitle = (originalTitle: string): string => {
   // Replace commercial terms with educational alternatives

@@ -1,61 +1,52 @@
+
+import { Helmet } from 'react-helmet';
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 
 interface SEOHeadProps {
   title: string;
   description: string;
+  keywords?: string;
   canonicalUrl?: string;
-  ogType?: string;
   ogImage?: string;
-  keywords?: string[];
-  structuredData?: Record<string, any>;
+  ogType?: 'website' | 'article';
+  twitterCard?: 'summary' | 'summary_large_image';
 }
 
-export const SEOHead: React.FC<SEOHeadProps> = ({
+export function SEOHead({
   title,
   description,
+  keywords,
   canonicalUrl,
+  ogImage,
   ogType = 'website',
-  ogImage = '/images/og-default.jpg',
-  keywords = [],
-  structuredData,
-}) => {
+  twitterCard = 'summary_large_image'
+}: SEOHeadProps) {
+  const siteUrl = window.location.origin;
+  const fullCanonicalUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : window.location.href;
+  
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      {keywords.length > 0 && (
-        <meta name="keywords" content={keywords.join(', ')} />
-      )}
-
-      {/* Canonical URL */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-
-      {/* Open Graph */}
+      {keywords && <meta name="keywords" content={keywords} />}
+      <link rel="canonical" href={fullCanonicalUrl} />
+      
+      {/* Open Graph tags */}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
+      <meta property="og:url" content={fullCanonicalUrl} />
       <meta property="og:type" content={ogType} />
-      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-      <meta property="og:image" content={ogImage} />
-
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
+      {ogImage && <meta property="og:image" content={ogImage} />}
+      
+      {/* Twitter Card tags */}
+      <meta name="twitter:card" content={twitterCard} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
-
-      {/* Google Ad Grants compliance: Non-profit status meta tag */}
+      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      
+      {/* Nonprofit metadata for Google Ad Grant compliance */}
       <meta name="organization-type" content="nonprofit" />
-      <meta name="organization-tax-status" content="501c3" />
-
-      {/* Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
+      <meta name="organization-purpose" content="education" />
     </Helmet>
   );
-};
-
-export default SEOHead;
+}
