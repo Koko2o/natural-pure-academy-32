@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -11,47 +11,66 @@ interface BreadcrumbsProps {
   }[];
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ customPaths }) => {
+interface PathSegment {
+  path: string;
+  label: string;
+}
+
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ customPaths }) => {
   const location = useLocation();
   const { t } = useTranslation();
-  
-  // Define path mapping for user-friendly names
-  const pathMapping: { [key: string]: string } = {
-    'articles': t('Articles'),
-    'article': t('Article'),
+  const [pathSegments, setPathSegments] = useState<PathSegment[]>([]);
+
+  // Path mapping for human-readable labels
+  const pathMapping: Record<string, string> = {
     'about': t('About Us'),
     'impact': t('Our Impact'),
-    'contact': t('Contact'),
-    'quiz': t('Nutrition Quiz'),
+    'articles': t('Articles'),
     'nos-recherches': t('Our Research'),
+    'bibliotheque-scientifique': t('Scientific Publications'),
     'labo-solutions': t('Lab Solutions'),
     'nutrition': t('Nutrition'),
     'profile-sante': t('Health Profile'),
-    'bibliotheque-scientifique': t('Scientific Library'),
+    'quiz': t('Interactive Quiz'),
+    'contact': t('Contact'),
     'privacy-policy': t('Privacy Policy'),
-    'sitemap': t('Site Map'),
+    'terms-of-use': t('Terms of Use'),
+    'accessibility': t('Accessibility'),
     'scientific-methodology': t('Scientific Methodology'),
+    'site-map': t('Site Map'),
+    'support': t('Support Our Research'),
   };
-  
-  // Use custom paths if provided, or generate from current location
-  const pathSegments = customPaths || location.pathname
-    .split('/')
-    .filter(segment => segment !== '')
-    .map((segment, index, array) => {
-      // Check if this is an article ID or other dynamic segment
-      const isArticleId = array[index - 1] === 'article' && segment.length > 5;
-      
-      return {
-        path: '/' + array.slice(0, index + 1).join('/'),
-        label: isArticleId 
-          ? t('Current Article') 
-          : pathMapping[segment] || segment.charAt(0).toUpperCase() + segment.slice(1),
-      };
+
+  useEffect(() => {
+    if (customPaths) {
+      setPathSegments(customPaths);
+      return;
+    }
+
+    // Split the path and create segments
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const segments: PathSegment[] = [];
+
+    let currentPath = '';
+    pathParts.forEach(part => {
+      currentPath += `/${part}`;
+      const label = pathMapping[part] || part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
+      segments.push({
+        path: currentPath,
+        label,
+      });
     });
-  
+
+    setPathSegments(segments);
+  }, [location.pathname, customPaths]);
+
+  if (pathSegments.length === 0 && !customPaths) {
+    return null;
+  }
+
   return (
-    <nav aria-label="Breadcrumb" className="py-3">
-      <ol className="flex items-center flex-wrap">
+    <nav aria-label="Breadcrumb" className="py-2 text-sm mb-2">
+      <ol className="flex flex-wrap items-center space-x-1">
         <li className="flex items-center">
           <Link 
             to="/" 
