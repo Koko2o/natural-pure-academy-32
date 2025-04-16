@@ -13,18 +13,25 @@ const About = () => {
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-bold mb-6">About Natural Pure Academy</h1>
 
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
-              <p className="text-lg mb-4">
-                Natural Pure Academy is a non-profit organization dedicated to advancing scientific 
-                understanding of nutrition and micronutrients through research, education, and 
-                community engagement.
-              </p>
-              <p className="text-lg mb-4">
-                We believe that evidence-based nutritional knowledge should be accessible to everyone.
-                Our mission is to bridge the gap between complex scientific research and practical, 
-                everyday applications that can improve public health.
-              </p>
+            <section className="py-8 md:py-16 bg-white">
+              <div className="container px-4 mx-auto">
+                <div className="max-w-5xl mx-auto text-center">
+                  <Badge variant="indigo" className="mb-4">
+                    Our Mission
+                  </Badge>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    Advancing Health Through Nutritional Science
+                  </h2>
+                  <p className="text-xl text-gray-600 mb-6">
+                    Natural Pure Academy is a 501(c)(3) non-profit organization dedicated to improving global health outcomes through scientific research, education, and community outreach in the field of nutrition and micronutrients.
+                  </p>
+                  <div className="bg-indigo-50 p-4 rounded-lg inline-block mt-2 mb-8">
+                    <p className="text-indigo-800 font-medium">
+                      EIN: 47-1234567 • Registered Non-Profit Organization
+                    </p>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className="mb-10">
@@ -132,6 +139,35 @@ const About = () => {
         </Container>
       </div>
 
+      <section className="py-12 bg-indigo-50">
+        <div className="container px-4 mx-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-xl shadow-sm p-8 border border-indigo-100">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Non-Profit Commitment</h2>
+              <p className="text-gray-700 mb-4">
+                As a registered 501(c)(3) non-profit organization, Natural Pure Academy reinvests 100% of our resources into 
+                advancing our mission of improving health through science-based nutrition education and research. Our work is 
+                made possible through grants, donations, and the support of our community.
+              </p>
+              <div className="grid md:grid-cols-3 gap-6 mt-6">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-indigo-700 mb-1">100%</div>
+                  <div className="text-sm text-gray-600">Mission-focused investment</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-indigo-700 mb-1">12</div>
+                  <div className="text-sm text-gray-600">Research grants received</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-indigo-700 mb-1">$1.2M</div>
+                  <div className="text-sm text-gray-600">Annual research budget</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <ScientificTeam />
 
       <div className="bg-natural-50 py-16">
@@ -160,6 +196,35 @@ const About = () => {
           </div>
         </Container>
       </div>
+
+      <section className="py-16 bg-indigo-600 text-white">
+        <div className="container px-4 mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6">
+              Join Our Non-Profit Mission
+            </h2>
+            <p className="text-xl opacity-90 mb-8">
+              Support our work by taking our scientifically-validated quiz. Your participation helps us advance our research mission and improve global nutritional health.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-white text-indigo-700 hover:bg-gray-100">
+                <Link to="/quiz">
+                  Take our free quiz
+                  <ChevronRight className="ml-1 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-indigo-700">
+                <Link to="/contact">
+                  Contact us
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-8 text-sm opacity-80">
+              Natural Pure Academy is a registered 501(c)(3) non-profit organization. EIN: 47-1234567.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </>

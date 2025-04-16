@@ -65,6 +65,11 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link to="/impact" className="text-sm text-muted-foreground hover:text-natural-700 transition-colors">
+                  Impact
+                </Link>
+              </li>
             </ul>
           </div>
 

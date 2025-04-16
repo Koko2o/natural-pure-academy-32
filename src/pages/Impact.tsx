@@ -1,255 +1,448 @@
 
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
-import { 
-  Users, 
-  FileText, 
-  Award, 
-  TrendingUp, 
-  ThumbsUp, 
-  ArrowRight
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Link } from 'react-router-dom';
+import { Container } from '@/components/ui/container';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Users,
+  FileText,
+  Award,
+  Microscope,
+  Book,
+  HeartPulse,
+  GraduationCap,
+  ArrowRight,
+  BarChart3,
+  Globe
+} from 'lucide-react';
 
 const Impact = () => {
   return (
-    <div className="bg-white pb-16">
+    <div className="bg-white">
       {/* Hero section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 py-20 text-white">
+      <div className="bg-gradient-to-b from-indigo-50 to-white py-20">
         <Container>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl">Our Impact on Nutritional Science and Health Education</h1>
-          <p className="text-xl opacity-90 max-w-2xl mb-8">
-            Natural Pure Academy is committed to advancing scientific understanding of micronutrients and 
-            their role in human health. Here's how our research and education efforts are making a difference.
-          </p>
-          <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 px-4 border border-white/20">
-            <Award className="mr-2 h-5 w-5 text-indigo-200" />
-            <span>501(c)(3) Non-Profit Organization</span>
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge variant="indigo" className="mb-4">
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Our Impact
+            </Badge>
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
+              Making a Difference Through Science
+            </h1>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto mb-8">
+              At Natural Pure Academy, our mission is to improve global health through scientific research and education. 
+              Here's how our work is creating tangible impact for communities and individuals worldwide.
+            </p>
           </div>
         </Container>
       </div>
 
-      {/* Impact metrics */}
-      <Container className="py-16 -mt-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 bg-white shadow-md border-t-4 border-indigo-500">
-            <div className="flex items-center mb-4">
-              <Users className="h-8 w-8 text-indigo-500 mr-3" />
-              <h3 className="text-xl font-semibold">15,000+</h3>
-            </div>
-            <p className="text-gray-600">People educated through our nutrition resources annually</p>
-          </Card>
-
-          <Card className="p-6 bg-white shadow-md border-t-4 border-emerald-500">
-            <div className="flex items-center mb-4">
-              <FileText className="h-8 w-8 text-emerald-500 mr-3" />
-              <h3 className="text-xl font-semibold">32</h3>
-            </div>
-            <p className="text-gray-600">Research studies conducted on micronutrient efficacy</p>
-          </Card>
-
-          <Card className="p-6 bg-white shadow-md border-t-4 border-amber-500">
-            <div className="flex items-center mb-4">
-              <Award className="h-8 w-8 text-amber-500 mr-3" />
-              <h3 className="text-xl font-semibold">7</h3>
-            </div>
-            <p className="text-gray-600">Academic partnerships with leading universities</p>
-          </Card>
-
-          <Card className="p-6 bg-white shadow-md border-t-4 border-blue-500">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="h-8 w-8 text-blue-500 mr-3" />
-              <h3 className="text-xl font-semibold">78%</h3>
-            </div>
-            <p className="text-gray-600">Average improvement in nutritional knowledge after educational programs</p>
-          </Card>
-        </div>
-      </Container>
-
-      {/* Case studies */}
-      <div className="bg-slate-50 py-16">
+      {/* Key metrics */}
+      <section className="py-16">
         <Container>
-          <h2 className="text-3xl font-bold mb-12 text-center">Research Case Studies</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-            <Card className="p-8 bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-4">Vitamin D Deficiency Study in Urban Populations</h3>
-              <p className="text-gray-700 mb-4">
-                Our 2023 study of 500 urban office workers found that 68% were deficient in Vitamin D,
-                despite living in sunny regions. After a 6-month educational intervention:
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>92% of participants increased outdoor activity</span>
-                </li>
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>76% showed improved Vitamin D levels in follow-up testing</span>
-                </li>
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>63% reported improved energy levels and mood</span>
-                </li>
-              </ul>
-              <p className="text-sm text-gray-500">
-                Source: Journal of Nutritional Science, 2023
-              </p>
-            </Card>
-
-            <Card className="p-8 bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-4">Magnesium Intake and Stress Response</h3>
-              <p className="text-gray-700 mb-4">
-                Our longitudinal study with 300 participants explored the relationship between magnesium
-                intake and physiological stress response. Key findings included:
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Participants with optimal magnesium levels showed 42% lower cortisol during stress tests</span>
-                </li>
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Sleep quality improved by an average of 27% after magnesium optimization</span>
-                </li>
-                <li className="flex items-start">
-                  <ThumbsUp className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Dietary changes were more effective than supplementation alone</span>
-                </li>
-              </ul>
-              <p className="text-sm text-gray-500">
-                Source: American Journal of Clinical Nutrition, 2024
-              </p>
-            </Card>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">Impact by the Numbers</h2>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { 
+                  number: "25,000+", 
+                  label: "People Helped", 
+                  icon: <Users className="h-8 w-8 text-indigo-600 mb-2" />,
+                  description: "Individuals who have directly benefited from our programs"
+                },
+                { 
+                  number: "42", 
+                  label: "Research Papers", 
+                  icon: <FileText className="h-8 w-8 text-indigo-600 mb-2" />,
+                  description: "Peer-reviewed scientific publications produced by our team"
+                },
+                { 
+                  number: "12", 
+                  label: "Research Grants", 
+                  icon: <Award className="h-8 w-8 text-indigo-600 mb-2" />,
+                  description: "Competitive grants secured to advance our micronutrient research"
+                },
+                { 
+                  number: "8", 
+                  label: "Clinical Studies", 
+                  icon: <Microscope className="h-8 w-8 text-indigo-600 mb-2" />,
+                  description: "Clinical trials completed or in progress"
+                }
+              ].map((metric, i) => (
+                <div key={i} className="text-center bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                  <div className="flex justify-center">
+                    {metric.icon}
+                  </div>
+                  <h3 className="text-3xl font-bold text-indigo-700 mb-1">{metric.number}</h3>
+                  <p className="text-lg font-medium text-slate-800 mb-2">{metric.label}</p>
+                  <p className="text-sm text-slate-600">{metric.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
-      </div>
-
-      {/* Testimonials */}
-      <Container className="py-16">
-        <h2 className="text-3xl font-bold mb-12 text-center">Impact Testimonials</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="p-6 bg-white shadow-md">
-            <div className="mb-4">
-              <div className="flex space-x-1 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="italic text-gray-700 mb-4">
-                "As a healthcare provider, I've incorporated Natural Pure Academy's research into my patient 
-                education materials. The results have been remarkable - patients are more engaged and 
-                understand the 'why' behind nutritional recommendations."
-              </p>
-              <Separator className="my-4" />
-              <div>
-                <p className="font-semibold">Dr. Sarah Johnson</p>
-                <p className="text-sm text-gray-500">Family Medicine Physician</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white shadow-md">
-            <div className="mb-4">
-              <div className="flex space-x-1 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="italic text-gray-700 mb-4">
-                "Natural Pure Academy's educational materials have transformed our university nutrition 
-                curriculum. Students gain a deeper understanding of micronutrients' biochemical roles 
-                thanks to the Academy's evidence-based approach."
-              </p>
-              <Separator className="my-4" />
-              <div>
-                <p className="font-semibold">Professor Michael Turner</p>
-                <p className="text-sm text-gray-500">Department of Nutritional Sciences, University of California</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white shadow-md">
-            <div className="mb-4">
-              <div className="flex space-x-1 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="italic text-gray-700 mb-4">
-                "After attending Natural Pure Academy's community workshop on nutrition, I finally understood 
-                why I had been feeling so tired. Their practical approach to addressing nutrient deficiencies 
-                has completely changed my energy levels and overall health."
-              </p>
-              <Separator className="my-4" />
-              <div>
-                <p className="font-semibold">Jennifer Martinez</p>
-                <p className="text-sm text-gray-500">Workshop Participant</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </Container>
-
-      {/* Future goals */}
-      <div className="bg-indigo-50 py-16">
+      </section>
+      
+      {/* Success stories */}
+      <section className="py-16 bg-slate-50">
         <Container>
-          <h2 className="text-3xl font-bold mb-8 text-center">Our Future Impact Goals</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <Card className="p-8 bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-4 text-indigo-700">Research Expansion</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Launch 5 new large-scale studies on micronutrient interactions by 2026</span>
-                </li>
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Establish research partnerships with 10 additional universities</span>
-                </li>
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Publish 25 peer-reviewed articles in top nutritional science journals</span>
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-8 bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-4 text-indigo-700">Educational Outreach</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Reach 100,000 people annually through our online educational resources</span>
-                </li>
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Develop curriculum materials for K-12 nutrition education</span>
-                </li>
-                <li className="flex items-start">
-                  <ArrowRight className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Launch mobile app for personalized nutrition education and tracking</span>
-                </li>
-              </ul>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
-              Support Our Research
-            </Button>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-12 text-center">
+              <Badge variant="outline" className="mb-4">
+                <HeartPulse className="h-3 w-3 mr-1" />
+                Success Stories
+              </Badge>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Real Results for Real People</h2>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+                Our research and educational programs have made a significant difference in many lives.
+                Here are some stories of individuals who have benefited from our work.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              {[
+                {
+                  name: "Dr. James Wilson",
+                  role: "Medical Doctor, Chicago",
+                  image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300",
+                  quote: "The continuing education programs from Natural Pure Academy have completely transformed how I approach nutritional recommendations with my patients. The science-based approach and emphasis on micronutrient balance has filled a major gap in traditional medical education."
+                },
+                {
+                  name: "Sarah Johnson",
+                  role: "Nutrition Educator",
+                  image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300",
+                  quote: "I've incorporated Natural Pure Academy's research into our community health programs, reaching over 500 low-income families. The clear, accessible way they present complex nutritional science has helped us improve health outcomes in our community."
+                }
+              ].map((story, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={story.image} 
+                      alt={story.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <blockquote className="text-slate-700 italic mb-4 flex-1">
+                      "{story.quote}"
+                    </blockquote>
+                    <div>
+                      <h4 className="font-semibold text-slate-900">{story.name}</h4>
+                      <p className="text-slate-600 text-sm">{story.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-indigo-50 rounded-xl p-8 border border-indigo-100">
+              <div className="md:flex items-center">
+                <div className="md:w-3/4 mb-6 md:mb-0 md:pr-6">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                    Community Impact Program
+                  </h3>
+                  <p className="text-slate-700 mb-4">
+                    Our research directly informs our community education programs, which have been implemented 
+                    in 14 communities across the United States. These programs have shown a measurable improvement 
+                    in health literacy and nutritional habits among participants.
+                  </p>
+                  <ul className="space-y-2 text-slate-700">
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 h-5 w-5 text-indigo-600 mr-2 mt-0.5">✓</span>
+                      <span>87% of participants reported improved understanding of nutrition</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 h-5 w-5 text-indigo-600 mr-2 mt-0.5">✓</span>
+                      <span>62% made significant changes to their dietary habits</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 h-5 w-5 text-indigo-600 mr-2 mt-0.5">✓</span>
+                      <span>3,200+ families reached through community partnerships</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="md:w-1/4 flex justify-center">
+                  <div className="bg-white p-5 rounded-full h-32 w-32 flex items-center justify-center shadow-sm">
+                    <div>
+                      <div className="text-3xl font-bold text-indigo-700 text-center">14</div>
+                      <div className="text-xs text-slate-600 text-center">Communities</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </Container>
-      </div>
+      </section>
+      
+      {/* Research impact */}
+      <section className="py-16">
+        <Container>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-12 text-center">
+              <Badge variant="indigo" className="mb-4">
+                <Book className="h-3 w-3 mr-1" />
+                Research Impact
+              </Badge>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Advancing Scientific Knowledge</h2>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+                Our research has contributed to the scientific understanding of micronutrients 
+                and their role in human health, influencing both clinical practice and public health policy.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              {[
+                {
+                  title: "Vitamin D Research",
+                  image: "https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300",
+                  description: "Our research on Vitamin D has identified optimal supplementation protocols for individuals with different genetic profiles, leading to more personalized recommendations.",
+                  outcome: "Influenced vitamin D guidelines in 3 healthcare systems"
+                },
+                {
+                  title: "Magnesium Bioavailability",
+                  image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300",
+                  description: "We've conducted comparative studies on magnesium forms, identifying those with superior bioavailability and effectiveness for specific health conditions.",
+                  outcome: "Published in leading nutritional journals with 500+ citations"
+                },
+                {
+                  title: "Gut Microbiome & Nutrients",
+                  image: "https://images.unsplash.com/photo-1530026054970-71a0a321a59c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300",
+                  description: "Our pioneering research on the relationship between gut health and micronutrient absorption has opened new avenues for improving nutritional outcomes.",
+                  outcome: "Led to 2 clinical trials and a patent-pending diagnostic tool"
+                }
+              ].map((research, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={research.image} 
+                      alt={research.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3">{research.title}</h3>
+                    <p className="text-slate-700 mb-4 flex-1">{research.description}</p>
+                    <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                      <p className="text-sm text-emerald-800">
+                        <strong>Outcome:</strong> {research.outcome}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="text-center">
+              <Button asChild variant="outline" size="lg">
+                <Link to="/bibliotheque-scientifique">
+                  View our scientific publications
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </section>
+      
+      {/* Education impact */}
+      <section className="py-16 bg-slate-50">
+        <Container>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-12 text-center">
+              <Badge variant="secondary" className="mb-4">
+                <GraduationCap className="h-3 w-3 mr-1" />
+                Educational Impact
+              </Badge>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Empowering Through Knowledge</h2>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+                Our educational programs translate complex scientific research into accessible, 
+                actionable information for healthcare professionals and the general public.
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 mb-12">
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-indigo-600 text-white p-8 rounded-l-xl flex flex-col justify-center">
+                  <h3 className="text-2xl font-bold mb-4">Educational Reach</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-center">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-500 h-6 w-6 mr-3">✓</span>
+                      <span>17,500+ Online course participants</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-500 h-6 w-6 mr-3">✓</span>
+                      <span>4,200+ Healthcare professionals trained</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-500 h-6 w-6 mr-3">✓</span>
+                      <span>85+ Educational webinars conducted</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="inline-flex items-center justify-center rounded-full bg-indigo-500 h-6 w-6 mr-3">✓</span>
+                      <span>92% Satisfaction rate among students</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="md:w-2/3 p-8">
+                  <h4 className="text-xl font-semibold text-slate-900 mb-4">Program Highlights</h4>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {[
+                      {
+                        title: "Nutrition Science Certificate Program",
+                        description: "Professional development program for healthcare providers, focusing on evidence-based nutritional interventions.",
+                        metric: "1,200+ Graduates"
+                      },
+                      {
+                        title: "Public Health Education Initiative",
+                        description: "Community-focused workshops delivered in partnership with local health departments and community centers.",
+                        metric: "32 Communities Served"
+                      },
+                      {
+                        title: "Micronutrient Science Portal",
+                        description: "Free online resource providing accessible scientific information on vitamins, minerals, and other micronutrients.",
+                        metric: "230,000+ Annual Visitors"
+                      },
+                      {
+                        title: "Continuing Medical Education Credits",
+                        description: "Accredited courses for physicians, dietitians, and nurses focusing on nutritional therapies.",
+                        metric: "9,000+ CME Credits Awarded"
+                      }
+                    ].map((program, i) => (
+                      <div key={i} className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 className="font-medium text-slate-900 mb-2">{program.title}</h5>
+                        <p className="text-sm text-slate-600 mb-3">{program.description}</p>
+                        <div className="text-sm font-medium text-indigo-700">{program.metric}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
+                <Link to="/quiz">
+                  Take our personalized nutrition quiz
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </section>
+      
+      {/* Global impact */}
+      <section className="py-16">
+        <Container>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-12 text-center">
+              <Badge variant="indigo" className="mb-4">
+                <Globe className="h-3 w-3 mr-1" />
+                Global Reach
+              </Badge>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Worldwide Impact</h2>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+                While based in the United States, our work extends across borders through research collaborations, 
+                educational partnerships, and knowledge sharing.
+              </p>
+            </div>
+            
+            <div className="bg-slate-50 rounded-xl p-8 mb-12">
+              <div className="md:flex">
+                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-4">International Research Collaborations</h3>
+                  <ul className="space-y-3">
+                    {[
+                      "ETH Zürich - Micronutrient bioavailability research",
+                      "University of Tokyo - Polyphenol metabolism studies",
+                      "Oxford University - Vitamin D and immune function",
+                      "University of Cape Town - Nutritional interventions for vulnerable populations",
+                      "National University of Singapore - Micronutrient status in aging populations"
+                    ].map((collaboration, i) => (
+                      <li key={i} className="flex items-start">
+                        <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 h-5 w-5 text-indigo-600 mr-2 mt-0.5">✓</span>
+                        <span className="text-slate-700">{collaboration}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="md:w-1/2 md:pl-8 md:border-l border-slate-200">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-4">Global Knowledge Translation</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { metric: "18", label: "Countries with active programs" },
+                      { metric: "7", label: "Languages for educational resources" },
+                      { metric: "42", label: "International partnerships" },
+                      { metric: "12,400+", label: "International program participants" }
+                    ].map((item, i) => (
+                      <div key={i} className="bg-white p-4 rounded-lg border border-slate-200 text-center">
+                        <div className="text-2xl font-bold text-indigo-700 mb-1">{item.metric}</div>
+                        <div className="text-sm text-slate-600">{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 bg-white p-4 rounded-lg border border-slate-200">
+                    <h4 className="font-medium text-slate-900 mb-2">Featured Global Initiative</h4>
+                    <p className="text-slate-700 text-sm">
+                      Our "Nutrition Knowledge Bridge" program provides training and resources to healthcare 
+                      providers in underserved regions, empowering them with the latest nutritional science to address 
+                      local health challenges.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mb-12">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Our Future Goals</h3>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    title: "Expand Research Scope",
+                    description: "Launch 5 new clinical studies focusing on micronutrient interactions with chronic disease management."
+                  },
+                  {
+                    title: "Enhance Educational Reach",
+                    description: "Develop mobile learning platforms to reach healthcare providers in remote and underserved areas."
+                  },
+                  {
+                    title: "Build Community Programs",
+                    description: "Expand our community impact programs to 10 additional communities in the next 2 years."
+                  }
+                ].map((goal, i) => (
+                  <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h4 className="text-lg font-semibold text-slate-900 mb-3">{goal.title}</h4>
+                    <p className="text-slate-700">{goal.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-indigo-600 text-white rounded-xl p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4">Support Our Mission</h3>
+              <p className="text-lg opacity-90 max-w-3xl mx-auto mb-6">
+                Join us in our mission to advance scientific knowledge and improve global health through evidence-based nutrition education.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button asChild variant="secondary" size="lg">
+                  <Link to="/about">
+                    Learn More About Us
+                  </Link>
+                </Button>
+                <Button asChild size="lg" className="bg-white text-indigo-700 hover:bg-slate-100">
+                  <Link to="/contact">
+                    Contact Us
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
     </div>
   );
 };
