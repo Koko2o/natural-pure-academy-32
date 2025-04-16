@@ -38,73 +38,82 @@ export default useLanguage;
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Initialize with browser language or default to English
   const [language, setLanguageState] = useState<Language>(() => {
-    // Première priorité: vérifier si le HTML a déjà un attribut de langue
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang === 'fr' || htmlLang === 'en') {
-      console.log(`[LanguageContext] Detected HTML lang attribute: ${htmlLang}`);
-      return htmlLang as Language;
+    try {
+      // TOUJOURS vérifier localStorage en premier pour garantir la persistance
+      const savedLanguage = localStorage.getItem('preferredLanguage');
+      if (savedLanguage === 'fr' || savedLanguage === 'en') {
+        console.log(`[LanguageContext] Using saved language preference from localStorage: ${savedLanguage}`);
+        return savedLanguage as Language;
+      }
+      
+      // Ensuite vérifier si le HTML a déjà un attribut de langue
+      const htmlLang = document.documentElement.lang;
+      if (htmlLang === 'fr' || htmlLang === 'en') {
+        console.log(`[LanguageContext] Detected HTML lang attribute: ${htmlLang}`);
+        // Persistons cette valeur dans localStorage pour garantir la cohérence
+        localStorage.setItem('preferredLanguage', htmlLang);
+        return htmlLang as Language;
+      }
+      
+      // Default to English if nothing is set
+      console.log(`[LanguageContext] No language preference found, defaulting to English`);
+      localStorage.setItem('preferredLanguage', 'en');
+      return 'en';
+    } catch (error) {
+      console.error('[LanguageContext] Error during language initialization:', error);
+      return 'en';
     }
-    
-    // Deuxième priorité: vérifier localStorage
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage === 'fr' || savedLanguage === 'en') {
-      console.log(`[LanguageContext] Using saved language preference: ${savedLanguage}`);
-      return savedLanguage;
-    }
-    
-    // Check browser language
-    const browserLang = navigator.language.split('-')[0].toLowerCase();
-    const detectedLang = browserLang === 'fr' ? 'fr' : 'en';
-    console.log(`[LanguageContext] Detected browser language: ${detectedLang}`);
-    return detectedLang;
   });
 
   // Set language with persistence
   const setLanguage = (lang: Language) => {
-    // Mettre à jour l'état local
-    setLanguageState(lang);
+    console.log(`[LanguageContext] Setting language to: ${lang}`);
     
-    // Persister la langue dans localStorage
-    localStorage.setItem('preferredLanguage', lang);
-    
-    // Mettre à jour les attributs HTML directement
-    document.documentElement.lang = lang;
-    document.documentElement.setAttribute('data-language', lang);
-    
-    // Appliquer des classes CSS body pour ciblage
-    if (lang === 'fr') {
-      document.body.classList.add('lang-fr');
-      document.body.classList.remove('lang-en');
-    } else {
-      document.body.classList.add('lang-en');
-      document.body.classList.remove('lang-fr');
+    // VALIDATION: s'assurer que la langue est valide
+    if (lang !== 'en' && lang !== 'fr') {
+      console.error(`[LanguageContext] Invalid language value: ${lang}, defaulting to 'en'`);
+      lang = 'en';
     }
     
-    // Force all components to re-render by dispatching a custom event
-    window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
-    console.log(`[LanguageContext] Language set to ${lang}, updated DOM and dispatched event`);
+    // 1. Mettre à jour l'état local React
+    setLanguageState(lang);
     
-    // Use timeout to ensure the event has been dispatched and processed
-    setTimeout(() => {
-      // Force a re-render of the entire app
-      console.log(`[LanguageContext] Forcing global re-render for language: ${lang}`);
+    try {
+      // 2. Persister la langue dans localStorage
+      localStorage.setItem('preferredLanguage', lang);
       
-      try {
-        // Force full re-render on modern React applications
-        const appRoot = document.getElementById('root');
-        if (appRoot) {
-          appRoot.classList.add('language-changed');
-          setTimeout(() => appRoot.classList.remove('language-changed'), 50);
-        }
-        
-        // Dispatch a DOM event for non-React parts of the application
-        document.dispatchEvent(new CustomEvent('app-language-changed', { 
-          detail: { language: lang, timestamp: Date.now() }
-        }));
-      } catch (error) {
-        console.error('[LanguageContext] Error during language update:', error);
+      // 3. Mettre à jour les attributs HTML
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('data-language', lang);
+      
+      // 4. Appliquer des classes CSS pour le ciblage
+      if (lang === 'fr') {
+        document.body.classList.add('lang-fr');
+        document.body.classList.remove('lang-en');
+      } else {
+        document.body.classList.add('lang-en');
+        document.body.classList.remove('lang-fr');
       }
-    }, 50);
+      
+      // 5. Déclencher les événements pour forcer les composants à se mettre à jour
+      window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
+      console.log(`[LanguageContext] Language set to ${lang}, updated DOM and dispatched event`);
+      
+      // 6. Forcer une mise à jour globale de l'application
+      const appRoot = document.getElementById('root');
+      if (appRoot) {
+        appRoot.classList.add('language-changed');
+        setTimeout(() => appRoot.classList.remove('language-changed'), 100);
+      }
+      
+      // 7. Informer toute l'application du changement
+      document.dispatchEvent(new CustomEvent('app-language-changed', { 
+        detail: { language: lang, timestamp: Date.now() }
+      }));
+      
+    } catch (error) {
+      console.error('[LanguageContext] Error during language update:', error);
+    }
   };
 
   // Update HTML lang attribute when language changes

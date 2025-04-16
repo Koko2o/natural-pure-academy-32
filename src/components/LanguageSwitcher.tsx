@@ -1,27 +1,39 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage } = useLanguage();
+  const [isChanging, setIsChanging] = useState(false);
+
+  // Surveiller les changements réels de langue dans le DOM
+  useEffect(() => {
+    const currentDocLang = document.documentElement.lang;
+    if (currentDocLang !== language && !isChanging) {
+      console.log(`[LanguageSwitcher] DOM language (${currentDocLang}) doesn't match context (${language}), syncing`);
+      setLanguage(currentDocLang as 'en' | 'fr');
+    }
+  }, [language, setLanguage, isChanging]);
 
   const toggleLanguage = () => {
+    setIsChanging(true);
+    
     // Toggle between 'en' and 'fr'
     const newLanguage = language === 'en' ? 'fr' : 'en';
     
-    // Log language change for debugging
     console.log(`[Language] Switching from ${language} to ${newLanguage}`);
     
-    // Définir HTML lang attribute immédiatement
+    // 1. Mettre à jour localStorage en premier (crucial pour le rechargement)
+    localStorage.setItem('preferredLanguage', newLanguage);
+    console.log(`[Language] Updated localStorage with new language: ${newLanguage}`);
+    
+    // 2. Mettre à jour les attributs HTML immédiatement
     document.documentElement.lang = newLanguage;
     document.documentElement.setAttribute('data-language', newLanguage);
     
-    // Force language refresh with localStorage - AVANT le reload
-    localStorage.setItem('preferredLanguage', newLanguage);
-    
-    // Envoyer un signal fort au navigateur pour le changement de langue
+    // 3. Appliquer les classes CSS pour le ciblage
     if (newLanguage === 'fr') {
       document.body.classList.add('lang-fr');
       document.body.classList.remove('lang-en');
@@ -30,22 +42,21 @@ const LanguageSwitcher: React.FC = () => {
       document.body.classList.remove('lang-fr');
     }
     
-    // Déclencher un événement pour informer tous les composants du changement de langue
+    // 4. Déclencher les événements de changement de langue
     window.dispatchEvent(new CustomEvent('languageChange', { detail: newLanguage }));
-    document.dispatchEvent(new CustomEvent('app-language-changed', { detail: { language: newLanguage } }));
+    document.dispatchEvent(new CustomEvent('app-language-changed', { 
+      detail: { language: newLanguage, timestamp: Date.now() } 
+    }));
     
-    // Log confirmation
-    console.log(`[Language] Applied language change: ${newLanguage} and updated DOM`);
-    
-    // Update the language using the context - APRÈS avoir mis à jour le DOM
+    // 5. Mettre à jour le contexte React
     setLanguage(newLanguage);
     
-    // Ajouter un délai court pour s'assurer que tout est enregistré
+    // 6. Forcer une actualisation après un court délai
     setTimeout(() => {
-      console.log(`[Language] Reloading page to apply language: ${newLanguage}`);
-      // Force re-render by reloading la page pour appliquer à tout le site
-      window.location.reload();
-    }, 100);
+      console.log(`[Language] Reloading page to fully apply language: ${newLanguage}`);
+      window.location.href = window.location.pathname; // Méthode plus propre que reload()
+      setIsChanging(false);
+    }, 200);
   };
 
   return (
@@ -54,6 +65,7 @@ const LanguageSwitcher: React.FC = () => {
       size="sm" 
       onClick={toggleLanguage} 
       className="flex items-center gap-1 text-xs font-medium"
+      disabled={isChanging}
       title={language === 'en' ? 'Passer au français' : 'Switch to English'}
     >
       <Globe className="h-3.5 w-3.5" />
