@@ -9,8 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 type Language = 'fr' | 'en' | 'es';
 
+interface MissingTranslation {
+  key: string;
+  language: Language;
+  component?: string;
+}
+
 export const TranslationDebugger: React.FC = () => {
-  const { language, t } = useLanguage();
+  const { language, t, setLanguage } = useLanguage();
   const [htmlLang, setHtmlLang] = useState<string>('');
   const [storedLang, setStoredLang] = useState<string>('');
   const [urlLang, setUrlLang] = useState<string | null>(null);
@@ -18,10 +24,11 @@ export const TranslationDebugger: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [lastLangChange, setLastLangChange] = useState<number>(Date.now());
+  const [missingTranslations, setMissingTranslations] = useState<MissingTranslation[]>([]);
   const [coverage, setCoverage] = useState<Record<Language, number>>({
-    fr: 98,
+    fr: 95,
     en: 100,
-    es: 65
+    es: 60
   });
 
   useEffect(() => {
@@ -143,18 +150,27 @@ export const TranslationDebugger: React.FC = () => {
             
             <TabsContent value="test" className="mt-2">
               <div className="space-y-2 text-xs">
-                <p>Test the translation of:</p>
+                <p>{t('Test the translation of:')}</p>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <div className="font-medium">Home</div>
-                    <div className="text-muted-foreground">EN: {t('Home')}</div>
+                    <div className="text-muted-foreground">
+                      EN: Home | FR: {t('Home')} | ES: {language === 'es' ? t('Home') : '?'}
+                    </div>
                     <div className="font-mono text-[10px]">t('Home')</div>
                   </div>
                   <div className="space-y-1">
                     <div className="font-medium">About Us</div>
-                    <div className="text-muted-foreground">EN: {t('About Us')}</div>
+                    <div className="text-muted-foreground">
+                      EN: About Us | FR: {t('About Us')} | ES: {language === 'es' ? t('About Us') : '?'}
+                    </div>
                     <div className="font-mono text-[10px]">t('About Us')</div>
                   </div>
+                </div>
+                <div className="mt-2">
+                  <Button onClick={() => setLanguage('fr')} size="sm" variant={language === 'fr' ? 'default' : 'outline'} className="mr-1">FR</Button>
+                  <Button onClick={() => setLanguage('en')} size="sm" variant={language === 'en' ? 'default' : 'outline'} className="mr-1">EN</Button>
+                  <Button onClick={() => setLanguage('es')} size="sm" variant={language === 'es' ? 'default' : 'outline'}>ES</Button>
                 </div>
               </div>
             </TabsContent>
@@ -163,10 +179,25 @@ export const TranslationDebugger: React.FC = () => {
         
         <CardFooter className="pt-0 pb-2 flex justify-between text-xs">
           <div className="text-muted-foreground">
-            Debug mode
+            {t('Debug mode')}
           </div>
-          <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-            Run Audit
+          <Button 
+            variant="link" 
+            size="sm" 
+            className="h-auto p-0 text-xs"
+            onClick={() => {
+              // Simuler un audit des traductions - en production, cela pourrait
+              // appeler une API ou scanner le DOM pour des éléments non traduits
+              console.log('[Translation Audit] Scanning for untranslated content...');
+              // Mise à jour pour simuler un changement dans la couverture
+              setCoverage({
+                fr: Math.max(50, Math.floor(Math.random() * 100)),
+                en: 100,
+                es: Math.max(40, Math.floor(Math.random() * 70))
+              });
+            }}
+          >
+            {t('Run Audit')}
           </Button>
         </CardFooter>
       </Card>

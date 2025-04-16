@@ -11,7 +11,7 @@ const setupLanguageMonitoring = () => {
     // Récupérer la langue depuis localStorage
     const storedLanguage = localStorage.getItem('preferredLanguage');
     console.log(`[LanguageMonitor] Initial language from storage: ${storedLanguage || 'not set'}`);
-    
+
     // S'il n'y a pas de langue stockée, définir l'anglais par défaut
     if (!storedLanguage) {
       console.log(`[LanguageMonitor] No language preference found, setting English as default`);
@@ -26,7 +26,7 @@ const setupLanguageMonitoring = () => {
       // Application forcée des attributs HTML et des classes CSS
       document.documentElement.lang = storedLanguage;
       document.documentElement.setAttribute('data-language', storedLanguage);
-      
+
       // Appliquer des classes CSS pour le ciblage
       if (storedLanguage === 'fr') {
         document.body.classList.add('lang-fr');
@@ -35,7 +35,7 @@ const setupLanguageMonitoring = () => {
         document.body.classList.add('lang-en');
         document.body.classList.remove('lang-fr');
       }
-      
+
       // Réappliquer après un court délai pour s'assurer que les styles persistent
       setTimeout(() => {
         document.documentElement.lang = storedLanguage;
@@ -47,7 +47,7 @@ const setupLanguageMonitoring = () => {
           document.body.classList.remove('lang-fr');
         }
       }, 100);
-      
+
       console.log(`[LanguageMonitor] Applied stored language to document: ${storedLanguage}`);
     }
 
@@ -66,12 +66,12 @@ const setupLanguageMonitoring = () => {
     document.addEventListener('app-language-changed', (e: Event) => {
       const customEvent = e as CustomEvent;
       console.log(`[LanguageMonitor] Language change detected:`, customEvent.detail);
-      
+
       // Vérifier la cohérence après un changement
       setTimeout(() => {
         const currentStoredLang = localStorage.getItem('preferredLanguage');
         const currentHtmlLang = document.documentElement.lang;
-        
+
         if (currentHtmlLang !== currentStoredLang) {
           console.warn(`[LanguageMonitor] Post-change inconsistency: HTML=${currentHtmlLang}, localStorage=${currentStoredLang}`);
           // Synchroniser si nécessaire
@@ -81,7 +81,7 @@ const setupLanguageMonitoring = () => {
         }
       }, 300);
     });
-    
+
     window.addEventListener('languageChange', (e: Event) => {
       const customEvent = e as CustomEvent;
       console.log(`[LanguageMonitor] languageChange event detected:`, customEvent.detail);
@@ -102,7 +102,7 @@ if (langParam === 'en' || langParam === 'fr') {
   localStorage.setItem('preferredLanguage', langParam);
   document.documentElement.lang = langParam;
   document.documentElement.setAttribute('data-language', langParam);
-  
+
   if (langParam === 'fr') {
     document.body.classList.add('lang-fr');
     document.body.classList.remove('lang-en');
@@ -117,5 +117,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <RouterProvider router={router} />
     </HelmetProvider>
+    {import.meta.env.DEV && <TranslationDebugger />}
   </React.StrictMode>,
 )

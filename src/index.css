@@ -18,6 +18,31 @@ html[data-language="es"] .fr-only {
   display: none !important;
 }
 
+/* Indicateur visuel pour le contenu non traduit */
+.untranslated {
+  position: relative;
+  display: inline-block;
+  background-color: rgba(255, 100, 100, 0.1);
+  border-bottom: 1px dashed #ff6464;
+}
+
+.untranslated::after {
+  content: "!";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff6464;
+  color: white;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 /* Animation pour le changement de langue */
 .language-changed {
   animation: fade-update 0.3s ease-in-out;

@@ -261,6 +261,10 @@ const translations = {
     'Scroll depth': 'Scroll depth',
     'Interactions': 'Interactions',
     'Languages': 'Languages',
+    'Change language': 'Change language',
+    'Debug mode': 'Debug mode',
+    'Run Audit': 'Run Audit',
+    'Test the translation of:': 'Test the translation of:',
     
     // Traductions existantes
     'Home': 'Home',
@@ -313,6 +317,10 @@ const translations = {
     'Scroll depth': 'Profondeur de défilement',
     'Interactions': 'Interactions',
     'Languages': 'Langues',
+    'Change language': 'Changer de langue',
+    'Debug mode': 'Mode débogage',
+    'Run Audit': 'Lancer l\'audit',
+    'Test the translation of:': 'Tester la traduction de :',
     
     // Traductions existantes
     'Home': 'Accueil',
@@ -381,6 +389,10 @@ const translations = {
     'Scroll depth': 'Profundidad de desplazamiento',
     'Interactions': 'Interacciones',
     'Languages': 'Idiomas',
+    'Change language': 'Cambiar idioma',
+    'Debug mode': 'Modo de depuración',
+    'Run Audit': 'Ejecutar auditoría',
+    'Test the translation of:': 'Probar la traducción de:',
     
     // Traductions existantes
     'Home': 'Inicio',

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -161,7 +160,7 @@ export const useArticleEngagement = ({
         language
       });
     };
-  }, [articleId]);
+  }, [language]);
 
   return { metrics };
 };
