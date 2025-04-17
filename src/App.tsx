@@ -1,24 +1,26 @@
 
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import React, { Suspense, lazy } from 'react';
-import { TranslationDebugger } from '@/components/TranslationDebugger';
+import React, { Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Routes, Route } from 'react-router-dom';
+import { useLanguage } from './contexts/LanguageContext';
 
-// Lazy-loaded route components
-const Home = lazy(() => import('@/pages/Index'));
-const About = lazy(() => import('@/pages/About'));
-const Contact = lazy(() => import('@/pages/Contact'));
-const Articles = lazy(() => import('@/pages/Articles'));
-const Article = lazy(() => import('@/pages/Article'));
-const Quiz = lazy(() => import('@/pages/Quiz'));
-const LaboSolutions = lazy(() => import('@/pages/LaboSolutions'));
-const ProfileSante = lazy(() => import('@/pages/ProfileSante'));
-const BibliothequeScientifique = lazy(() => import('@/pages/BibliothequeScientifique'));
-const NosRecherches = lazy(() => import('@/pages/NosRecherches'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
+// Components
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { TranslationDebugger } from './components/TranslationDebugger';
+
+// Pages (lazy loaded)
+const Home = React.lazy(() => import('./pages/Index'));
+const About = React.lazy(() => import('./pages/About'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const Articles = React.lazy(() => import('./pages/Articles'));
+const Article = React.lazy(() => import('./pages/Article'));
+const Quiz = React.lazy(() => import('./pages/Quiz'));
+const LaboSolutions = React.lazy(() => import('./pages/LaboSolutions'));
+const ProfileSante = React.lazy(() => import('./pages/ProfileSante'));
+const BibliothequeScientifique = React.lazy(() => import('./pages/BibliothequeScientifique'));
+const NosRecherches = React.lazy(() => import('./pages/NosRecherches'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 function App() {
   const { t, showDebugger } = useLanguage();
@@ -34,7 +36,7 @@ function App() {
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
-          <Suspense fallback={<div className="p-12 text-center">Loading...</div>}>
+          <Suspense fallback={<div className="p-12 text-center">{t('loading')}</div>}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />

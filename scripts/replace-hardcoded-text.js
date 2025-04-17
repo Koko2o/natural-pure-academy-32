@@ -1,179 +1,147 @@
-
-// Script amélioré pour remplacer les textes en dur par des appels à la fonction t()
 const fs = require('fs');
 const path = require('path');
+const { scanForHardcodedText, suggestTranslationKey } = require('../src/utils/translationHelper');
 
-// Fonction pour remplacer les textes en dur dans un fichier
+// Fonction pour trouver tous les fichiers dans un répertoire
+function findFiles(dir, extensions = ['.tsx', '.jsx', '.ts', '.js']) {
+  let results = [];
+  const items = fs.readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory() && item !== 'node_modules' && !item.startsWith('.')) {
+      results = results.concat(findFiles(fullPath, extensions));
+    } else if (stat.isFile() && extensions.includes(path.extname(fullPath))) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+}
+
+// Fonction pour remplacer les textes en dur par des appels à la fonction de traduction
 function replaceHardcodedText(filePath) {
   try {
-    // Lire le contenu du fichier
-    let content = fs.readFileSync(filePath, 'utf8');
-    
-    // Vérifier si le hook de traduction est présent
-    const hasTranslationHook = content.includes('useTranslation') || content.includes('useLanguage');
-    if (!hasTranslationHook) {
-      console.log(`⚠️ ${filePath} n'a pas de hook de traduction, ajoutez-le d'abord`);
-      return false;
+    const content = fs.readFileSync(filePath, 'utf8');
+    const hardcodedTexts = scanForHardcodedText(content);
+
+    if (hardcodedTexts.length === 0) {
+      console.log(`✓ Aucun texte en dur détecté dans ${filePath}`);
+      return;
     }
-    
-    // Vérifier si la variable t est déclarée
-    const hasTFunction = /const\s+{\s*t\s*}\s*=\s*use(Translation|Language)\(\)/.test(content);
-    if (!hasTFunction) {
-      console.log(`⚠️ ${filePath} utilise le hook mais n'a pas déclaré la fonction t`);
-      return false;
-    }
-    
-    // Patterns pour trouver les textes en dur
-    const patterns = [
-      // Textes dans les balises h1, h2, h3, p, etc.
-      { 
-        regex: /(<h[1-6][^>]*>)([^<{][^<]*?)(<\/h[1-6]>)/g,
-        replacement: (match, openTag, text, closeTag) => 
-          `${openTag}{t('${text.trim()}')}</${openTag.slice(1).split(' ')[0]}>`
-      },
-      { 
-        regex: /(<p[^>]*>)([^<{][^<]*?)(<\/p>)/g,
-        replacement: (match, openTag, text, closeTag) => 
-          `${openTag}{t('${text.trim()}')}</p>`
-      },
-      { 
-        regex: /(<span[^>]*>)([^<{][^<]*?)(<\/span>)/g,
-        replacement: (match, openTag, text, closeTag) => 
-          `${openTag}{t('${text.trim()}')}</span>`
-      },
-      { 
-        regex: /(<div[^>]*>)([^<{][^<]*?)(<\/div>)/g,
-        replacement: (match, openTag, text, closeTag) => {
-          // Ne remplacer que si le texte n'est pas juste des espaces blancs
-          if (text.trim().length > 0) {
-            return `${openTag}{t('${text.trim()}')}</div>`;
-          }
-          return match;
-        }
-      },
-      { 
-        regex: /(<li[^>]*>)([^<{][^<]*?)(<\/li>)/g,
-        replacement: (match, openTag, text, closeTag) => 
-          `${openTag}{t('${text.trim()}')}</li>`
-      },
-      // Attributs courants contenant du texte
-      {
-        regex: /(title=")([^{"]+)(")/g,
-        replacement: (match, prefix, text, suffix) => 
-          `${prefix}{t('${text}')}${suffix}`
-      },
-      {
-        regex: /(placeholder=")([^{"]+)(")/g,
-        replacement: (match, prefix, text, suffix) => 
-          `${prefix}{t('${text}')}${suffix}`
-      },
-      {
-        regex: /(alt=")([^{"]+)(")/g,
-        replacement: (match, prefix, text, suffix) => 
-          `${prefix}{t('${text}')}${suffix}`
-      },
-      {
-        regex: /(aria-label=")([^{"]+)(")/g,
-        replacement: (match, prefix, text, suffix) => 
-          `${prefix}{t('${text}')}${suffix}`
-      },
-      // Chaînes de caractères dans les fonctions/variables
-      {
-        regex: /(\s*=\s*['"])([^'"{}<>]+)(['"])/g,
-        replacement: (match, prefix, text, suffix) => {
-          // Ignorer les URLs, chemins, etc.
-          if (text.includes('/') || text.includes('.') || text.match(/^[a-zA-Z0-9_-]+$/)) {
-            return match;
-          }
-          return `${prefix}{t('${text}')}${suffix}`;
-        }
-      }
-    ];
-    
-    // Appliquer les patterns un par un
-    let modified = false;
-    let modifications = 0;
-    
-    patterns.forEach(pattern => {
-      const newContent = content.replace(pattern.regex, (match, ...args) => {
-        const replacement = pattern.replacement(match, ...args);
-        if (replacement !== match) {
-          modifications++;
-          return replacement;
-        }
-        return match;
-      });
-      
-      if (newContent !== content) {
-        content = newContent;
-        modified = true;
-      }
+
+    console.log(`\n🔍 Analyse de ${filePath}`);
+    console.log(`🔤 ${hardcodedTexts.length} textes en dur détectés.`);
+
+    // Collecte les traductions à ajouter
+    const translations = {};
+
+    // Pour chaque texte, suggérer une clé et préparer le remplacement
+    let newContent = content;
+    hardcodedTexts.forEach(text => {
+      const key = suggestTranslationKey(text);
+
+      // Éviter les duplications si la clé existe déjà
+      const uniqueKey = translations[key] ? `${key}_${Object.keys(translations).length}` : key;
+
+      // Stocker la traduction
+      translations[uniqueKey] = text;
+
+      // Échapper les caractères spéciaux pour la regex
+      const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // Remplacer le texte par l'appel à t()
+      const regex = new RegExp(`(>\\s*)${escapedText}(\\s*<)`, 'g');
+      newContent = newContent.replace(regex, `$1{t('${uniqueKey}')}$2`);
+
+      // Remplacer les textes dans les attributs
+      const attrRegex = new RegExp(`((?:title|placeholder|label|alt|aria-label)=")${escapedText}(")`, 'g');
+      newContent = newContent.replace(attrRegex, `$1{t('${uniqueKey}')}$2`);
+
+      console.log(`  ✓ "${text}" → t('${uniqueKey}')`);
     });
-    
-    // Sauvegarder les changements si le fichier a été modifié
-    if (modified) {
-      fs.writeFileSync(filePath, content);
-      console.log(`✅ ${filePath} - ${modifications} textes en dur remplacés par t()`);
-      return true;
+
+    // Sauvegarder les modifications
+    if (newContent !== content) {
+      fs.writeFileSync(filePath, newContent, 'utf8');
+      console.log(`💾 Fichier mis à jour: ${filePath}`);
+
+      // Ajouter les traductions au contexte
+      updateTranslationContext(translations);
+
+      return translations;
     } else {
-      console.log(`ℹ️ ${filePath} - Aucun texte en dur trouvé avec les patterns actuels`);
-      return false;
+      console.log(`⚠️ Aucune modification n'a pu être appliquée dans ${filePath}`);
+      return {};
     }
-  } catch (err) {
-    console.error(`❌ Erreur avec ${filePath}:`, err.message);
-    return false;
+  } catch (error) {
+    console.error(`❌ Erreur lors du traitement de ${filePath}:`, error);
+    return {};
   }
 }
 
-// Fonction récursive pour traiter un dossier
-function processDirectory(directory, stats = { processed: 0, modified: 0, errors: 0 }) {
-  console.log(`🔍 Traitement du dossier: ${directory}`);
-  
+// Fonction pour mettre à jour le fichier LanguageContext avec les nouvelles traductions
+function updateTranslationContext(translations) {
+  if (Object.keys(translations).length === 0) return;
+
+  const contextPath = path.join(__dirname, '../src/contexts/LanguageContext.tsx');
+
   try {
-    const files = fs.readdirSync(directory);
-    
-    files.forEach(file => {
-      const filePath = path.join(directory, file);
-      
-      try {
-        const stat = fs.statSync(filePath);
-        
-        if (stat.isDirectory() && !filePath.includes('node_modules')) {
-          processDirectory(filePath, stats);
-        } else if (stat.isFile() && (filePath.endsWith('.tsx') || filePath.endsWith('.jsx'))) {
-          stats.processed++;
-          const wasModified = replaceHardcodedText(filePath);
-          if (wasModified) stats.modified++;
-        }
-      } catch (err) {
-        console.error(`❌ Erreur en traitant ${filePath}:`, err.message);
-        stats.errors++;
+    let content = fs.readFileSync(contextPath, 'utf8');
+
+    // Pour chaque langue
+    ['fr', 'en', 'es'].forEach(lang => {
+      const langSection = content.indexOf(`${lang}: {`);
+      if (langSection === -1) return;
+
+      // Trouver la fin de la section
+      const endBrace = content.indexOf('}', langSection);
+      const insertPoint = endBrace;
+
+      // Préparer les nouvelles traductions
+      const newTranslations = Object.entries(translations)
+        .map(([key, value]) => {
+          // Pour l'anglais et l'espagnol, mettre temporairement le même texte
+          const text = lang === 'fr' ? value : `${value} (${lang})`;
+          return `    ${key}: '${text.replace(/'/g, "\\'")}'`;
+        })
+        .join(',\n');
+
+      // Insérer les nouvelles traductions
+      if (newTranslations) {
+        content = content.slice(0, insertPoint) + ',\n' + newTranslations + content.slice(insertPoint);
       }
     });
-  } catch (err) {
-    console.error(`❌ Erreur en lisant le dossier ${directory}:`, err.message);
-    stats.errors++;
+
+    // Sauvegarder les modifications
+    fs.writeFileSync(contextPath, content, 'utf8');
+    console.log(`📚 ${Object.keys(translations).length} traductions ajoutées au contexte de langue.`);
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la mise à jour du contexte de langue:', error);
   }
-  
-  return stats;
 }
 
-// Point d'entrée
+// Point d'entrée principal
 function main() {
   const args = process.argv.slice(2);
-  const targetDir = args[0] || path.join(process.cwd(), 'src');
-  
-  console.log(`🌐 Remplacement des textes en dur dans ${targetDir}...`);
-  
-  const stats = processDirectory(targetDir);
-  
-  console.log(`
-✅ Traitement terminé!
-📊 Statistiques:
-  - Fichiers traités: ${stats.processed}
-  - Fichiers modifiés: ${stats.modified}
-  - Erreurs: ${stats.errors}
-  `);
+  const targetDir = args[0] || './src';
+
+  console.log(`🌐 Recherche de textes en dur dans ${targetDir}...`);
+
+  const files = findFiles(path.resolve(targetDir));
+  console.log(`📁 ${files.length} fichiers trouvés.`);
+
+  let totalTranslations = {};
+
+  files.forEach(file => {
+    const translations = replaceHardcodedText(file);
+    Object.assign(totalTranslations, translations);
+  });
+
+  console.log(`\n✅ Terminé! ${Object.keys(totalTranslations).length} traductions au total.`);
 }
 
 main();

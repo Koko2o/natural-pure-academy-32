@@ -54,8 +54,13 @@ export const TranslationDebugger: React.FC = () => {
         />
       </div>
 
-      <div className="text-xs bg-red-900/50 p-2 mb-2 rounded">
+      <div className="text-xs bg-red-900/50 p-2 mb-2 rounded flex justify-between items-center">
         <strong>{t('missing_translations')}: {missingTranslations.length}</strong>
+        <div className="flex gap-1">
+          <span className="px-1.5 py-0.5 bg-slate-800 rounded text-xs">FR: {Object.keys(translations.fr).length}</span>
+          <span className="px-1.5 py-0.5 bg-slate-800 rounded text-xs">EN: {Object.keys(translations.en).length}</span>
+          <span className="px-1.5 py-0.5 bg-slate-800 rounded text-xs">ES: {Object.keys(translations.es).length}</span>
+        </div>
       </div>
 
       <div className="space-y-1 text-sm">
@@ -63,7 +68,10 @@ export const TranslationDebugger: React.FC = () => {
           <div key={key} className={`p-1.5 rounded flex flex-col ${!value ? 'bg-red-900/30' : 'bg-slate-800'}`}>
             <div className="flex justify-between">
               <span className="font-mono text-xs text-slate-400">{key}</span>
-              <span className="text-xs bg-slate-700 px-1 rounded">{language}</span>
+              <div className="flex gap-1">
+                <span className="text-xs bg-slate-700 px-1 rounded">{language}</span>
+                {!value && <span className="text-xs bg-red-700 px-1 rounded">!</span>}
+              </div>
             </div>
             <div className="mt-1">
               {value ? value : <em className="text-red-400">{t('missing')}</em>}

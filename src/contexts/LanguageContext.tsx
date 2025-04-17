@@ -82,7 +82,24 @@ const defaultTranslations: Translations = {
     our_mission: 'Notre mission',
     our_team: 'Notre équipe',
     our_values: 'Nos valeurs',
-    our_partners: 'Nos partenaires'
+    our_partners: 'Nos partenaires',
+    // Nouvelles traductions
+    health_profile: 'Profil Santé',
+    laboratory_solutions: 'Solutions Laboratoire',
+    scientific_library: 'Bibliothèque Scientifique',
+    our_research: 'Nos Recherches',
+    discover_quiz: 'Découvrir le Quiz',
+    personalized_recommendations: 'Recommandations Personnalisées',
+    latest_articles: 'Derniers Articles',
+    scientific_evidence: 'Preuves Scientifiques',
+    nutritional_deficiencies: 'Carences Nutritionnelles',
+    health_assessment: 'Évaluation de Santé',
+    take_assessment: 'Faire l\'évaluation',
+    terms_of_use: 'Conditions d\'Utilisation',
+    privacy_policy_short: 'Confidentialité',
+    back: 'Retour',
+    menu: 'Menu',
+    close: 'Fermer'
   },
   en: {
     language_code: 'en',
@@ -146,7 +163,24 @@ const defaultTranslations: Translations = {
     our_mission: 'Our mission',
     our_team: 'Our team',
     our_values: 'Our values',
-    our_partners: 'Our partners'
+    our_partners: 'Our partners',
+    // New translations
+    health_profile: 'Health Profile',
+    laboratory_solutions: 'Laboratory Solutions',
+    scientific_library: 'Scientific Library',
+    our_research: 'Our Research',
+    discover_quiz: 'Discover the Quiz',
+    personalized_recommendations: 'Personalized Recommendations',
+    latest_articles: 'Latest Articles',
+    scientific_evidence: 'Scientific Evidence',
+    nutritional_deficiencies: 'Nutritional Deficiencies',
+    health_assessment: 'Health Assessment',
+    take_assessment: 'Take Assessment',
+    terms_of_use: 'Terms of Use',
+    privacy_policy_short: 'Privacy',
+    back: 'Back',
+    menu: 'Menu',
+    close: 'Close'
   },
   es: {
     language_code: 'es',
@@ -210,7 +244,24 @@ const defaultTranslations: Translations = {
     our_mission: 'Nuestra misión',
     our_team: 'Nuestro equipo',
     our_values: 'Nuestros valores',
-    our_partners: 'Nuestros socios'
+    our_partners: 'Nuestros socios',
+    // Nuevas traducciones
+    health_profile: 'Perfil de Salud',
+    laboratory_solutions: 'Soluciones de Laboratorio',
+    scientific_library: 'Biblioteca Científica',
+    our_research: 'Nuestra Investigación',
+    discover_quiz: 'Descubrir el Cuestionario',
+    personalized_recommendations: 'Recomendaciones Personalizadas',
+    latest_articles: 'Últimos Artículos',
+    scientific_evidence: 'Evidencia Científica',
+    nutritional_deficiencies: 'Deficiencias Nutricionales',
+    health_assessment: 'Evaluación de Salud',
+    take_assessment: 'Realizar Evaluación',
+    terms_of_use: 'Términos de Uso',
+    privacy_policy_short: 'Privacidad',
+    back: 'Volver',
+    menu: 'Menú',
+    close: 'Cerrar'
   }
 };
 

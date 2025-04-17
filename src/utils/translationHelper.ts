@@ -14,10 +14,18 @@ export const scanForHardcodedText = (componentCode: string): string[] => {
     /<div[^>]*>\s*([^<{]+)\s*<\/div>/g,
     /<button[^>]*>\s*([^<{]+)\s*<\/button>/g,
     /<a[^>]*>\s*([^<{]+)\s*<\/a>/g,
+    /<li[^>]*>\s*([^<{]+)\s*<\/li>/g, // Liste items
+    /<label[^>]*>\s*([^<{]+)\s*<\/label>/g, // Labels
+    /<option[^>]*>\s*([^<{]+)\s*<\/option>/g, // Options de select
+    /<strong[^>]*>\s*([^<{]+)\s*<\/strong>/g, // Texte en gras
+    /<em[^>]*>\s*([^<{]+)\s*<\/em>/g, // Texte en italique
+    /<small[^>]*>\s*([^<{]+)\s*<\/small>/g, // Petit texte
     /title="([^"{}]+)"/g,
     /placeholder="([^"{}]+)"/g,
     /label="([^"{}]+)"/g,
     /alt="([^"{}]+)"/g,
+    /aria-label="([^"{}]+)"/g, // Attributs d'accessibilité
+    /tooltip="([^"{}]+)"/g, // Tooltips
   ];
 
   const hardcodedText: string[] = [];
@@ -27,7 +35,12 @@ export const scanForHardcodedText = (componentCode: string): string[] => {
     let match;
     while ((match = pattern.exec(componentCode)) !== null) {
       const text = match[1].trim();
-      if (text && !text.includes('t(') && text.length > 2) {
+      // Exclure le code, les nombres seuls et les chaînes très courtes
+      if (text && 
+          !text.includes('t(') && 
+          text.length > 2 && 
+          !/^[0-9.,%]+$/.test(text) && // Exclure les nombres
+          !/^[A-Za-z0-9_]+$/.test(text)) { // Exclure ce qui ressemble à des variables
         hardcodedText.push(text);
       }
     }

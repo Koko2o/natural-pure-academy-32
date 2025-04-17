@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 /* Styles pour la gestion des langues */
-html[data-language="en"] .fr-only,
-html[data-language="en"] .es-only {
+html[lang="en"] .fr-only,
+html[lang="en"] .es-only {
   display: none !important;
 }
 
-html[data-language="fr"] .en-only,
-html[data-language="fr"] .es-only {
+html[lang="fr"] .en-only,
+html[lang="fr"] .es-only {
   display: none !important;
 }
 
-html[data-language="es"] .en-only,
-html[data-language="es"] .fr-only {
+html[lang="es"] .en-only,
+html[lang="es"] .fr-only {
   display: none !important;
 }
 
@@ -54,22 +54,33 @@ html[data-language="es"] .fr-only {
 }
 
 /* Styles spécifiques à chaque langue */
-html[data-language="en"] .language-indicator {
+html[lang="en"] .language-indicator {
   color: #0055ff;
 }
 
-html[data-language="fr"] .language-indicator {
+html[lang="fr"] .language-indicator {
   color: #0055ff;
 }
 
-html[data-language="es"] .language-indicator {
+html[lang="es"] .language-indicator {
   color: #0055ff;
 }
 
 /* Classes spécifiques par langue pour le site */
 html[lang="fr"] .lang-specific-en,
 html[lang="fr"] .lang-specific-es {
-  display: none;
+  display: none !important;
+}
+
+html[lang="en"] .lang-specific-fr,
+html[lang="en"] .lang-specific-es {
+  display: none !important;
+}
+
+html[lang="es"] .lang-specific-fr,
+html[lang="es"] .lang-specific-en {
+  display: none !important;
+};
 }
 
 html[lang="en"] .lang-specific-fr,
