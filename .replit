@@ -68,6 +68,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "node scripts/audit-translations.js"
 
+[[workflows.workflow]]
+name = "Check Google Ad Grant Compliance"
+author = 40962122
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node scripts/compliance-checker.js"
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
