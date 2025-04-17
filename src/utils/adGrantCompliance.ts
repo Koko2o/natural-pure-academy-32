@@ -6,7 +6,7 @@
  * and ensuring proper conversion tracking.
  */
 
-import { auditPageContent, detectBannedTerms, isUrlCompliant } from './contentSafety';
+import { auditPageContent, detectBannedTerms, isUrlCompliant as contentSafetyUrlCheck } from './contentSafety';
 
 // Banned keywords for Google Ad Grants according to policy
 const BANNED_SINGLE_KEYWORDS = [
@@ -207,15 +207,8 @@ export const checkAdGrantCompliance = (performanceData: any) => {
       });
     }
 
-    // Fonction locale utilisée pour la vérification de conformité des URLs
-const urlCompliantCheck = (url: string): boolean => {
-  const bannedPatterns = [
-    /gambling/i, /casino/i, /porn/i, /adult/i, /alcohol/i, /tobacco/i,
-    /drugs/i, /weapons/i, /firearms/i
-  ];
-  
-  return !bannedPatterns.some(pattern => pattern.test(url));
-};
+    // Utilisation de la fonction importée de contentSafety
+    // pour la vérification de conformité des URLs
 
 // Check for conversion tracking
     const conversionTrackingData = JSON.parse(localStorage.getItem('ad_grant_conversion_tracking') || '{}');
@@ -328,7 +321,7 @@ export const generateComplianceReport = () => {
         // Run a live audit on the current page
         currentPage: window.location.pathname,
         contentSafetyCheck: auditPageContent(document.body.innerHTML),
-        urlCompliance: true, // Using direct boolean value for compliance
+        urlCompliance: contentSafetyUrlCheck(window.location.href), // Using the imported function
         detectedBannedTerms: detectBannedTerms(document.body.textContent || '')
       },
       recommendations: generateComplianceRecommendations(
