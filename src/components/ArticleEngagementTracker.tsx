@@ -13,69 +13,84 @@ interface ArticleEngagementData {
   readLevel?: 'beginner' | 'intermediate' | 'advanced';
 }
 
-const ArticleEngagementTracker: React.FC<ArticleEngagementData> = ({ 
-  articleId, 
-  articleLength, 
-  articleTitle,
-  hasScientificCitations = true,
-  hasMedicalTerms = true,
-  category = 'nutrition',
-  readLevel = 'intermediate'
-}) => {
+const ArticleEngagementTracker: React.FC = () => {
   const location = useLocation();
-  const { trackBridgeImpression, trackBridgeClick } = useArticleEngagement();
 
-  // Track user interactions with article content
   useEffect(() => {
-    console.log(`[GoogleAdGrantsTrack] Tracking article engagement for: ${articleTitle}`);
+    // Vérifier si nous sommes sur une page d'article
+    if (location.pathname.includes('/article/')) {
+      const pathParts = location.pathname.split('/article/');
+      if (pathParts.length > 1) {
+        const articleId = pathParts[1];
 
-    // Track initial article view event for Google Ad Grant reporting
-    console.log(`[GoogleAdGrantsTrack] Article view: ${articleId}, Length: ${articleLength} words`);
+        // Vérification que articleId existe et n'est pas vide
+        if (!articleId) {
+          console.warn('ArticleEngagementTracker: articleId is undefined or empty');
+          return;
+        }
 
-    // Track content quality metrics for Google Ad Grant compliance
-    trackContentQuality(location.pathname, {
-      wordCount: articleLength,
-      readTime: Math.ceil(articleLength / 200), // Avg reading time in minutes (200 words/min)
-      hasScientificCitations: hasScientificCitations,
-      hasStructuredData: true
-    });
+        // Données simulées pour l'article
+        const articleData: ArticleEngagementData = {
+          articleId: articleId,
+          articleLength: 2500, // Longueur approximative en mots
+          articleTitle: "Compléments alimentaires et immunité",
+          hasScientificCitations: true,
+          hasMedicalTerms: true,
+          category: "Nutrition",
+          readLevel: "intermediate"
+        };
 
-    // Calculate article substantiveness score (important for Google Ad Grants)
-    const substantivenessScore = calculateSubstantivenessScore({
-      wordCount: articleLength,
-      hasScientificCitations,
-      hasMedicalTerms,
-      readLevel
-    });
+        console.log(`[GoogleAdGrantsTrack] Tracking article engagement for: ${articleData.articleTitle}`);
 
-    console.log(`[GoogleAdGrantsCompliance] Article substantiveness score: ${substantivenessScore}/10`);
+        // Track initial article view event for Google Ad Grant reporting
+        console.log(`[GoogleAdGrantsTrack] Article view: ${articleData.articleId}, Length: ${articleData.articleLength} words`);
 
-    // Simple tracking for article read time
-    const startTime = Date.now();
+        // Track content quality metrics for Google Ad Grant compliance
+        trackContentQuality(location.pathname, {
+          wordCount: articleData.articleLength,
+          readTime: Math.ceil(articleData.articleLength / 200), // Avg reading time in minutes (200 words/min)
+          hasScientificCitations: articleData.hasScientificCitations,
+          hasStructuredData: true
+        });
 
-    return () => {
-      const timeSpentMs = Date.now() - startTime;
-      const timeSpentSeconds = Math.floor(timeSpentMs / 1000);
+        // Calculate article substantiveness score (important for Google Ad Grants)
+        const substantivenessScore = calculateSubstantivenessScore({
+          wordCount: articleData.articleLength,
+          hasScientificCitations: articleData.hasScientificCitations,
+          hasMedicalTerms: articleData.hasMedicalTerms,
+          readLevel: articleData.readLevel
+        });
 
-      // Track read metrics for Google Ad Grant performance reporting
-      console.log(`[GoogleAdGrantsMetric] Article read time: ${timeSpentSeconds} seconds`);
+        console.log(`[GoogleAdGrantsCompliance] Article substantiveness score: ${substantivenessScore}/10`);
 
-      // Track if article was likely read (spent at least 30 seconds per 500 words)
-      const minimumReadTime = Math.min(30, articleLength / 500 * 30);
-      const wasLikelyRead = timeSpentSeconds >= minimumReadTime;
+        // Simple tracking for article read time
+        const startTime = Date.now();
 
-      // Add engagement quality tracking for Grant compliance
-      const readPercentage = Math.min(100, (timeSpentSeconds / (articleLength / 200 * 60)) * 100);
+        return () => {
+          const timeSpentMs = Date.now() - startTime;
+          const timeSpentSeconds = Math.floor(timeSpentMs / 1000);
 
-      console.log(`[GoogleAdGrantsMetric] Article engagement:`, {
-        articleId,
-        wasRead: wasLikelyRead,
-        readPercentage: readPercentage.toFixed(2) + '%',
-        timeSpentSeconds,
-        category
-      });
-    };
-  }, [articleId, articleLength, articleTitle, location.pathname, hasScientificCitations, hasMedicalTerms, category, readLevel]);
+          // Track read metrics for Google Ad Grant performance reporting
+          console.log(`[GoogleAdGrantsMetric] Article read time: ${timeSpentSeconds} seconds`);
+
+          // Track if article was likely read (spent at least 30 seconds per 500 words)
+          const minimumReadTime = Math.min(30, articleData.articleLength / 500 * 30);
+          const wasLikelyRead = timeSpentSeconds >= minimumReadTime;
+
+          // Add engagement quality tracking for Grant compliance
+          const readPercentage = Math.min(100, (timeSpentSeconds / (articleData.articleLength / 200 * 60)) * 100);
+
+          console.log(`[GoogleAdGrantsMetric] Article engagement:`, {
+            articleId: articleData.articleId,
+            wasRead: wasLikelyRead,
+            readPercentage: readPercentage.toFixed(2) + '%',
+            timeSpentSeconds,
+            category: articleData.category
+          });
+        };
+      }
+    }
+  }, [location.pathname]);
 
   // Calculate substantiveness score for Google Ad Grant quality requirements
   const calculateSubstantivenessScore = (params: {

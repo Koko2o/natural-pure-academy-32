@@ -13,7 +13,7 @@ from = "/*"
 to = "/index.html"
 
 [workflows]
-runButton = "Audit Dashboard"
+runButton = "Run Fixed App"
 
 [[workflows.workflow]]
 name = "Run"
@@ -103,6 +103,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev -- --port 5010 --host 0.0.0.0"
+
+[[workflows.workflow]]
+name = "Run Fixed App"
+author = 40962122
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev -- --port 5012 --host 0.0.0.0"
 
 [[ports]]
 localPort = 3000

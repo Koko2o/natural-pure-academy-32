@@ -26,6 +26,22 @@ export const useArticleEngagement = ({
   articleLength,
   averageReadingTime = 3
 }: ArticleEngagementOptions) => {
+  // Vérifier si articleId est défini
+  if (!articleId) {
+    console.warn('useArticleEngagement: articleId is undefined or null');
+    // Retourner des métriques par défaut
+    return { 
+      metrics: {
+        readPercentage: 0,
+        readTime: 0,
+        scrollDepth: 0,
+        interactionPoints: [],
+        isEngaged: false,
+        isPrimeForConversion: false
+      } 
+    };
+  }
+
   const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
     readPercentage: 0,
     readTime: 0,
