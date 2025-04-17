@@ -271,30 +271,66 @@ const ScientificTeam: React.FC = () => {
           </div>
 
           {/* Academic Collaborations */}
-          <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl p-8 mb-16 border border-indigo-100">
+          <div className="mb-16">
             <div className="text-center mb-8">
               <h3 className="text-2xl font-semibold text-slate-800 mb-3">
                 Our Academic Collaborations
               </h3>
-              <p className="text-slate-600">
-                We collaborate with several academic institutions and international research centers.
+              <p className="text-slate-600 max-w-2xl mx-auto">
+                We collaborate with several academic institutions and international research centers to advance scientific knowledge in nutrition and health.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {[
-                { name: "University of Lyon", logo: "https://via.placeholder.com/150x80?text=Lyon+University" },
-                { name: "Pasteur Institute", logo: "https://via.placeholder.com/150x80?text=Institut+Pasteur" },
-                { name: "Stanford University", logo: "https://via.placeholder.com/150x80?text=Stanford" },
-                { name: "ETH Zürich", logo: "https://via.placeholder.com/150x80?text=ETH+Zurich" }
+                { 
+                  name: "University of Lyon", 
+                  logo: "https://via.placeholder.com/150x80?text=Lyon+University",
+                  focus: "Nutritional Biochemistry",
+                  year: "Since 2018"
+                },
+                { 
+                  name: "Pasteur Institute", 
+                  logo: "https://via.placeholder.com/150x80?text=Institut+Pasteur",
+                  focus: "Immune System & Microbiome",
+                  year: "Since 2019"
+                },
+                { 
+                  name: "Stanford University", 
+                  logo: "https://via.placeholder.com/150x80?text=Stanford",
+                  focus: "Nutritional Genomics",
+                  year: "Since 2021"
+                },
+                { 
+                  name: "ETH Zürich", 
+                  logo: "https://via.placeholder.com/150x80?text=ETH+Zurich",
+                  focus: "Advanced Nutriomics",
+                  year: "Since 2020"
+                }
               ].map((institution, index) => (
-                <div key={index} className="bg-white rounded-lg p-4 shadow-sm flex items-center justify-center h-24">
-                  <img 
-                    src={institution.logo} 
-                    alt={institution.name}
-                    className="max-h-16 max-w-full"
-                  />
-                </div>
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-200 group"
+                >
+                  <div className="h-20 flex items-center justify-center bg-gradient-to-r from-indigo-50 to-slate-50 p-4">
+                    <img 
+                      src={institution.logo} 
+                      alt={institution.name}
+                      className="max-h-12 max-w-full object-contain"
+                    />
+                  </div>
+                  <div className="p-4 text-center">
+                    <h4 className="font-medium text-slate-800 mb-1">{institution.name}</h4>
+                    <p className="text-indigo-600 text-sm mb-1">{institution.focus}</p>
+                    <p className="text-xs text-slate-500">{institution.year}</p>
+                  </div>
+                  <div className="bg-slate-50 p-2 text-center border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="text-xs text-indigo-600 font-medium">View projects</button>
+                  </div>
+                </motion.div>
               ))}
             </div>
 
@@ -330,23 +366,24 @@ const ScientificTeam: React.FC = () => {
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {publications.map((publication, index) => (
-                <div 
-                  key={index} 
-                  className={`bg-gradient-to-br ${publication.color} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-100`}
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-200 flex flex-col h-full"
                 >
-                  <div className="p-5">
+                  <div className={`h-2 bg-gradient-to-r ${publication.color}`}></div>
+                  <div className="p-5 flex-grow">
                     <div className="flex justify-between items-start mb-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${publication.icon}-100 text-${publication.icon}-800`}>
+                      <Badge variant="outline" className="bg-slate-50">
                         {publication.year}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium">Impact: </span>
-                        <span className="bg-white px-1.5 py-0.5 rounded text-xs font-semibold">
-                          {publication.impact}
-                        </span>
-                      </div>
+                      </Badge>
+                      <Badge variant="secondary" className="bg-slate-50">
+                        Impact: {publication.impact}
+                      </Badge>
                     </div>
 
                     <h3 className="font-semibold text-lg mb-2 text-slate-800 line-clamp-2">
@@ -363,43 +400,49 @@ const ScientificTeam: React.FC = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <div className="flex items-center text-xs text-slate-500">
+                      <div className="flex items-center text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded">
                         <Users className="h-3 w-3 mr-1" /> 
                         <span>{publication.participants} participants</span>
                       </div>
-                      <div className="flex items-center text-xs text-slate-500">
+                      <div className="flex items-center text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded">
                         <FileText className="h-3 w-3 mr-1" /> 
                         <span>DOI: {publication.doi}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex border-t border-slate-200 divide-x divide-slate-200">
+                  <div className="flex border-t border-slate-200 divide-x divide-slate-200 mt-auto">
                     <a 
                       href={`https://doi.org/${publication.doi}`} 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 py-2 px-3 text-center text-sm font-medium text-slate-700 hover:bg-white/50 transition-colors"
+                      className="flex-1 py-3 px-3 text-center text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center"
                     >
+                      <ExternalLink className="h-3 w-3 mr-1" />
                       Voir l'article
                     </a>
                     <button 
-                      className="flex-1 py-2 px-3 text-center text-sm font-medium text-slate-700 hover:bg-white/50 transition-colors"
+                      className="flex-1 py-3 px-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center"
                     >
+                      <BookOpen className="h-3 w-3 mr-1" />
                       Résumé
                     </button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             <div className="mt-8 text-center">
-              <Link 
-                to="/bibliotheque-scientifique"
-                className="inline-block text-indigo-700 hover:text-indigo-800 font-medium"
+              <Button 
+                asChild
+                variant="default"
+                className="group"
               >
-                Explorer notre bibliothèque scientifique →
-              </Link>
+                <Link to="/bibliotheque-scientifique">
+                  Explorer notre bibliothèque scientifique
+                  <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </div>
           </div>
 

@@ -1,27 +1,24 @@
-
 import React from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ScientificMethodologyComponent from '@/components/ScientificMethodology';
-import { useTranslation } from '@/contexts/LanguageContext';
-import { SEOHead } from '@/components/SEOHead';
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
+import ScientificMethodology from '@/components/ScientificMethodology';
+import ScientificMethodologyDetail from '@/components/ScientificMethodologyDetail';
 
-const ScientificMethodology = () => {
-  const { t } = useTranslation();
-  
+const ScientificMethodologyPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <>
       <SEOHead 
-        title={t('Our Scientific Methodology - Natural Pure Academy')}
-        description={t('Learn about our rigorous scientific approach, research protocols, and evidence-based methods that ensure the reliability of our findings.')}
+        title="Méthodologie Scientifique | Natural Pure Academy"
+        description="Découvrez notre approche scientifique rigoureuse qui guide nos recherches et nos recommandations en nutrition et santé."
+        canonicalUrl="/methodologie-scientifique"
       />
       <Navbar />
-      <main className="min-h-screen">
-        <ScientificMethodologyComponent />
-      </main>
+      <ScientificMethodology />
+      <ScientificMethodologyDetail />
       <Footer />
-    </div>
+    </>
   );
 };
 
-export default ScientificMethodology;
+export default ScientificMethodologyPage;
