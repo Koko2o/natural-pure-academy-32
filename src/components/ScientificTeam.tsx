@@ -122,6 +122,42 @@ const scientificAdvisors = [
 ];
 
 const ScientificTeam: React.FC = () => {
+  const publications = [
+    {
+      title: "Comparative Bioavailability of Magnesium Forms: A Randomized Double-Blind Study",
+      authors: "Dubois M, Moreau J, Laurent S, et al.",
+      journal: "Journal of Nutritional Biochemistry",
+      year: 2023,
+      doi: "10.1016/j.jnutbio.2023.02.015",
+      color: "from-indigo-500 to-purple-600",
+      icon: "indigo",
+      impact: "High",
+      participants: 150
+    },
+    {
+      title: "Impact of Gut Microbiome on Vitamin B Absorption: A Systematic Review and Meta-Analysis",
+      authors: "Laurent S, Dubois M, Chen R, et al.",
+      journal: "American Journal of Clinical Nutrition",
+      year: 2022,
+      doi: "10.1093/ajcn/nqac154",
+      color: "from-blue-500 to-sky-600",
+      icon: "blue",
+      impact: "Medium",
+      participants: 200
+    },
+    {
+      title: "Long-term Effects of Polyphenol Supplementation on Inflammatory Markers: A 24-Month Follow-up Study",
+      authors: "Moreau J, Bouaziz L, Dubois M, et al.",
+      journal: "Nutrients",
+      year: 2022,
+      doi: "10.3390/nu14030589",
+      color: "from-green-500 to-emerald-600",
+      icon: "green",
+      impact: "High",
+      participants: 100
+    }
+  ];
+
   return (
     <section className="py-16 bg-slate-50">
       <div className="container mx-auto px-4">
@@ -295,85 +331,115 @@ const ScientificTeam: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {[
-                {
-                  title: "Comparative Bioavailability of Magnesium Forms: A Randomized Double-Blind Study",
-                  authors: "Dubois M, Moreau J, Laurent S, et al.",
-                  journal: "Journal of Nutritional Biochemistry",
-                  year: 2023,
-                  doi: "10.1016/j.jnutbio.2023.02.015"
-                },
-                {
-                  title: "Impact of Gut Microbiome on Vitamin B Absorption: A Systematic Review and Meta-Analysis",
-                  authors: "Laurent S, Dubois M, Chen R, et al.",
-                  journal: "American Journal of Clinical Nutrition",
-                  year: 2022,
-                  doi: "10.1093/ajcn/nqac154"
-                },
-                {
-                  title: "Long-term Effects of Polyphenol Supplementation on Inflammatory Markers: A 24-Month Follow-up Study",
-                  authors: "Moreau J, Bouaziz L, Dubois M, et al.",
-                  journal: "Nutrients",
-                  year: 2022,
-                  doi: "10.3390/nu14030589"
-                }
-              ].map((publication, index) => (
+              {publications.map((publication, index) => (
                 <div 
                   key={index} 
-                  className="bg-white rounded-lg p-5 shadow-sm border border-slate-200 hover:border-indigo-200 transition-all flex flex-col md:flex-row md:items-center gap-4"
+                  className={`bg-gradient-to-br ${publication.color} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-100`}
                 >
-                  <div className="flex-shrink-0 bg-indigo-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-indigo-600" />
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${publication.icon}-100 text-${publication.icon}-800`}>
+                        {publication.year}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium">Impact: </span>
+                        <span className="bg-white px-1.5 py-0.5 rounded text-xs font-semibold">
+                          {publication.impact}
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3 className="font-semibold text-lg mb-2 text-slate-800 line-clamp-2">
+                      {publication.title}
+                    </h3>
+
+                    <div className="mb-3">
+                      <p className="text-sm text-slate-600 mb-1 italic">
+                        {publication.authors}
+                      </p>
+                      <p className="text-sm font-medium text-slate-700">
+                        {publication.journal}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex items-center text-xs text-slate-500">
+                        <Users className="h-3 w-3 mr-1" /> 
+                        <span>{publication.participants} participants</span>
+                      </div>
+                      <div className="flex items-center text-xs text-slate-500">
+                        <FileText className="h-3 w-3 mr-1" /> 
+                        <span>DOI: {publication.doi}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex-grow">
-                    <h4 className="font-medium text-slate-800 mb-1">{publication.title}</h4>
-                    <p className="text-slate-600 text-sm mb-1">{publication.authors}</p>
-                    <p className="text-slate-500 text-xs">
-                      {publication.journal} ({publication.year}) • DOI: {publication.doi}
-                    </p>
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    <Button 
-                      size="sm"
-                      variant="ghost"
-                      className="text-indigo-700"
-                      asChild
+                  <div className="flex border-t border-slate-200 divide-x divide-slate-200">
+                    <a 
+                      href={`https://doi.org/${publication.doi}`} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 px-3 text-center text-sm font-medium text-slate-700 hover:bg-white/50 transition-colors"
                     >
-                      <a href={`https://doi.org/${publication.doi}`} target="_blank" rel="noopener noreferrer">
-                        Read the article
-                        <ExternalLink className="ml-1 h-3 w-3" />
-                      </a>
-                    </Button>
+                      Voir l'article
+                    </a>
+                    <button 
+                      className="flex-1 py-2 px-3 text-center text-sm font-medium text-slate-700 hover:bg-white/50 transition-colors"
+                    >
+                      Résumé
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
+
+            <div className="mt-8 text-center">
+              <Link 
+                to="/bibliotheque-scientifique"
+                className="inline-block text-indigo-700 hover:text-indigo-800 font-medium"
+              >
+                Explorer notre bibliothèque scientifique →
+              </Link>
+            </div>
           </div>
 
-          {/* CTA */}
-          <div className="text-center">
-            <div className="max-w-2xl mx-auto mb-8">
-              <h3 className="text-2xl font-semibold text-slate-800 mb-4">
-                Based on Science, Designed for You
-              </h3>
-              <p className="text-slate-600">
-                Our scientific team has developed a personalized quiz based on years of research
-                to help you identify your specific micronutrient needs.
-              </p>
-            </div>
+          {/* Designed for You CTA */}
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-8 mb-16 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mt-10 -mr-10 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -mb-10 -ml-10 blur-xl"></div>
 
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-              asChild
-            >
-              <Link to="/quiz">
-                Take the personalized test
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+            <div className="md:flex items-center justify-between relative z-10">
+              <div className="md:w-2/3 mb-6 md:mb-0 md:pr-8">
+                <h3 className="text-2xl font-bold mb-3">
+                  Basé sur la science, conçu pour vous
+                </h3>
+                <p className="text-indigo-100 mb-6">
+                  Notre équipe scientifique a développé un quiz personnalisé fondé sur des années de recherche pour identifier précisément vos besoins en micronutriments.
+                </p>
+                <Button 
+                  asChild
+                  size="lg"
+                  className="bg-white hover:bg-indigo-50 text-indigo-700"
+                >
+                  <Link to="/quiz" className="flex items-center gap-2">
+                    Découvrir mon profil
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="md:w-1/3 flex justify-center md:justify-end">
+                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-lg flex flex-col items-center w-40">
+                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
+                    <Award className="h-8 w-8 text-indigo-600" />
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-2xl font-bold">98%</span>
+                    <span className="text-xs text-indigo-100">Taux de satisfaction</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
