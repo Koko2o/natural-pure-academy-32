@@ -1,6 +1,6 @@
+
 const fs = require('fs');
 const path = require('path');
-const { scanForHardcodedText, suggestTranslationKey } = require('../src/utils/translationHelper');
 
 // Fonction pour trouver tous les fichiers dans un répertoire
 function findFiles(dir, extensions = ['.tsx', '.jsx', '.ts', '.js']) {
@@ -19,6 +19,61 @@ function findFiles(dir, extensions = ['.tsx', '.jsx', '.ts', '.js']) {
   }
 
   return results;
+}
+
+// Fonction pour scanner le texte en dur dans un fichier
+function scanForHardcodedText(content) {
+  // Common patterns for hardcoded text in JSX
+  const patterns = [
+    /<h[1-6][^>]*>\s*([^<{]+)\s*<\/h[1-6]>/g,
+    /<p[^>]*>\s*([^<{]+)\s*<\/p>/g,
+    /<span[^>]*>\s*([^<{]+)\s*<\/span>/g,
+    /<div[^>]*>\s*([^<{]+)\s*<\/div>/g,
+    /<button[^>]*>\s*([^<{]+)\s*<\/button>/g,
+    /<a[^>]*>\s*([^<{]+)\s*<\/a>/g,
+    /<li[^>]*>\s*([^<{]+)\s*<\/li>/g,
+    /<label[^>]*>\s*([^<{]+)\s*<\/label>/g,
+    /<option[^>]*>\s*([^<{]+)\s*<\/option>/g,
+    /<strong[^>]*>\s*([^<{]+)\s*<\/strong>/g,
+    /<em[^>]*>\s*([^<{]+)\s*<\/em>/g,
+    /<small[^>]*>\s*([^<{]+)\s*<\/small>/g,
+    /title="([^"{}]+)"/g,
+    /placeholder="([^"{}]+)"/g,
+    /label="([^"{}]+)"/g,
+    /alt="([^"{}]+)"/g,
+    /aria-label="([^"{}]+)"/g,
+    /tooltip="([^"{}]+)"/g,
+  ];
+
+  const hardcodedText = [];
+
+  // Search for patterns
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+      const text = match[1].trim();
+      // Exclure le code, les nombres seuls et les chaînes très courtes
+      if (text && 
+          !text.includes('t(') && 
+          text.length > 2 && 
+          !/^[0-9.,%]+$/.test(text) && 
+          !/^[A-Za-z0-9_]+$/.test(text)) {
+        hardcodedText.push(text);
+      }
+    }
+  });
+
+  return [...new Set(hardcodedText)]; // Remove duplicates
+}
+
+// Function to suggest a translation key
+function suggestTranslationKey(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+    .substring(0, 30);
 }
 
 // Fonction pour remplacer les textes en dur par des appels à la fonction de traduction
@@ -63,8 +118,37 @@ function replaceHardcodedText(filePath) {
       console.log(`  ✓ "${text}" → t('${uniqueKey}')`);
     });
 
-    // Sauvegarder les modifications
+    // Vérifier si quelque chose a été modifié
     if (newContent !== content) {
+      // Vérifier si import est nécessaire
+      if (!newContent.includes('import { useLanguage }') && !newContent.includes('{ t }')) {
+        // Ajouter l'import pour useLanguage si nécessaire
+        if (newContent.includes('import React')) {
+          newContent = newContent.replace(/import React[^;]*;/, match => `${match}\nimport { useLanguage } from '@/contexts/LanguageContext';`);
+        } else {
+          newContent = `import { useLanguage } from '@/contexts/LanguageContext';\n${newContent}`;
+        }
+        
+        // Ajouter la déclaration de t si c'est un composant fonctionnel
+        if (newContent.includes('function') || newContent.includes('=>') || newContent.includes('export const')) {
+          const functionMatch = newContent.match(/((function|const)\s+\w+|export\s+(default\s+)?((function|const)\s+)?\w+)/);
+          if (functionMatch) {
+            const matchPos = functionMatch.index + functionMatch[0].length;
+            const beforeFunction = newContent.substring(0, matchPos);
+            const afterFunction = newContent.substring(matchPos);
+            
+            // Trouver où insérer le hook
+            const openBracePos = afterFunction.indexOf('{');
+            if (openBracePos !== -1) {
+              newContent = beforeFunction + afterFunction.substring(0, openBracePos + 1) + 
+                '\n  const { t } = useLanguage();' + 
+                afterFunction.substring(openBracePos + 1);
+            }
+          }
+        }
+      }
+      
+      // Sauvegarder les modifications
       fs.writeFileSync(filePath, newContent, 'utf8');
       console.log(`💾 Fichier mis à jour: ${filePath}`);
 
@@ -97,14 +181,31 @@ function updateTranslationContext(translations) {
       if (langSection === -1) return;
 
       // Trouver la fin de la section
-      const endBrace = content.indexOf('}', langSection);
-      const insertPoint = endBrace;
+      let nestingLevel = 0;
+      let endSection = langSection;
+      
+      for (let i = langSection; i < content.length; i++) {
+        if (content[i] === '{') nestingLevel++;
+        if (content[i] === '}') {
+          nestingLevel--;
+          if (nestingLevel === 0) {
+            endSection = i;
+            break;
+          }
+        }
+      }
+
+      const insertPoint = endSection;
 
       // Préparer les nouvelles traductions
       const newTranslations = Object.entries(translations)
         .map(([key, value]) => {
-          // Pour l'anglais et l'espagnol, mettre temporairement le même texte
-          const text = lang === 'fr' ? value : `${value} (${lang})`;
+          // Pour l'anglais et l'espagnol, nous mettons temporairement la même valeur
+          // et nous marquerons cela pour que le développeur sache qu'il faut les traduire
+          let text = value;
+          if (lang !== 'fr') {
+            text = `${value} (à traduire en ${lang})`;
+          }
           return `    ${key}: '${text.replace(/'/g, "\\'")}'`;
         })
         .join(',\n');
@@ -142,6 +243,12 @@ function main() {
   });
 
   console.log(`\n✅ Terminé! ${Object.keys(totalTranslations).length} traductions au total.`);
+  
+  // Informations supplémentaires pour l'utilisateur
+  console.log(`\n📋 Prochaines étapes recommandées:`);
+  console.log(`1. Vérifiez les traductions générées dans src/contexts/LanguageContext.tsx`);
+  console.log(`2. Complétez les traductions marquées "(à traduire en...)"`);
+  console.log(`3. Utilisez le TranslationDebugger pour identifier les textes manquants`);
 }
 
 main();
