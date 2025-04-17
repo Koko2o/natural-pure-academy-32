@@ -74,12 +74,12 @@ html[lang="fr"] .lang-specific-es {
 
 html[lang="en"] .lang-specific-fr,
 html[lang="en"] .lang-specific-es {
-  display: none;
+  display: none !important;
 }
 
 html[lang="es"] .lang-specific-fr,
 html[lang="es"] .lang-specific-en {
-  display: none;
+  display: none !important;
 }
 
 /* Affichage conditionnel par langue */
