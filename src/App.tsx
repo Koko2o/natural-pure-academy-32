@@ -159,7 +159,7 @@ const App = () => {
     }, 2000); // Wait for 2 seconds
 
     return () => clearTimeout(runCheck);
-  }, []); []);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
