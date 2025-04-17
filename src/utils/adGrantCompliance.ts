@@ -327,7 +327,7 @@ export const generateComplianceReport = () => {
         // Run a live audit on the current page
         currentPage: window.location.pathname,
         contentSafetyCheck: auditPageContent(document.body.innerHTML),
-        urlCompliance: true, // Direct boolean instead of function call
+        urlCompliance: true, // Using direct boolean value for compliance
         detectedBannedTerms: detectBannedTerms(document.body.textContent || '')
       },
       recommendations: generateComplianceRecommendations(
