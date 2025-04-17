@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from "framer-motion";
 import { Link } from 'react-router-dom';
@@ -7,7 +8,7 @@ import Footer from "@/components/Footer";
 import ScientificHighlightedText from "@/components/ui/ScientificHighlightedText";
 import ProblemRotator from "@/components/quiz/ProblemRotator";
 import LabEffects from '@/components/quiz/LabEffects';
-import { Beaker, Check, Microscope, Brain, BookOpen, Award, Leaf, ChevronRight, Calendar, HeartPulse, Dumbbell, Shield } from "lucide-react";
+import { Beaker, Check, Microscope, Brain, BookOpen, Award, Leaf, ChevronRight, Calendar, HeartPulse, Dumbbell, Shield, ArrowRight, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import SEOHead from '@/components/SEOHead';
 import QuickNavigationCards from '@/components/QuickNavigationCards';
@@ -173,31 +174,94 @@ const HomePage = () => {
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent"></div>
         </section>
 
-        {/* Problèmes de santé - Conservé comme demandé */}
+        {/* Solutions pour votre santé - Section visuelle et interactive */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold mb-4">
-                Problèmes de santé que nous abordons
-              </h2>
-              <p className="text-lg text-slate-600">
-                Des solutions naturelles, des résultats prouvés
-              </p>
+            <div className="text-center mb-12">
+              <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium mb-3">
+                Nos solutions
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold">Comment pouvons-nous vous aider ?</h2>
             </div>
 
-            <ProblemRotator />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: <HeartPulse className="h-8 w-8 text-rose-500" />,
+                  title: "Énergie & Vitalité",
+                  desc: "Solutions naturelles pour combattre la fatigue et retrouver votre tonus",
+                  color: "from-rose-50 to-red-50",
+                  iconBg: "bg-rose-100",
+                  hover: "group-hover:shadow-rose-200"
+                },
+                {
+                  icon: <Brain className="h-8 w-8 text-indigo-500" />,
+                  title: "Cognition & Focus",
+                  desc: "Améliorer votre concentration et performances mentales",
+                  color: "from-indigo-50 to-blue-50",
+                  iconBg: "bg-indigo-100",
+                  hover: "group-hover:shadow-indigo-200"
+                },
+                {
+                  icon: <Shield className="h-8 w-8 text-green-500" />,
+                  title: "Immunité & Défense",
+                  desc: "Renforcez vos défenses naturelles avec des nutriments essentiels",
+                  color: "from-green-50 to-emerald-50",
+                  iconBg: "bg-green-100",
+                  hover: "group-hover:shadow-green-200"
+                },
+              ].map((item, i) => (
+                <div key={i} className={`bg-gradient-to-br ${item.color} rounded-xl p-6 shadow-sm transition-all duration-300 group hover:shadow-lg ${item.hover}`}>
+                  <div className={`w-16 h-16 ${item.iconBg} rounded-xl flex items-center justify-center mb-5`}>
+                    {item.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+                  <p className="text-slate-600 mb-5">{item.desc}</p>
+                  <Button asChild variant="ghost" className="p-0 h-auto">
+                    <Link to="/quiz" className="flex items-center gap-1 font-medium">
+                      Découvrir les solutions
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
 
-            <div className="mt-12 text-center">
-              <Button asChild size="lg" className="rounded-full px-8">
-                <Link to="/quiz">
-                  Découvrez vos problèmes de santé cachés
-                </Link>
-              </Button>
+            {/* Carte interactive des symptômes */}
+            <div className="mt-16 pt-6 border-t border-slate-100">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold mb-2">Sélectionnez vos symptômes</h3>
+                <p className="text-slate-600">Explorez nos solutions ciblées pour vos besoins spécifiques</p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {[
+                  { name: "Fatigue", icon: "⚡️" },
+                  { name: "Stress", icon: "😓" },
+                  { name: "Troubles digestifs", icon: "🔄" },
+                  { name: "Sommeil perturbé", icon: "😴" },
+                  { name: "Douleurs articulaires", icon: "🦴" },
+                  { name: "Problèmes de peau", icon: "🧴" },
+                  { name: "Immunité faible", icon: "🛡️" },
+                  { name: "Prise de poids", icon: "⚖️" },
+                  { name: "Concentration", icon: "🧠" },
+                  { name: "Humeur instable", icon: "🎭" },
+                  { name: "Allergies", icon: "🤧" },
+                  { name: "Inflammation", icon: "🔥" }
+                ].map((item, i) => (
+                  <Link to="/quiz" key={i} className="group">
+                    <div className="bg-white rounded-lg border border-slate-200 p-3 flex flex-col items-center text-center transition-all hover:border-teal-300 hover:shadow hover:-translate-y-1">
+                      <div className="text-2xl mb-1">{item.icon}</div>
+                      <span className="text-sm font-medium text-slate-700">{item.name}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Notre approche - Redesign de la section méthodologie */}
+        {/* Notre approche - Section redesignée et plus visuelle */}
         <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row gap-12 items-center">
@@ -279,19 +343,62 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Pourquoi faire notre test - Conservé comme demandé */}
+        {/* Pourquoi faire notre test - Section repensée et plus visuelle */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm font-medium mb-3">
+                Votre profil santé
+              </span>
               <h2 className="text-3xl font-bold mb-4">
-                Pourquoi faire notre test ?
+                Un plan personnalisé en 3 minutes
               </h2>
               <p className="text-lg text-slate-600">
-                Un plan personnalisé basé sur votre profil unique
+                Répondez à quelques questions et découvrez vos besoins nutritionnels spécifiques
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="relative mb-16">
+              {/* Étapes du processus */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 z-0"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                {[
+                  {
+                    number: "1",
+                    title: "Répondez au questionnaire",
+                    desc: "Un quiz rapide et scientifique de 3 minutes",
+                    icon: <Calendar className="h-6 w-6 text-white" />,
+                    color: "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  },
+                  {
+                    number: "2",
+                    title: "Obtenez votre profil",
+                    desc: "Analyse complète de vos besoins nutritionnels",
+                    icon: <HeartPulse className="h-6 w-6 text-white" />,
+                    color: "bg-gradient-to-br from-rose-500 to-pink-600"
+                  },
+                  {
+                    number: "3",
+                    title: "Suivez votre plan",
+                    desc: "Recommandations personnalisées et suivi des progrès",
+                    icon: <Dumbbell className="h-6 w-6 text-white" />,
+                    color: "bg-gradient-to-br from-teal-500 to-green-600"
+                  }
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col items-center text-center">
+                    <div className={`w-16 h-16 ${item.color} rounded-full flex items-center justify-center mb-4 shadow-lg`}>
+                      {item.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                    <p className="text-slate-600">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bénéfices */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
                   icon: <Leaf className="h-10 w-10 text-green-500" />,
@@ -335,72 +442,15 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Laboratoire - Conservé et amélioré avec image */}
-        <section className="py-16 bg-gradient-to-br from-indigo-50 to-purple-50">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row gap-12 items-center">
-              <div className="md:w-1/2 order-2 md:order-1">
-                <div className="relative">
-                  <div className="absolute -top-5 -right-5 w-24 h-24 bg-indigo-100 rounded-full opacity-60"></div>
-                  <div className="absolute -bottom-3 -left-3 w-16 h-16 bg-purple-100 rounded-full opacity-60"></div>
-
-                  <img 
-                    src={labImage} 
-                    alt="Notre laboratoire" 
-                    className="rounded-xl shadow-lg relative z-10 w-full h-80 object-cover"
-                  />
-
-                  <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-sm py-2 px-4 rounded-full shadow z-20">
-                    <div className="flex gap-2 items-center">
-                      <Beaker className="h-5 w-5 text-indigo-500" />
-                      <p className="text-sm font-medium text-indigo-900">Laboratoire certifié</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="md:w-1/2 order-1 md:order-2">
-                <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium mb-4">
-                  Notre laboratoire
-                </span>
-                <h2 className="text-3xl font-bold mb-4">Un laboratoire dédié à la science nutritionnelle</h2>
-                <p className="text-lg text-slate-600 mb-6">
-                  Notre équipe de chercheurs et nutritionnistes travaille sans relâche pour identifier les meilleures solutions naturelles appuyées par la science.
-                </p>
-
-                <div className="space-y-4 mb-8">
-                  {[
-                    "Analyse de biodisponibilité des nutriments",
-                    "Étude des interactions entre compléments",
-                    "Validation des formulations par des essais cliniques",
-                    "Optimisation des dosages pour des résultats optimaux"
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="p-1 bg-indigo-100 rounded-full">
-                        <Check className="h-5 w-5 text-indigo-600" />
-                      </div>
-                      <p className="text-slate-700">{item}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <Button asChild variant="outline" className="rounded-full">
-                  <Link to="/labo-solutions" className="flex items-center gap-2">
-                    Découvrir notre laboratoire
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Témoignages */}
-        <section className="py-16 bg-white">
+        {/* Témoignages - Section améliorée et plus attrayante */}
+        <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-3">
+                Témoignages
+              </span>
               <h2 className="text-3xl font-bold mb-4">
-                Ce que nos utilisateurs disent
+                Ce qu'en disent nos utilisateurs
               </h2>
               <p className="text-lg text-slate-600">
                 Des résultats concrets qui changent des vies
@@ -413,30 +463,33 @@ const HomePage = () => {
                   quote: "Après des années de fatigue chronique, les recommandations personnalisées m'ont aidé à retrouver mon énergie en seulement 3 semaines.",
                   author: "Marie L.",
                   role: "Professeure, 42 ans",
-                  avatar: "M"
+                  avatar: "M",
+                  stars: 5
                 },
                 {
                   quote: "Le test a identifié exactement mes déséquilibres nutritionnels. Les suppléments recommandés ont transformé ma digestion et mon sommeil.",
                   author: "Thomas R.",
                   role: "Ingénieur, 35 ans",
-                  avatar: "T"
+                  avatar: "T",
+                  stars: 5
                 },
                 {
                   quote: "Enfin des conseils basés sur la science et non sur des tendances! J'ai pu résoudre mes problèmes d'inflammation en suivant leur approche.",
                   author: "Sophie G.",
                   role: "Kinésithérapeute, 38 ans",
-                  avatar: "S"
+                  avatar: "S",
+                  stars: 5
                 }
               ].map((item, i) => (
-                <div key={i} className="bg-gradient-to-br from-slate-50 to-sky-50 p-6 rounded-xl shadow-sm">
+                <div key={i} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
                   <div className="flex flex-col h-full">
-                    <div className="mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className="text-amber-400">★</span>
+                    <div className="mb-4 flex items-center">
+                      {[...Array(item.stars)].map((_, j) => (
+                        <Star key={j} className="h-5 w-5 text-amber-400 fill-amber-400" />
                       ))}
                     </div>
 
-                    <p className="italic text-slate-700 flex-grow mb-6">"{item.quote}"</p>
+                    <p className="text-slate-700 flex-grow mb-6 text-lg">"{item.quote}"</p>
 
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium bg-gradient-to-br ${
@@ -456,8 +509,8 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Articles récents */}
-        <section className="py-16 bg-gradient-to-br from-slate-50 to-green-50">
+        {/* Articles récents - Section avec une présentation plus vivante */}
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-10">
               <div>
@@ -499,12 +552,12 @@ const HomePage = () => {
                   date: "15 avril 2025"
                 }
               ].map((article, i) => (
-                <Card key={i} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-all">
+                <Card key={i} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-all group">
                   <div className="aspect-video w-full overflow-hidden">
                     <img 
                       src={article.image} 
                       alt={article.title}
-                      className="w-full h-full object-cover transition-transform hover:scale-105"
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                     />
                   </div>
                   <CardContent className="p-6">
@@ -512,7 +565,7 @@ const HomePage = () => {
                       <span className="text-sm font-medium text-teal-600">{article.category}</span>
                       <span className="text-xs text-slate-500">{article.date}</span>
                     </div>
-                    <h3 className="font-semibold text-xl mb-2 line-clamp-2">{article.title}</h3>
+                    <h3 className="font-semibold text-xl mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">{article.title}</h3>
                     <p className="text-slate-600 text-sm mb-4 line-clamp-2">{article.excerpt}</p>
                     <Button asChild variant="link" className="p-0 h-auto">
                       <Link to="/articles" className="flex items-center gap-1 text-teal-600">
@@ -535,7 +588,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* CTA final */}
+        {/* CTA final - Section attrayante avec plus d'impact visuel */}
         <section className="py-20 bg-gradient-to-r from-teal-500 to-cyan-500 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 max-w-3xl mx-auto">
@@ -544,14 +597,35 @@ const HomePage = () => {
             <p className="text-lg md:text-xl opacity-90 mb-8 max-w-2xl mx-auto">
               Rejoignez plus de 4 800 personnes qui ont déjà transformé leur santé grâce à nos recommandations basées sur la science
             </p>
-            <Button asChild size="lg" className="bg-white text-teal-600 hover:bg-slate-100 rounded-full px-8">
-              <Link to="/quiz">
-                Commencer le test gratuit
-              </Link>
-            </Button>
-            <p className="text-sm opacity-80 mt-4">
-              Test complet en moins de 3 minutes - Résultats immédiats
-            </p>
+            <div className="inline-block bg-white/10 backdrop-blur-sm p-1 rounded-full shadow-lg mb-4">
+              <Button asChild size="lg" className="bg-white text-teal-600 hover:bg-slate-100 rounded-full px-8">
+                <Link to="/quiz">
+                  Commencer le test gratuit
+                </Link>
+              </Button>
+            </div>
+            <div className="flex items-center justify-center gap-4 max-w-md mx-auto mt-6">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                <p className="text-sm ml-1">Test gratuit</p>
+              </div>
+              <div className="w-1 h-1 bg-white/30 rounded-full"></div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+                <p className="text-sm ml-1">3 minutes</p>
+              </div>
+              <div className="w-1 h-1 bg-white/30 rounded-full"></div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                <p className="text-sm ml-1">Résultats immédiats</p>
+              </div>
+            </div>
           </div>
         </section>
       </main>
