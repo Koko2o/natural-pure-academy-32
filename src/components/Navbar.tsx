@@ -29,14 +29,8 @@ const Navbar = () => {
     { name: t('nav.research'), path: "/nos-recherches" },
     { name: t('nav.lab'), path: "/labo-solutions" },
     { name: t('nav.nutrition'), path: "/nutrition" },
-    { name: t('nav.library'), path: "/bibliotheque-scientifique" },
-    { name: t('nav.impact'), path: "/impact" },
     { name: t('nav.about'), path: "/about" },
-    { name: t('nav.contact'), path: "/contact" },
-    { name: t('nav.sitemap'), path: "/sitemap" }, 
-    { name: t('nav.scientificMethodology'), path: "/scientific-methodology" }, 
-    { name: t('nav.adGrantAudit'), path: "/compliance-audit" },
-    { name: t('nav.compliance'), path: "/compliance" }
+    { name: t('nav.contact'), path: "/contact" }
   ];
 
   const isActive = (path: string) => {
