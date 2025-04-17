@@ -248,4 +248,4 @@ const AILearningInsights: React.FC<AILearningInsightsProps> = ({ recommendations
   );
 };
 
-export default AILearningInsights;
+export default AILearningInsights;t default AILearningInsights;

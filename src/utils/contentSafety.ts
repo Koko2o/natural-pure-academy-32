@@ -195,6 +195,17 @@ export const isUrlCompliant = (url: string): boolean => {
   if (hasProhibitedPattern) {
     return false;
   }
+  
+  // Check URL params for prohibited terms
+  const urlParams = new URL(url, 'https://example.com').searchParams;
+  for (const param of prohibitedParams) {
+    if (urlParams.has(param)) {
+      return false;
+    }
+  }
+  
+  return true;eturn false;
+  }
 
   // Check URL parameters
   try {
