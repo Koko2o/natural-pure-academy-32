@@ -1,127 +1,107 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useState, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
+import ScientificHighlightedText from '../ScientificHighlightedText';
 
-interface ProblemRotatorProps {
-  problems: string[];
-  interval?: number;
-  highlightColor?: string;
-  showIndicators?: boolean;
+interface Problem {
+  title: string;
+  description: string;
+  color: string;
 }
 
-const ProblemRotator: React.FC<ProblemRotatorProps> = ({
-  problems,
-  interval = 5000,
-  highlightColor = 'rgba(108, 99, 255, 0.2)',
-  showIndicators = true
-}) => {
-  const { t } = useLanguage();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isFirstRender = useRef(true);
-  
-  // Fonction de changement de problème
-  const rotateProblem = () => {
-    setIsVisible(false);
-    
-    // Attendre que l'animation de fadeout soit terminée
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % problems.length);
-      
-      // Réafficher le nouveau problème
-      setTimeout(() => {
-        setIsVisible(true);
-      }, 100);
-    }, 500);
-  };
-  
-  // Configuration du timer pour la rotation
-  useEffect(() => {
-    const setupNextRotation = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      timeoutRef.current = setTimeout(() => {
-        rotateProblem();
-        setupNextRotation();
-      }, interval);
-    };
-    
-    // Ne pas animer au premier rendu
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      setIsVisible(true);
-    } else {
-      setupNextRotation();
+interface ProblemRotatorProps {
+  problems?: Problem[];
+  interval?: number;
+  className?: string;
+}
+
+const ProblemRotator = ({
+  problems = [
+    {
+      title: "Stress Chronique",
+      description: "Identifiez les [[cortisol:micronutriments]] qui vous manquent réellement",
+      color: "from-red-500 to-orange-500"
+    },
+    {
+      title: "Troubles du Sommeil",
+      description: "Découvrez les [[circadian-rhythm:solutions naturelles]] validées scientifiquement",
+      color: "from-blue-500 to-indigo-600"
+    },
+    {
+      title: "Fatigue Persistante",
+      description: "Révélez les causes profondes validées par notre [[adaptogens:laboratoire]]",
+      color: "from-amber-500 to-orange-600"
+    },
+    {
+      title: "Problèmes Digestifs",
+      description: "Révélez les causes des [[microbiome:troubles digestifs]] validées par notre laboratoire",
+      color: "from-green-500 to-teal-600"
     }
-    
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [currentIndex, interval]);
+  ],
+  interval = 4000,
+  className = ""
+}: ProblemRotatorProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
-  // Changement manuel de problème
-  const handleIndicatorClick = (index: number) => {
-    if (index === currentIndex) return;
-    
-    setIsVisible(false);
-    
-    setTimeout(() => {
-      setCurrentIndex(index);
-      
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsTransitioning(true);
       setTimeout(() => {
-        setIsVisible(true);
-      }, 100);
-      
-      // Réinitialiser le timer
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(rotateProblem, interval);
-      }
-    }, 500);
-  };
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % problems.length);
+        setIsTransitioning(false);
+      }, 500); // Transition time
+    }, interval);
+    
+    return () => clearInterval(timer);
+  }, [interval, problems.length]);
   
-  // Traduction du problème actuel
-  const translatedProblem = t(`health_problem_${problems[currentIndex].toLowerCase().replace(/\s+/g, '_')}`, problems[currentIndex]);
+  const currentProblem = problems[currentIndex];
   
   return (
-    <div className="relative">
-      <div className="min-h-[4.5rem] flex items-center justify-center px-4 rounded-lg">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: isVisible ? 1 : 0, 
-            y: isVisible ? 0 : 20,
-            backgroundColor: highlightColor 
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative px-4 py-2 rounded-md text-center font-medium"
-        >
-          <span className="text-xl md:text-2xl">{translatedProblem}</span>
-        </motion.div>
+    <div className={`overflow-hidden ${className}`}>
+      <div
+        className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
+        aria-live="polite"
+      >
+        <div className="space-y-3">
+          <div className="inline-flex items-center bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
+            <Sparkles className="h-4 w-4 text-white mr-2" aria-hidden="true" />
+            <span className="text-white text-sm font-medium">Problème de santé fréquent</span>
+          </div>
+          
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            <span className="inline-block bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+              {currentProblem.title}
+            </span>
+          </h2>
+          
+          <p className="text-white/90 text-lg max-w-xl">
+            <ScientificHighlightedText text={currentProblem.description} />
+          </p>
+        </div>
       </div>
       
-      {showIndicators && (
-        <div className="flex justify-center mt-3 space-x-2">
-          {problems.map((_, index) => (
-            <button
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-primary w-4' 
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-              onClick={() => handleIndicatorClick(index)}
-              aria-label={`Problème ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex mt-4 space-x-2" aria-hidden="true">
+        {problems.map((_, index) => (
+          <button
+            key={index}
+            className={`w-2 h-2 rounded-full transition-all ${
+              index === currentIndex 
+                ? 'bg-white w-6' 
+                : 'bg-white/50 hover:bg-white/80'
+            }`}
+            onClick={() => {
+              setIsTransitioning(true);
+              setTimeout(() => {
+                setCurrentIndex(index);
+                setIsTransitioning(false);
+              }, 500);
+            }}
+            aria-label={`Voir problème ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };

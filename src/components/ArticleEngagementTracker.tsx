@@ -1,71 +1,113 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useArticleEngagement from '@/hooks/useArticleEngagement';
+import { trackContentQuality } from '@/utils/adGrantCompliance';
 
-// Component to track article engagement across the site
-const ArticleEngagementTracker: React.FC = () => {
+interface ArticleEngagementData {
+  articleId: string;
+  articleLength: number;
+  articleTitle: string;
+  hasScientificCitations?: boolean;
+  hasMedicalTerms?: boolean;
+  category?: string;
+  readLevel?: 'beginner' | 'intermediate' | 'advanced';
+}
+
+const ArticleEngagementTracker: React.FC<ArticleEngagementData> = ({ 
+  articleId, 
+  articleLength, 
+  articleTitle,
+  hasScientificCitations = true,
+  hasMedicalTerms = true,
+  category = 'nutrition',
+  readLevel = 'intermediate'
+}) => {
   const location = useLocation();
+  const { trackBridgeImpression, trackBridgeClick } = useArticleEngagement();
 
-  // Extract article data from location state or query params
-  const getArticleData = () => {
-    try {
-      // Check if we're on an article page
-      if (!location.pathname.includes('/article/')) {
-        return null;
-      }
-
-      // Try to get article data from state
-      if (location.state?.article) {
-        return {
-          articleId: location.state.article.id || 'unknown',
-          articleLength: location.state.article.wordCount || 500
-        };
-      }
-
-      // Fallback: extract ID from URL
-      const articleId = location.pathname.split('/article/')[1]?.split('/')[0];
-      if (articleId) {
-        return {
-          articleId,
-          articleLength: 500 // Default word count when unknown
-        };
-      }
-
-      return null;
-    } catch (error) {
-      console.error('[ArticleEngagementTracker] Error getting article data:', error);
-      return null;
-    }
-  };
-
-  const articleData = getArticleData();
-
-  // Only initialize tracking if article data is available
+  // Track user interactions with article content
   useEffect(() => {
-    if (!articleData) {
-      return;
-    }
+    console.log(`[GoogleAdGrantsTrack] Tracking article engagement for: ${articleTitle}`);
 
-    console.log(`[ArticleEngagementTracker] Started tracking for article: ${articleData.articleId}`);
+    // Track initial article view event for Google Ad Grant reporting
+    console.log(`[GoogleAdGrantsTrack] Article view: ${articleId}, Length: ${articleLength} words`);
+
+    // Track content quality metrics for Google Ad Grant compliance
+    trackContentQuality(location.pathname, {
+      wordCount: articleLength,
+      readTime: Math.ceil(articleLength / 200), // Avg reading time in minutes (200 words/min)
+      hasScientificCitations: hasScientificCitations,
+      hasStructuredData: true
+    });
+
+    // Calculate article substantiveness score (important for Google Ad Grants)
+    const substantivenessScore = calculateSubstantivenessScore({
+      wordCount: articleLength,
+      hasScientificCitations,
+      hasMedicalTerms,
+      readLevel
+    });
+
+    console.log(`[GoogleAdGrantsCompliance] Article substantiveness score: ${substantivenessScore}/10`);
+
+    // Simple tracking for article read time
+    const startTime = Date.now();
 
     return () => {
-      console.log(`[ArticleEngagementTracker] Stopped tracking for article: ${articleData.articleId}`);
+      const timeSpentMs = Date.now() - startTime;
+      const timeSpentSeconds = Math.floor(timeSpentMs / 1000);
+
+      // Track read metrics for Google Ad Grant performance reporting
+      console.log(`[GoogleAdGrantsMetric] Article read time: ${timeSpentSeconds} seconds`);
+
+      // Track if article was likely read (spent at least 30 seconds per 500 words)
+      const minimumReadTime = Math.min(30, articleLength / 500 * 30);
+      const wasLikelyRead = timeSpentSeconds >= minimumReadTime;
+
+      // Add engagement quality tracking for Grant compliance
+      const readPercentage = Math.min(100, (timeSpentSeconds / (articleLength / 200 * 60)) * 100);
+
+      console.log(`[GoogleAdGrantsMetric] Article engagement:`, {
+        articleId,
+        wasRead: wasLikelyRead,
+        readPercentage: readPercentage.toFixed(2) + '%',
+        timeSpentSeconds,
+        category
+      });
     };
-  }, [location.pathname, articleData]);
+  }, [articleId, articleLength, articleTitle, location.pathname, hasScientificCitations, hasMedicalTerms, category, readLevel]);
 
-  // Don't render anything if no article data
-  if (!articleData) {
-    return null;
-  }
+  // Calculate substantiveness score for Google Ad Grant quality requirements
+  const calculateSubstantivenessScore = (params: {
+    wordCount: number;
+    hasScientificCitations: boolean;
+    hasMedicalTerms: boolean;
+    readLevel: string;
+  }) => {
+    let score = 0;
 
-  // Use the hook only when article data is available
-  const { metrics } = useArticleEngagement({
-    articleId: articleData.articleId,
-    articleLength: articleData.articleLength
-  });
+    // Word count scoring (0-3 points)
+    if (params.wordCount >= 1500) score += 3;
+    else if (params.wordCount >= 1000) score += 2;
+    else if (params.wordCount >= 500) score += 1;
 
-  // No UI to render, this is just for tracking
-  return null;
+    // Scientific citations (0-2 points)
+    if (params.hasScientificCitations) score += 2;
+
+    // Medical terminology (0-1 point)
+    if (params.hasMedicalTerms) score += 1;
+
+    // Reading level (0-2 points)
+    if (params.readLevel === 'advanced') score += 2;
+    else if (params.readLevel === 'intermediate') score += 1;
+
+    // Educational value (2 points for educational content)
+    score += 2;
+
+    return score;
+  };
+
+  return null; // This is a non-visual tracking component
 };
 
 export default ArticleEngagementTracker;

@@ -1,380 +1,140 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-type Language = 'fr' | 'en' | 'es';
+// Define available languages
+export type Language = 'fr' | 'en';
 
-type Translations = {
-  [lang in Language]: {
-    [key: string]: string;
-  };
-};
-
-interface LanguageContextType {
+// Define context type
+type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string, replacements?: Record<string, string>) => string;
-  translations: Translations;
-  addTranslation: (key: string, values: { [lang in Language]?: string }) => void;
-  showDebugger: boolean;
-  toggleDebugger: () => void;
-}
-
-// Default translations
-const defaultTranslations: Translations = {
-  fr: {
-    language_code: 'fr',
-    app_title: 'Natural Pure Academy - Solutions nutritionnelles basées sur la science',
-    app_description: 'Découvrez des solutions naturelles pour votre santé, validées par la science et personnalisées pour vos besoins.',
-    home: 'Accueil',
-    articles: 'Articles',
-    about: 'À Propos',
-    contact: 'Contact',
-    labo_solutions: 'Labo Solutions',
-    profile_sante: 'Profil Santé',
-    bibliotheque: 'Bibliothèque',
-    recherches: 'Nos Recherches',
-    sign_in: 'Se Connecter',
-    language: 'Langue',
-    quiz: 'Quiz',
-    translation_debugger: 'Débogueur de Traduction',
-    show_all: 'Afficher tout',
-    show_missing: 'Afficher manquants',
-    search_translations: 'Rechercher des traductions...',
-    missing_translations: 'Traductions manquantes',
-    missing: 'Manquant',
-    article_engagement_tracking_started: 'Suivi d\'engagement d\'article démarré',
-    article_engagement_tracking_ended: 'Suivi d\'engagement d\'article terminé',
-    scientific_insights: 'Aperçus Scientifiques',
-    read_more: 'Lire Plus',
-    view_details: 'Voir les Détails',
-    learn_more: 'En Savoir Plus',
-    register_now: 'S\'inscrire Maintenant',
-    start_quiz: 'Commencer le Quiz',
-    your_results: 'Vos Résultats',
-    recommended_solutions: 'Solutions Recommandées',
-    next_step: 'Étape Suivante',
-    previous_step: 'Étape Précédente',
-    submit: 'Soumettre',
-    loading: 'Chargement...',
-    error_message: 'Une erreur est survenue, veuillez réessayer.',
-    toggle_menu: 'Basculer le menu',
-    page_not_found: 'Page non trouvée',
-    go_home: 'Retour à l\'accueil',
-    privacy_policy: 'Politique de Confidentialité',
-    terms_of_service: 'Conditions d\'Utilisation',
-    copyright: '© 2024 Natural Pure Academy. Tous droits réservés.',
-    welcome_message: 'Bienvenue dans notre académie de solutions naturelles',
-    current_language: 'Français',
-    search: 'Rechercher',
-    cart: 'Panier',
-    settings: 'Paramètres',
-    recommended_for_you: 'Recommandé pour vous',
-    view_all: 'Voir tout',
-    most_popular: 'Les plus populaires',
-    recent: 'Récents',
-    sign_up_cta: 'Inscrivez-vous pour recevoir nos dernières recherches',
-    join_newsletter: 'Rejoindre notre newsletter',
-    email_placeholder: 'Votre adresse email',
-    subscribe: 'S\'abonner',
-    loading_text: 'Chargement en cours...',
-    based_on_science: 'Basé sur la science',
-    natural_solutions: 'Solutions naturelles',
-    personalized_approach: 'Approche personnalisée',
-    our_mission: 'Notre mission',
-    our_team: 'Notre équipe',
-    our_values: 'Nos valeurs',
-    our_partners: 'Nos partenaires',
-    // Nouvelles traductions
-    health_profile: 'Profil Santé',
-    laboratory_solutions: 'Solutions Laboratoire',
-    scientific_library: 'Bibliothèque Scientifique',
-    our_research: 'Nos Recherches',
-    discover_quiz: 'Découvrir le Quiz',
-    personalized_recommendations: 'Recommandations Personnalisées',
-    latest_articles: 'Derniers Articles',
-    scientific_evidence: 'Preuves Scientifiques',
-    nutritional_deficiencies: 'Carences Nutritionnelles',
-    health_assessment: 'Évaluation de Santé',
-    take_assessment: 'Faire l\'évaluation',
-    terms_of_use: 'Conditions d\'Utilisation',
-    privacy_policy_short: 'Confidentialité',
-    back: 'Retour',
-    menu: 'Menu',
-    close: 'Fermer'
-  },
-  en: {
-    language_code: 'en',
-    app_title: 'Natural Pure Academy - Science-based Nutritional Solutions',
-    app_description: 'Discover natural solutions for your health, validated by science and personalized for your needs.',
-    home: 'Home',
-    articles: 'Articles',
-    about: 'About',
-    contact: 'Contact',
-    labo_solutions: 'Lab Solutions',
-    profile_sante: 'Health Profile',
-    bibliotheque: 'Library',
-    recherches: 'Our Research',
-    sign_in: 'Sign In',
-    language: 'Language',
-    quiz: 'Quiz',
-    translation_debugger: 'Translation Debugger',
-    show_all: 'Show All',
-    show_missing: 'Show Missing',
-    search_translations: 'Search translations...',
-    missing_translations: 'Missing translations',
-    missing: 'Missing',
-    article_engagement_tracking_started: 'Article engagement tracking started',
-    article_engagement_tracking_ended: 'Article engagement tracking ended',
-    scientific_insights: 'Scientific Insights',
-    read_more: 'Read More',
-    view_details: 'View Details',
-    learn_more: 'Learn More',
-    register_now: 'Register Now',
-    start_quiz: 'Start Quiz',
-    your_results: 'Your Results',
-    recommended_solutions: 'Recommended Solutions',
-    next_step: 'Next Step',
-    previous_step: 'Previous Step',
-    submit: 'Submit',
-    loading: 'Loading...',
-    error_message: 'An error has occurred, please try again.',
-    toggle_menu: 'Toggle menu',
-    page_not_found: 'Page not found',
-    go_home: 'Return to home',
-    privacy_policy: 'Privacy Policy',
-    terms_of_service: 'Terms of Service',
-    copyright: '© 2024 Natural Pure Academy. All rights reserved.',
-    welcome_message: 'Welcome to our academy of natural solutions',
-    current_language: 'English',
-    search: 'Search',
-    cart: 'Cart',
-    settings: 'Settings',
-    recommended_for_you: 'Recommended for you',
-    view_all: 'View all',
-    most_popular: 'Most popular',
-    recent: 'Recent',
-    sign_up_cta: 'Sign up to receive our latest research',
-    join_newsletter: 'Join our newsletter',
-    email_placeholder: 'Your email address',
-    subscribe: 'Subscribe',
-    loading_text: 'Loading...',
-    based_on_science: 'Based on science',
-    natural_solutions: 'Natural solutions',
-    personalized_approach: 'Personalized approach',
-    our_mission: 'Our mission',
-    our_team: 'Our team',
-    our_values: 'Our values',
-    our_partners: 'Our partners',
-    // New translations
-    health_profile: 'Health Profile',
-    laboratory_solutions: 'Laboratory Solutions',
-    scientific_library: 'Scientific Library',
-    our_research: 'Our Research',
-    discover_quiz: 'Discover the Quiz',
-    personalized_recommendations: 'Personalized Recommendations',
-    latest_articles: 'Latest Articles',
-    scientific_evidence: 'Scientific Evidence',
-    nutritional_deficiencies: 'Nutritional Deficiencies',
-    health_assessment: 'Health Assessment',
-    take_assessment: 'Take Assessment',
-    terms_of_use: 'Terms of Use',
-    privacy_policy_short: 'Privacy',
-    back: 'Back',
-    menu: 'Menu',
-    close: 'Close'
-  },
-  es: {
-    language_code: 'es',
-    app_title: 'Natural Pure Academy - Soluciones Nutricionales Basadas en la Ciencia',
-    app_description: 'Descubra soluciones naturales para su salud, validadas por la ciencia y personalizadas para sus necesidades.',
-    home: 'Inicio',
-    articles: 'Artículos',
-    about: 'Acerca de',
-    contact: 'Contacto',
-    labo_solutions: 'Soluciones de Laboratorio',
-    profile_sante: 'Perfil de Salud',
-    bibliotheque: 'Biblioteca',
-    recherches: 'Nuestras Investigaciones',
-    sign_in: 'Iniciar Sesión',
-    language: 'Idioma',
-    quiz: 'Cuestionario',
-    translation_debugger: 'Depurador de Traducción',
-    show_all: 'Mostrar Todo',
-    show_missing: 'Mostrar Faltantes',
-    search_translations: 'Buscar traducciones...',
-    missing_translations: 'Traducciones faltantes',
-    missing: 'Faltante',
-    article_engagement_tracking_started: 'Seguimiento de participación en artículos iniciado',
-    article_engagement_tracking_ended: 'Seguimiento de participación en artículos finalizado',
-    scientific_insights: 'Perspectivas Científicas',
-    read_more: 'Leer Más',
-    view_details: 'Ver Detalles',
-    learn_more: 'Saber Más',
-    register_now: 'Regístrese Ahora',
-    start_quiz: 'Iniciar Cuestionario',
-    your_results: 'Sus Resultados',
-    recommended_solutions: 'Soluciones Recomendadas',
-    next_step: 'Siguiente Paso',
-    previous_step: 'Paso Anterior',
-    submit: 'Enviar',
-    loading: 'Cargando...',
-    error_message: 'Ha ocurrido un error, por favor inténtelo de nuevo.',
-    toggle_menu: 'Alternar menú',
-    page_not_found: 'Página no encontrada',
-    go_home: 'Volver al inicio',
-    privacy_policy: 'Política de Privacidad',
-    terms_of_service: 'Términos de Servicio',
-    copyright: '© 2024 Natural Pure Academy. Todos los derechos reservados.',
-    welcome_message: 'Bienvenido a nuestra academia de soluciones naturales',
-    current_language: 'Español',
-    search: 'Buscar',
-    cart: 'Carrito',
-    settings: 'Configuración',
-    recommended_for_you: 'Recomendado para usted',
-    view_all: 'Ver todo',
-    most_popular: 'Más populares',
-    recent: 'Recientes',
-    sign_up_cta: 'Regístrese para recibir nuestras últimas investigaciones',
-    join_newsletter: 'Únase a nuestro boletín',
-    email_placeholder: 'Su dirección de correo electrónico',
-    subscribe: 'Suscribirse',
-    loading_text: 'Cargando...',
-    based_on_science: 'Basado en la ciencia',
-    natural_solutions: 'Soluciones naturales',
-    personalized_approach: 'Enfoque personalizado',
-    our_mission: 'Nuestra misión',
-    our_team: 'Nuestro equipo',
-    our_values: 'Nuestros valores',
-    our_partners: 'Nuestros socios',
-    // Nuevas traducciones
-    health_profile: 'Perfil de Salud',
-    laboratory_solutions: 'Soluciones de Laboratorio',
-    scientific_library: 'Biblioteca Científica',
-    our_research: 'Nuestra Investigación',
-    discover_quiz: 'Descubrir el Cuestionario',
-    personalized_recommendations: 'Recomendaciones Personalizadas',
-    latest_articles: 'Últimos Artículos',
-    scientific_evidence: 'Evidencia Científica',
-    nutritional_deficiencies: 'Deficiencias Nutricionales',
-    health_assessment: 'Evaluación de Salud',
-    take_assessment: 'Realizar Evaluación',
-    terms_of_use: 'Términos de Uso',
-    privacy_policy_short: 'Privacidad',
-    back: 'Volver',
-    menu: 'Menú',
-    close: 'Cerrar'
-  }
+  t: (key: string) => string;
 };
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Create context with default values
+export const LanguageContext = createContext<LanguageContextType>({
+  language: 'fr',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Try to get the language from localStorage, default to 'fr'
-  const getInitialLanguage = (): Language => {
-    try {
-      // We want to log this to help with debugging
-      const storedLanguage = localStorage.getItem('language') as Language;
-      console.log("[LanguageMonitor] Initial language from storage:", storedLanguage);
+// Hook for using language context
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
 
-      if (storedLanguage && ['fr', 'en', 'es'].includes(storedLanguage)) {
-        // Set the lang attribute on the document
-        document.documentElement.lang = storedLanguage;
-        console.log("[LanguageMonitor] Applied stored language to document:", storedLanguage);
-        return storedLanguage;
-      }
-      return 'fr';
-    } catch (e) {
-      console.error("Error accessing localStorage:", e);
-      return 'fr';
-    }
-  };
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
 
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
-  const [translations, setTranslations] = useState<Translations>(defaultTranslations);
-  const [showDebugger, setShowDebugger] = useState<boolean>(false);
+  return context;
+};
 
-  const setLanguage = (lang: Language) => {
-    try {
-      localStorage.setItem('language', lang);
-      document.documentElement.lang = lang;
-      setLanguageState(lang);
-      console.log(`[LanguageMonitor] Language changed to: ${lang}`);
-    } catch (e) {
-      console.error("Error setting language:", e);
-    }
-  };
+// Hook for using translations
+export const useTranslation = () => useContext(LanguageContext);
 
-  const toggleDebugger = () => {
-    setShowDebugger(prev => !prev);
-  };
+// Make useLanguage the default export for backward compatibility
+export default useLanguage;
 
-  // Translate function with replacements support
-  const t = (key: string, replacements?: Record<string, string>): string => {
-    const translation = translations[language]?.[key] || translations.fr?.[key] || key;
+// Context provider component
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
-    if (!replacements) return translation;
-
-    // Replace placeholders with values
-    return Object.entries(replacements).reduce(
-      (text, [placeholder, value]) => text.replace(new RegExp(`{{${placeholder}}}`, 'g'), value),
-      translation
-    );
-  };
-
-  // Add new translations
-  const addTranslation = (key: string, values: { [lang in Language]?: string }) => {
-    setTranslations(prevTranslations => {
-      const newTranslations = { ...prevTranslations };
-
-      // For each language provided in values
-      Object.entries(values).forEach(([lang, value]) => {
-        if (value && ['fr', 'en', 'es'].includes(lang)) {
-          newTranslations[lang as Language] = {
-            ...newTranslations[lang as Language],
-            [key]: value
-          };
-        }
-      });
-
-      return newTranslations;
-    });
-  };
-
-  useEffect(() => {
-    // Set up event listener for language changes from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'language' && e.newValue) {
-        if (['fr', 'en', 'es'].includes(e.newValue)) {
-          document.documentElement.lang = e.newValue;
-          setLanguageState(e.newValue as Language);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  const contextValue: LanguageContextType = {
-    language,
-    setLanguage,
-    t,
-    translations,
-    addTranslation,
-    showDebugger,
-    toggleDebugger
+  // Translation function
+  const t = (key: string): string => {
+    const langTranslations = translations[language] || translations.en;
+    return langTranslations[key as keyof typeof langTranslations] || key;
   };
 
   return (
-    <LanguageContext.Provider value={contextValue}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-export const useLanguage = (): LanguageContextType => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+// Define translations for both languages
+const translations = {
+  en: {
+    'Home': 'Home',
+    'About Us': 'About Us',
+    'Contact': 'Contact',
+    'Our Impact': 'Our Impact',
+    'Articles': 'Articles',
+    'Scientific Publications': 'Scientific Publications',
+    'Main Pages': 'Main Pages',
+    'Site Navigation': 'Site Navigation',
+    'Site Map': 'Site Map',
+    'Research & Education': 'Research & Education',
+    'Health Resources': 'Health Resources',
+    'Scientific Team': 'Scientific Team',
+    'Mission & Impact': 'Mission & Impact',
+    'Legal & Compliance': 'Legal & Compliance',
+    'Our Research': 'Our Research',
+    'Scientific Methodology': 'Scientific Methodology',
+    'Lab Solutions': 'Lab Solutions',
+    'Nutrition': 'Nutrition',
+    'Health Profile': 'Health Profile',
+    'Interactive Quiz': 'Interactive Quiz',
+    'Team Members': 'Team Members',
+    'Research Partners': 'Research Partners',
+    'Scientific Advisory Board': 'Scientific Advisory Board',
+    'Our Mission': 'Our Mission',
+    'Impact Programs': 'Impact Programs',
+    'Success Stories': 'Success Stories',
+    'Support Our Research': 'Support Our Research',
+    'Non-Profit Status': 'Non-Profit Status',
+    'Privacy Policy': 'Privacy Policy',
+    'Terms of Use': 'Terms of Use',
+    'Accessibility': 'Accessibility',
+    'Support Our Mission': 'Support Our Mission',
+    'International Resources': 'International Resources',
+    'Looking for Specific Research?': 'Looking for Specific Research?',
+    'Explore our Scientific Library': 'Explore our Scientific Library',
+    'Learn how you can support our research': 'Learn how you can support our research',
+    'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.': 'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.',
+    'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.': 'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.',
+    'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.': 'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.',
+    'Our research and educational resources are available in multiple languages to support a global audience.': 'Our research and educational resources are available in multiple languages to support a global audience.',
+  },
+  fr: {
+    'Home': 'Accueil',
+    'About Us': 'À propos',
+    'Contact': 'Contact',
+    'Our Impact': 'Notre Impact',
+    'Articles': 'Articles',
+    'Scientific Publications': 'Publications Scientifiques',
+    'Main Pages': 'Pages Principales',
+    'Site Navigation': 'Navigation du Site',
+    'Site Map': 'Plan du Site',
+    'Research & Education': 'Recherche & Éducation',
+    'Health Resources': 'Ressources Santé',
+    'Scientific Team': 'Équipe Scientifique',
+    'Mission & Impact': 'Mission & Impact',
+    'Legal & Compliance': 'Légal & Conformité',
+    'Our Research': 'Nos Recherches',
+    'Scientific Methodology': 'Méthodologie Scientifique',
+    'Lab Solutions': 'Solutions Labo',
+    'Nutrition': 'Nutrition',
+    'Health Profile': 'Profil Santé',
+    'Interactive Quiz': 'Quiz Interactif',
+    'Team Members': 'Membres de l\'Équipe',
+    'Research Partners': 'Partenaires de Recherche',
+    'Scientific Advisory Board': 'Comité Scientifique',
+    'Our Mission': 'Notre Mission',
+    'Impact Programs': 'Programmes d\'Impact',
+    'Success Stories': 'Témoignages de Réussite',
+    'Support Our Research': 'Soutenir Notre Recherche',
+    'Non-Profit Status': 'Statut d\'Association',
+    'Privacy Policy': 'Politique de Confidentialité',
+    'Terms of Use': 'Conditions d\'Utilisation',
+    'Accessibility': 'Accessibilité',
+    'Support Our Mission': 'Soutenez Notre Mission',
+    'International Resources': 'Ressources Internationales',
+    'Looking for Specific Research?': 'Vous cherchez une recherche spécifique ?',
+    'Explore our Scientific Library': 'Explorez notre Bibliothèque Scientifique',
+    'Learn how you can support our research': 'Découvrez comment soutenir notre recherche',
+    'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.': 'Une vue d\'ensemble de la structure de notre site pour vous aider à naviguer efficacement dans nos recherches et ressources.',
+    'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.': 'Notre Bibliothèque Scientifique contient toutes nos recherches publiées, organisées par sujet, date et pertinence pour vous aider à trouver exactement ce dont vous avez besoin.',
+    'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.': 'En tant qu\'organisation à but non lucratif, nous comptons sur les partenariats et le soutien communautaire pour poursuivre nos programmes de recherche et d\'éducation.',
+    'Our research and educational resources are available in multiple languages to support a global audience.': 'Nos recherches et ressources éducatives sont disponibles en plusieurs langues pour soutenir un public mondial.',
   }
-  return context;
 };

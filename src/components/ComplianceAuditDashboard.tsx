@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { getComplianceSummary, autoCheckCompliance, ComplianceIssue } from "@/utils/adGrantCompliance";
 import { detectBannedTerms, detectWarningTerms, bannedTerms, warningTerms } from "@/utils/contentSafety";
 

@@ -1,5 +1,5 @@
+
 import { useState, useEffect, useRef } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 interface ArticleEngagementOptions {
@@ -26,7 +26,6 @@ export const useArticleEngagement = ({
   articleLength,
   averageReadingTime = 3
 }: ArticleEngagementOptions) => {
-  const { language, t } = useLanguage();
   const [metrics, setMetrics] = useState<ArticleEngagementMetrics>({
     readPercentage: 0,
     readTime: 0,
@@ -137,8 +136,8 @@ export const useArticleEngagement = ({
     // Set up interval to check engagement
     readingInterval.current = setInterval(checkEngagement, 5000);
 
-    // Log initial view with proper translation
-    console.log(`${t('article_engagement_tracking_started')}: ${articleId}`);
+    // Log initial view
+    console.log(`[ArticleEngagement] Article ${articleId} view started`);
 
     return () => {
       // Remove event listeners
@@ -151,16 +150,14 @@ export const useArticleEngagement = ({
         clearInterval(readingInterval.current);
       }
 
-      // Log final metrics with proper translation
-      console.log(`${t('article_engagement_tracking_ended')}: `, {
-        articleId,
+      // Log final metrics
+      console.log(`[ArticleEngagement] Article ${articleId} view ended:`, {
         readTime: (Date.now() - startTime.current) / 1000,
         scrollDepth: maxScrollDepth.current,
-        interactions: interactionCount.current,
-        language
+        interactions: interactionCount.current
       });
     };
-  }, [language, articleId, t]);
+  }, [articleId]);
 
   return { metrics };
 };

@@ -20,7 +20,7 @@ const ComplianceAlert: React.FC = () => {
           const criticalIssues = parsedData.issues.filter((issue: any) => 
             issue.severity === 'critical' || issue.severity === 'high'
           );
-
+          
           if (criticalIssues.length > 0) {
             setIssues(criticalIssues);
             setShow(true);
@@ -30,11 +30,11 @@ const ComplianceAlert: React.FC = () => {
         }
       }
     };
-
+    
     // Check on mount and periodically
     checkForIssues();
     const interval = setInterval(checkForIssues, 300000); // Check every 5 minutes
-
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -80,7 +80,6 @@ const ComplianceAlert: React.FC = () => {
           type="button"
           className="flex-shrink-0 ml-2 text-amber-400 hover:text-amber-500"
           onClick={() => setShow(false)}
-          aria-label="Dismiss"
         >
           <X className="h-4 w-4" />
         </button>

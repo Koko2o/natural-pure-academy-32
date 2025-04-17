@@ -1,64 +1,180 @@
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Outlet } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import Index from "./pages/Index";
+import Articles from "./pages/Articles";
+import MetricTracker from "./components/MetricTracker";
+import ConversionTracker from "./components/ConversionTracker";
+import Article from "./pages/Article";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Nutrition from "./pages/Nutrition";
+import Quiz from "./pages/Quiz";
+import NotFound from "./pages/NotFound";
+import ProfileSante from "./pages/ProfileSante";
+import LaboSolutions from "./pages/LaboSolutions";
+import SocialRedirect from "./pages/SocialRedirect";
+import AISystem from './pages/AISystem';
+import AILearningDashboard from './pages/AILearningDashboard';
+import AIConfigurationDashboard from './pages/AIConfigurationDashboard';
+import NosRecherches from "@/pages/NosRecherches";
+import BibliothequeScientifique from './pages/BibliothequeScientifique';
+import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/contentSafety";
+import { LanguageProvider } from "./components/LanguageProvider"; 
+import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
+import ComplianceAlert from '@/components/ComplianceAlert'; // Imported ComplianceAlert
+import { autoCheckCompliance } from '@/utils/adGrantCompliance'; // Imported autoCheckCompliance
 
-import React, { Suspense } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Routes, Route } from 'react-router-dom';
-import { useLanguage } from './contexts/LanguageContext';
 
-// Components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import { TranslationDebugger } from './components/TranslationDebugger';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 60 * 2, 
+    },
+  },
+});
 
-// Pages (lazy loaded)
-const Home = React.lazy(() => import('./pages/Index'));
-const About = React.lazy(() => import('./pages/About'));
-const Contact = React.lazy(() => import('./pages/Contact'));
-const Articles = React.lazy(() => import('./pages/Articles'));
-const Article = React.lazy(() => import('./pages/Article'));
-const Quiz = React.lazy(() => import('./pages/Quiz'));
-const LaboSolutions = React.lazy(() => import('./pages/LaboSolutions'));
-const ProfileSante = React.lazy(() => import('./pages/ProfileSante'));
-const BibliothequeScientifique = React.lazy(() => import('./pages/BibliothequeScientifique'));
-const NosRecherches = React.lazy(() => import('./pages/NosRecherches'));
-const NotFound = React.lazy(() => import('./pages/NotFound'));
+const runContentSafetyCheck = () => {
+  console.log("[GoogleAdGrantsSafety] Scanning for banned terms:", bannedTerms.join(', '));
+  const pageContent = document.body.textContent?.toLowerCase() || '';
+  const foundTerms = detectBannedTerms(pageContent);
 
-function App() {
-  const { t, showDebugger } = useLanguage();
+  if (foundTerms.length > 0) {
+    console.warn("[GoogleAdGrantsSafety] Detected potentially problematic terms:", foundTerms);
+    const auditResults = auditPageContent(document.body.innerHTML);
+    console.warn("[GoogleAdGrantsSafety] Compliance audit:", {
+      isCompliant: auditResults.isCompliant,
+      issuesCount: auditResults.issues.length,
+      details: auditResults.issues
+    });
+    document.querySelectorAll('p, h1, h2, h3, h4, h5, div, button, a').forEach((element) => {
+      const content = element.textContent?.toLowerCase() || '';
+      const hasBannedTerm = foundTerms.some(term => content.includes(term));
+      if (hasBannedTerm) {
+        console.warn("[GoogleAdGrantsSafety] Problematic section:", {
+          content: element.textContent,
+          element: element.tagName,
+          path: getElementPath(element as HTMLElement)
+        });
+        element.setAttribute('data-compliance-issue', 'true');
+      }
+    });
+    if (window.localStorage.length > 0) {
+      console.log("[GoogleAdGrantsSafety] Storage check: Using secured session storage instead of localStorage");
+    }
+  } else {
+    console.log("[GoogleAdGrantsSafety] No banned terms detected on this page");
+  }
+};
+
+const getElementPath = (element: HTMLElement) => {
+  const path: string[] = [];
+  let currentElement: HTMLElement | null = element;
+  while (currentElement && currentElement !== document.body) {
+    let selector = currentElement.tagName.toLowerCase();
+    if (currentElement.id) {
+      selector += `#${currentElement.id}`;
+    } else if (currentElement.className) {
+      selector += `.${Array.from(currentElement.classList).join('.')}`;
+    }
+    path.unshift(selector);
+    currentElement = currentElement.parentElement;
+  }
+  return path.join(' > ');
+};
+
+const LanguageContext = React.createContext<{
+  language: 'en' | 'fr';
+  setLanguage: (lang: 'en' | 'fr') => void;
+  t: (key: string) => string;
+} | null>(null);
+
+const App = () => {
+  const [activeAIModel, setActiveAIModel] = useState("optimized");
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+
+  // Translation function for i18n
+  const t = (key: string): string => {
+    const translations: Record<string, Record<string, string>> = {
+      en: {
+        "welcome": "Welcome to Natural Pure Academy",
+        "nonprofit": "Non-profit nutrition research organization",
+        "Organisation à but non lucratif": "Non-profit organization"
+        // Add more translations as needed
+      },
+      fr: {
+        "welcome": "Bienvenue à Natural Pure Academy",
+        "nonprofit": "Organisation à but non lucratif de recherche en nutrition",
+        "Organisation à but non lucratif": "Organisation à but non lucratif"
+        // Add more translations as needed
+      }
+    };
+
+    return translations[language]?.[key] || key;
+  };
+
+  useEffect(() => {
+    console.log(`[AI] Loading ${activeAIModel} recommendation model...`);
+  }, [activeAIModel]);
+
+  const languageValue = useMemo(() => ({
+    language,
+    setLanguage,
+    t
+  }), [language]);
+
+  useEffect(() => {
+    const startTime = performance.now();
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] First scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+      }, { timeout: 2000 });
+    } else {
+      const timer = setTimeout(() => {
+        runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] First scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        runContentSafetyCheck();
+        console.log(`[GoogleAdGrantsSafety] Post-load scan completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+      }, 2500);
+    }, { once: true });
+  }, []);
+
+  // Run automatic compliance check when the app loads
+  useEffect(() => {
+    const runCheck = setTimeout(() => {
+      autoCheckCompliance();
+    }, 2000); // Wait for 2 seconds
+
+    return () => clearTimeout(runCheck);
+  }, []);
 
   return (
-    <>
-      <Helmet>
-        <html lang={t('language_code')} />
-        <title>{t('app_title')}</title>
-        <meta name="description" content={t('app_description')} />
-      </Helmet>
-      
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">
-          <Suspense fallback={<div className="p-12 text-center">{t('loading')}</div>}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/articles" element={<Articles />} />
-              <Route path="/article/:id" element={<Article />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/labo-solutions" element={<LaboSolutions />} />
-              <Route path="/profile-sante" element={<ProfileSante />} />
-              <Route path="/bibliotheque-scientifique" element={<BibliothequeScientifique />} />
-              <Route path="/nos-recherches" element={<NosRecherches />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </main>
-        <Footer />
-        
-        {/* Translation Debugger (only shown when enabled) */}
-        {showDebugger && <TranslationDebugger />}
-      </div>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <TooltipProvider>
+          <LanguageContext.Provider value={languageValue}>
+            <div className="min-h-screen bg-background" lang={language}>
+              <Toaster position="top-right" />
+              <Outlet />
+              <MetricTracker />
+              <ConversionTracker />
+              <ArticleEngagementTracker />
+              <ComplianceAlert /> {/* Added ComplianceAlert component */}
+            </div>
+          </LanguageContext.Provider>
+        </TooltipProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;

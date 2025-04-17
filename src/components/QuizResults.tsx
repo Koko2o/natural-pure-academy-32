@@ -1,22 +1,15 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
-import { secureStorageService as secureStorage } from '@/utils/secureStorage';
-import { 
-  generateRecommendations, 
-  generateRecommendationExplanation,
-  getAIModelStatus,
-  generateAdvancedRecommendations
-} from '@/utils/recommenderSystem';
-import { QuizResponse, Recommendation, BehavioralMetrics, NeuroProfile } from '@/utils/types';
-import { motion } from "framer-motion";
+import SUPPLEMENT_CATALOG from '../data/supplementCatalog';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { AlertCircle, ArrowLeft, Clock, Info, Leaf } from "lucide-react";
+import { generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
+import { QuizData, Recommendation, QuizResponse } from '@/utils/types';
+import AILearningInsights from './AILearningInsights';
 import ScientificHighlightedText from './ui/ScientificHighlightedText';
-import { Brain, TrendingUp, Award, CheckCircle2, ThumbsUp, AlertCircle, ArrowLeft, Clock, Info, Leaf, ArrowRight, Check } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState, useEffect } from "react";
 import QuizIntegrationService from '@/utils/quizIntegrationService';
 
 interface QuizResultsProps {
@@ -113,7 +106,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
 
   const getDetailedExplanation = (recommendation: Recommendation) => {
     try {
-      return QuizIntegrationService.generateDetailedExplanation(recommendation, quizData);
+      return QuizIntegrationService.generateDetailedExplanation(recommendation, this.props.quizData);
     } catch (error) {
       console.error("Error generating detailed explanation:", error);
       return "Détails non disponibles pour cette recommandation.";

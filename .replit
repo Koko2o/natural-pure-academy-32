@@ -13,7 +13,7 @@ from = "/*"
 to = "/index.html"
 
 [workflows]
-runButton = "Run on Port 3000"
+runButton = "Run"
 
 [[workflows.workflow]]
 name = "Run"
@@ -49,33 +49,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev -- --port 5000 --host 0.0.0.0"
-
-[[workflows.workflow]]
-name = "Run on Port 3000"
-author = 40962122
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev -- --port 3000 --host 0.0.0.0"
-
-[[workflows.workflow]]
-name = "Run Translation Audit"
-author = 40962122
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node scripts/audit-translations.js"
-
-[[workflows.workflow]]
-name = "Check Google Ad Grant Compliance"
-author = 40962122
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node scripts/compliance-checker.js"
 
 [[ports]]
 localPort = 3000
