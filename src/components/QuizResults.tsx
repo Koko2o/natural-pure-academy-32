@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import SUPPLEMENT_CATALOG from '../data/supplementCatalog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress"; // Moved import to the top
 import { AlertCircle, ArrowLeft, Clock, Info, Leaf } from "lucide-react";
 import { generateDetailedRecommendationExplanation } from '@/utils/recommenderSystem';
 import { QuizData, Recommendation, QuizResponse } from '@/utils/types';

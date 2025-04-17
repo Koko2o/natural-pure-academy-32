@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -94,8 +95,6 @@ const getElementPath = (element: HTMLElement) => {
   }
   return path.join(' > ');
 };
-
-import React from 'react';
 
 const LanguageContext = React.createContext<{
   language: 'en' | 'fr';
