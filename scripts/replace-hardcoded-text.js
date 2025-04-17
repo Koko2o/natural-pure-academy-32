@@ -1,341 +1,390 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parse } = require('@babel/parser');
+const traverse = require('@babel/traverse').default;
+const generate = require('@babel/generator').default;
+const t = require('@babel/types');
 
-// Fonction pour trouver tous les fichiers dans un répertoire
-function findFiles(dir, extensions = ['.tsx', '.jsx', '.ts', '.js']) {
-  let results = [];
-  const items = fs.readdirSync(dir);
+// Configuration
+const CONFIG = {
+  scanDir: process.argv[2] || 'src/components',
+  logFile: 'translation-replacements.log',
+  languageContextPath: 'src/contexts/LanguageContext.tsx',
+  skipPatterns: [
+    'node_modules', 
+    'dist',
+    '.git',
+    'ui',
+    'test'
+  ],
+  // Textes à ignorer (ex: noms de propriétés, identifiants techniques)
+  ignoreStrings: [
+    'className', 'variant', 'size', 'name', 'id', 'type', 'placeholder',
+    'src', 'alt', 'href', 'target', 'rel', 'key', 'style', 'onClick',
+    'component', 'export', 'import', 'default', 'function', 'const',
+    'let', 'var', 'return', 'if', 'else', 'for', 'while', 'switch',
+    'case', 'break', 'continue', 'true', 'false', 'null', 'undefined'
+  ],
+  minLength: 3, // Longueur minimale des textes à traduire
+  maxLogEntries: 1000 // Nombre max d'entrées de log avant écriture
+};
 
-  for (const item of items) {
-    const fullPath = path.join(dir, item);
-    const stat = fs.statSync(fullPath);
+// State pour le traitement
+let addedTranslations = {};
+let logEntries = [];
 
-    if (stat.isDirectory() && item !== 'node_modules' && !item.startsWith('.')) {
-      results = results.concat(findFiles(fullPath, extensions));
-    } else if (stat.isFile() && extensions.includes(path.extname(fullPath))) {
-      results.push(fullPath);
-    }
-  }
-
-  return results;
+// Fonction pour vérifier si une chaîne doit être ignorée
+function shouldIgnoreString(str) {
+  if (!str || typeof str !== 'string') return true;
+  if (str.length < CONFIG.minLength) return true;
+  if (CONFIG.ignoreStrings.includes(str)) return true;
+  
+  // Ignorer les URLs
+  if (str.startsWith('http') || str.startsWith('/') || str.includes('.')) return true;
+  
+  // Ignorer les chaînes qui ressemblent à des clés de traduction (t('key'))
+  if (str.match(/^[a-z0-9_]+$/)) return true;
+  
+  return false;
 }
 
-// Fonction pour scanner le texte en dur dans un fichier
-function scanForHardcodedText(content) {
-  // Common patterns for hardcoded text in JSX
-  const patterns = [
-    /<h[1-6][^>]*>\s*([^<{]+)\s*<\/h[1-6]>/g,
-    /<p[^>]*>\s*([^<{]+)\s*<\/p>/g,
-    /<span[^>]*>\s*([^<{]+)\s*<\/span>/g,
-    /<div[^>]*>\s*([^<{]+)\s*<\/div>/g,
-    /<button[^>]*>\s*([^<{]+)\s*<\/button>/g,
-    /<a[^>]*>\s*([^<{]+)\s*<\/a>/g,
-    /<li[^>]*>\s*([^<{]+)\s*<\/li>/g,
-    /<label[^>]*>\s*([^<{]+)\s*<\/label>/g,
-    /<option[^>]*>\s*([^<{]+)\s*<\/option>/g,
-    /<strong[^>]*>\s*([^<{]+)\s*<\/strong>/g,
-    /<em[^>]*>\s*([^<{]+)\s*<\/em>/g,
-    /<small[^>]*>\s*([^<{]+)\s*<\/small>/g,
-    /title="([^"{}]+)"/g,
-    /placeholder="([^"{}]+)"/g,
-    /label="([^"{}]+)"/g,
-    /alt="([^"{}]+)"/g,
-    /aria-label="([^"{}]+)"/g,
-    /tooltip="([^"{}]+)"/g,
-  ];
+// Générer une clé de traduction à partir d'un texte
+function generateTranslationKey(text) {
+  // Nettoyer et normaliser le texte
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 30); // Limiter la longueur de la clé
+}
 
-  const hardcodedText = [];
+// Extraire les clés de traduction existantes du LanguageContext
+function extractExistingTranslations() {
+  const contextFile = path.resolve(CONFIG.languageContextPath);
+  if (!fs.existsSync(contextFile)) {
+    console.error(`Fichier de contexte de langue introuvable: ${contextFile}`);
+    return {};
+  }
 
-  // Search for patterns
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      const text = match[1].trim();
-      // Exclure le code, les nombres seuls et les chaînes très courtes
-      if (text && 
-          !text.includes('t(') && 
-          text.length > 2 && 
-          !/^[0-9.,%]+$/.test(text) && 
-          !/^[A-Za-z0-9_]+$/.test(text)) {
-        hardcodedText.push(text);
+  const content = fs.readFileSync(contextFile, 'utf-8');
+  const translations = {};
+
+  // Recherche les définitions de traductions dans le fichier
+  const englishMatch = content.match(/english:\s*{([^}]*)}/s);
+  const frenchMatch = content.match(/french:\s*{([^}]*)}/s);
+  const spanishMatch = content.match(/spanish:\s*{([^}]*)}/s);
+
+  if (englishMatch && englishMatch[1]) {
+    const entries = englishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        if (!translations[key]) translations[key] = {};
+        translations[key].en = value;
       }
+    });
+  }
+
+  if (frenchMatch && frenchMatch[1]) {
+    const entries = frenchMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        if (!translations[key]) translations[key] = {};
+        translations[key].fr = value;
+      }
+    });
+  }
+
+  if (spanishMatch && spanishMatch[1]) {
+    const entries = spanishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        if (!translations[key]) translations[key] = {};
+        translations[key].es = value;
+      }
+    });
+  }
+
+  return translations;
+}
+
+// Ajouter une nouvelle traduction au LanguageContext
+function addTranslationToContext(key, text) {
+  // Si la traduction existe déjà, ne pas la réajouter
+  if (addedTranslations[key]) return;
+  
+  const contextFile = path.resolve(CONFIG.languageContextPath);
+  let content = fs.readFileSync(contextFile, 'utf-8');
+
+  // Vérifier si la clé existe déjà dans le fichier
+  const keyRegex = new RegExp(`\\b${key}\\b:`);
+  if (content.match(keyRegex)) {
+    console.log(`La clé '${key}' existe déjà dans le contexte de langue.`);
+    return;
+  }
+
+  // Préparer les entrées pour chaque langue
+  const newTranslations = {
+    en: `    ${key}: "${text}",\n`,
+    fr: `    ${key}: "${text} (à traduire en français)",\n`,
+    es: `    ${key}: "${text} (traducir al español)",\n`
+  };
+
+  // Insérer dans les sections appropriées
+  ['english', 'french', 'spanish'].forEach(lang => {
+    const langCode = lang === 'english' ? 'en' : lang === 'french' ? 'fr' : 'es';
+    const sectionRegex = new RegExp(`${lang}:\\s*{([^}]*)}`, 's');
+    const match = content.match(sectionRegex);
+    
+    if (match && match.index !== undefined) {
+      const insertPos = match.index + match[0].indexOf('{') + 1;
+      content = content.substring(0, insertPos) + '\n' + newTranslations[langCode] + content.substring(insertPos);
     }
   });
 
-  return [...new Set(hardcodedText)]; // Remove duplicates
+  fs.writeFileSync(contextFile, content);
+  addedTranslations[key] = text;
+  logEntries.push(`Ajout de traduction: ${key} = "${text}"`);
 }
 
-// Function to suggest a translation key
-function suggestTranslationKey(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9_]/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '')
-    .substring(0, 30);
-}
-
-// Fonction pour remplacer les textes en dur par des appels à la fonction de traduction
-function replaceHardcodedText(filePath) {
+// Fonction principale pour scanner et transformer les fichiers
+function processFile(filePath) {
+  console.log(`Traitement du fichier: ${filePath}`);
+  
   try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const hardcodedTexts = scanForHardcodedText(content);
-
-    if (hardcodedTexts.length === 0) {
-      console.log(`✓ Aucun texte en dur détecté dans ${filePath}`);
-      return;
-    }
-
-    console.log(`\n🔍 Analyse de ${filePath}`);
-    console.log(`🔤 ${hardcodedTexts.length} textes en dur détectés.`);
-
-    // Collecte les traductions à ajouter
-    const translations = {};
-
-    // Pour chaque texte, suggérer une clé et préparer le remplacement
-    let newContent = content;
-    hardcodedTexts.forEach(text => {
-      const key = suggestTranslationKey(text);
-
-      // Éviter les duplications si la clé existe déjà
-      const uniqueKey = translations[key] ? `${key}_${Object.keys(translations).length}` : key;
-
-      // Stocker la traduction
-      translations[uniqueKey] = text;
-
-      // Échapper les caractères spéciaux pour la regex
-      const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-      // Remplacer le texte par l'appel à t()
-      const regex = new RegExp(`(>\\s*)${escapedText}(\\s*<)`, 'g');
-      newContent = newContent.replace(regex, `$1{t('${uniqueKey}')}$2`);
-
-      // Remplacer les textes dans les attributs
-      const attrRegex = new RegExp(`((?:title|placeholder|label|alt|aria-label)=")${escapedText}(")`, 'g');
-      newContent = newContent.replace(attrRegex, `$1{t('${uniqueKey}')}$2`);
-
-      console.log(`  ✓ "${text}" → t('${uniqueKey}')`);
+    const code = fs.readFileSync(filePath, 'utf8');
+    const ast = parse(code, {
+      sourceType: 'module',
+      plugins: ['jsx', 'typescript', 'decorators-legacy']
     });
 
-    // Vérifier si quelque chose a été modifié
-    if (newContent !== content) {
-      // Vérifier si import est nécessaire
-      if (!newContent.includes('import { useLanguage }') && !newContent.includes('{ t }')) {
-        // Ajouter l'import pour useLanguage si nécessaire
-        if (newContent.includes('import React')) {
-          newContent = newContent.replace(/import React[^;]*;/, match => `${match}\nimport { useLanguage } from '@/contexts/LanguageContext';`);
-        } else {
-          newContent = `import { useLanguage } from '@/contexts/LanguageContext';\n${newContent}`;
+    let hasImportedUseLanguage = false;
+    let hasDestructuredT = false;
+    let fileModified = false;
+    
+    // Vérifier si useLanguage est déjà importé
+    traverse(ast, {
+      ImportDeclaration(path) {
+        if (path.node.source.value.includes('LanguageContext') && 
+            path.node.specifiers.some(s => s.imported && s.imported.name === 'useLanguage')) {
+          hasImportedUseLanguage = true;
         }
-        
-        // Ajouter la déclaration de t si c'est un composant fonctionnel
-        if (newContent.includes('function') || newContent.includes('=>') || newContent.includes('export const')) {
-          const functionMatch = newContent.match(/((function|const)\s+\w+|export\s+(default\s+)?((function|const)\s+)?\w+)/);
-          if (functionMatch) {
-            const matchPos = functionMatch.index + functionMatch[0].length;
-            const beforeFunction = newContent.substring(0, matchPos);
-            const afterFunction = newContent.substring(matchPos);
-            
-            // Trouver où insérer le hook
-            const openBracePos = afterFunction.indexOf('{');
-            if (openBracePos !== -1) {
-              newContent = beforeFunction + afterFunction.substring(0, openBracePos + 1) + 
-                '\n  const { t } = useLanguage();' + 
-                afterFunction.substring(openBracePos + 1);
-            }
+      },
+      VariableDeclarator(path) {
+        // Vérifier si t a été destructuré de useLanguage
+        if (path.node.init && 
+            path.node.init.type === 'CallExpression' && 
+            path.node.init.callee.name === 'useLanguage' &&
+            path.node.id.type === 'ObjectPattern') {
+          const properties = path.node.id.properties;
+          if (properties.some(p => p.key.name === 't')) {
+            hasDestructuredT = true;
           }
         }
       }
+    });
+
+    // Première passe: remplacer les chaînes de caractères par t('key')
+    let stringLiteralsReplaced = false;
+    traverse(ast, {
+      StringLiteral(path) {
+        // Ne pas traiter les chaînes dans les importations ou exportations
+        if (path.parent.type === 'ImportDeclaration' || 
+            path.parent.type === 'ExportNamedDeclaration' ||
+            path.parent.type === 'JSXAttribute' && ['className', 'style', 'id', 'src', 'href', 'alt'].includes(path.parent.name.name)) {
+          return;
+        }
+        
+        const value = path.node.value;
+        if (shouldIgnoreString(value)) return;
+        
+        // Générer une clé de traduction unique
+        const key = generateTranslationKey(value);
+        
+        // Remplacer la chaîne par t('key')
+        path.replaceWith(
+          t.callExpression(
+            t.identifier('t'),
+            [t.stringLiteral(key)]
+          )
+        );
+        
+        // Ajouter la traduction au contexte
+        addTranslationToContext(key, value);
+        
+        stringLiteralsReplaced = true;
+        fileModified = true;
+        
+        logEntries.push(`Dans ${filePath}: "${value}" -> t('${key}')`);
+      },
+      JSXText(path) {
+        const value = path.node.value.trim();
+        if (shouldIgnoreString(value)) return;
+        
+        const key = generateTranslationKey(value);
+        
+        // Remplacer le texte JSX par {t('key')}
+        path.replaceWith(
+          t.jsxExpressionContainer(
+            t.callExpression(
+              t.identifier('t'),
+              [t.stringLiteral(key)]
+            )
+          )
+        );
+        
+        addTranslationToContext(key, value);
+        
+        stringLiteralsReplaced = true;
+        fileModified = true;
+        
+        logEntries.push(`Dans ${filePath} (JSX): "${value}" -> {t('${key}')}`);
+      }
+    });
+
+    // Si des modifications ont été faites et useLanguage n'est pas importé, l'ajouter
+    if (stringLiteralsReplaced && !hasImportedUseLanguage) {
+      const importStatement = t.importDeclaration(
+        [t.importSpecifier(t.identifier('useLanguage'), t.identifier('useLanguage'))],
+        t.stringLiteral('../contexts/LanguageContext')
+      );
       
-      // Sauvegarder les modifications
-      fs.writeFileSync(filePath, newContent, 'utf8');
-      console.log(`💾 Fichier mis à jour: ${filePath}`);
+      // Insérer l'import au début du fichier
+      let importInserted = false;
+      traverse(ast, {
+        Program(path) {
+          if (!importInserted) {
+            path.node.body.unshift(importStatement);
+            importInserted = true;
+          }
+        }
+      });
+    }
 
-      // Ajouter les traductions au contexte
-      updateTranslationContext(translations);
+    // Si des chaînes ont été remplacées mais t n'est pas destructuré, l'ajouter
+    if (stringLiteralsReplaced && !hasDestructuredT) {
+      traverse(ast, {
+        FunctionDeclaration(path) {
+          if (path.node.id && path.node.id.name === 'App' || path.parent.type === 'ExportDefaultDeclaration') {
+            const firstStatement = path.get('body').get('body')[0];
+            const tDeclaration = t.variableDeclaration(
+              'const',
+              [t.variableDeclarator(
+                t.objectPattern([t.objectProperty(t.identifier('t'), t.identifier('t'), false, true)]),
+                t.callExpression(t.identifier('useLanguage'), [])
+              )]
+            );
+            
+            if (firstStatement) {
+              firstStatement.insertBefore(tDeclaration);
+            } else {
+              path.get('body').unshiftContainer('body', tDeclaration);
+            }
+          }
+        },
+        ArrowFunctionExpression(path) {
+          if (path.parent.type === 'VariableDeclarator' && 
+              path.parent.id.type === 'Identifier' && 
+              (path.parent.id.name === 'App' || path.parent.id.name.endsWith('Page'))) {
+            
+            const body = path.get('body');
+            if (body.type === 'BlockStatement') {
+              const firstStatement = body.get('body')[0];
+              const tDeclaration = t.variableDeclaration(
+                'const',
+                [t.variableDeclarator(
+                  t.objectPattern([t.objectProperty(t.identifier('t'), t.identifier('t'), false, true)]),
+                  t.callExpression(t.identifier('useLanguage'), [])
+                )]
+              );
+              
+              if (firstStatement) {
+                firstStatement.insertBefore(tDeclaration);
+              } else {
+                body.unshiftContainer('body', tDeclaration);
+              }
+            }
+          }
+        }
+      });
+    }
 
-      return translations;
-    } else {
-      console.log(`⚠️ Aucune modification n'a pu être appliquée dans ${filePath}`);
-      return {};
+    if (fileModified) {
+      // Générer le code transformé
+      const { code: transformedCode } = generate(ast, {}, code);
+      fs.writeFileSync(filePath, transformedCode);
+      console.log(`✅ Fichier modifié: ${filePath}`);
     }
   } catch (error) {
     console.error(`❌ Erreur lors du traitement de ${filePath}:`, error);
-    return {};
+    logEntries.push(`ERREUR: ${filePath} - ${error.message}`);
+  }
+  
+  // Écrire les logs si nécessaire
+  if (logEntries.length >= CONFIG.maxLogEntries) {
+    fs.appendFileSync(CONFIG.logFile, logEntries.join('\n') + '\n');
+    logEntries = [];
   }
 }
 
-// Fonction pour mettre à jour le fichier LanguageContext avec les nouvelles traductions
-function updateTranslationContext(translations) {
-  if (Object.keys(translations).length === 0) return;
-
-  const contextPath = path.join(__dirname, '../src/contexts/LanguageContext.tsx');
-
-  try {
-    let content = fs.readFileSync(contextPath, 'utf8');
-
-    // Pour chaque langue
-    ['fr', 'en', 'es'].forEach(lang => {
-      const langSection = content.indexOf(`${lang}: {`);
-      if (langSection === -1) return;
-
-      // Trouver la fin de la section
-      let nestingLevel = 0;
-      let endSection = langSection;
-      
-      for (let i = langSection; i < content.length; i++) {
-        if (content[i] === '{') nestingLevel++;
-        if (content[i] === '}') {
-          nestingLevel--;
-          if (nestingLevel === 0) {
-            endSection = i;
-            break;
-          }
-        }
-      }
-
-      const insertPoint = endSection;
-
-      // Préparer les nouvelles traductions
-      const newTranslations = Object.entries(translations)
-        .map(([key, value]) => {
-          // Pour l'anglais et l'espagnol, nous mettons temporairement la même valeur
-          // et nous marquerons cela pour que le développeur sache qu'il faut les traduire
-          let text = value;
-          if (lang !== 'fr') {
-            if (lang === 'en') {
-              // Tentative de traduction automatique simplifiée pour l'anglais
-              // Ceci est très basique et devra être révisé manuellement
-              text = autoTranslateToEnglish(value);
-            } else {
-              text = `${value} (à traduire en ${lang})`;
-            }
-          }
-          return `    ${key}: '${text.replace(/'/g, "\\'")}'`;
-        })
-        .join(',\n');
-
-      // Insérer les nouvelles traductions
-      if (newTranslations) {
-        content = content.slice(0, insertPoint) + ',\n' + newTranslations + content.slice(insertPoint);
-      }
-    });
-
-    // Sauvegarder les modifications
-    fs.writeFileSync(contextPath, content, 'utf8');
-    console.log(`📚 ${Object.keys(translations).length} traductions ajoutées au contexte de langue.`);
+// Scanner un répertoire récursivement
+function scanDirectory(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
     
-    // Créer un fichier de log pour faciliter la traduction manuelle
-    const logFile = path.join(__dirname, '../translations_to_review.txt');
-    const logContent = Object.entries(translations).map(([key, value]) => {
-      return `${key}:\n  FR: ${value}\n  EN: ${autoTranslateToEnglish(value)}\n  ES: à traduire\n`;
-    }).join('\n');
-    
-    fs.writeFileSync(logFile, logContent, 'utf8');
-    console.log(`📝 Fichier de traductions à réviser créé: ${logFile}`);
-
-  } catch (error) {
-    console.error('❌ Erreur lors de la mise à jour du contexte de langue:', error);
+    // Ignorer les répertoires de la liste d'exclusion
+    if (entry.isDirectory() && !CONFIG.skipPatterns.some(pattern => entry.name.includes(pattern))) {
+      scanDirectory(fullPath);
+    } 
+    // Traiter les fichiers .tsx ou .jsx
+    else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.jsx'))) {
+      processFile(fullPath);
+    }
   }
-}
-
-// Fonction simplifiée de traduction automatique français vers anglais
-// Ceci est une solution temporaire et basique - les traductions devront être révisées
-function autoTranslateToEnglish(text) {
-  // Dictionnaire simple français -> anglais pour les mots communs
-  const dictionary = {
-    'Accueil': 'Home',
-    'Articles': 'Articles',
-    'À Propos': 'About',
-    'Contact': 'Contact',
-    'Se Connecter': 'Sign In',
-    'Langue': 'Language',
-    'Rechercher': 'Search',
-    'Menu': 'Menu',
-    'Fermer': 'Close',
-    'Voir plus': 'See more',
-    'Lire Plus': 'Read More',
-    'Retour': 'Back',
-    'Suivant': 'Next',
-    'Précédent': 'Previous',
-    'Soumettre': 'Submit',
-    'Annuler': 'Cancel',
-    'Oui': 'Yes',
-    'Non': 'No',
-    'et': 'and',
-    'ou': 'or',
-    'le': 'the',
-    'la': 'the',
-    'les': 'the',
-    'un': 'a',
-    'une': 'a',
-    'des': 'some',
-    'notre': 'our',
-    'nos': 'our',
-    'votre': 'your',
-    'vos': 'your',
-    'pour': 'for',
-    'avec': 'with',
-    'sans': 'without',
-    'sur': 'on',
-    'dans': 'in',
-    'par': 'by',
-    'est': 'is',
-    'sont': 'are',
-    'être': 'be',
-    'avoir': 'have',
-    'plus': 'more',
-    'moins': 'less',
-    'nouveau': 'new',
-    'nouvelle': 'new',
-    'tous': 'all',
-    'toutes': 'all',
-    'chaque': 'each',
-    'plusieurs': 'several',
-    'beaucoup': 'many',
-    'peu': 'few',
-    'Traductions': 'Translations',
-    'manquantes': 'missing',
-    'Débogueur': 'Debugger',
-    'Traduction': 'Translation',
-  };
-  
-  // Remplacement simple des mots
-  let translated = text;
-  Object.entries(dictionary).forEach(([fr, en]) => {
-    // Utiliser une regex pour trouver le mot entier (pas les sous-chaînes)
-    const regex = new RegExp(`\\b${fr}\\b`, 'gi');
-    translated = translated.replace(regex, en);
-  });
-  
-  return translated;
 }
 
 // Point d'entrée principal
-function main() {
-  const args = process.argv.slice(2);
-  const targetDir = args[0] || './src';
+console.log(`📝 Démarrage du processus de remplacement des textes codés en dur...`);
+console.log(`📂 Répertoire à scanner: ${CONFIG.scanDir}`);
 
-  console.log(`🌐 Recherche de textes en dur dans ${targetDir}...`);
-
-  const files = findFiles(path.resolve(targetDir));
-  console.log(`📁 ${files.length} fichiers trouvés.`);
-
-  let totalTranslations = {};
-
-  files.forEach(file => {
-    const translations = replaceHardcodedText(file);
-    Object.assign(totalTranslations, translations);
-  });
-
-  console.log(`\n✅ Terminé! ${Object.keys(totalTranslations).length} traductions au total.`);
-  
-  // Informations supplémentaires pour l'utilisateur
-  console.log(`\n📋 Prochaines étapes recommandées:`);
-  console.log(`1. Vérifiez les traductions générées dans src/contexts/LanguageContext.tsx`);
-  console.log(`2. Complétez les traductions marquées "(à traduire en...)"`);
-  console.log(`3. Utilisez le TranslationDebugger pour identifier les textes manquants`);
+// S'assurer que le répertoire existe
+if (!fs.existsSync(CONFIG.scanDir)) {
+  console.error(`❌ Le répertoire ${CONFIG.scanDir} n'existe pas!`);
+  process.exit(1);
 }
 
-main();
+// Extraire les traductions existantes
+const existingTranslations = extractExistingTranslations();
+console.log(`🔍 ${Object.keys(existingTranslations).length} traductions existantes trouvées`);
+
+// Initialiser le fichier de log
+fs.writeFileSync(CONFIG.logFile, `*** Rapport de remplacement des textes codés en dur ***\n`);
+fs.appendFileSync(CONFIG.logFile, `Date: ${new Date().toISOString()}\n`);
+fs.appendFileSync(CONFIG.logFile, `Répertoire scanné: ${CONFIG.scanDir}\n\n`);
+
+// Lancer le scan récursif
+try {
+  scanDirectory(CONFIG.scanDir);
+  
+  // Écrire les logs restants
+  if (logEntries.length > 0) {
+    fs.appendFileSync(CONFIG.logFile, logEntries.join('\n') + '\n');
+  }
+  
+  // Résumé final
+  const summary = `\n*** Résumé ***\n${Object.keys(addedTranslations).length} nouvelles traductions ajoutées.\n`;
+  fs.appendFileSync(CONFIG.logFile, summary);
+  
+  console.log(`✅ Processus terminé!`);
+  console.log(`📊 ${Object.keys(addedTranslations).length} nouvelles traductions ajoutées.`);
+  console.log(`📋 Log détaillé disponible dans ${CONFIG.logFile}`);
+} catch (error) {
+  console.error(`❌ Erreur générale:`, error);
+  fs.appendFileSync(CONFIG.logFile, `\nERREUR FATALE: ${error.message}\n`);
+}

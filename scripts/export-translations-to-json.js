@@ -1,122 +1,212 @@
+
 const fs = require('fs');
 const path = require('path');
 
-// Chemin vers le fichier LanguageContext.tsx
-const contextFilePath = path.join(__dirname, '../src/contexts/LanguageContext.tsx');
-const outputDir = path.join(__dirname, '../src/translations');
+// Configuration
+const CONFIG = {
+  languageContextPath: 'src/contexts/LanguageContext.tsx',
+  outputDir: 'src/translations',
+  languages: ['en', 'fr', 'es'],
+  indexFile: 'index.ts'
+};
 
-// Assurez-vous que le répertoire de sortie existe
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-  console.log(`📁 Répertoire créé: ${outputDir}`);
-}
-
-function extractTranslations() {
-  console.log('🔍 Extraction des traductions depuis LanguageContext.tsx...');
-
-  // Lire le fichier LanguageContext.tsx
-  const content = fs.readFileSync(contextFilePath, 'utf8');
-
-  // Expression régulière pour capturer le bloc defaultTranslations
-  const regex = /const\s+defaultTranslations\s*:\s*Translations\s*=\s*{([\s\S]*?)};/;
-  const match = content.match(regex);
-
-  if (!match) {
-    console.error('❌ Impossible de trouver le bloc de traductions dans LanguageContext.tsx');
-    return;
+// Extraction des traductions depuis LanguageContext.tsx
+const extractTranslations = () => {
+  const contextFile = path.resolve(CONFIG.languageContextPath);
+  if (!fs.existsSync(contextFile)) {
+    console.error(`Fichier de contexte de langue introuvable: ${contextFile}`);
+    return null;
   }
 
-  // Transformer le contenu capturé en objet JavaScript valide
-  const translationsBlock = match[1];
-
-  // Extraire les sections pour chaque langue
-  const languages = ['fr', 'en', 'es'];
-  const languageTranslations = {};
-
-  languages.forEach(lang => {
-    // Regex pour extraire le bloc de chaque langue
-    const langRegex = new RegExp(`${lang}\\s*:\\s*{([\\s\\S]*?)}(?:,\\s*[a-z]{2}\\s*:|\\s*})`, 'g');
-    const langMatch = langRegex.exec(translationsBlock);
-
-    if (langMatch) {
-      try {
-        // Créer un objet JavaScript à partir du texte capturé
-        const langBlockText = `{${langMatch[1]}}`;
-        // Remplacer les clés non quotées par des clés quotées pour le JSON valide
-        const fixedJsonText = langBlockText.replace(/([a-zA-Z0-9_]+)(?=\s*:)/g, '"$1"');
-        languageTranslations[lang] = JSON.parse(fixedJsonText);
-      } catch (e) {
-        console.error(`❌ Erreur lors de l'analyse des traductions pour ${lang}:`, e);
-      }
-    }
-  });
-
-  return languageTranslations;
-}
-
-function saveTranslationsToJson(translations) {
-  if (!translations) return;
-
-  Object.entries(translations).forEach(([lang, trans]) => {
-    const outputPath = path.join(outputDir, `${lang}.json`);
-    fs.writeFileSync(outputPath, JSON.stringify(trans, null, 2), 'utf8');
-    console.log(`✅ Traductions ${lang} exportées vers: ${outputPath}`);
-  });
-
-  // Créer un fichier index.ts pour faciliter l'importation
-  const indexContent = `
-import fr from './fr.json';
-import en from './en.json';
-import es from './es.json';
-
-export const translations = { fr, en, es };
-export default translations;
-`;
-
-  fs.writeFileSync(path.join(outputDir, 'index.ts'), indexContent, 'utf8');
-  console.log(`✅ Fichier index.ts créé dans: ${outputDir}`);
-}
-
-function generateMissingTranslationsReport(translations) {
-  const report = {
-    total: Object.keys(translations.fr || {}).length,
-    missingEn: 0,
-    missingEs: 0,
-    percentCompleteEn: 0,
-    percentCompleteEs: 0
+  const content = fs.readFileSync(contextFile, 'utf-8');
+  const translations = {
+    en: {},
+    fr: {},
+    es: {}
   };
 
-  // Compter les traductions manquantes
-  Object.keys(translations.fr || {}).forEach(key => {
-    if (!translations.en[key] || 
-        translations.en[key] === translations.fr[key] ||
-        translations.en[key].includes('à traduire en en')) {
-      report.missingEn++;
-    }
+  // Recherche les définitions de traductions dans le fichier
+  const englishMatch = content.match(/english:\s*{([^}]*)}/s);
+  const frenchMatch = content.match(/french:\s*{([^}]*)}/s);
+  const spanishMatch = content.match(/spanish:\s*{([^}]*)}/s);
 
-    if (!translations.es[key] || 
-        translations.es[key] === translations.fr[key] ||
-        translations.es[key].includes('à traduire en es')) {
-      report.missingEs++;
-    }
+  // Extraire les clés anglaises
+  if (englishMatch && englishMatch[1]) {
+    const entries = englishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        translations.en[key] = value;
+      }
+    });
+  }
+
+  // Extraire les clés françaises
+  if (frenchMatch && frenchMatch[1]) {
+    const entries = frenchMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        translations.fr[key] = value;
+      }
+    });
+  }
+
+  // Extraire les clés espagnoles
+  if (spanishMatch && spanishMatch[1]) {
+    const entries = spanishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
+    entries.forEach(entry => {
+      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
+      if (key && value) {
+        translations.es[key] = value;
+      }
+    });
+  }
+
+  return translations;
+};
+
+// Créer le répertoire de sortie s'il n'existe pas
+const ensureOutputDir = () => {
+  if (!fs.existsSync(CONFIG.outputDir)) {
+    fs.mkdirSync(CONFIG.outputDir, { recursive: true });
+    console.log(`📁 Répertoire de sortie créé: ${CONFIG.outputDir}`);
+  }
+};
+
+// Exporter les traductions vers des fichiers JSON
+const exportTranslations = (translations) => {
+  ensureOutputDir();
+  
+  // Exporter chaque langue dans un fichier séparé
+  CONFIG.languages.forEach(lang => {
+    const langData = translations[lang] || {};
+    const filename = path.join(CONFIG.outputDir, `${lang}.json`);
+    
+    fs.writeFileSync(filename, JSON.stringify(langData, null, 2));
+    console.log(`📄 Fichier de traduction ${lang} créé: ${filename}`);
   });
+  
+  // Créer un fichier index pour faciliter l'importation
+  const indexContent = `
+// Fichier généré automatiquement par export-translations-to-json.js
+// Ne pas modifier manuellement
 
-  // Calculer les pourcentages
-  report.percentCompleteEn = Math.round(((report.total - report.missingEn) / report.total) * 100);
-  report.percentCompleteEs = Math.round(((report.total - report.missingEs) / report.total) * 100);
+import en from './en.json';
+import fr from './fr.json';
+import es from './es.json';
 
-  console.log('\n📊 Rapport de traduction:');
-  console.log(`Total des clés: ${report.total}`);
-  console.log(`Anglais: ${report.percentCompleteEn}% complet (${report.missingEn} manquantes)`);
-  console.log(`Espagnol: ${report.percentCompleteEs}% complet (${report.missingEs} manquantes)`);
+export const translations = {
+  en,
+  fr,
+  es
+};
 
-  return report;
-}
+export default translations;
+`;
+  
+  fs.writeFileSync(path.join(CONFIG.outputDir, CONFIG.indexFile), indexContent);
+  console.log(`📄 Fichier index créé: ${path.join(CONFIG.outputDir, CONFIG.indexFile)}`);
+};
 
-// Exécution principale
-const translations = extractTranslations();
-if (translations) {
-  saveTranslationsToJson(translations);
-  generateMissingTranslationsReport(translations);
-  console.log('\n✨ Exportation terminée avec succès!');
-}
+// Créer un utilitaire de traduction amélioré
+const createTranslationHelper = () => {
+  const helperContent = `
+import { useLanguage } from '../contexts/LanguageContext';
+
+/**
+ * Utilitaire pour faciliter l'utilisation des traductions
+ * @returns Fonctions et état liés aux traductions
+ */
+export const useTranslation = () => {
+  const { language, setLanguage, t, languages } = useLanguage();
+  
+  return {
+    /**
+     * Langue actuelle
+     */
+    language,
+    
+    /**
+     * Changer la langue
+     */
+    setLanguage,
+    
+    /**
+     * Traduire une clé
+     */
+    t,
+    
+    /**
+     * Liste des langues disponibles
+     */
+    languages,
+    
+    /**
+     * Vérifie si une clé existe
+     */
+    hasTranslation: (key: string): boolean => {
+      return !!t(key);
+    },
+    
+    /**
+     * Traduit une clé avec des paramètres
+     * Exemple: translateWithParams('hello_name', { name: 'John' }) => "Hello John"
+     */
+    translateWithParams: (key: string, params: Record<string, string | number>): string => {
+      let translation = t(key);
+      
+      if (!translation) return key;
+      
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        translation = translation.replace(new RegExp(\`{{\${paramKey}}}\`, 'g'), String(paramValue));
+      });
+      
+      return translation;
+    },
+    
+    /**
+     * Traduit un nombre avec les formes plurielles
+     * Exemple: translatePlural('item_count', 5) => "5 items"
+     */
+    translatePlural: (key: string, count: number): string => {
+      const singleKey = \`\${key}_one\`;
+      const pluralKey = \`\${key}_many\`;
+      
+      if (count === 1) {
+        return t(singleKey).replace('{count}', String(count));
+      } else {
+        return t(pluralKey).replace('{count}', String(count));
+      }
+    }
+  };
+};
+`;
+  
+  fs.writeFileSync(path.join('src/utils', 'translationHelper.ts'), helperContent);
+  console.log(`📄 Utilitaire de traduction créé: src/utils/translationHelper.ts`);
+};
+
+// Fonction principale
+const exportAllTranslations = () => {
+  console.log('🔍 Extraction des traductions depuis LanguageContext.tsx...');
+  
+  const translations = extractTranslations();
+  if (!translations) {
+    console.error('❌ Échec de l\'extraction des traductions');
+    return;
+  }
+  
+  console.log(`📊 Traductions extraites: ${Object.keys(translations.en).length} clés en anglais`);
+  
+  exportTranslations(translations);
+  createTranslationHelper();
+  
+  console.log('✅ Exportation des traductions terminée!');
+  console.log('👉 Pour utiliser les fichiers JSON de traduction:');
+  console.log('   1. Modifiez LanguageContext.tsx pour importer les traductions depuis les fichiers JSON');
+  console.log('   2. Utilisez l\'utilitaire amélioré via: import { useTranslation } from \'../utils/translationHelper\';');
+};
+
+// Exécuter le script
+exportAllTranslations();

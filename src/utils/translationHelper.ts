@@ -1,182 +1,183 @@
 
-import { useState, useMemo, useCallback } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 /**
- * Fonction pour suggérer une clé de traduction à partir d'un texte
+ * Helper pour faciliter l'utilisation des traductions et ajouter des fonctionnalités avancées
  */
-export const suggestTranslationKey = (text: string): string => {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9_]/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '')
-    .substring(0, 30);
-};
-
-/**
- * Extrait les textes d'un code JSX
- */
-export const extractTextFromJSX = (code: string): { key: string; text: string }[] => {
-  const patterns = [
-    /<h[1-6][^>]*>\s*([^<{]+)\s*<\/h[1-6]>/g,
-    /<p[^>]*>\s*([^<{]+)\s*<\/p>/g,
-    /<span[^>]*>\s*([^<{]+)\s*<\/span>/g,
-    /<div[^>]*>\s*([^<{]+)\s*<\/div>/g,
-    /<button[^>]*>\s*([^<{]+)\s*<\/button>/g,
-    /<a[^>]*>\s*([^<{]+)\s*<\/a>/g,
-    /<li[^>]*>\s*([^<{]+)\s*<\/li>/g,
-    /<label[^>]*>\s*([^<{]+)\s*<\/label>/g,
-    /<option[^>]*>\s*([^<{]+)\s*<\/option>/g,
-    /<strong[^>]*>\s*([^<{]+)\s*<\/strong>/g,
-    /<em[^>]*>\s*([^<{]+)\s*<\/em>/g>,
-    /<small[^>]*>\s*([^<{]+)\s*<\/small>/g>,
-    /title="([^"{}]+)"/g,
-    /placeholder="([^"{}]+)"/g,
-    /label="([^"{}]+)"/g,
-    /alt="([^"{}]+)"/g,
-    /aria-label="([^"{}]+)"/g,
-    /tooltip="([^"{}]+)"/g,
-  ];
-  
-  const extractedTexts: { key: string; text: string }[] = [];
-  const usedKeys = new Set<string>();
-  
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(code)) !== null) {
-      const text = match[1].trim();
-      
-      // Ignorer le code, les nombres seuls et les chaînes très courtes
-      if (text && 
-          !text.includes('t(') && 
-          text.length > 2 && 
-          !/^[0-9.,%]+$/.test(text) && 
-          !/^[A-Za-z0-9_]+$/.test(text)) {
-          
-        let key = suggestTranslationKey(text);
-        
-        // S'assurer que la clé est unique
-        if (usedKeys.has(key)) {
-          let counter = 1;
-          while (usedKeys.has(`${key}_${counter}`)) {
-            counter++;
-          }
-          key = `${key}_${counter}`;
-        }
-        
-        usedKeys.add(key);
-        extractedTexts.push({ key, text });
-      }
-    }
-  });
-  
-  return extractedTexts;
-};
-
-/**
- * Hook personnalisé pour aider à la gestion des traductions
- */
-export const useTranslationRecommender = () => {
-  const { addTranslation } = useLanguage();
-  
-  const generateTranslationKeys = useCallback((code: string) => {
-    return extractTextFromJSX(code);
-  }, []);
-  
-  const addBulkTranslations = useCallback((translations: { key: string, text: string }[]) => {
-    translations.forEach(({ key, text }) => {
-      // Ajouter la traduction pour le français (source)
-      addTranslation(key, { 
-        fr: text,
-        en: '',  // Laisser vide pour être identifié comme manquant
-        es: ''   // Laisser vide pour être identifié comme manquant
-      });
-    });
-  }, [addTranslation]);
+export const useTranslation = () => {
+  const { language, setLanguage, t, languages } = useLanguage();
   
   return {
-    generateTranslationKeys,
-    addBulkTranslations
+    /**
+     * Langue actuelle
+     */
+    language,
+    
+    /**
+     * Changer la langue
+     */
+    setLanguage,
+    
+    /**
+     * Traduire une clé
+     */
+    t,
+    
+    /**
+     * Liste des langues disponibles
+     */
+    languages,
+    
+    /**
+     * Vérifie si une clé existe
+     */
+    hasTranslation: (key: string): boolean => {
+      return !!t(key);
+    },
+    
+    /**
+     * Traduit une clé avec des paramètres
+     * Exemple: translateWithParams('hello_name', { name: 'John' }) => "Hello John"
+     */
+    translateWithParams: (key: string, params: Record<string, string | number>): string => {
+      let translation = t(key);
+      
+      if (!translation) return key;
+      
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        translation = translation.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(paramValue));
+      });
+      
+      return translation;
+    },
+    
+    /**
+     * Traduit un nombre avec les formes plurielles
+     * Exemple: translatePlural('item_count', 5) => "5 items"
+     */
+    translatePlural: (key: string, count: number): string => {
+      const singleKey = `${key}_one`;
+      const pluralKey = `${key}_many`;
+      
+      if (count === 1) {
+        return t(singleKey).replace('{count}', String(count));
+      } else {
+        return t(pluralKey).replace('{count}', String(count));
+      }
+    },
+    
+    /**
+     * Formate un texte en remplaçant les marqueurs par des valeurs
+     * Exemple: format("Hello {name}", { name: "John" }) => "Hello John"
+     */
+    format: (text: string, params: Record<string, string | number>): string => {
+      let result = text;
+      
+      Object.entries(params).forEach(([key, value]) => {
+        result = result.replace(new RegExp(`{${key}}`, 'g'), String(value));
+      });
+      
+      return result;
+    },
+    
+    /**
+     * Traduit et formate un texte
+     */
+    tf: (key: string, params: Record<string, string | number>): string => {
+      return useTranslation().format(t(key), params);
+    },
+    
+    /**
+     * Traduit un nombre avec le bon format
+     */
+    formatNumber: (num: number): string => {
+      return new Intl.NumberFormat(language).format(num);
+    },
+    
+    /**
+     * Traduit une date avec le bon format
+     */
+    formatDate: (date: Date, options?: Intl.DateTimeFormatOptions): string => {
+      return new Intl.DateTimeFormat(language, options).format(date);
+    }
   };
 };
 
 /**
- * Helper pour créer un objet multi-langue pour les traductions
+ * Vérifie si un texte a besoin d'être traduit
  */
-export const createTranslation = (
-  fr: string, 
-  en: string, 
-  es: string
-): { fr: string; en: string; es: string } => {
-  return { fr, en, es };
+export const needsTranslation = (text: string): boolean => {
+  if (!text) return false;
+  
+  // Ignorer les URLs, chemins, identifiants de code, etc.
+  if (text.startsWith('http') || text.startsWith('/') || text.includes('.') || /^[a-z0-9_]+$/.test(text)) {
+    return false;
+  }
+  
+  // Texte trop court (probablement un identifiant)
+  if (text.length < 3) {
+    return false;
+  }
+  
+  // Texte qui contient uniquement des caractères non-alphabétiques
+  if (!/[a-zA-Z]/.test(text)) {
+    return false;
+  }
+  
+  return true;
 };
 
 /**
- * Fonction pour détecter la langue d'un texte
- * C'est une implémentation simple. Pour la production, envisagez d'utiliser une bibliothèque.
+ * Génère une clé de traduction à partir d'un texte
  */
-export const detectLanguage = (text: string): 'fr' | 'en' | 'es' | 'unknown' => {
-  // Détection simple basée sur des mots courants
-  const frenchWords = ['le', 'la', 'les', 'un', 'une', 'des', 'et', 'ou', 'en', 'au', 'du', 'est', 'sont', 'avoir', 'être', 'pour', 'dans', 'avec', 'sans', 'mais'];
-  const englishWords = ['the', 'a', 'an', 'and', 'or', 'in', 'of', 'to', 'is', 'are', 'have', 'be', 'for', 'on', 'with', 'without', 'but'];
-  const spanishWords = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'en', 'de', 'es', 'son', 'estar', 'ser', 'para', 'con', 'sin', 'pero'];
+export const generateTranslationKey = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 30);
+};
+
+/**
+ * Vérifie si un texte semble être dans une certaine langue
+ */
+export const detectLanguage = (text: string): 'en' | 'fr' | 'es' | 'unknown' => {
+  // Quelques marqueurs spécifiques aux langues
+  const frenchMarkers = ['les', 'et', 'est', 'sont', 'dans', 'avec', 'pour', 'cette', 'votre', 'notre'];
+  const spanishMarkers = ['los', 'las', 'es', 'son', 'en', 'con', 'para', 'esta', 'su', 'nuestra'];
+  const englishMarkers = ['the', 'and', 'is', 'are', 'in', 'with', 'for', 'this', 'your', 'our'];
   
-  // Tokeniser le texte
   const words = text.toLowerCase().split(/\s+/);
   
-  // Compter les correspondances pour chaque langue
-  let frCount = 0, enCount = 0, esCount = 0;
+  let frCount = 0;
+  let esCount = 0;
+  let enCount = 0;
   
   words.forEach(word => {
-    if (frenchWords.includes(word)) frCount++;
-    if (englishWords.includes(word)) enCount++;
-    if (spanishWords.includes(word)) esCount++;
+    if (frenchMarkers.includes(word)) frCount++;
+    if (spanishMarkers.includes(word)) esCount++;
+    if (englishMarkers.includes(word)) enCount++;
   });
   
-  // Déterminer la langue la plus probable
-  if (frCount > enCount && frCount > esCount) return 'fr';
-  if (enCount > frCount && enCount > esCount) return 'en';
+  // Déterminer la langue probable
+  if (frCount > esCount && frCount > enCount) return 'fr';
   if (esCount > frCount && esCount > enCount) return 'es';
+  if (enCount > frCount && enCount > esCount) return 'en';
   
-  // Si aucune correspondance claire ou trop peu de mots
   return 'unknown';
 };
 
 /**
- * Hook pour vérifier la couverture des traductions dans un composant
+ * Interface pour la fonction de traduction et son contexte
  */
-export const useTranslationCoverage = (componentCode: string) => {
-  const { translations } = useLanguage();
-  
-  return useMemo(() => {
-    // Extraire tous les textes du composant
-    const extractedTexts = extractTextFromJSX(componentCode);
-    
-    // Vérifier chaque texte pour voir s'il a une traduction
-    const results = extractedTexts.map(({ key, text }) => {
-      const potentialKey = suggestTranslationKey(text);
-      const hasTranslation = Object.keys(translations.fr).some(k => 
-        k === potentialKey || translations.fr[k] === text
-      );
-      
-      return {
-        text,
-        suggestedKey: potentialKey,
-        hasTranslation,
-      };
-    });
-    
-    // Statistiques
-    const untranslated = results.filter(r => !r.hasTranslation);
-    
-    return {
-      totalTexts: extractedTexts.length,
-      untranslatedCount: untranslated.length,
-      untranslatedTexts: untranslated,
-      coveragePercent: extractedTexts.length > 0 
-        ? Math.round(((extractedTexts.length - untranslated.length) / extractedTexts.length) * 100)
-        : 100
-    };
-  }, [componentCode, translations]);
+export interface TranslationFunction {
+  (key: string): string;
+}
+
+/**
+ * Génère un contexte de traduction factice pour les tests
+ */
+export const createMockTranslation = (mockData: Record<string, string>): TranslationFunction => {
+  return (key: string) => mockData[key] || key;
 };
