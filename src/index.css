@@ -75,6 +75,7 @@ html[lang="fr"] .lang-specific-es {
 html[lang="en"] .lang-specific-fr,
 html[lang="en"] .lang-specific-es {
   display: none !important;
+};
 }
 
 html[lang="es"] .lang-specific-fr,

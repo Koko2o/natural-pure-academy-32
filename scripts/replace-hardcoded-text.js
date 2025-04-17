@@ -204,7 +204,13 @@ function updateTranslationContext(translations) {
           // et nous marquerons cela pour que le développeur sache qu'il faut les traduire
           let text = value;
           if (lang !== 'fr') {
-            text = `${value} (à traduire en ${lang})`;
+            if (lang === 'en') {
+              // Tentative de traduction automatique simplifiée pour l'anglais
+              // Ceci est très basique et devra être révisé manuellement
+              text = autoTranslateToEnglish(value);
+            } else {
+              text = `${value} (à traduire en ${lang})`;
+            }
           }
           return `    ${key}: '${text.replace(/'/g, "\\'")}'`;
         })
@@ -219,10 +225,91 @@ function updateTranslationContext(translations) {
     // Sauvegarder les modifications
     fs.writeFileSync(contextPath, content, 'utf8');
     console.log(`📚 ${Object.keys(translations).length} traductions ajoutées au contexte de langue.`);
+    
+    // Créer un fichier de log pour faciliter la traduction manuelle
+    const logFile = path.join(__dirname, '../translations_to_review.txt');
+    const logContent = Object.entries(translations).map(([key, value]) => {
+      return `${key}:\n  FR: ${value}\n  EN: ${autoTranslateToEnglish(value)}\n  ES: à traduire\n`;
+    }).join('\n');
+    
+    fs.writeFileSync(logFile, logContent, 'utf8');
+    console.log(`📝 Fichier de traductions à réviser créé: ${logFile}`);
 
   } catch (error) {
     console.error('❌ Erreur lors de la mise à jour du contexte de langue:', error);
   }
+}
+
+// Fonction simplifiée de traduction automatique français vers anglais
+// Ceci est une solution temporaire et basique - les traductions devront être révisées
+function autoTranslateToEnglish(text) {
+  // Dictionnaire simple français -> anglais pour les mots communs
+  const dictionary = {
+    'Accueil': 'Home',
+    'Articles': 'Articles',
+    'À Propos': 'About',
+    'Contact': 'Contact',
+    'Se Connecter': 'Sign In',
+    'Langue': 'Language',
+    'Rechercher': 'Search',
+    'Menu': 'Menu',
+    'Fermer': 'Close',
+    'Voir plus': 'See more',
+    'Lire Plus': 'Read More',
+    'Retour': 'Back',
+    'Suivant': 'Next',
+    'Précédent': 'Previous',
+    'Soumettre': 'Submit',
+    'Annuler': 'Cancel',
+    'Oui': 'Yes',
+    'Non': 'No',
+    'et': 'and',
+    'ou': 'or',
+    'le': 'the',
+    'la': 'the',
+    'les': 'the',
+    'un': 'a',
+    'une': 'a',
+    'des': 'some',
+    'notre': 'our',
+    'nos': 'our',
+    'votre': 'your',
+    'vos': 'your',
+    'pour': 'for',
+    'avec': 'with',
+    'sans': 'without',
+    'sur': 'on',
+    'dans': 'in',
+    'par': 'by',
+    'est': 'is',
+    'sont': 'are',
+    'être': 'be',
+    'avoir': 'have',
+    'plus': 'more',
+    'moins': 'less',
+    'nouveau': 'new',
+    'nouvelle': 'new',
+    'tous': 'all',
+    'toutes': 'all',
+    'chaque': 'each',
+    'plusieurs': 'several',
+    'beaucoup': 'many',
+    'peu': 'few',
+    'Traductions': 'Translations',
+    'manquantes': 'missing',
+    'Débogueur': 'Debugger',
+    'Traduction': 'Translation',
+  };
+  
+  // Remplacement simple des mots
+  let translated = text;
+  Object.entries(dictionary).forEach(([fr, en]) => {
+    // Utiliser une regex pour trouver le mot entier (pas les sous-chaînes)
+    const regex = new RegExp(`\\b${fr}\\b`, 'gi');
+    translated = translated.replace(regex, en);
+  });
+  
+  return translated;
 }
 
 // Point d'entrée principal
