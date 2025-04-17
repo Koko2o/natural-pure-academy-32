@@ -1,207 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-
-type Language = 'fr' | 'en' | 'es';
-
-interface MissingTranslation {
-  key: string;
-  language: Language;
-  component?: string;
-}
 
 export const TranslationDebugger: React.FC = () => {
-  const { language, t, setLanguage } = useLanguage();
-  const [htmlLang, setHtmlLang] = useState<string>('');
-  const [storedLang, setStoredLang] = useState<string>('');
-  const [urlLang, setUrlLang] = useState<string | null>(null);
-  const [bodyClasses, setBodyClasses] = useState<string>('');
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [lastLangChange, setLastLangChange] = useState<number>(Date.now());
-  const [missingTranslations, setMissingTranslations] = useState<MissingTranslation[]>([]);
-  const [coverage, setCoverage] = useState<Record<Language, number>>({
-    fr: 95,
-    en: 100,
-    es: 60
-  });
+  const { language, translations, setLanguage, t } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    // Obtenir les informations de langue au chargement et au changement
-    const updateLanguageInfo = () => {
-      setHtmlLang(document.documentElement.lang);
-      setStoredLang(localStorage.getItem('preferredLanguage') || '');
-      const urlParams = new URLSearchParams(window.location.search);
-      setUrlLang(urlParams.get('lang'));
-      setBodyClasses(document.body.className);
-      setLastLangChange(Date.now());
-    };
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguage(e.target.value as 'fr' | 'en' | 'es');
+  };
 
-    updateLanguageInfo();
+  const filteredTranslations = Object.entries(translations[language] || {}).filter(
+    ([key, value]) => 
+      key.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    const interval = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - lastLangChange) / 1000));
-    }, 1000);
-
-    // Observer les changements de langue
-    const handleLanguageChange = () => {
-      updateLanguageInfo();
-    };
-
-    document.addEventListener('app-language-changed', handleLanguageChange);
-    window.addEventListener('languageChange', handleLanguageChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('app-language-changed', handleLanguageChange);
-      window.removeEventListener('languageChange', handleLanguageChange);
-    };
-  }, [lastLangChange]);
-
-  if (!isExpanded) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button 
-          size="sm" 
-          variant="outline" 
-          className="flex items-center space-x-1 bg-white/95 border-gray-200 shadow-sm"
-          onClick={() => setIsExpanded(true)}
-        >
-          <span className="text-xs">🌐</span>
-          <span>{language.toUpperCase()}</span>
-        </Button>
-      </div>
-    );
-  }
+  // Count missing translations
+  const missingTranslations = Object.keys(translations.fr || {}).filter(
+    key => !translations[language]?.[key] || translations[language]?.[key] === translations.fr?.[key]
+  );
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 shadow-lg rounded-lg bg-white border border-gray-200">
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-sm">Translation Debugger</CardTitle>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setIsExpanded(false)}>×</Button>
-          </div>
-          <CardDescription className="text-xs">
-            Active: <Badge variant="outline" className="ml-1">{language}</Badge>
-            <span className="ml-2 text-muted-foreground">{elapsedTime}s ago</span>
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="pt-0 pb-2">
-          <Tabs defaultValue="status" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="status" className="text-xs">Status</TabsTrigger>
-              <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
-              <TabsTrigger value="test" className="text-xs">Test</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="status" className="mt-2 space-y-3">
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                <span className="text-muted-foreground">Context:</span>
-                <span className="font-mono">{language}</span>
-
-                <span className="text-muted-foreground">HTML lang:</span>
-                <span className="font-mono">{htmlLang}</span>
-
-                <span className="text-muted-foreground">localStorage:</span>
-                <span className="font-mono">{storedLang}</span>
-
-                <span className="text-muted-foreground">URL lang:</span>
-                <span className="font-mono">{urlLang || '(none)'}</span>
-
-                <span className="text-muted-foreground">Body classes:</span>
-                <span className="font-mono truncate" title={bodyClasses}>
-                  {bodyClasses.split(' ').filter(c => c.startsWith('lang-')).join(' ')}
-                </span>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="details" className="mt-2 space-y-3">
-              <div className="space-y-2">
-                {(['fr', 'en', 'es'] as Language[]).map(lang => (
-                  <div key={lang} className="space-y-1">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center">
-                        <span className="text-xs font-medium">{lang.toUpperCase()}</span>
-                        {language === lang && <Badge variant="outline" className="ml-1 h-4 text-[10px]">active</Badge>}
-                      </div>
-                      <span className="text-xs">{coverage[lang]}%</span>
-                    </div>
-                    <Progress value={coverage[lang]} className="h-1.5" />
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-1 text-xs">
-                <p className="text-muted-foreground text-xs">
-                  {coverage.es < 90 && 'Spanish translation needs more work'}
-                  {coverage.fr < 90 && 'French translation needs more work'}
-                  {coverage.en < 90 && 'English translation needs more work'}
-                  {Math.min(coverage.fr, coverage.en, coverage.es) >= 90 && 'All translations are in good shape!'}
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="test" className="mt-2">
-              <div className="space-y-2 text-xs">
-                <p>{t('Test the translation of:')}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <div className="font-medium">Home</div>
-                    <div className="text-muted-foreground">
-                      EN: Home | FR: {t('Home')} | ES: {language === 'es' ? t('Home') : '?'}
-                    </div>
-                    <div className="font-mono text-[10px]">t('Home')</div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-medium">About Us</div>
-                    <div className="text-muted-foreground">
-                      EN: About Us | FR: {t('About Us')} | ES: {language === 'es' ? t('About Us') : '?'}
-                    </div>
-                    <div className="font-mono text-[10px]">t('About Us')</div>
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <Button onClick={() => setLanguage('fr')} size="sm" variant={language === 'fr' ? 'default' : 'outline'} className="mr-1">FR</Button>
-                  <Button onClick={() => setLanguage('en')} size="sm" variant={language === 'en' ? 'default' : 'outline'} className="mr-1">EN</Button>
-                  <Button onClick={() => setLanguage('es')} size="sm" variant={language === 'es' ? 'default' : 'outline'}>ES</Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-
-        <CardFooter className="pt-0 pb-2 flex justify-between text-xs">
-          <div className="text-muted-foreground">
-            {t('Debug mode')}
-          </div>
-          <Button 
-            variant="link" 
-            size="sm" 
-            className="h-auto p-0 text-xs"
-            onClick={() => {
-              // Simuler un audit des traductions - en production, cela pourrait
-              // appeler une API ou scanner le DOM pour des éléments non traduits
-              console.log('[Translation Audit] Scanning for untranslated content...');
-              // Mise à jour pour simuler un changement dans la couverture
-              setCoverage({
-                fr: Math.max(50, Math.floor(Math.random() * 100)),
-                en: 100,
-                es: Math.max(40, Math.floor(Math.random() * 70))
-              });
-            }}
+    <div className="fixed bottom-0 right-0 w-full md:w-1/2 lg:w-1/3 bg-slate-900 text-white p-4 rounded-t-lg shadow-lg z-50 max-h-[50vh] overflow-y-auto border-t border-l border-gray-700">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-semibold">{t('translation_debugger')}</h3>
+        <div className="flex gap-2">
+          <select 
+            value={language} 
+            onChange={handleLanguageChange} 
+            className="text-xs px-2 py-1 bg-slate-800 rounded border border-slate-700"
           >
-            {t('Run Audit')}
-          </Button>
-        </CardFooter>
-      </Card>
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+          <button 
+            onClick={() => setShowAll(!showAll)} 
+            className="text-xs px-2 py-1 bg-blue-700 hover:bg-blue-600 rounded"
+          >
+            {showAll ? t('show_missing') : t('show_all')}
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-2">
+        <input 
+          type="text" 
+          placeholder={t('search_translations')} 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          className="w-full px-3 py-1 bg-slate-800 text-white rounded border border-slate-700 text-sm"
+        />
+      </div>
+
+      <div className="text-xs bg-red-900/50 p-2 mb-2 rounded">
+        <strong>{t('missing_translations')}: {missingTranslations.length}</strong>
+      </div>
+
+      <div className="space-y-1 text-sm">
+        {(showAll ? filteredTranslations : missingTranslations.map(key => [key, translations[language]?.[key] || ''])).map(([key, value]) => (
+          <div key={key} className={`p-1.5 rounded flex flex-col ${!value ? 'bg-red-900/30' : 'bg-slate-800'}`}>
+            <div className="flex justify-between">
+              <span className="font-mono text-xs text-slate-400">{key}</span>
+              <span className="text-xs bg-slate-700 px-1 rounded">{language}</span>
+            </div>
+            <div className="mt-1">
+              {value ? value : <em className="text-red-400">{t('missing')}</em>}
+            </div>
+            {language !== 'fr' && translations.fr[key] && (
+              <div className="mt-1 border-t border-slate-700 pt-1 text-slate-400 text-xs">
+                FR: {translations.fr[key]}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
-
-export default TranslationDebugger;

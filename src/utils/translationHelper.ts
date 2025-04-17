@@ -1,96 +1,116 @@
 
-import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
- * Transforme le texte en clé de traduction valide
- * @param text Texte à transformer en clé
- * @returns Clé de traduction normalisée
+ * Scans a React component for hardcoded text and returns suggestions
+ * for translation keys
  */
-export const textToTranslationKey = (text: string): string => {
-  // Convertir en minuscules, remplacer les espaces par des points
-  // et supprimer les caractères spéciaux
+export const scanForHardcodedText = (componentCode: string): string[] => {
+  // Common patterns for hardcoded text in JSX
+  const patterns = [
+    /<h[1-6][^>]*>\s*([^<{]+)\s*<\/h[1-6]>/g,
+    /<p[^>]*>\s*([^<{]+)\s*<\/p>/g,
+    /<span[^>]*>\s*([^<{]+)\s*<\/span>/g,
+    /<div[^>]*>\s*([^<{]+)\s*<\/div>/g,
+    /<button[^>]*>\s*([^<{]+)\s*<\/button>/g,
+    /<a[^>]*>\s*([^<{]+)\s*<\/a>/g,
+    /title="([^"{}]+)"/g,
+    /placeholder="([^"{}]+)"/g,
+    /label="([^"{}]+)"/g,
+    /alt="([^"{}]+)"/g,
+  ];
+
+  const hardcodedText: string[] = [];
+
+  // Search for patterns
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(componentCode)) !== null) {
+      const text = match[1].trim();
+      if (text && !text.includes('t(') && text.length > 2) {
+        hardcodedText.push(text);
+      }
+    }
+  });
+
+  return [...new Set(hardcodedText)]; // Remove duplicates
+};
+
+/**
+ * Suggests translation keys based on text content
+ */
+export const suggestTranslationKey = (text: string): string => {
+  // Convert to lowercase and replace non-alphanumeric characters with underscores
   return text
     .toLowerCase()
-    .replace(/[^\w\s]/gi, '')
-    .trim()
-    .replace(/\s+/g, '.');
+    .replace(/[^a-z0-9_]/g, '_')
+    .replace(/_+/g, '_') // Replace multiple underscores with a single one
+    .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+    .substring(0, 30); // Limit length
 };
 
 /**
- * Enveloppe un composant pour traduire automatiquement ses textes
- * @param Component Composant à traduire
- * @returns Composant avec traductions automatiques
+ * Hook to get recommended translations for component code
  */
-export function withTranslation<P extends object>(
-  Component: React.ComponentType<P>
-): React.FC<P> {
-  return (props: P) => {
-    const { t } = useLanguage();
-    
-    // Fonction récursive pour traduire les props
-    const translateProps = (obj: any): any => {
-      if (typeof obj === 'string') {
-        // Si c'est une chaîne de caractères, essayer de la traduire
-        // via une clé générée automatiquement
-        const key = textToTranslationKey(obj);
-        const translated = t(key);
-        // Si la traduction existe (différente de la clé), utiliser la traduction
-        return translated !== key ? translated : obj;
-      } else if (Array.isArray(obj)) {
-        // Si c'est un tableau, traduire chaque élément
-        return obj.map(item => translateProps(item));
-      } else if (obj !== null && typeof obj === 'object' && !React.isValidElement(obj)) {
-        // Si c'est un objet, traduire chaque propriété
-        const result: Record<string, any> = {};
-        for (const key in obj) {
-          result[key] = translateProps(obj[key]);
-        }
-        return result;
-      }
-      return obj;
-    };
+export const useTranslationRecommender = () => {
+  const { addTranslation } = useLanguage();
 
-    // Traduire toutes les props
-    const translatedProps = translateProps(props) as P;
+  const generateTranslationKeys = (componentCode: string) => {
+    const hardcodedTexts = scanForHardcodedText(componentCode);
     
-    return <Component {...translatedProps} />;
-  };
-}
-
-/**
- * Hook pour détecter les textes non traduits
- * @returns Fonctions utilitaires pour la traduction
- */
-export const useTranslationHelper = () => {
-  const { language, t, translations } = useLanguage();
-  
-  // Vérifier si une clé existe dans les traductions
-  const keyExists = (key: string): boolean => {
-    return !!translations[language]?.[key];
-  };
-  
-  // Obtenir les clés manquantes
-  const getMissingKeys = (): string[] => {
-    const allKeys = new Set<string>();
-    
-    // Collecter toutes les clés de toutes les langues
-    Object.values(translations).forEach(langTranslations => {
-      Object.keys(langTranslations).forEach(key => {
-        allKeys.add(key);
-      });
+    return hardcodedTexts.map(text => {
+      const key = suggestTranslationKey(text);
+      return { key, text };
     });
-    
-    // Filtrer les clés qui n'existent pas dans la langue actuelle
-    return Array.from(allKeys).filter(key => !translations[language]?.[key]);
   };
-  
+
+  const addBulkTranslations = (translations: { key: string, text: string }[]) => {
+    translations.forEach(({ key, text }) => {
+      // Add translation for French (source)
+      addTranslation(key, { fr: text });
+    });
+  };
+
   return {
-    t,
-    keyExists,
-    getMissingKeys,
-    currentLanguage: language
+    generateTranslationKeys,
+    addBulkTranslations
   };
 };
 
-export default useTranslationHelper;
+/**
+ * Helper to create a multi-language object for translations
+ */
+export const createTranslation = (
+  fr: string, 
+  en: string, 
+  es: string
+): { fr: string; en: string; es: string } => {
+  return { fr, en, es };
+};
+
+/**
+ * Function to detect the language of a text
+ * This is a simple implementation. For production, consider using a library.
+ */
+export const detectLanguage = (text: string): 'fr' | 'en' | 'es' | 'unknown' => {
+  // Simple detection based on common words
+  const frenchWords = ['le', 'la', 'les', 'un', 'une', 'des', 'et', 'ou', 'en', 'au', 'du', 'est', 'sont', 'avoir', 'être', 'pour', 'dans', 'avec', 'sans', 'mais'];
+  const englishWords = ['the', 'a', 'an', 'and', 'or', 'in', 'of', 'to', 'is', 'are', 'have', 'be', 'for', 'on', 'with', 'without', 'but'];
+  const spanishWords = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'en', 'de', 'es', 'son', 'estar', 'ser', 'para', 'con', 'sin', 'pero'];
+
+  // Convert to lowercase and split into words
+  const words = text.toLowerCase().split(/\W+/);
+  
+  // Count occurrences of words from each language
+  const frCount = words.filter(word => frenchWords.includes(word)).length;
+  const enCount = words.filter(word => englishWords.includes(word)).length;
+  const esCount = words.filter(word => spanishWords.includes(word)).length;
+  
+  // Determine the most likely language
+  const max = Math.max(frCount, enCount, esCount);
+  if (max === 0) return 'unknown';
+  
+  if (frCount === max) return 'fr';
+  if (enCount === max) return 'en';
+  return 'es';
+};

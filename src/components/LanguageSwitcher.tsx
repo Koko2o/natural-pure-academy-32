@@ -1,107 +1,55 @@
-
-import React, { useState, useEffect } from 'react';
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Globe, ChevronDown } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Globe } from 'lucide-react';
 
-type Language = 'fr' | 'en' | 'es';
+export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const { language, setLanguage, t, toggleDebugger } = useLanguage();
 
-interface LanguageOption {
-  code: Language;
-  name: string;
-  flag: string;
-  enabled: boolean;
-}
-
-const LanguageSwitcher: React.FC = () => {
-  const { language, setLanguage, t } = useLanguage();
-  const [isChanging, setIsChanging] = useState(false);
-  const [availableLanguages, setAvailableLanguages] = useState<LanguageOption[]>([
-    { code: 'fr', name: 'Français', flag: '🇫🇷', enabled: true },
-    { code: 'en', name: 'English', flag: '🇬🇧', enabled: true },
-    { code: 'es', name: 'Español', flag: '🇪🇸', enabled: true }
-  ]);
-
-  // Mettre à jour les options de langue disponibles en fonction des traductions
-  useEffect(() => {
-    // Dans une version réelle, ces valeurs pourraient venir d'une API
-    // ou d'une vérification des traductions disponibles
-    console.log('[LanguageSwitcher] Checking available languages');
-  }, []);
-
-  const changeLanguage = (newLanguage: Language) => {
-    if (language === newLanguage) return;
-    
-    setIsChanging(true);
-    console.log(`[Language] Switching from ${language} to ${newLanguage}`);
-    
-    try {
-      // Méthode qui force le reload avec le paramètre lang
-      window.location.href = `/?lang=${newLanguage}&force=true&t=${Date.now()}`;
-      
-      // Le reste du traitement se fait au chargement de la page dans LanguageContext
-    } catch (error) {
-      console.error('[Language] Error during language switch:', error);
-      setIsChanging(false);
-    }
+  const handleLanguageChange = (lang: 'fr' | 'en' | 'es') => {
+    setLanguage(lang);
   };
 
-  // Déterminer le niveau de complétude des traductions
-  const getTranslationCompleteness = (lang: Language): number => {
-    // Dans une version réelle, ces valeurs pourraient provenir d'une API
-    // ou d'une analyse des fichiers de traduction
-    switch (lang) {
-      case 'fr': return 95; // 95% des traductions sont complètes
-      case 'en': return 100; // Langue de référence
-      case 'es': return 65; // 65% des traductions sont complètes
-      default: return 0;
-    }
+  // Double-click handler to toggle debugger (dev feature)
+  const handleDoubleClick = () => {
+    toggleDebugger();
   };
-
-  const currentLanguage = availableLanguages.find(l => l.code === language) || availableLanguages[1]; // Défaut à English
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center gap-1 text-xs font-medium"
-          disabled={isChanging}
-          aria-label={t('Change language')}
-        >
-          <Globe className="h-3.5 w-3.5 mr-1" />
-          <span className="language-indicator">
-            <span className="mr-1">{currentLanguage.flag}</span>
-            {currentLanguage.name}
-          </span>
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {availableLanguages.map(lang => (
+    <div className={`flex items-center ${className}`}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild onDoubleClick={handleDoubleClick}>
+          <Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
+            <Globe className="h-4 w-4" />
+            <span className="sm:inline hidden">{t('language')}</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">
+              {language.toUpperCase()}
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuItem 
-            key={lang.code}
-            onClick={() => changeLanguage(lang.code)}
-            className={language === lang.code ? 'bg-muted font-medium' : ''}
-            disabled={!lang.enabled}
+            onClick={() => handleLanguageChange('fr')}
+            className={language === 'fr' ? 'bg-slate-100 dark:bg-slate-800' : ''}
           >
-            <div className="flex items-center justify-between w-full">
-              <div>
-                <span className="mr-2">{lang.flag}</span> {lang.name}
-              </div>
-              {language !== lang.code && getTranslationCompleteness(lang.code) < 100 && (
-                <span className="text-xs text-muted-foreground ml-2">
-                  {getTranslationCompleteness(lang.code)}%
-                </span>
-              )}
-            </div>
+            <span className="mr-2">🇫🇷</span> Français
           </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem 
+            onClick={() => handleLanguageChange('en')}
+            className={language === 'en' ? 'bg-slate-100 dark:bg-slate-800' : ''}
+          >
+            <span className="mr-2">🇬🇧</span> English
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleLanguageChange('es')}
+            className={language === 'es' ? 'bg-slate-100 dark:bg-slate-800' : ''}
+          >
+            <span className="mr-2">🇪🇸</span> Español
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

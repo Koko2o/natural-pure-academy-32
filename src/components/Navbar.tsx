@@ -1,167 +1,123 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "./LanguageSwitcher";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Button } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useIsMobile();
-  const location = useLocation();
+interface NavItemProps {
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ to, children, className = '', onClick }) => (
+  <Link
+    to={to}
+    className={`px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition ${className}`}
+    onClick={onClick}
+  >
+    {children}
+  </Link>
+);
+
+const Navbar: React.FC = () => {
+  const { t } = useLanguage();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const closeMenu = () => {
-    setIsOpen(false);
+    setIsMenuOpen(false);
   };
 
-  const { language, t } = useLanguage();
-
-  // Force component to re-render when language changes
-  const [, forceUpdate] = useState({});
-  const [currentLang, setCurrentLang] = useState(language);
-
+  // Change navbar appearance on scroll
   useEffect(() => {
-    // Mettre à jour la langue locale quand le contexte change
-    setCurrentLang(language);
-
-    const handleLanguageChange = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      console.log(`[Navbar] Detected language change to: ${customEvent.detail}, updating component`);
-      setCurrentLang(customEvent.detail);
-      forceUpdate({});
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
     };
-
-    const handleAppLangChange = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      console.log(`[Navbar] Detected app-language-changed event:`, customEvent.detail);
-      if (customEvent.detail && customEvent.detail.language) {
-        setCurrentLang(customEvent.detail.language);
-        forceUpdate({});
-      }
-    };
-
-    // Écouter les deux types d'événements de changement de langue
-    window.addEventListener('languageChange', handleLanguageChange);
-    document.addEventListener('app-language-changed', handleAppLangChange);
-
-    // Log pour le débogage
-    console.log(`[Navbar] Current language set to: ${language}`);
-
-    return () => {
-      window.removeEventListener('languageChange', handleLanguageChange);
-      document.removeEventListener('app-language-changed', handleAppLangChange);
-    };
-  }, [language]); // Utiliser la variable correcte "language"
-
-  // Use translation function directly for navigation items
-  const labels = {
-    home: t('nav.home'),
-    articles: t('nav.articles'),
-    quiz: t('nav.quiz'),
-    profile: t('nav.profile'),
-    research: t('nav.research'),
-    nutrition: t('nav.nutrition'),
-    impact: t('nav.impact'),
-    about: t('nav.about'),
-    contact: t('nav.contact')
-  };
-
-  // Simplified navigation with only essential links
-  const links = [
-    { name: labels.home, path: "/" },
-    { name: labels.articles, path: "/articles" },
-    { name: labels.quiz, path: "/quiz" },
-    { name: labels.profile, path: "/profil-sante" },
-    { name: labels.research, path: "/nos-recherches" },
-    { name: labels.nutrition, path: "/nutrition" },
-    { name: labels.impact, path: "/impact" },
-    { name: labels.about, path: "/about" },
-    { name: labels.contact, path: "/contact" }
-  ];
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const renderLinks = () => {
-    return links.map((link) => (
-      <Link
-        key={link.path}
-        to={link.path}
-        className={`relative px-3 py-2 transition-colors hover:text-primary ${
-          isActive(link.path)
-            ? "text-primary font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary"
-            : "text-gray-700"
-        }`}
-        onClick={closeMenu}
-      >
-        {link.name}
-      </Link>
-    ));
-  };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="border-b border-natural-200 bg-white sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-natural-700 to-natural-500">
-            NaturalPure
-          </Link>
-          <LanguageSwitcher />
-        </div>
+    <header
+      className={`sticky top-0 z-40 w-full transition-all duration-200 ${
+        isScrolled
+          ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm'
+          : 'bg-white dark:bg-gray-900'
+      }`}
+    >
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-2">
+          <img
+            src="/favicon.ico"
+            alt="Natural Pure Academy"
+            className="w-8 h-8"
+          />
+          <span className="font-bold text-xl hidden sm:inline">
+            Natural Pure Academy
+          </span>
+        </Link>
 
-        {isMobile ? (
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-natural-600 hover:text-natural-800 hover:bg-natural-50">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="4" x2="20" y1="12" y2="12" />
-                  <line x1="4" x2="20" y1="6" y2="6" />
-                  <line x1="4" x2="20" y1="18" y2="18" />
-                </svg>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <div className="flex flex-col gap-4 mt-8">
-                {links.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={`px-4 py-2 rounded-md transition-colors ${
-                      isActive(link.path)
-                        ? "bg-natural-50 text-primary font-medium border-l-2 border-primary"
-                        : "text-gray-700 hover:bg-natural-50 hover:text-primary"
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <div className="flex gap-2 p-1 bg-natural-50/50 rounded-full border border-natural-100">
-            {renderLinks()}
-          </div>
-        )}
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center space-x-1">
+          <NavItem to="/">{t('home')}</NavItem>
+          <NavItem to="/articles">{t('articles')}</NavItem>
+          <NavItem to="/labo-solutions">{t('labo_solutions')}</NavItem>
+          <NavItem to="/quiz">{t('quiz')}</NavItem>
+          <NavItem to="/profile-sante">{t('profile_sante')}</NavItem>
+          <NavItem to="/about">{t('about')}</NavItem>
+          <NavItem to="/contact">{t('contact')}</NavItem>
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center space-x-2">
+          <LanguageSwitcher />
+
+          <Button variant="outline" size="sm" className="hidden sm:flex">
+            {t('sign_in')}
+          </Button>
+
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+            aria-label={t('toggle_menu')}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
-    </nav>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
+          <nav className="container mx-auto px-4 py-3 flex flex-col space-y-2">
+            <NavItem to="/" onClick={closeMenu}>{t('home')}</NavItem>
+            <NavItem to="/articles" onClick={closeMenu}>{t('articles')}</NavItem>
+            <NavItem to="/labo-solutions" onClick={closeMenu}>{t('labo_solutions')}</NavItem>
+            <NavItem to="/quiz" onClick={closeMenu}>{t('quiz')}</NavItem>
+            <NavItem to="/profile-sante" onClick={closeMenu}>{t('profile_sante')}</NavItem>
+            <NavItem to="/about" onClick={closeMenu}>{t('about')}</NavItem>
+            <NavItem to="/contact" onClick={closeMenu}>{t('contact')}</NavItem>
+
+            <div className="pt-2 border-t mt-2">
+              <Button className="w-full" variant="default" size="sm">
+                {t('sign_in')}
+              </Button>
+            </div>
+          </nav>
+        </div>
+      )}
+    </header>
   );
 };
 

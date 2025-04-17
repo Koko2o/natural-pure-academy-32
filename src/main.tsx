@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
-import router from './routes.tsx';
 import './index.css';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import App from './App';
 
 
 // Fonction pour détecter les changements de langue et assurer la cohérence
@@ -120,10 +120,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <TooltipProvider>
         <LanguageProvider>
-          <RouterProvider router={router} />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
         </LanguageProvider>
       </TooltipProvider>
     </HelmetProvider>
     {/*import.meta.env.DEV && <TranslationDebugger />*/}
   </React.StrictMode>,
-)
+);

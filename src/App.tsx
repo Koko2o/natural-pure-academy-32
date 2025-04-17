@@ -1,57 +1,62 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom'; 
-import { Toaster } from '@/components/ui/toaster';
-import './App.css';
 
-import Navbar from '@/components/Navbar'; 
-import Footer from '@/components/Footer';
-import TranslationDebugger from './components/TranslationDebugger';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { LanguageProvider } from "@/contexts/LanguageContext"; 
-import MetricTracker from "./components/MetricTracker";
-import ConversionTracker from "./components/ConversionTracker";
-import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
-import ComplianceAlert from '@/components/ComplianceAlert';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import React, { Suspense, lazy } from 'react';
+import { TranslationDebugger } from '@/components/TranslationDebugger';
+import { Helmet } from 'react-helmet-async';
 
+// Lazy-loaded route components
+const Home = lazy(() => import('@/pages/Index'));
+const About = lazy(() => import('@/pages/About'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const Articles = lazy(() => import('@/pages/Articles'));
+const Article = lazy(() => import('@/pages/Article'));
+const Quiz = lazy(() => import('@/pages/Quiz'));
+const LaboSolutions = lazy(() => import('@/pages/LaboSolutions'));
+const ProfileSante = lazy(() => import('@/pages/ProfileSante'));
+const BibliothequeScientifique = lazy(() => import('@/pages/BibliothequeScientifique'));
+const NosRecherches = lazy(() => import('@/pages/NosRecherches'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
-const queryClient = new QueryClient();
-
-const App: React.FC = () => {
-  // Mode débogage pour les traductions - à désactiver en production
-  const isTranslationDebugEnabled = localStorage.getItem('debugTranslation') === 'true';
-  const { language, t } = useLanguage();
+function App() {
+  const { t, showDebugger } = useLanguage();
 
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <LanguageProvider>
-          <TooltipProvider>
-            <div className="app flex min-h-screen flex-col bg-background">
-              <Helmet>
-                <html lang={language} />
-                <meta name="description" content={t('meta.description')} />
-                <meta name="language" content={language} />
-              </Helmet>
-              <Navbar />
-              <main className="flex-1">
-                <Outlet />
-              </main>
-              <Footer />
-              <Toaster />
-              <MetricTracker />
-              <ConversionTracker />
-              <ArticleEngagementTracker />
-              <ComplianceAlert />
-              {process.env.NODE_ENV !== 'production' && isTranslationDebugEnabled && <TranslationDebugger />} 
-            </div>
-          </TooltipProvider>
-        </LanguageProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <>
+      <Helmet>
+        <html lang={t('language_code')} />
+        <title>{t('app_title')}</title>
+        <meta name="description" content={t('app_description')} />
+      </Helmet>
+      
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow">
+          <Suspense fallback={<div className="p-12 text-center">Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/articles" element={<Articles />} />
+              <Route path="/article/:id" element={<Article />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/labo-solutions" element={<LaboSolutions />} />
+              <Route path="/profile-sante" element={<ProfileSante />} />
+              <Route path="/bibliotheque-scientifique" element={<BibliothequeScientifique />} />
+              <Route path="/nos-recherches" element={<NosRecherches />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </main>
+        <Footer />
+        
+        {/* Translation Debugger (only shown when enabled) */}
+        {showDebugger && <TranslationDebugger />}
+      </div>
+    </>
   );
-};
+}
 
 export default App;

@@ -293,7 +293,13 @@ body.lang-es [data-lang="es"] {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* Language switcher custom properties */
+    --lang-switch-bg: 210 40% 98%;
+    --lang-switch-active: 210 40% 90%;
+    --lang-switch-hover: 210 40% 96%;
+    --lang-switch-text: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -335,8 +341,14 @@ body.lang-es [data-lang="es"] {
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    /* Language switcher dark mode properties */
+    --lang-switch-bg: 222.2 84% 4.9%;
+    --lang-switch-active: 217.2 32.6% 17.5%;
+    --lang-switch-hover: 217.2 32.6% 12%;
+    --lang-switch-text: 210 40% 98%;
 
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -729,4 +741,60 @@ body.lang-es [data-lang="es"] {
 
 .prose li {
   margin-bottom: 0.5rem;
+}
+
+/* Language switcher styles */
+.language-switcher {
+  border-radius: 0.375rem;
+  overflow: hidden;
+  display: inline-flex;
+  background-color: hsl(var(--lang-switch-bg));
+  border: 1px solid hsl(var(--border));
+}
+
+.language-switcher button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--lang-switch-text));
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.language-switcher button:hover {
+  background-color: hsl(var(--lang-switch-hover));
+}
+
+.language-switcher button.active {
+  background-color: hsl(var(--lang-switch-active));
+  font-weight: 500;
+}
+
+/* Missing translation highlight */
+.missing-translation {
+  position: relative;
+  border-bottom: 2px dotted red;
+}
+
+.translation-debugger-badge {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.translation-debugger-badge:hover {
+  background: linear-gradient(45deg, #2563eb, #7c3aed);
 }
