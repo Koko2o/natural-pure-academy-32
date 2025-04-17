@@ -106,7 +106,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
 
   const getDetailedExplanation = (recommendation: Recommendation) => {
     try {
-      return QuizIntegrationService.generateDetailedExplanation(recommendation, this.props.quizData);
+      return QuizIntegrationService.generateDetailedExplanation(recommendation, quizData);
     } catch (error) {
       console.error("Error generating detailed explanation:", error);
       return "Détails non disponibles pour cette recommandation.";

@@ -151,11 +151,15 @@ const App = () => {
   // Run automatic compliance check when the app loads
   useEffect(() => {
     const runCheck = setTimeout(() => {
-      autoCheckCompliance();
+      try {
+        autoCheckCompliance();
+      } catch (error) {
+        console.error("Error running compliance check:", error);
+      }
     }, 2000); // Wait for 2 seconds
 
     return () => clearTimeout(runCheck);
-  }, []);
+  }, []); []);
 
   return (
     <QueryClientProvider client={queryClient}>

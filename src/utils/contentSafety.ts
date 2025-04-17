@@ -49,7 +49,6 @@ export const detectBannedTermsWithContext = (content: string): string[] => {
     const regex = new RegExp(`\\b${term.toLowerCase()}\\b`, 'i');
     return regex.test(lowercaseContent);
   });
-});
 };
 
 // NLP-based detection to consider context (simplified)
