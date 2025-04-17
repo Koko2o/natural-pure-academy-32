@@ -86,12 +86,6 @@ const getElementPath = (element: HTMLElement) => {
   return path.join(' > ');
 };
 
-const LanguageContext = React.createContext<{
-  language: 'en' | 'fr';
-  setLanguage: (lang: 'en' | 'fr') => void;
-  t: (key: string) => string;
-} | null>(null);
-
 const App = () => {
   const [activeAIModel, setActiveAIModel] = useState("optimized");
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
@@ -165,16 +159,14 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
-          <LanguageContext.Provider value={languageValue}>
-            <div className="min-h-screen bg-background" lang={language}>
-              <Toaster position="top-right" />
-              <Outlet />
-              <MetricTracker />
-              <ConversionTracker />
-              <ArticleEngagementTracker />
-              <ComplianceAlert /> {/* Added ComplianceAlert component */}
-            </div>
-          </LanguageContext.Provider>
+          <div className="min-h-screen bg-background" lang={language}>
+            <Toaster position="top-right" />
+            <Outlet />
+            <MetricTracker />
+            <ConversionTracker />
+            <ArticleEngagementTracker />
+            <ComplianceAlert /> {/* Added ComplianceAlert component */}
+          </div>
         </TooltipProvider>
       </LanguageProvider>
     </QueryClientProvider>

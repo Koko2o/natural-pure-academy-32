@@ -1,19 +1,25 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+// Définition des types
 interface Translations {
   [key: string]: string;
 }
 
 interface LanguageContextType {
-  language: string;
-  setLanguage: (lang: string) => void;
+  language: 'en' | 'fr';
+  setLanguage: (lang: 'en' | 'fr') => void;
   t: (key: string) => string;
 }
 
-// Create the context
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Création du contexte avec des valeurs par défaut
+export const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
 
-// Translation data
+// Données de traduction
 const translations: Record<string, Translations> = {
   en: {
     'welcome': 'Welcome to NaturalPure',
@@ -77,7 +83,7 @@ const translations: Record<string, Translations> = {
   },
 };
 
-// Hook for using language context
+// Hook pour utiliser le contexte de langue
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
 
@@ -88,42 +94,31 @@ export const useLanguage = () => {
   return context;
 };
 
-// Hook for using translations
+// Hook pour utiliser les traductions (alias de useLanguage pour compatibilité)
 export const useTranslation = () => useContext(LanguageContext);
 
-// Make useLanguage the default export for backward compatibility
-export default useLanguage;
-
-// Context provider component
+// Composant Provider
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
-  // Translation function
+  // Fonction de traduction
   const t = (key: string): string => {
     const langTranslations = translations[language] || translations.en;
-    return langTranslations[key as keyof typeof langTranslations] || key;
+    return langTranslations[key] || key;
+  };
+
+  const value: LanguageContextType = {
+    language,
+    setLanguage,
+    t
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-// Define available languages
-export type Language = 'fr' | 'en';
-
-// Define context type
-type LanguageContextType = {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-};
-
-// Create context with default values
-export const LanguageContext = createContext<LanguageContextType>({
-  language: 'fr',
-  setLanguage: () => {},
-  t: (key: string) => key,
-});
+// Make useLanguage the default export for backward compatibility
+export default useLanguage;
