@@ -22,15 +22,15 @@ const Navbar = () => {
   const { t } = useLanguage();
 
   const links = [
-    { name: t('nav.home'), path: "/" },
-    { name: t('nav.articles'), path: "/articles" },
-    { name: t('nav.quiz'), path: "/quiz" },
-    { name: t('nav.profile'), path: "/profil-sante" },
-    { name: t('nav.research'), path: "/nos-recherches" },
-    { name: t('nav.lab'), path: "/labo-solutions" },
-    { name: t('nav.nutrition'), path: "/nutrition" },
-    { name: t('nav.about'), path: "/about" },
-    { name: t('nav.contact'), path: "/contact" }
+    { name: t('home'), path: "/" },
+    { name: t('articles'), path: "/articles" },
+    { name: t('quiz'), path: "/quiz" },
+    { name: t('profile'), path: "/profil-sante" },
+    { name: t('research'), path: "/nos-recherches" },
+    { name: t('lab'), path: "/labo-solutions" },
+    { name: t('nutrition'), path: "/nutrition" },
+    { name: t('about'), path: "/about" },
+    { name: t('contact'), path: "/contact" }
   ];
 
   const isActive = (path: string) => {
