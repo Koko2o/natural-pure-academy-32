@@ -20,6 +20,20 @@ export const detectBannedTerms = (content: string): string[] => {
   );
 };
 
+// Check if a URL is compliant with Google Ad Grant policies
+export const isUrlCompliant = (url: string): boolean => {
+  // Check if URL contains banned terms
+  const lowercaseUrl = url.toLowerCase();
+  const hasBannedTerms = bannedTerms.some(term => 
+    lowercaseUrl.includes(term.toLowerCase())
+  );
+  
+  // Check for commercial patterns in URL
+  const hasCommercialPattern = /buy|purchase|shop|cart|pricing/i.test(lowercaseUrl);
+  
+  return !hasBannedTerms && !hasCommercialPattern;
+};
+
 // Detect warning terms that may cause issues
 export const detectWarningTerms = (content: string): string[] => {
   const lowercaseContent = content.toLowerCase();
@@ -35,6 +49,7 @@ export const detectBannedTermsWithContext = (content: string): string[] => {
     const regex = new RegExp(`\\b${term.toLowerCase()}\\b`, 'i');
     return regex.test(lowercaseContent);
   });
+});
 };
 
 // NLP-based detection to consider context (simplified)

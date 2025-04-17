@@ -6,7 +6,7 @@
  * and ensuring proper conversion tracking.
  */
 
-import { auditPageContent, detectBannedTerms, isUrlCompliant } from './contentSafety';
+import { auditPageContent, detectBannedTerms } from './contentSafety';
 
 // Banned keywords for Google Ad Grants according to policy
 const BANNED_SINGLE_KEYWORDS = [
