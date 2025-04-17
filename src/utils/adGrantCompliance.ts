@@ -216,7 +216,17 @@ export const checkAdGrantCompliance = (performanceData: any) => {
       });
     }
 
-    // Check for conversion tracking
+    // Fonction utilisée pour la vérification de conformité des URLs
+export const isUrlCompliant = (url: string): boolean => {
+  const bannedPatterns = [
+    /gambling/i, /casino/i, /porn/i, /adult/i, /alcohol/i, /tobacco/i,
+    /drugs/i, /weapons/i, /firearms/i
+  ];
+  
+  return !bannedPatterns.some(pattern => pattern.test(url));
+};
+
+// Check for conversion tracking
     const conversionTrackingData = JSON.parse(localStorage.getItem('ad_grant_conversion_tracking') || '{}');
     if (!conversionTrackingData.isConfigured) {
       issues.push({

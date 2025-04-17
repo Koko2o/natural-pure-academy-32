@@ -95,6 +95,8 @@ const getElementPath = (element: HTMLElement) => {
   return path.join(' > ');
 };
 
+import React from 'react';
+
 const LanguageContext = React.createContext<{
   language: 'en' | 'fr';
   setLanguage: (lang: 'en' | 'fr') => void;

@@ -104,11 +104,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
     }
   }, [quizData]);
 
-  import { Progress } from "@/components/ui/progress";
-
   const getDetailedExplanation = (recommendation: Recommendation) => {
     try {
-      return QuizIntegrationService.generateDetailedExplanation(recommendation, props.quizData);
+      return QuizIntegrationService.generateDetailedExplanation(recommendation, quizData);
     } catch (error) {
       console.error("Error generating detailed explanation:", error);
       return "Détails non disponibles pour cette recommandation.";
