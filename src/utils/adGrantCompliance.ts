@@ -216,8 +216,8 @@ export const checkAdGrantCompliance = (performanceData: any) => {
       });
     }
 
-    // Fonction utilisée pour la vérification de conformité des URLs
-export const isUrlCompliant = (url: string): boolean => {
+    // Fonction locale utilisée pour la vérification de conformité des URLs
+const urlCompliantCheck = (url: string): boolean => {
   const bannedPatterns = [
     /gambling/i, /casino/i, /porn/i, /adult/i, /alcohol/i, /tobacco/i,
     /drugs/i, /weapons/i, /firearms/i
