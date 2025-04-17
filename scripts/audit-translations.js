@@ -1,261 +1,271 @@
+
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
+const chalk = require('chalk');
 
 // Configuration
-const CONFIG = {
-  componentsDir: 'src/components',
-  pagesDir: 'src/pages',
-  outputFile: 'translation-audit.json',
-  skipPatterns: ['node_modules', 'dist', '.git', 'ui/'],
-  languageContextPath: 'src/contexts/LanguageContext.tsx'
+const SOURCE_DIR = 'src';
+const OUTPUT_FILE = 'translation-audit-report.md';
+const FILE_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js'];
+const MIN_TEXT_LENGTH = 3;
+const IGNORE_PATTERNS = [
+  /import .* from/,
+  /export .* from/,
+  /^\s*\/\//,
+  /^\s*\/\*/,
+  /^\s*\*/,
+  /^\s*\*\//,
+  /console\.(log|error|warn|info)/,
+  /className=/,
+  /^\s*[{[].*[}\]]$/,
+  /^\s*[a-zA-Z0-9_]+:\s*[a-zA-Z0-9_]+$/,
+  /^\s*[a-zA-Z0-9_]+$/,
+  /^\s*const\s+/,
+  /^\s*let\s+/,
+  /^\s*var\s+/,
+  /^\s*function\s+/,
+  /^\s*type\s+/,
+  /^\s*interface\s+/,
+  /^\s*import\s+/,
+  /^\s*export\s+/,
+  /^\s*return\s+/,
+  /^\s*case\s+/,
+  /^[0-9.]+$/,
+  /^\s*[<>=/!&|^%*+\-]+\s*$/,
+  /\$\{.*\}/,
+  /^#[0-9a-fA-F]{3,8}$/,
+  /^[a-z0-9-]+:[a-z0-9-]+$/,
+  /`/
+];
+
+// Résultats de l'audit
+const results = {
+  totalFiles: 0,
+  filesWithHardcodedText: 0,
+  hardcodedTextCount: 0,
+  hardcodedTextByFile: {}
 };
 
-// Fonction pour scanner un fichier à la recherche de textes codés en dur
-const scanFile = (filePath) => {
-  const result = {
-    file: filePath,
-    hardcodedTexts: []
-  };
+// Fonction pour déterminer si une chaîne de caractères est probablement un texte à traduire
+function isProbablyTranslatableText(text) {
+  if (!text || typeof text !== 'string') return false;
+  
+  // Nettoyage de base
+  const trimmedText = text.trim();
+  
+  // Ignorer les textes trop courts
+  if (trimmedText.length < MIN_TEXT_LENGTH) return false;
+  
+  // Ignorer les motifs spécifiques
+  for (const pattern of IGNORE_PATTERNS) {
+    if (pattern.test(trimmedText)) return false;
+  }
+  
+  // Vérifier si le texte contient au moins une lettre non ASCII (pour les caractères accentués)
+  const hasNonASCIILetters = /[^\x00-\x7F][a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]/ui.test(trimmedText);
+  
+  // Vérifier si le texte contient des mots (au moins un mot de 3 lettres ou plus)
+  const hasWords = /\b[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{3,}\b/i.test(trimmedText);
+  
+  // Vérifier s'il s'agit probablement d'une phrase (commence par une majuscule ou contient un espace)
+  const isProbablySentence = /^[A-ZÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑÇŠŽ]/.test(trimmedText) || trimmedText.includes(' ');
+  
+  // Le texte est considéré comme traduisible s'il contient des mots ou ressemble à une phrase
+  return hasWords && (isProbablySentence || hasNonASCIILetters);
+}
 
+// Fonction pour extraire les chaînes de caractères codées en dur d'un fichier
+function extractHardcodedStrings(filePath) {
+  const hardcodedStrings = [];
+  
   try {
-    const code = fs.readFileSync(filePath, 'utf8');
-    const ast = parse(code, {
+    // Lire le contenu du fichier
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    
+    // Vérifier si le fichier utilise déjà useLanguage ou t()
+    const hasTranslationImport = fileContent.includes('useLanguage') || 
+                                 fileContent.includes('import { t }') ||
+                                 fileContent.includes('const { t }');
+    
+    // Analyser le fichier avec Babel
+    const ast = parse(fileContent, {
       sourceType: 'module',
-      plugins: ['jsx', 'typescript', 'decorators-legacy']
+      plugins: ['jsx', 'typescript'],
+      errorRecovery: true
     });
-
-    // Vérifier si useLanguage est importé
-    let hasUseLanguageImport = false;
-    let hasTDestructuring = false;
-
-    traverse(ast, {
-      ImportDeclaration(path) {
-        if (path.node.source.value.includes('LanguageContext') && 
-            path.node.specifiers.some(s => s.imported && s.imported.name === 'useLanguage')) {
-          hasUseLanguageImport = true;
-        }
-      },
-      VariableDeclarator(path) {
-        if (path.node.init && 
-            path.node.init.type === 'CallExpression' && 
-            path.node.init.callee.name === 'useLanguage' &&
-            path.node.id.type === 'ObjectPattern') {
-          if (path.node.id.properties.some(p => p.key.name === 't')) {
-            hasTDestructuring = true;
-          }
-        }
-      }
-    });
-
-    // Si le composant n'utilise pas les traductions, c'est suspect
-    if (!hasUseLanguageImport || !hasTDestructuring) {
-      result.hardcodedTexts.push("[ALERTE] Ce composant n'utilise pas le système de traduction!");
-    }
-
-    // Rechercher les strings literales et textes JSX
+    
+    // Parcourir l'AST pour trouver les chaînes de caractères
     traverse(ast, {
       StringLiteral(path) {
-        // Ignorer les strings dans les importations, attributs className, etc.
-        if (path.parent.type === 'ImportDeclaration' || 
-            path.parent.type === 'ExportNamedDeclaration' ||
-            (path.parent.type === 'JSXAttribute' && 
-             ['className', 'style', 'id', 'src', 'href', 'alt'].includes(path.parent.name.name))) {
-          return;
-        }
-
-        const value = path.node.value.trim();
-        // Ignorer les petits strings ou les identifiants
-        if (value.length > 3 && !/^[a-z0-9_]+$/.test(value)) {
-          // Ignorer si c'est déjà un argument de t()
-          if (path.parent.type === 'CallExpression' && 
-              path.parent.callee.type === 'Identifier' && 
-              path.parent.callee.name === 't') {
+        const value = path.node.value;
+        if (isProbablyTranslatableText(value)) {
+          // Vérifier si la chaîne est déjà à l'intérieur d'un appel t()
+          const parentPath = path.parentPath;
+          if (parentPath && 
+              parentPath.node.type === 'CallExpression' && 
+              parentPath.node.callee && 
+              parentPath.node.callee.name === 't') {
             return;
           }
-
-          result.hardcodedTexts.push(value);
+          
+          // Ajouter la chaîne à la liste
+          const location = path.node.loc;
+          hardcodedStrings.push({
+            text: value,
+            line: location ? location.start.line : 'Unknown',
+            column: location ? location.start.column : 'Unknown'
+          });
         }
       },
       JSXText(path) {
-        const value = path.node.value.trim();
-        if (value.length > 3) {
-          result.hardcodedTexts.push(value);
+        const value = path.node.value;
+        if (isProbablyTranslatableText(value)) {
+          const location = path.node.loc;
+          hardcodedStrings.push({
+            text: value.trim(),
+            line: location ? location.start.line : 'Unknown',
+            column: location ? location.start.column : 'Unknown'
+          });
+        }
+      },
+      TemplateLiteral(path) {
+        // Gérer les template literals qui pourraient contenir du texte à traduire
+        const quasis = path.node.quasis;
+        for (const quasi of quasis) {
+          const value = quasi.value.cooked;
+          if (isProbablyTranslatableText(value)) {
+            // Vérifier que ce n'est pas déjà dans un t()
+            const parentPath = path.parentPath;
+            if (parentPath && 
+                parentPath.node.type === 'CallExpression' && 
+                parentPath.node.callee && 
+                parentPath.node.callee.name === 't') {
+              continue;
+            }
+            
+            const location = quasi.loc;
+            hardcodedStrings.push({
+              text: value,
+              line: location ? location.start.line : 'Unknown',
+              column: location ? location.start.column : 'Unknown'
+            });
+          }
         }
       }
     });
+    
+    return { hardcodedStrings, hasTranslationImport };
   } catch (error) {
-    console.error(`Erreur lors de l'analyse de ${filePath}:`, error.message);
-    result.error = error.message;
+    console.error(chalk.red(`Erreur lors de l'analyse de ${filePath}:`), error);
+    return { hardcodedStrings: [], hasTranslationImport: false };
   }
+}
 
-  return result;
-};
-
-// Fonction pour scanner un répertoire re
-const scanDirectory = (dir) => {
-  const results = [];
-
-  if (!fs.existsSync(dir)) {
-    console.warn(`Le répertoire ${dir} n'existe pas!`);
-    return results;
-  }
-
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-
+// Fonction pour parcourir récursivement les dossiers
+function traverseDirectory(dirPath) {
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
-    // Ignorer les répertoires exclus
-    if (CONFIG.skipPatterns.some(pattern => fullPath.includes(pattern))) {
-      continue;
-    }
-
+    const fullPath = path.join(dirPath, entry.name);
+    
     if (entry.isDirectory()) {
-      results.push(...scanDirectory(fullPath));
-    } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.jsx'))) {
-      const fileResult = scanFile(fullPath);
-      if (fileResult.hardcodedTexts.length > 0) {
-        results.push(fileResult);
+      // Ignorer node_modules et autres dossiers spécifiques
+      if (entry.name !== 'node_modules' && entry.name !== '.git' && !entry.name.startsWith('.')) {
+        traverseDirectory(fullPath);
+      }
+    } else if (entry.isFile() && FILE_EXTENSIONS.includes(path.extname(entry.name))) {
+      results.totalFiles++;
+      
+      // Extraire les chaînes codées en dur
+      const { hardcodedStrings, hasTranslationImport } = extractHardcodedStrings(fullPath);
+      
+      if (hardcodedStrings.length > 0) {
+        results.filesWithHardcodedText++;
+        results.hardcodedTextCount += hardcodedStrings.length;
+        
+        const relativePath = path.relative(process.cwd(), fullPath);
+        results.hardcodedTextByFile[relativePath] = {
+          strings: hardcodedStrings,
+          hasTranslationImport
+        };
       }
     }
   }
+}
 
-  return results;
-};
+// Fonction pour générer des suggestions de clés de traduction
+function generateTranslationKey(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, '_')
+    .substring(0, 30);
+}
 
-// Extraction des traductions existantes
-const extractExistingTranslations = () => {
-  const contextFile = path.resolve(CONFIG.languageContextPath);
-  if (!fs.existsSync(contextFile)) {
-    console.error(`Fichier de contexte de langue introuvable: ${contextFile}`);
-    return {};
-  }
-
-  const content = fs.readFileSync(contextFile, 'utf-8');
-  const translations = {};
-
-  // Recherche les définitions de traductions dans le fichier
-  const englishMatch = content.match(/english:\s*{([^}]*)}/s);
-  const frenchMatch = content.match(/french:\s*{([^}]*)}/s);
-  const spanishMatch = content.match(/spanish:\s*{([^}]*)}/s);
-
-  if (englishMatch && englishMatch[1]) {
-    const entries = englishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
-    entries.forEach(entry => {
-      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
-      if (key) {
-        translations[key] = { en: value };
-      }
-    });
-  }
-
-  if (frenchMatch && frenchMatch[1]) {
-    const entries = frenchMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
-    entries.forEach(entry => {
-      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
-      if (key) {
-        if (!translations[key]) translations[key] = {};
-        translations[key].fr = value;
-      }
-    });
-  }
-
-  if (spanishMatch && spanishMatch[1]) {
-    const entries = spanishMatch[1].match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/g) || [];
-    entries.forEach(entry => {
-      const [, key, value] = entry.match(/([a-zA-Z0-9_]+):\s*["']([^"']*)["']/) || [];
-      if (key) {
-        if (!translations[key]) translations[key] = {};
-        translations[key].es = value;
-      }
-    });
-  }
-
-  return translations;
-};
-
-// Vérifier les traductions incomplètes
-const findIncompleteTranslations = () => {
-  const translations = extractExistingTranslations();
-  const incomplete = {
-    missingFrench: [],
-    missingSpanish: [],
-    untranslatedFrench: [], // Où le français est juste une copie de l'anglais
-    untranslatedSpanish: [] // Où l'espagnol est juste une copie de l'anglais
-  };
-
-  Object.entries(translations).forEach(([key, langs]) => {
-    if (!langs.fr) {
-      incomplete.missingFrench.push(key);
-    } else if (langs.fr.includes('à traduire en français') || langs.fr === langs.en) {
-      incomplete.untranslatedFrench.push(key);
+// Fonction pour générer le rapport d'audit
+function generateReport() {
+  let report = `# Rapport d'audit de traduction\n\n`;
+  report += `Date: ${new Date().toLocaleString()}\n\n`;
+  
+  report += `## Résumé\n\n`;
+  report += `- Fichiers analysés: ${results.totalFiles}\n`;
+  report += `- Fichiers avec texte codé en dur: ${results.filesWithHardcodedText}\n`;
+  report += `- Textes codés en dur trouvés: ${results.hardcodedTextCount}\n\n`;
+  
+  report += `## Détails par fichier\n\n`;
+  
+  // Trier les fichiers par nombre de chaînes codées en dur (ordre décroissant)
+  const sortedFiles = Object.entries(results.hardcodedTextByFile)
+    .sort(([, a], [, b]) => b.strings.length - a.strings.length);
+  
+  for (const [filePath, fileInfo] of sortedFiles) {
+    const { strings, hasTranslationImport } = fileInfo;
+    
+    report += `### ${filePath}\n\n`;
+    
+    if (!hasTranslationImport) {
+      report += `⚠️ **Ce fichier n'utilise pas encore le hook de traduction**\n\n`;
+      report += `Ajoutez l'import suivant:\n\n`;
+      report += "```jsx\nimport { useLanguage } from '../contexts/LanguageContext';\n```\n\n";
+      report += "Et déclarez le hook:\n\n";
+      report += "```jsx\nconst { t } = useLanguage();\n```\n\n";
     }
-
-    if (!langs.es) {
-      incomplete.missingSpanish.push(key);
-    } else if (langs.es.includes('traducir al español') || langs.es === langs.en) {
-      incomplete.untranslatedSpanish.push(key);
+    
+    report += `| Ligne:Col | Texte | Suggestion de remplacement |\n`;
+    report += `| --------- | ----- | -------------------------- |\n`;
+    
+    for (const { text, line, column } of strings) {
+      const key = generateTranslationKey(text);
+      report += `| ${line}:${column} | ${text.replace(/\n/g, ' ').substring(0, 50)}${text.length > 50 ? '...' : ''} | \`t('${key}', '${text.replace(/'/g, "\\'")}')\` |\n`;
     }
-  });
-
-  return incomplete;
-};
-
-// Fonction principale d'audit
-const runAudit = () => {
-  console.log('🔍 Démarrage de l\'audit de traduction...');
-
-  // Vérifier les traductions existantes
-  const translations = extractExistingTranslations();
-  console.log(`📊 ${Object.keys(translations).length} clés de traduction trouvées dans le contexte`);
-
-  // Vérifier les traductions incomplètes
-  const incomplete = findIncompleteTranslations();
-
-  console.log(`⚠️ ${incomplete.missingFrench.length} traductions manquantes en français`);
-  console.log(`⚠️ ${incomplete.missingSpanish.length} traductions manquantes en espagnol`);
-  console.log(`⚠️ ${incomplete.untranslatedFrench.length} traductions non traduites en français`);
-  console.log(`⚠️ ${incomplete.untranslatedSpanish.length} traductions non traduites en espagnol`);
-
-  // Scanner les composants et pages
-  console.log('🔍 Analyse des composants...');
-  const componentsResults = scanDirectory(CONFIG.componentsDir);
-
-  console.log('🔍 Analyse des pages...');
-  const pagesResults = scanDirectory(CONFIG.pagesDir);
-
-  const allResults = [...componentsResults, ...pagesResults];
-
-  // Compter le nombre total de textes codés en dur
-  const totalHardcodedTexts = allResults.reduce((sum, file) => sum + file.hardcodedTexts.length, 0);
-  console.log(`⚠️ ${totalHardcodedTexts} textes codés en dur trouvés dans ${allResults.length} fichiers`);
-
-  // Sauvegarder les résultats
-  const auditResults = {
-    translations: {
-      total: Object.keys(translations).length,
-      incomplete
-    },
-    hardcodedTexts: allResults
-  };
-
-  fs.writeFileSync(CONFIG.outputFile, JSON.stringify(auditResults, null, 2));
-
-  console.log(`✅ Audit terminé - résultats sauvegardés dans ${CONFIG.outputFile}`);
-
-  // Afficher les 5 premiers fichiers problématiques
-  if (allResults.length > 0) {
-    console.log('\n🔴 Top 5 fichiers avec des textes codés en dur:');
-    allResults
-      .sort((a, b) => b.hardcodedTexts.length - a.hardcodedTexts.length)
-      .slice(0, 5)
-      .forEach(file => {
-        console.log(`${file.file}: ${file.hardcodedTexts.length} textes`);
-      });
+    
+    report += `\n`;
   }
-};
+  
+  report += `## Recommandations\n\n`;
+  report += `1. Utilisez la fonction \`t()\` pour tous les textes visibles par l'utilisateur\n`;
+  report += `2. Ajoutez le hook \`useLanguage\` dans les composants qui n'en disposent pas encore\n`;
+  report += `3. Considérez l'utilisation du script \`replace-hardcoded-text.js\` pour automatiser les remplacements\n`;
+  
+  return report;
+}
 
-// Exécuter l'audit
-runAudit();
+// Exécution de l'audit
+console.log(chalk.blue('Démarrage de l\'audit de traduction...'));
+traverseDirectory(path.join(process.cwd(), SOURCE_DIR));
+
+// Génération et enregistrement du rapport
+const report = generateReport();
+fs.writeFileSync(OUTPUT_FILE, report, 'utf8');
+
+// Affichage du résumé
+console.log(chalk.green('\nAudit terminé !'));
+console.log(`Fichiers analysés: ${chalk.bold(results.totalFiles)}`);
+console.log(`Fichiers avec texte codé en dur: ${chalk.bold(results.filesWithHardcodedText)}`);
+console.log(`Textes codés en dur trouvés: ${chalk.bold(results.hardcodedTextCount)}`);
+console.log(`\nLe rapport complet a été enregistré dans ${chalk.bold(OUTPUT_FILE)}`);

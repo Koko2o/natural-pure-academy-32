@@ -59,6 +59,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "npm run dev -- --port 3000 --host 0.0.0.0"
 
+[[workflows.workflow]]
+name = "Run Translation Audit"
+author = 40962122
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node scripts/audit-translations.js"
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
