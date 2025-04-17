@@ -20,7 +20,7 @@ export const detectBannedTerms = (content: string): string[] => {
 };
 
 // Check if a URL is compliant with Google Ad Grant policies
-export const isUrlCompliant = (url: string): boolean => {
+export const isUrlCompliantGoogleAdGrant = (url: string): boolean => {
   // Check if URL contains banned terms
   const lowercaseUrl = url.toLowerCase();
   const hasBannedTerms = bannedTerms.some(term => 
@@ -31,6 +31,16 @@ export const isUrlCompliant = (url: string): boolean => {
   const hasCommercialPattern = /buy|purchase|shop|cart|pricing/i.test(lowercaseUrl);
 
   return !hasBannedTerms && !hasCommercialPattern;
+};
+
+// Check if a URL is compliant with content safety guidelines
+export const isUrlCompliantContentSafety = (url: string): boolean => {
+  const bannedPatterns = [
+    /gambling/i, /casino/i, /porn/i, /adult/i, /alcohol/i, /tobacco/i,
+    /drugs/i, /weapons/i, /firearms/i
+  ];
+
+  return !bannedPatterns.some(pattern => pattern.test(url));
 };
 
 // Detect warning terms that may cause issues
