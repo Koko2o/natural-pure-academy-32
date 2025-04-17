@@ -6,16 +6,7 @@
  * and ensuring proper conversion tracking.
  */
 
-import { auditPageContent, detectBannedTerms } from './contentSafety';
-
-// Helper function to check URL compliance directly 
-const isUrlCompliant = (url: string): boolean => {
-  // Basic URL compliance check
-  const lowercaseUrl = url.toLowerCase();
-  // Check for commercial patterns in URL
-  const hasCommercialPattern = /buy|purchase|shop|cart|pricing/i.test(lowercaseUrl);
-  return !hasCommercialPattern;
-};
+import { auditPageContent, detectBannedTerms, isUrlCompliant } from './contentSafety';
 
 // Banned keywords for Google Ad Grants according to policy
 const BANNED_SINGLE_KEYWORDS = [

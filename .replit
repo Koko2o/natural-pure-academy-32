@@ -13,7 +13,7 @@ from = "/*"
 to = "/index.html"
 
 [workflows]
-runButton = "Start App"
+runButton = "Run App"
 
 [[workflows.workflow]]
 name = "Run"
@@ -85,6 +85,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev -- --port 5005 --host 0.0.0.0"
+
+[[workflows.workflow]]
+name = "Run App"
+author = 40962122
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev -- --port 5008 --host 0.0.0.0"
 
 [[ports]]
 localPort = 3000

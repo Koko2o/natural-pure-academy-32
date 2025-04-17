@@ -20,7 +20,7 @@ export const detectBannedTerms = (content: string): string[] => {
 };
 
 // Check if a URL is compliant with Google Ad Grant policies
-export const isUrlCompliantGoogleAdGrant = (url: string): boolean => {
+export const isUrlCompliant = (url: string): boolean => {
   // Check if URL contains banned terms
   const lowercaseUrl = url.toLowerCase();
   const hasBannedTerms = bannedTerms.some(term => 
