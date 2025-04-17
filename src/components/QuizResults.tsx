@@ -104,6 +104,8 @@ const QuizResults: React.FC<QuizResultsProps> = ({ quizData, restartQuiz }) => {
     }
   }, [quizData]);
 
+  import { Progress } from "@/components/ui/progress";
+
   const getDetailedExplanation = (recommendation: Recommendation) => {
     try {
       return QuizIntegrationService.generateDetailedExplanation(recommendation, props.quizData);

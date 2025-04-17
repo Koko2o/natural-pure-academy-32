@@ -25,7 +25,16 @@ import { bannedTerms, detectBannedTerms, auditPageContent } from "./utils/conten
 import { LanguageProvider } from "./components/LanguageProvider"; 
 import ArticleEngagementTracker from "./components/ArticleEngagementTracker"; 
 import ComplianceAlert from '@/components/ComplianceAlert'; // Imported ComplianceAlert
-import { autoCheckCompliance } from '@/utils/adGrantCompliance'; // Imported autoCheckCompliance
+import { autoCheckCompliance } from '@/utils/adGrantCompliance';
+
+// Run compliance check on app load
+useEffect(() => {
+  try {
+    autoCheckCompliance();
+  } catch (error) {
+    console.error("Error running compliance check:", error);
+  }
+}, []);
 
 
 const queryClient = new QueryClient({
