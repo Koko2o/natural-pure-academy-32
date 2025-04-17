@@ -35,8 +35,8 @@ const Navbar = () => {
     { name: t('nav.contact'), path: "/contact" },
     { name: t('nav.sitemap'), path: "/sitemap" }, 
     { name: t('nav.scientificMethodology'), path: "/scientific-methodology" }, 
-    { name: t('nav.adGrantAudit'), path: "/compliance-audit" }, // Added Ad Grant Audit link
-    { name: t('nav.compliance'), path: "/compliance"} // Added Compliance link
+    { name: t('nav.adGrantAudit'), path: "/compliance-audit" },
+    { name: t('nav.compliance'), path: "/compliance" }
   ];
 
   const isActive = (path: string) => {

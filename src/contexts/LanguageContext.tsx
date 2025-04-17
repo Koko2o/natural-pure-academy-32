@@ -1,21 +1,81 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Define available languages
-export type Language = 'fr' | 'en';
+interface Translations {
+  [key: string]: string;
+}
 
-// Define context type
-type LanguageContextType = {
-  language: Language;
-  setLanguage: (lang: Language) => void;
+interface LanguageContextType {
+  language: string;
+  setLanguage: (lang: string) => void;
   t: (key: string) => string;
-};
+}
 
-// Create context with default values
-export const LanguageContext = createContext<LanguageContextType>({
-  language: 'fr',
-  setLanguage: () => {},
-  t: (key: string) => key,
-});
+// Create the context
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+// Translation data
+const translations: Record<string, Translations> = {
+  en: {
+    'welcome': 'Welcome to NaturalPure',
+    'quiz.start': 'Start the Nutritional Assessment',
+    'quiz.question1': 'What is your main health goal?',
+    'quiz.option.energy': 'Improve Energy Levels',
+    'quiz.option.sleep': 'Better Sleep Quality',
+    'quiz.option.immunity': 'Strengthen Immunity',
+    'quiz.option.digestion': 'Improve Digestion',
+    'quiz.option.stress': 'Reduce Stress',
+    'quiz.option.focus': 'Enhance Mental Focus',
+    'next': 'Next',
+    'previous': 'Previous',
+    'submit': 'Submit',
+    'nav.home': 'Home',
+    'nav.articles': 'Articles',
+    'nav.quiz': 'Quiz',
+    'nav.profile': 'Health Profile',
+    'nav.research': 'Our Research',
+    'nav.lab': 'Lab Solutions',
+    'nav.nutrition': 'Nutrition',
+    'nav.library': 'Scientific Library',
+    'nav.impact': 'Impact',
+    'nav.about': 'About',
+    'nav.contact': 'Contact',
+    'nav.sitemap': 'Sitemap',
+    'nav.scientificMethodology': 'Scientific Methodology',
+    'nav.adGrantAudit': 'Ad Grant Audit',
+    'nav.compliance': 'Compliance',
+    // Add more English translations
+  },
+  fr: {
+    'welcome': 'Bienvenue à NaturalPure',
+    'quiz.start': 'Commencer l\'Évaluation Nutritionnelle',
+    'quiz.question1': 'Quel est votre principal objectif de santé ?',
+    'quiz.option.energy': 'Améliorer les Niveaux d\'Énergie',
+    'quiz.option.sleep': 'Meilleure Qualité de Sommeil',
+    'quiz.option.immunity': 'Renforcer l\'Immunité',
+    'quiz.option.digestion': 'Améliorer la Digestion',
+    'quiz.option.stress': 'Réduire le Stress',
+    'quiz.option.focus': 'Améliorer la Concentration Mentale',
+    'next': 'Suivant',
+    'previous': 'Précédent',
+    'submit': 'Soumettre',
+    'nav.home': 'Accueil',
+    'nav.articles': 'Articles',
+    'nav.quiz': 'Quiz',
+    'nav.profile': 'Profil Santé',
+    'nav.research': 'Nos Recherches',
+    'nav.lab': 'Labo Solutions',
+    'nav.nutrition': 'Nutrition',
+    'nav.library': 'Bibliothèque Scientifique',
+    'nav.impact': 'Impact',
+    'nav.about': 'À Propos',
+    'nav.contact': 'Contact',
+    'nav.sitemap': 'Plan du Site',
+    'nav.scientificMethodology': 'Méthodologie Scientifique',
+    'nav.adGrantAudit': 'Audit Ad Grant',
+    'nav.compliance': 'Conformité',
+    // Add more French translations
+  },
+};
 
 // Hook for using language context
 export const useLanguage = () => {
@@ -51,90 +111,19 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 };
 
-// Define translations for both languages
-const translations = {
-  en: {
-    'Home': 'Home',
-    'About Us': 'About Us',
-    'Contact': 'Contact',
-    'Our Impact': 'Our Impact',
-    'Articles': 'Articles',
-    'Scientific Publications': 'Scientific Publications',
-    'Main Pages': 'Main Pages',
-    'Site Navigation': 'Site Navigation',
-    'Site Map': 'Site Map',
-    'Research & Education': 'Research & Education',
-    'Health Resources': 'Health Resources',
-    'Scientific Team': 'Scientific Team',
-    'Mission & Impact': 'Mission & Impact',
-    'Legal & Compliance': 'Legal & Compliance',
-    'Our Research': 'Our Research',
-    'Scientific Methodology': 'Scientific Methodology',
-    'Lab Solutions': 'Lab Solutions',
-    'Nutrition': 'Nutrition',
-    'Health Profile': 'Health Profile',
-    'Interactive Quiz': 'Interactive Quiz',
-    'Team Members': 'Team Members',
-    'Research Partners': 'Research Partners',
-    'Scientific Advisory Board': 'Scientific Advisory Board',
-    'Our Mission': 'Our Mission',
-    'Impact Programs': 'Impact Programs',
-    'Success Stories': 'Success Stories',
-    'Support Our Research': 'Support Our Research',
-    'Non-Profit Status': 'Non-Profit Status',
-    'Privacy Policy': 'Privacy Policy',
-    'Terms of Use': 'Terms of Use',
-    'Accessibility': 'Accessibility',
-    'Support Our Mission': 'Support Our Mission',
-    'International Resources': 'International Resources',
-    'Looking for Specific Research?': 'Looking for Specific Research?',
-    'Explore our Scientific Library': 'Explore our Scientific Library',
-    'Learn how you can support our research': 'Learn how you can support our research',
-    'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.': 'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.',
-    'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.': 'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.',
-    'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.': 'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.',
-    'Our research and educational resources are available in multiple languages to support a global audience.': 'Our research and educational resources are available in multiple languages to support a global audience.',
-  },
-  fr: {
-    'Home': 'Accueil',
-    'About Us': 'À propos',
-    'Contact': 'Contact',
-    'Our Impact': 'Notre Impact',
-    'Articles': 'Articles',
-    'Scientific Publications': 'Publications Scientifiques',
-    'Main Pages': 'Pages Principales',
-    'Site Navigation': 'Navigation du Site',
-    'Site Map': 'Plan du Site',
-    'Research & Education': 'Recherche & Éducation',
-    'Health Resources': 'Ressources Santé',
-    'Scientific Team': 'Équipe Scientifique',
-    'Mission & Impact': 'Mission & Impact',
-    'Legal & Compliance': 'Légal & Conformité',
-    'Our Research': 'Nos Recherches',
-    'Scientific Methodology': 'Méthodologie Scientifique',
-    'Lab Solutions': 'Solutions Labo',
-    'Nutrition': 'Nutrition',
-    'Health Profile': 'Profil Santé',
-    'Interactive Quiz': 'Quiz Interactif',
-    'Team Members': 'Membres de l\'Équipe',
-    'Research Partners': 'Partenaires de Recherche',
-    'Scientific Advisory Board': 'Comité Scientifique',
-    'Our Mission': 'Notre Mission',
-    'Impact Programs': 'Programmes d\'Impact',
-    'Success Stories': 'Témoignages de Réussite',
-    'Support Our Research': 'Soutenir Notre Recherche',
-    'Non-Profit Status': 'Statut d\'Association',
-    'Privacy Policy': 'Politique de Confidentialité',
-    'Terms of Use': 'Conditions d\'Utilisation',
-    'Accessibility': 'Accessibilité',
-    'Support Our Mission': 'Soutenez Notre Mission',
-    'International Resources': 'Ressources Internationales',
-    'Looking for Specific Research?': 'Vous cherchez une recherche spécifique ?',
-    'Explore our Scientific Library': 'Explorez notre Bibliothèque Scientifique',
-    'Learn how you can support our research': 'Découvrez comment soutenir notre recherche',
-    'A comprehensive overview of our website structure to help you navigate our research and resources efficiently.': 'Une vue d\'ensemble de la structure de notre site pour vous aider à naviguer efficacement dans nos recherches et ressources.',
-    'Our Scientific Library contains all our published research organized by topic, date, and relevance to help you find exactly what you need.': 'Notre Bibliothèque Scientifique contient toutes nos recherches publiées, organisées par sujet, date et pertinence pour vous aider à trouver exactement ce dont vous avez besoin.',
-    'As a non-profit organization, we rely on partnerships and community support to continue our research and educational programs.': 'En tant qu\'organisation à but non lucratif, nous comptons sur les partenariats et le soutien communautaire pour poursuivre nos programmes de recherche et d\'éducation.',
-    'Our research and educational resources are available in multiple languages to support a global audience.': 'Nos recherches et ressources éducatives sont disponibles en plusieurs langues pour soutenir un public mondial.',
-  }
+// Define available languages
+export type Language = 'fr' | 'en';
+
+// Define context type
+type LanguageContextType = {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
 };
+
+// Create context with default values
+export const LanguageContext = createContext<LanguageContextType>({
+  language: 'fr',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
