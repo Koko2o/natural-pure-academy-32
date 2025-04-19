@@ -23,8 +23,8 @@ const ProfileSante = () => {
   const handleLogin = () => {
     setIsLoggedIn(true);
     toast({
-      title: "Connexion réussie",
-      description: "Bienvenue sur votre profil santé personnalisé",
+      title: "Login successful",
+      description: "Welcome to your personalized health profile",
     });
   };
 
@@ -39,30 +39,30 @@ const ProfileSante = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <ProfileStatCard 
-            title="Score de santé"
+            title="Health score"
             value="78"
             icon={<HeartPulse className="h-5 w-5 text-rose-500" />}
             trend="up"
             bgClass="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200"
-            onClick={() => toast({ title: "Votre score de santé", description: "Calculé à partir de vos habitudes et symptômes" })}
+            onClick={() => toast({ title: "Your health score", description: "Calculated from your habits and symptoms" })}
           />
           
           <ProfileStatCard 
-            title="Défis complétés"
+            title="Challenges completed"
             value="12"
             icon={<Trophy className="h-5 w-5 text-amber-500" />}
             trend="up"
             bgClass="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200"
-            onClick={() => toast({ title: "Vos défis complétés", description: "Continuez pour obtenir plus de médailles!" })}
+            onClick={() => toast({ title: "Your completed challenges", description: "Continue to earn more medals!" })}
           />
           
           <ProfileStatCard 
-            title="Jours consécutifs"
+            title="Consecutive days"
             value="8"
             icon={<Calendar className="h-5 w-5 text-teal-500" />}
             trend="stable"
             bgClass="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200"
-            onClick={() => toast({ title: "Votre série actuelle", description: "Continuez pour maintenir votre série!" })}
+            onClick={() => toast({ title: "Your current streak", description: "Keep going to maintain your streak!" })}
           />
         </div>
         
@@ -72,19 +72,19 @@ const ProfileSante = () => {
           <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 h-auto bg-white p-1 rounded-lg shadow-sm mb-2">
             <TabsTrigger value="history" className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500/10 data-[state=active]:to-cyan-500/10">
               <BookOpen className="h-4 w-4" />
-              <span>Historique</span>
+              <span>History</span>
             </TabsTrigger>
             <TabsTrigger value="challenges" className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/10 data-[state=active]:to-orange-500/10">
               <Trophy className="h-4 w-4" />
-              <span>Défis</span>
+              <span>Challenges</span>
             </TabsTrigger>
             <TabsTrigger value="recommendations" className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500/10 data-[state=active]:to-blue-500/10">
               <Sparkles className="h-4 w-4" />
-              <span>Recommandations</span>
+              <span>Recommendations</span>
             </TabsTrigger>
             <TabsTrigger value="health-sync" className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500/10 data-[state=active]:to-pink-500/10">
               <Activity className="h-4 w-4" />
-              <span>Santé connectée</span>
+              <span>Connected Health</span>
             </TabsTrigger>
           </TabsList>
           
@@ -93,7 +93,7 @@ const ProfileSante = () => {
               <div className="bg-gradient-to-r from-teal-500/20 to-cyan-500/20 p-4">
                 <h3 className="text-lg font-medium flex items-center gap-2">
                   <Zap className="h-5 w-5 text-teal-600" />
-                  Résumé de votre activité récente
+                  Summary of your recent activity
                 </h3>
               </div>
               <CardContent className="p-4">
@@ -103,10 +103,10 @@ const ProfileSante = () => {
                       <div className="p-2 bg-teal-100 rounded-full">
                         <BookOpen className="h-5 w-5 text-teal-600" />
                       </div>
-                      <Badge variant="teal">Cette semaine</Badge>
+                      <Badge variant="teal">This week</Badge>
                     </div>
                     <h4 className="text-2xl font-bold mt-3">7</h4>
-                    <p className="text-sm text-muted-foreground">Articles lus</p>
+                    <p className="text-sm text-muted-foreground">Articles read</p>
                   </div>
                   
                   <div className="bg-gradient-to-br from-white to-sky-50 p-4 rounded-lg border border-sky-100 shadow-sm">
@@ -114,10 +114,10 @@ const ProfileSante = () => {
                       <div className="p-2 bg-sky-100 rounded-full">
                         <Target className="h-5 w-5 text-sky-600" />
                       </div>
-                      <Badge variant="sky">Cette semaine</Badge>
+                      <Badge variant="sky">This week</Badge>
                     </div>
                     <h4 className="text-2xl font-bold mt-3">3</h4>
-                    <p className="text-sm text-muted-foreground">Objectifs atteints</p>
+                    <p className="text-sm text-muted-foreground">Goals reached</p>
                   </div>
                   
                   <div className="bg-gradient-to-br from-white to-amber-50 p-4 rounded-lg border border-amber-100 shadow-sm">
@@ -128,7 +128,7 @@ const ProfileSante = () => {
                       <Badge variant="amber">Total</Badge>
                     </div>
                     <h4 className="text-2xl font-bold mt-3">145</h4>
-                    <p className="text-sm text-muted-foreground">Points gagnés</p>
+                    <p className="text-sm text-muted-foreground">Points earned</p>
                   </div>
                 </div>
               </CardContent>
@@ -146,7 +146,7 @@ const ProfileSante = () => {
               <div className="bg-gradient-to-r from-sky-500/20 to-blue-500/20 p-4">
                 <h3 className="text-lg font-medium flex items-center gap-2">
                   <Shield className="h-5 w-5 text-sky-600" />
-                  Conseils personnalisés
+                  Personalized advice
                 </h3>
               </div>
               <CardContent className="p-4">
@@ -156,15 +156,15 @@ const ProfileSante = () => {
                       <Heart className="h-5 w-5 text-rose-500" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-base">Suivi de votre tension artérielle</h4>
+                      <h4 className="font-medium text-base">Blood pressure monitoring</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        D'après vos dernières mesures, nous vous recommandons de surveiller votre tension artérielle quotidiennement.
+                        Based on your latest measurements, we recommend monitoring your blood pressure daily.
                       </p>
                       <Button variant="soft" size="sm" className="mt-3" onClick={() => toast({ 
-                        title: "Conseil enregistré",
-                        description: "Un rappel a été ajouté à votre calendrier"
+                        title: "Advice saved",
+                        description: "A reminder has been added to your calendar"
                       })}>
-                        Ajouter un rappel <Bell className="h-3 w-3" />
+                        Add a reminder <Bell className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
@@ -176,15 +176,15 @@ const ProfileSante = () => {
                       <Dumbbell className="h-5 w-5 text-teal-500" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-base">Programme d'activité physique adapté</h4>
+                      <h4 className="font-medium text-base">Adapted physical activity program</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Un programme de 4 semaines adapté à votre profil a été créé pour améliorer votre endurance.
+                        A 4-week program adapted to your profile has been created to improve your endurance.
                       </p>
                       <Button variant="soft" size="sm" className="mt-3" onClick={() => toast({ 
-                        title: "Programme activé",
-                        description: "Vous pouvez maintenant accéder à votre programme personnalisé"
+                        title: "Program activated",
+                        description: "You can now access your personalized program"
                       })}>
-                        Voir le programme <ChevronRight className="h-3 w-3" />
+                        View program <ChevronRight className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>

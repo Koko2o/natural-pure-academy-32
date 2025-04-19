@@ -1,10 +1,10 @@
 
 /**
- * Catalogue des compléments alimentaires naturels
- * Ce fichier contient les données sur les compléments, leurs propriétés et bénéfices
+ * Catalog of natural dietary supplements
+ * This file contains data on supplements, their properties and benefits
  */
 
-// Interface pour définir la structure d'un complément alimentaire
+// Interface to define the structure of a dietary supplement
 export interface SupplementInfo {
   name: string;
   description: string;
@@ -23,49 +23,49 @@ export interface SupplementInfo {
   relatedTerms: string[];
 }
 
-// Catalogue des compléments alimentaires
+// Catalog of dietary supplements
 const SUPPLEMENT_CATALOG: Record<string, SupplementInfo> = {
   "magnesium_glycinate": {
-    name: "Magnésium marin",
-    description: "Contribue à réduire la fatigue et soutenir le système nerveux et musculaire",
-    category: "Minéraux",
+    name: "Marine Magnesium",
+    description: "Helps reduce fatigue and supports the nervous and muscular systems",
+    category: "Minerals",
     benefits: [
-      "Contribue à réduire la fatigue",
-      "Soutient le fonctionnement normal du système nerveux",
-      "Aide à maintenir des fonctions musculaires normales",
-      "Contribue à l'équilibre électrolytique"
+      "Helps reduce fatigue",
+      "Supports normal functioning of the nervous system",
+      "Helps maintain normal muscle functions",
+      "Contributes to electrolyte balance"
     ],
-    scientificBasis: "Des études cliniques montrent que le magnésium joue un rôle crucial dans plus de 300 réactions enzymatiques dans le corps",
-    recommendedDosage: "300-400 mg par jour",
-    timeToEffect: "2-3 semaines",
-    naturalSources: ["Fruits à coque", "Légumes verts", "Céréales complètes", "Chocolat noir"],
+    scientificBasis: "Clinical studies show that magnesium plays a crucial role in more than 300 enzymatic reactions in the body",
+    recommendedDosage: "300-400 mg per day",
+    timeToEffect: "2-3 weeks",
+    naturalSources: ["Nuts", "Green vegetables", "Whole grains", "Dark chocolate"],
     efficacyScore: 90,
-    cautions: "Peut avoir un effet laxatif à forte dose",
-    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien", "Végan"],
-    targetSymptoms: ["Fatigue", "Stress", "Anxiété", "Troubles du sommeil", "Douleurs articulaires"],
-    targetGoals: ["Plus d'énergie", "Réduire mon stress", "Meilleur sommeil"],
+    cautions: "May have a laxative effect at high doses",
+    compatibleDiets: ["Omnivore", "Flexitarian", "Pescatarian", "Vegetarian", "Vegan"],
+    targetSymptoms: ["Fatigue", "Stress", "Anxiety", "Sleep disorders", "Joint pain"],
+    targetGoals: ["More energy", "Reduce my stress", "Better sleep"],
     categories: ["minerals", "sleep", "stress", "energy"],
     relatedTerms: ["magnesium", "electrolytes", "muscle function"]
   },
   
   "vitamin_b_complex": {
-    name: "Complexe Vitamine B",
-    description: "Soutient le métabolisme énergétique et contribue à réduire la fatigue",
-    category: "Vitamines",
+    name: "Vitamin B Complex",
+    description: "Supports energy metabolism and helps reduce fatigue",
+    category: "Vitamins",
     benefits: [
-      "Contribue au métabolisme énergétique normal",
-      "Aide à réduire la fatigue",
-      "Soutient le fonctionnement normal du système nerveux",
-      "Contribue à des fonctions psychologiques normales"
+      "Contributes to normal energy metabolism",
+      "Helps reduce fatigue",
+      "Supports normal functioning of the nervous system",
+      "Contributes to normal psychological functions"
     ],
-    scientificBasis: "Les vitamines B sont essentielles pour la conversion des nutriments en énergie au niveau cellulaire",
-    recommendedDosage: "Selon les besoins individuels, généralement 1 comprimé par jour",
-    timeToEffect: "2-4 semaines",
-    naturalSources: ["Céréales complètes", "Légumineuses", "Levure nutritionnelle", "Viandes", "Œufs"],
+    scientificBasis: "B vitamins are essential for converting nutrients into energy at the cellular level",
+    recommendedDosage: "According to individual needs, generally 1 tablet per day",
+    timeToEffect: "2-4 weeks",
+    naturalSources: ["Whole grains", "Legumes", "Nutritional yeast", "Meat", "Eggs"],
     efficacyScore: 85,
-    compatibleDiets: ["Omnivore", "Flexitarien", "Pescetarien", "Végétarien"],
-    targetSymptoms: ["Fatigue", "Manque de concentration", "Stress", "Anxiété"],
-    targetGoals: ["Plus d'énergie", "Améliorer ma concentration", "Réduire mon stress"],
+    compatibleDiets: ["Omnivore", "Flexitarian", "Pescatarian", "Vegetarian"],
+    targetSymptoms: ["Fatigue", "Lack of concentration", "Stress", "Anxiety"],
+    targetGoals: ["More energy", "Improve my concentration", "Reduce my stress"],
     categories: ["vitamins", "energy", "cognitive"],
     relatedTerms: ["metabolism", "b vitamins", "energy"]
   },
